@@ -1331,8 +1331,10 @@ type InferenceProcessConfig struct {
 	FederationId   string `protobuf:"bytes,16,opt,name=federation_id,json=federationId,proto3" json:"federation_id,omitempty"`
 	// Pinned human issuer; required together with human_trust_file/federation_id.
 	HumanTrustIssuer string `protobuf:"bytes,17,opt,name=human_trust_issuer,json=humanTrustIssuer,proto3" json:"human_trust_issuer,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Allowed effective models after alias resolution; empty preserves passthrough.
+	AllowedModels []string `protobuf:"bytes,18,rep,name=allowed_models,json=allowedModels,proto3" json:"allowed_models,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *InferenceProcessConfig) Reset() {
@@ -1482,6 +1484,13 @@ func (x *InferenceProcessConfig) GetHumanTrustIssuer() string {
 		return x.HumanTrustIssuer
 	}
 	return ""
+}
+
+func (x *InferenceProcessConfig) GetAllowedModels() []string {
+	if x != nil {
+		return x.AllowedModels
+	}
+	return nil
 }
 
 type ConnectivityProcessConfig struct {
@@ -4766,7 +4775,7 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	" \x01(\tR\bregionId\x12+\n" +
 	"\x06scopes\x18\v \x03(\v2\x13.n0x.files.v1.ScopeR\x06scopes\x12!\n" +
 	"\ftrust_domain\x18\f \x01(\tR\vtrustDomain\x126\n" +
-	"\x17federated_trust_domains\x18\r \x03(\tR\x15federatedTrustDomains\"\x84\x06\n" +
+	"\x17federated_trust_domains\x18\r \x03(\tR\x15federatedTrustDomains\"\xab\x06\n" +
 	"\x16InferenceProcessConfig\x12\x16\n" +
 	"\x06socket\x18\x01 \x01(\tR\x06socket\x12\x1b\n" +
 	"\tspiffe_id\x18\x02 \x01(\tR\bspiffeId\x12\x16\n" +
@@ -4785,7 +4794,8 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\x12assertion_peer_ids\x18\x0e \x03(\tR\x10assertionPeerIds\x12(\n" +
 	"\x10human_trust_file\x18\x0f \x01(\tR\x0ehumanTrustFile\x12#\n" +
 	"\rfederation_id\x18\x10 \x01(\tR\ffederationId\x12,\n" +
-	"\x12human_trust_issuer\x18\x11 \x01(\tR\x10humanTrustIssuer\x1a8\n" +
+	"\x12human_trust_issuer\x18\x11 \x01(\tR\x10humanTrustIssuer\x12%\n" +
+	"\x0eallowed_models\x18\x12 \x03(\tR\rallowedModels\x1a8\n" +
 	"\bUpstream\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\aenabled\x18\x02 \x01(\bR\aenabled\"\x8c\a\n" +
