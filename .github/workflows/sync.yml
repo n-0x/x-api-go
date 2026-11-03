@@ -1,0 +1,91 @@
+name: Sync generated client
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'x-api release tag (vX.Y.Z); empty selects the latest release'
+        required: false
+        type: string
+  schedule:
+    - cron: '*/15 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Resolve source release
+        id: release
+        shell: bash
+        env:
+          REQUESTED_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          tag=$REQUESTED_TAG
+          if [ -z "$tag" ]; then
+            tag=$(git -c http.https://github.com/.extraheader= -c credential.helper= \
+              ls-remote --tags --refs https://github.com/n-0x/x-api.git 'v*' | \
+              awk '{ sub("refs/tags/", "", $2); if ($2 ~ /^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/) print $2 }' | \
+              sort -V | tail -1)
+          fi
+          if [ -z "$tag" ]; then
+            echo 'No x-api release tags yet'
+            exit 0
+          fi
+          if [[ ! "$tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo 'Expected an x-api release tag in vX.Y.Z format' >&2
+            exit 1
+          fi
+          if git show-ref --verify --quiet "refs/tags/$tag"; then
+            echo "Already generated $tag"
+            exit 0
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-go@v5
+        if: steps.release.outputs.tag != ''
+        with:
+          go-version: '1.26'
+          cache: false
+      - uses: actions/setup-node@v4
+        if: steps.release.outputs.tag != ''
+        with:
+          node-version: '22'
+      - name: Generate and verify
+        if: steps.release.outputs.tag != ''
+        shell: bash
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          source="$RUNNER_TEMP/x-api"
+          # The proto repository is public: clone without checkout credentials.
+          GIT_TERMINAL_PROMPT=0 git -c http.https://github.com/.extraheader= -c credential.helper= \
+            clone --depth 1 --branch "$TAG" https://github.com/n-0x/x-api.git "$source"
+          git ls-files -z '*.pb.go' '*.connect.go' | xargs -0 -r rm -f --
+          "$source/scripts/gen.sh" go "$PWD"
+          go mod tidy
+          go build ./...
+      - name: Commit and publish the matching tag
+        if: steps.release.outputs.tag != ''
+        shell: bash
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --all
+          git commit --allow-empty -m "chore: generate from n-0x/x-api $TAG"
+          git tag "$TAG"
+          git push --atomic origin HEAD:main "refs/tags/$TAG"
