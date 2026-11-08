@@ -16,6 +16,8 @@ const (
 	ForwardStatusServiceName = "n0x.connectivity.v1.ForwardStatusService"
 	// AdmissionServiceName is the fully-qualified name of the AdmissionService service.
 	AdmissionServiceName = "n0x.connectivity.v1.AdmissionService"
+	// ProxyControlServiceName is the fully-qualified name of the ProxyControlService service.
+	ProxyControlServiceName = "n0x.connectivity.v1.ProxyControlService"
 )
 
 // These constants are the procedure names of the RPCs defined in this package. They're exposed at
@@ -40,6 +42,24 @@ const (
 	AdmissionServiceCloseProcedure = "/n0x.connectivity.v1.AdmissionService/Close"
 	// AdmissionServiceJoinProcedure is the procedure name of the AdmissionService's Join RPC.
 	AdmissionServiceJoinProcedure = "/n0x.connectivity.v1.AdmissionService/Join"
+	// AdmissionServiceAdmitWorkloadOfferProcedure is the procedure name of the AdmissionService's
+	// AdmitWorkloadOffer RPC.
+	AdmissionServiceAdmitWorkloadOfferProcedure = "/n0x.connectivity.v1.AdmissionService/AdmitWorkloadOffer"
+	// AdmissionServiceClaimWorkloadOfferProcedure is the procedure name of the AdmissionService's
+	// ClaimWorkloadOffer RPC.
+	AdmissionServiceClaimWorkloadOfferProcedure = "/n0x.connectivity.v1.AdmissionService/ClaimWorkloadOffer"
+	// AdmissionServiceRenewWorkloadOfferProcedure is the procedure name of the AdmissionService's
+	// RenewWorkloadOffer RPC.
+	AdmissionServiceRenewWorkloadOfferProcedure = "/n0x.connectivity.v1.AdmissionService/RenewWorkloadOffer"
+	// AdmissionServiceRefillWorkloadOfferProcedure is the procedure name of the AdmissionService's
+	// RefillWorkloadOffer RPC.
+	AdmissionServiceRefillWorkloadOfferProcedure = "/n0x.connectivity.v1.AdmissionService/RefillWorkloadOffer"
+	// AdmissionServiceCloseWorkloadOfferProcedure is the procedure name of the AdmissionService's
+	// CloseWorkloadOffer RPC.
+	AdmissionServiceCloseWorkloadOfferProcedure = "/n0x.connectivity.v1.AdmissionService/CloseWorkloadOffer"
+	// ProxyControlServicePublishProxyTableProcedure is the procedure name of the ProxyControlService's
+	// PublishProxyTable RPC.
+	ProxyControlServicePublishProxyTableProcedure = "/n0x.connectivity.v1.ProxyControlService/PublishProxyTable"
 )
 
 var (
@@ -175,6 +195,41 @@ var (
 			Procedure:  AdmissionServiceJoinProcedure,
 		}
 	})
+	admissionServiceAdmitWorkloadOfferSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_connectivity_v1_connectivity_proto.Services().ByName("AdmissionService").Methods().ByName("AdmitWorkloadOffer"),
+			Procedure:  AdmissionServiceAdmitWorkloadOfferProcedure,
+		}
+	})
+	admissionServiceClaimWorkloadOfferSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_connectivity_v1_connectivity_proto.Services().ByName("AdmissionService").Methods().ByName("ClaimWorkloadOffer"),
+			Procedure:  AdmissionServiceClaimWorkloadOfferProcedure,
+		}
+	})
+	admissionServiceRenewWorkloadOfferSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_connectivity_v1_connectivity_proto.Services().ByName("AdmissionService").Methods().ByName("RenewWorkloadOffer"),
+			Procedure:  AdmissionServiceRenewWorkloadOfferProcedure,
+		}
+	})
+	admissionServiceRefillWorkloadOfferSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_connectivity_v1_connectivity_proto.Services().ByName("AdmissionService").Methods().ByName("RefillWorkloadOffer"),
+			Procedure:  AdmissionServiceRefillWorkloadOfferProcedure,
+		}
+	})
+	admissionServiceCloseWorkloadOfferSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_connectivity_v1_connectivity_proto.Services().ByName("AdmissionService").Methods().ByName("CloseWorkloadOffer"),
+			Procedure:  AdmissionServiceCloseWorkloadOfferProcedure,
+		}
+	})
 )
 
 // AdmissionServiceClient is a client for the n0x.connectivity.v1.AdmissionService service.
@@ -183,6 +238,13 @@ type AdmissionServiceClient interface {
 	Refill(context.Context, *v1.RefillRequest) (*v1.RefillResponse, error)
 	Close(context.Context, *v1.CloseRequest) (*v1.CloseResponse, error)
 	Join(context.Context, *v1.JoinRequest) (*v1.JoinResponse, error)
+	// Workload offers use separate tickets and leases; existing relay admission
+	// and Ticket payloads retain their original meaning.
+	AdmitWorkloadOffer(context.Context, *v1.AdmitWorkloadOfferRequest) (*v1.AdmitWorkloadOfferResponse, error)
+	ClaimWorkloadOffer(context.Context, *v1.ClaimWorkloadOfferRequest) (*v1.ClaimWorkloadOfferResponse, error)
+	RenewWorkloadOffer(context.Context, *v1.RenewWorkloadOfferRequest) (*v1.RenewWorkloadOfferResponse, error)
+	RefillWorkloadOffer(context.Context, *v1.RefillWorkloadOfferRequest) (*v1.RefillWorkloadOfferResponse, error)
+	CloseWorkloadOffer(context.Context, *v1.CloseWorkloadOfferRequest) (*v1.CloseWorkloadOfferResponse, error)
 }
 
 // NewAdmissionServiceClient constructs a client for the n0x.connectivity.v1.AdmissionService
@@ -197,6 +259,13 @@ type AdmissionServiceHandler interface {
 	Refill(context.Context, *v1.RefillRequest) (*v1.RefillResponse, error)
 	Close(context.Context, *v1.CloseRequest) (*v1.CloseResponse, error)
 	Join(context.Context, *v1.JoinRequest) (*v1.JoinResponse, error)
+	// Workload offers use separate tickets and leases; existing relay admission
+	// and Ticket payloads retain their original meaning.
+	AdmitWorkloadOffer(context.Context, *v1.AdmitWorkloadOfferRequest) (*v1.AdmitWorkloadOfferResponse, error)
+	ClaimWorkloadOffer(context.Context, *v1.ClaimWorkloadOfferRequest) (*v1.ClaimWorkloadOfferResponse, error)
+	RenewWorkloadOffer(context.Context, *v1.RenewWorkloadOfferRequest) (*v1.RenewWorkloadOfferResponse, error)
+	RefillWorkloadOffer(context.Context, *v1.RefillWorkloadOfferRequest) (*v1.RefillWorkloadOfferResponse, error)
+	CloseWorkloadOffer(context.Context, *v1.CloseWorkloadOfferRequest) (*v1.CloseWorkloadOfferResponse, error)
 }
 
 // RegisterAdmissionServiceHandler registers svc as the n0x.connectivity.v1.AdmissionService
@@ -208,6 +277,11 @@ func RegisterAdmissionServiceHandler(server *connect.Server, svc AdmissionServic
 		connect.Method{Spec: admissionServiceRefillSpec(), Handler: adapter.refill},
 		connect.Method{Spec: admissionServiceCloseSpec(), Handler: adapter.close},
 		connect.Method{Spec: admissionServiceJoinSpec(), Handler: adapter.join},
+		connect.Method{Spec: admissionServiceAdmitWorkloadOfferSpec(), Handler: adapter.admitWorkloadOffer},
+		connect.Method{Spec: admissionServiceClaimWorkloadOfferSpec(), Handler: adapter.claimWorkloadOffer},
+		connect.Method{Spec: admissionServiceRenewWorkloadOfferSpec(), Handler: adapter.renewWorkloadOffer},
+		connect.Method{Spec: admissionServiceRefillWorkloadOfferSpec(), Handler: adapter.refillWorkloadOffer},
+		connect.Method{Spec: admissionServiceCloseWorkloadOfferSpec(), Handler: adapter.closeWorkloadOffer},
 	)
 }
 
@@ -228,6 +302,26 @@ func (UnimplementedAdmissionServiceHandler) Close(context.Context, *v1.CloseRequ
 
 func (UnimplementedAdmissionServiceHandler) Join(context.Context, *v1.JoinRequest) (*v1.JoinResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.connectivity.v1.AdmissionService.Join is not implemented")
+}
+
+func (UnimplementedAdmissionServiceHandler) AdmitWorkloadOffer(context.Context, *v1.AdmitWorkloadOfferRequest) (*v1.AdmitWorkloadOfferResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.connectivity.v1.AdmissionService.AdmitWorkloadOffer is not implemented")
+}
+
+func (UnimplementedAdmissionServiceHandler) ClaimWorkloadOffer(context.Context, *v1.ClaimWorkloadOfferRequest) (*v1.ClaimWorkloadOfferResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.connectivity.v1.AdmissionService.ClaimWorkloadOffer is not implemented")
+}
+
+func (UnimplementedAdmissionServiceHandler) RenewWorkloadOffer(context.Context, *v1.RenewWorkloadOfferRequest) (*v1.RenewWorkloadOfferResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.connectivity.v1.AdmissionService.RenewWorkloadOffer is not implemented")
+}
+
+func (UnimplementedAdmissionServiceHandler) RefillWorkloadOffer(context.Context, *v1.RefillWorkloadOfferRequest) (*v1.RefillWorkloadOfferResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.connectivity.v1.AdmissionService.RefillWorkloadOffer is not implemented")
+}
+
+func (UnimplementedAdmissionServiceHandler) CloseWorkloadOffer(context.Context, *v1.CloseWorkloadOfferRequest) (*v1.CloseWorkloadOfferResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.connectivity.v1.AdmissionService.CloseWorkloadOffer is not implemented")
 }
 
 type admissionServiceClient struct {
@@ -261,6 +355,46 @@ func (c *admissionServiceClient) Close(ctx context.Context, req *v1.CloseRequest
 func (c *admissionServiceClient) Join(ctx context.Context, req *v1.JoinRequest) (*v1.JoinResponse, error) {
 	var res v1.JoinResponse
 	if err := c.client.CallUnary(ctx, admissionServiceJoinSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *admissionServiceClient) AdmitWorkloadOffer(ctx context.Context, req *v1.AdmitWorkloadOfferRequest) (*v1.AdmitWorkloadOfferResponse, error) {
+	var res v1.AdmitWorkloadOfferResponse
+	if err := c.client.CallUnary(ctx, admissionServiceAdmitWorkloadOfferSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *admissionServiceClient) ClaimWorkloadOffer(ctx context.Context, req *v1.ClaimWorkloadOfferRequest) (*v1.ClaimWorkloadOfferResponse, error) {
+	var res v1.ClaimWorkloadOfferResponse
+	if err := c.client.CallUnary(ctx, admissionServiceClaimWorkloadOfferSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *admissionServiceClient) RenewWorkloadOffer(ctx context.Context, req *v1.RenewWorkloadOfferRequest) (*v1.RenewWorkloadOfferResponse, error) {
+	var res v1.RenewWorkloadOfferResponse
+	if err := c.client.CallUnary(ctx, admissionServiceRenewWorkloadOfferSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *admissionServiceClient) RefillWorkloadOffer(ctx context.Context, req *v1.RefillWorkloadOfferRequest) (*v1.RefillWorkloadOfferResponse, error) {
+	var res v1.RefillWorkloadOfferResponse
+	if err := c.client.CallUnary(ctx, admissionServiceRefillWorkloadOfferSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *admissionServiceClient) CloseWorkloadOffer(ctx context.Context, req *v1.CloseWorkloadOfferRequest) (*v1.CloseWorkloadOfferResponse, error) {
+	var res v1.CloseWorkloadOfferResponse
+	if err := c.client.CallUnary(ctx, admissionServiceCloseWorkloadOfferSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -310,6 +444,135 @@ func (h admissionServiceHandler) join(ctx context.Context, _ connect.Spec, strea
 		return err
 	}
 	res, err := h.svc.Join(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h admissionServiceHandler) admitWorkloadOffer(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.AdmitWorkloadOfferRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.AdmitWorkloadOffer(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h admissionServiceHandler) claimWorkloadOffer(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ClaimWorkloadOfferRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ClaimWorkloadOffer(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h admissionServiceHandler) renewWorkloadOffer(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.RenewWorkloadOfferRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RenewWorkloadOffer(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h admissionServiceHandler) refillWorkloadOffer(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.RefillWorkloadOfferRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RefillWorkloadOffer(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h admissionServiceHandler) closeWorkloadOffer(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.CloseWorkloadOfferRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CloseWorkloadOffer(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+var (
+	proxyControlServicePublishProxyTableSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_connectivity_v1_connectivity_proto.Services().ByName("ProxyControlService").Methods().ByName("PublishProxyTable"),
+			Procedure:  ProxyControlServicePublishProxyTableProcedure,
+		}
+	})
+)
+
+// ProxyControlServiceClient is a client for the n0x.connectivity.v1.ProxyControlService service.
+type ProxyControlServiceClient interface {
+	PublishProxyTable(context.Context, *v1.PublishProxyTableRequest) (*v1.PublishProxyTableResponse, error)
+}
+
+// NewProxyControlServiceClient constructs a client for the n0x.connectivity.v1.ProxyControlService
+// service. Multiple service clients may share a single connect.Client.
+func NewProxyControlServiceClient(client *connect.Client) ProxyControlServiceClient {
+	return &proxyControlServiceClient{client: client}
+}
+
+// ProxyControlServiceHandler is an implementation of the n0x.connectivity.v1.ProxyControlService
+// service.
+type ProxyControlServiceHandler interface {
+	PublishProxyTable(context.Context, *v1.PublishProxyTableRequest) (*v1.PublishProxyTableResponse, error)
+}
+
+// RegisterProxyControlServiceHandler registers svc as the n0x.connectivity.v1.ProxyControlService
+// implementation on server.
+func RegisterProxyControlServiceHandler(server *connect.Server, svc ProxyControlServiceHandler) {
+	adapter := proxyControlServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: proxyControlServicePublishProxyTableSpec(), Handler: adapter.publishProxyTable},
+	)
+}
+
+// UnimplementedProxyControlServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedProxyControlServiceHandler struct{}
+
+func (UnimplementedProxyControlServiceHandler) PublishProxyTable(context.Context, *v1.PublishProxyTableRequest) (*v1.PublishProxyTableResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.connectivity.v1.ProxyControlService.PublishProxyTable is not implemented")
+}
+
+type proxyControlServiceClient struct {
+	client *connect.Client
+}
+
+func (c *proxyControlServiceClient) PublishProxyTable(ctx context.Context, req *v1.PublishProxyTableRequest) (*v1.PublishProxyTableResponse, error) {
+	var res v1.PublishProxyTableResponse
+	if err := c.client.CallUnary(ctx, proxyControlServicePublishProxyTableSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type proxyControlServiceHandler struct{ svc ProxyControlServiceHandler }
+
+func (h proxyControlServiceHandler) publishProxyTable(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.PublishProxyTableRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.PublishProxyTable(ctx, &req)
 	if err != nil {
 		return err
 	}

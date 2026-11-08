@@ -54,6 +54,9 @@ const (
 	TenantServiceGetTenantProcedure = "/n0x.authority.v1.TenantService/GetTenant"
 	// TenantServiceCreateTenantProcedure is the procedure name of the TenantService's CreateTenant RPC.
 	TenantServiceCreateTenantProcedure = "/n0x.authority.v1.TenantService/CreateTenant"
+	// TenantServiceUpdateTenantSettingsProcedure is the procedure name of the TenantService's
+	// UpdateTenantSettings RPC.
+	TenantServiceUpdateTenantSettingsProcedure = "/n0x.authority.v1.TenantService/UpdateTenantSettings"
 	// IamServiceListPermissionsProcedure is the procedure name of the IamService's ListPermissions RPC.
 	IamServiceListPermissionsProcedure = "/n0x.authority.v1.IamService/ListPermissions"
 	// IamServiceListRolesProcedure is the procedure name of the IamService's ListRoles RPC.
@@ -401,6 +404,13 @@ var (
 			Procedure:  TenantServiceCreateTenantProcedure,
 		}
 	})
+	tenantServiceUpdateTenantSettingsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_authority_v1_authority_proto.Services().ByName("TenantService").Methods().ByName("UpdateTenantSettings"),
+			Procedure:  TenantServiceUpdateTenantSettingsProcedure,
+		}
+	})
 )
 
 // TenantServiceClient is a client for the n0x.authority.v1.TenantService service.
@@ -408,6 +418,7 @@ type TenantServiceClient interface {
 	ListTenants(context.Context, *v1.ListTenantsRequest) (*v1.ListTenantsResponse, error)
 	GetTenant(context.Context, *v1.GetTenantRequest) (*v1.GetTenantResponse, error)
 	CreateTenant(context.Context, *v1.CreateTenantRequest) (*v1.CreateTenantResponse, error)
+	UpdateTenantSettings(context.Context, *v1.UpdateTenantSettingsRequest) (*v1.UpdateTenantSettingsResponse, error)
 }
 
 // NewTenantServiceClient constructs a client for the n0x.authority.v1.TenantService service.
@@ -421,6 +432,7 @@ type TenantServiceHandler interface {
 	ListTenants(context.Context, *v1.ListTenantsRequest) (*v1.ListTenantsResponse, error)
 	GetTenant(context.Context, *v1.GetTenantRequest) (*v1.GetTenantResponse, error)
 	CreateTenant(context.Context, *v1.CreateTenantRequest) (*v1.CreateTenantResponse, error)
+	UpdateTenantSettings(context.Context, *v1.UpdateTenantSettingsRequest) (*v1.UpdateTenantSettingsResponse, error)
 }
 
 // RegisterTenantServiceHandler registers svc as the n0x.authority.v1.TenantService implementation
@@ -431,6 +443,7 @@ func RegisterTenantServiceHandler(server *connect.Server, svc TenantServiceHandl
 		connect.Method{Spec: tenantServiceListTenantsSpec(), Handler: adapter.listTenants},
 		connect.Method{Spec: tenantServiceGetTenantSpec(), Handler: adapter.getTenant},
 		connect.Method{Spec: tenantServiceCreateTenantSpec(), Handler: adapter.createTenant},
+		connect.Method{Spec: tenantServiceUpdateTenantSettingsSpec(), Handler: adapter.updateTenantSettings},
 	)
 }
 
@@ -447,6 +460,10 @@ func (UnimplementedTenantServiceHandler) GetTenant(context.Context, *v1.GetTenan
 
 func (UnimplementedTenantServiceHandler) CreateTenant(context.Context, *v1.CreateTenantRequest) (*v1.CreateTenantResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.authority.v1.TenantService.CreateTenant is not implemented")
+}
+
+func (UnimplementedTenantServiceHandler) UpdateTenantSettings(context.Context, *v1.UpdateTenantSettingsRequest) (*v1.UpdateTenantSettingsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.authority.v1.TenantService.UpdateTenantSettings is not implemented")
 }
 
 type tenantServiceClient struct {
@@ -472,6 +489,14 @@ func (c *tenantServiceClient) GetTenant(ctx context.Context, req *v1.GetTenantRe
 func (c *tenantServiceClient) CreateTenant(ctx context.Context, req *v1.CreateTenantRequest) (*v1.CreateTenantResponse, error) {
 	var res v1.CreateTenantResponse
 	if err := c.client.CallUnary(ctx, tenantServiceCreateTenantSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *tenantServiceClient) UpdateTenantSettings(ctx context.Context, req *v1.UpdateTenantSettingsRequest) (*v1.UpdateTenantSettingsResponse, error) {
+	var res v1.UpdateTenantSettingsResponse
+	if err := c.client.CallUnary(ctx, tenantServiceUpdateTenantSettingsSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -509,6 +534,18 @@ func (h tenantServiceHandler) createTenant(ctx context.Context, _ connect.Spec, 
 		return err
 	}
 	res, err := h.svc.CreateTenant(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h tenantServiceHandler) updateTenantSettings(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.UpdateTenantSettingsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateTenantSettings(ctx, &req)
 	if err != nil {
 		return err
 	}

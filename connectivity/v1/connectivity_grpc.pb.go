@@ -159,10 +159,15 @@ var ForwardStatusService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	AdmissionService_Admit_FullMethodName  = "/n0x.connectivity.v1.AdmissionService/Admit"
-	AdmissionService_Refill_FullMethodName = "/n0x.connectivity.v1.AdmissionService/Refill"
-	AdmissionService_Close_FullMethodName  = "/n0x.connectivity.v1.AdmissionService/Close"
-	AdmissionService_Join_FullMethodName   = "/n0x.connectivity.v1.AdmissionService/Join"
+	AdmissionService_Admit_FullMethodName               = "/n0x.connectivity.v1.AdmissionService/Admit"
+	AdmissionService_Refill_FullMethodName              = "/n0x.connectivity.v1.AdmissionService/Refill"
+	AdmissionService_Close_FullMethodName               = "/n0x.connectivity.v1.AdmissionService/Close"
+	AdmissionService_Join_FullMethodName                = "/n0x.connectivity.v1.AdmissionService/Join"
+	AdmissionService_AdmitWorkloadOffer_FullMethodName  = "/n0x.connectivity.v1.AdmissionService/AdmitWorkloadOffer"
+	AdmissionService_ClaimWorkloadOffer_FullMethodName  = "/n0x.connectivity.v1.AdmissionService/ClaimWorkloadOffer"
+	AdmissionService_RenewWorkloadOffer_FullMethodName  = "/n0x.connectivity.v1.AdmissionService/RenewWorkloadOffer"
+	AdmissionService_RefillWorkloadOffer_FullMethodName = "/n0x.connectivity.v1.AdmissionService/RefillWorkloadOffer"
+	AdmissionService_CloseWorkloadOffer_FullMethodName  = "/n0x.connectivity.v1.AdmissionService/CloseWorkloadOffer"
 )
 
 // AdmissionServiceClient is the client API for AdmissionService service.
@@ -173,6 +178,13 @@ type AdmissionServiceClient interface {
 	Refill(ctx context.Context, in *RefillRequest, opts ...grpc.CallOption) (*RefillResponse, error)
 	Close(ctx context.Context, in *CloseRequest, opts ...grpc.CallOption) (*CloseResponse, error)
 	Join(ctx context.Context, in *JoinRequest, opts ...grpc.CallOption) (*JoinResponse, error)
+	// Workload offers use separate tickets and leases; existing relay admission
+	// and Ticket payloads retain their original meaning.
+	AdmitWorkloadOffer(ctx context.Context, in *AdmitWorkloadOfferRequest, opts ...grpc.CallOption) (*AdmitWorkloadOfferResponse, error)
+	ClaimWorkloadOffer(ctx context.Context, in *ClaimWorkloadOfferRequest, opts ...grpc.CallOption) (*ClaimWorkloadOfferResponse, error)
+	RenewWorkloadOffer(ctx context.Context, in *RenewWorkloadOfferRequest, opts ...grpc.CallOption) (*RenewWorkloadOfferResponse, error)
+	RefillWorkloadOffer(ctx context.Context, in *RefillWorkloadOfferRequest, opts ...grpc.CallOption) (*RefillWorkloadOfferResponse, error)
+	CloseWorkloadOffer(ctx context.Context, in *CloseWorkloadOfferRequest, opts ...grpc.CallOption) (*CloseWorkloadOfferResponse, error)
 }
 
 type admissionServiceClient struct {
@@ -223,6 +235,56 @@ func (c *admissionServiceClient) Join(ctx context.Context, in *JoinRequest, opts
 	return out, nil
 }
 
+func (c *admissionServiceClient) AdmitWorkloadOffer(ctx context.Context, in *AdmitWorkloadOfferRequest, opts ...grpc.CallOption) (*AdmitWorkloadOfferResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdmitWorkloadOfferResponse)
+	err := c.cc.Invoke(ctx, AdmissionService_AdmitWorkloadOffer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *admissionServiceClient) ClaimWorkloadOffer(ctx context.Context, in *ClaimWorkloadOfferRequest, opts ...grpc.CallOption) (*ClaimWorkloadOfferResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClaimWorkloadOfferResponse)
+	err := c.cc.Invoke(ctx, AdmissionService_ClaimWorkloadOffer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *admissionServiceClient) RenewWorkloadOffer(ctx context.Context, in *RenewWorkloadOfferRequest, opts ...grpc.CallOption) (*RenewWorkloadOfferResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RenewWorkloadOfferResponse)
+	err := c.cc.Invoke(ctx, AdmissionService_RenewWorkloadOffer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *admissionServiceClient) RefillWorkloadOffer(ctx context.Context, in *RefillWorkloadOfferRequest, opts ...grpc.CallOption) (*RefillWorkloadOfferResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RefillWorkloadOfferResponse)
+	err := c.cc.Invoke(ctx, AdmissionService_RefillWorkloadOffer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *admissionServiceClient) CloseWorkloadOffer(ctx context.Context, in *CloseWorkloadOfferRequest, opts ...grpc.CallOption) (*CloseWorkloadOfferResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CloseWorkloadOfferResponse)
+	err := c.cc.Invoke(ctx, AdmissionService_CloseWorkloadOffer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdmissionServiceServer is the server API for AdmissionService service.
 // All implementations must embed UnimplementedAdmissionServiceServer
 // for forward compatibility.
@@ -231,6 +293,13 @@ type AdmissionServiceServer interface {
 	Refill(context.Context, *RefillRequest) (*RefillResponse, error)
 	Close(context.Context, *CloseRequest) (*CloseResponse, error)
 	Join(context.Context, *JoinRequest) (*JoinResponse, error)
+	// Workload offers use separate tickets and leases; existing relay admission
+	// and Ticket payloads retain their original meaning.
+	AdmitWorkloadOffer(context.Context, *AdmitWorkloadOfferRequest) (*AdmitWorkloadOfferResponse, error)
+	ClaimWorkloadOffer(context.Context, *ClaimWorkloadOfferRequest) (*ClaimWorkloadOfferResponse, error)
+	RenewWorkloadOffer(context.Context, *RenewWorkloadOfferRequest) (*RenewWorkloadOfferResponse, error)
+	RefillWorkloadOffer(context.Context, *RefillWorkloadOfferRequest) (*RefillWorkloadOfferResponse, error)
+	CloseWorkloadOffer(context.Context, *CloseWorkloadOfferRequest) (*CloseWorkloadOfferResponse, error)
 	mustEmbedUnimplementedAdmissionServiceServer()
 }
 
@@ -252,6 +321,21 @@ func (UnimplementedAdmissionServiceServer) Close(context.Context, *CloseRequest)
 }
 func (UnimplementedAdmissionServiceServer) Join(context.Context, *JoinRequest) (*JoinResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Join not implemented")
+}
+func (UnimplementedAdmissionServiceServer) AdmitWorkloadOffer(context.Context, *AdmitWorkloadOfferRequest) (*AdmitWorkloadOfferResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdmitWorkloadOffer not implemented")
+}
+func (UnimplementedAdmissionServiceServer) ClaimWorkloadOffer(context.Context, *ClaimWorkloadOfferRequest) (*ClaimWorkloadOfferResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ClaimWorkloadOffer not implemented")
+}
+func (UnimplementedAdmissionServiceServer) RenewWorkloadOffer(context.Context, *RenewWorkloadOfferRequest) (*RenewWorkloadOfferResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RenewWorkloadOffer not implemented")
+}
+func (UnimplementedAdmissionServiceServer) RefillWorkloadOffer(context.Context, *RefillWorkloadOfferRequest) (*RefillWorkloadOfferResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RefillWorkloadOffer not implemented")
+}
+func (UnimplementedAdmissionServiceServer) CloseWorkloadOffer(context.Context, *CloseWorkloadOfferRequest) (*CloseWorkloadOfferResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CloseWorkloadOffer not implemented")
 }
 func (UnimplementedAdmissionServiceServer) mustEmbedUnimplementedAdmissionServiceServer() {}
 func (UnimplementedAdmissionServiceServer) testEmbeddedByValue()                          {}
@@ -346,6 +430,96 @@ func _AdmissionService_Join_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdmissionService_AdmitWorkloadOffer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdmitWorkloadOfferRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdmissionServiceServer).AdmitWorkloadOffer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdmissionService_AdmitWorkloadOffer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdmissionServiceServer).AdmitWorkloadOffer(ctx, req.(*AdmitWorkloadOfferRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdmissionService_ClaimWorkloadOffer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClaimWorkloadOfferRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdmissionServiceServer).ClaimWorkloadOffer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdmissionService_ClaimWorkloadOffer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdmissionServiceServer).ClaimWorkloadOffer(ctx, req.(*ClaimWorkloadOfferRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdmissionService_RenewWorkloadOffer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RenewWorkloadOfferRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdmissionServiceServer).RenewWorkloadOffer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdmissionService_RenewWorkloadOffer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdmissionServiceServer).RenewWorkloadOffer(ctx, req.(*RenewWorkloadOfferRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdmissionService_RefillWorkloadOffer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RefillWorkloadOfferRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdmissionServiceServer).RefillWorkloadOffer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdmissionService_RefillWorkloadOffer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdmissionServiceServer).RefillWorkloadOffer(ctx, req.(*RefillWorkloadOfferRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdmissionService_CloseWorkloadOffer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CloseWorkloadOfferRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdmissionServiceServer).CloseWorkloadOffer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdmissionService_CloseWorkloadOffer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdmissionServiceServer).CloseWorkloadOffer(ctx, req.(*CloseWorkloadOfferRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdmissionService_ServiceDesc is the grpc.ServiceDesc for AdmissionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -368,6 +542,142 @@ var AdmissionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Join",
 			Handler:    _AdmissionService_Join_Handler,
+		},
+		{
+			MethodName: "AdmitWorkloadOffer",
+			Handler:    _AdmissionService_AdmitWorkloadOffer_Handler,
+		},
+		{
+			MethodName: "ClaimWorkloadOffer",
+			Handler:    _AdmissionService_ClaimWorkloadOffer_Handler,
+		},
+		{
+			MethodName: "RenewWorkloadOffer",
+			Handler:    _AdmissionService_RenewWorkloadOffer_Handler,
+		},
+		{
+			MethodName: "RefillWorkloadOffer",
+			Handler:    _AdmissionService_RefillWorkloadOffer_Handler,
+		},
+		{
+			MethodName: "CloseWorkloadOffer",
+			Handler:    _AdmissionService_CloseWorkloadOffer_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "n0x/connectivity/v1/connectivity.proto",
+}
+
+const (
+	ProxyControlService_PublishProxyTable_FullMethodName = "/n0x.connectivity.v1.ProxyControlService/PublishProxyTable"
+)
+
+// ProxyControlServiceClient is the client API for ProxyControlService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// The control plane atomically replaces a tenant's proxy table. It is the sole
+// source of targets, replacing static TargetStore configuration (ADR 0024 D7).
+// This is delivery of compiled state, not creation of a governed revision.
+// Only the authenticated control plane may publish. Applying a table rechecks
+// open sessions immediately: retain those still allowed and cut those revoked
+// or quarantined, without waiting for ticket renewal.
+type ProxyControlServiceClient interface {
+	PublishProxyTable(ctx context.Context, in *PublishProxyTableRequest, opts ...grpc.CallOption) (*PublishProxyTableResponse, error)
+}
+
+type proxyControlServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewProxyControlServiceClient(cc grpc.ClientConnInterface) ProxyControlServiceClient {
+	return &proxyControlServiceClient{cc}
+}
+
+func (c *proxyControlServiceClient) PublishProxyTable(ctx context.Context, in *PublishProxyTableRequest, opts ...grpc.CallOption) (*PublishProxyTableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PublishProxyTableResponse)
+	err := c.cc.Invoke(ctx, ProxyControlService_PublishProxyTable_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ProxyControlServiceServer is the server API for ProxyControlService service.
+// All implementations must embed UnimplementedProxyControlServiceServer
+// for forward compatibility.
+//
+// The control plane atomically replaces a tenant's proxy table. It is the sole
+// source of targets, replacing static TargetStore configuration (ADR 0024 D7).
+// This is delivery of compiled state, not creation of a governed revision.
+// Only the authenticated control plane may publish. Applying a table rechecks
+// open sessions immediately: retain those still allowed and cut those revoked
+// or quarantined, without waiting for ticket renewal.
+type ProxyControlServiceServer interface {
+	PublishProxyTable(context.Context, *PublishProxyTableRequest) (*PublishProxyTableResponse, error)
+	mustEmbedUnimplementedProxyControlServiceServer()
+}
+
+// UnimplementedProxyControlServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedProxyControlServiceServer struct{}
+
+func (UnimplementedProxyControlServiceServer) PublishProxyTable(context.Context, *PublishProxyTableRequest) (*PublishProxyTableResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PublishProxyTable not implemented")
+}
+func (UnimplementedProxyControlServiceServer) mustEmbedUnimplementedProxyControlServiceServer() {}
+func (UnimplementedProxyControlServiceServer) testEmbeddedByValue()                             {}
+
+// UnsafeProxyControlServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ProxyControlServiceServer will
+// result in compilation errors.
+type UnsafeProxyControlServiceServer interface {
+	mustEmbedUnimplementedProxyControlServiceServer()
+}
+
+func RegisterProxyControlServiceServer(s grpc.ServiceRegistrar, srv ProxyControlServiceServer) {
+	// If the following call pancis, it indicates UnimplementedProxyControlServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&ProxyControlService_ServiceDesc, srv)
+}
+
+func _ProxyControlService_PublishProxyTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PublishProxyTableRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProxyControlServiceServer).PublishProxyTable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProxyControlService_PublishProxyTable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProxyControlServiceServer).PublishProxyTable(ctx, req.(*PublishProxyTableRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ProxyControlService_ServiceDesc is the grpc.ServiceDesc for ProxyControlService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ProxyControlService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "n0x.connectivity.v1.ProxyControlService",
+	HandlerType: (*ProxyControlServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "PublishProxyTable",
+			Handler:    _ProxyControlService_PublishProxyTable_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

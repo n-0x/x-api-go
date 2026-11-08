@@ -11,6 +11,7 @@ import (
 	v11 "github.com/n-0x/x-api-go/signed/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -1176,17 +1177,26 @@ func (x *EnrollmentCode) GetExpiresAt() string {
 }
 
 type Tenant struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TenantId      string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	AccountId     string                 `protobuf:"bytes,2,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Primary       bool                   `protobuf:"varint,4,opt,name=primary,proto3" json:"primary,omitempty"`
-	Cidr          string                 `protobuf:"bytes,5,opt,name=cidr,proto3" json:"cidr,omitempty"`
-	Scope         *Scope                 `protobuf:"bytes,6,opt,name=scope,proto3" json:"scope,omitempty"`
-	State         string                 `protobuf:"bytes,7,opt,name=state,proto3" json:"state,omitempty"`
-	Version       string                 `protobuf:"bytes,8,opt,name=version,proto3" json:"version,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	TenantId  string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	AccountId string                 `protobuf:"bytes,2,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	Name      string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Primary   bool                   `protobuf:"varint,4,opt,name=primary,proto3" json:"primary,omitempty"`
+	Cidr      string                 `protobuf:"bytes,5,opt,name=cidr,proto3" json:"cidr,omitempty"`
+	Scope     *Scope                 `protobuf:"bytes,6,opt,name=scope,proto3" json:"scope,omitempty"`
+	State     string                 `protobuf:"bytes,7,opt,name=state,proto3" json:"state,omitempty"`
+	Version   string                 `protobuf:"bytes,8,opt,name=version,proto3" json:"version,omitempty"`
+	// Canonical IPv4 CIDR. cidr (field 5) remains a legacy alias: responses
+	// populate both equally. New tenants default to 10.2.0.0/16, configurable
+	// to avoid customer network collisions; existing tenant prefixes stay intact.
+	AddressingV4 *string `protobuf:"bytes,9,opt,name=addressing_v4,json=addressingV4,proto3,oneof" json:"addressing_v4,omitempty"`
+	// IPv6 ULA CIDR, generated as a per-tenant /48 when omitted at creation.
+	AddressingV6       *string                   `protobuf:"bytes,10,opt,name=addressing_v6,json=addressingV6,proto3,oneof" json:"addressing_v6,omitempty"`
+	InactivityTimeouts *TenantInactivityTimeouts `protobuf:"bytes,11,opt,name=inactivity_timeouts,json=inactivityTimeouts,proto3" json:"inactivity_timeouts,omitempty"`
+	// Last governed tenant settings revision; distinct from legacy version.
+	RevisionNumber *uint64 `protobuf:"varint,12,opt,name=revision_number,json=revisionNumber,proto3,oneof" json:"revision_number,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *Tenant) Reset() {
@@ -1275,6 +1285,99 @@ func (x *Tenant) GetVersion() string {
 	return ""
 }
 
+func (x *Tenant) GetAddressingV4() string {
+	if x != nil && x.AddressingV4 != nil {
+		return *x.AddressingV4
+	}
+	return ""
+}
+
+func (x *Tenant) GetAddressingV6() string {
+	if x != nil && x.AddressingV6 != nil {
+		return *x.AddressingV6
+	}
+	return ""
+}
+
+func (x *Tenant) GetInactivityTimeouts() *TenantInactivityTimeouts {
+	if x != nil {
+		return x.InactivityTimeouts
+	}
+	return nil
+}
+
+func (x *Tenant) GetRevisionNumber() uint64 {
+	if x != nil && x.RevisionNumber != nil {
+		return *x.RevisionNumber
+	}
+	return 0
+}
+
+// Effective idle policy by subject. Durations must be nonnegative; zero disables
+// idle expiration. New tenants default to 30 minutes for persons and zero for
+// nodes/service accounts. This never imposes an absolute session lifetime or
+// interrupts active node/service-account traffic or automatic SVID rotation.
+// On update, missing durations leave that subject's current setting unchanged.
+type TenantInactivityTimeouts struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Person         *durationpb.Duration   `protobuf:"bytes,1,opt,name=person,proto3" json:"person,omitempty"`
+	Node           *durationpb.Duration   `protobuf:"bytes,2,opt,name=node,proto3" json:"node,omitempty"`
+	ServiceAccount *durationpb.Duration   `protobuf:"bytes,3,opt,name=service_account,json=serviceAccount,proto3" json:"service_account,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *TenantInactivityTimeouts) Reset() {
+	*x = TenantInactivityTimeouts{}
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantInactivityTimeouts) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantInactivityTimeouts) ProtoMessage() {}
+
+func (x *TenantInactivityTimeouts) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TenantInactivityTimeouts.ProtoReflect.Descriptor instead.
+func (*TenantInactivityTimeouts) Descriptor() ([]byte, []int) {
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *TenantInactivityTimeouts) GetPerson() *durationpb.Duration {
+	if x != nil {
+		return x.Person
+	}
+	return nil
+}
+
+func (x *TenantInactivityTimeouts) GetNode() *durationpb.Duration {
+	if x != nil {
+		return x.Node
+	}
+	return nil
+}
+
+func (x *TenantInactivityTimeouts) GetServiceAccount() *durationpb.Duration {
+	if x != nil {
+		return x.ServiceAccount
+	}
+	return nil
+}
+
 type Role struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RoleId        string                 `protobuf:"bytes,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
@@ -1288,7 +1391,7 @@ type Role struct {
 
 func (x *Role) Reset() {
 	*x = Role{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[13]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1300,7 +1403,7 @@ func (x *Role) String() string {
 func (*Role) ProtoMessage() {}
 
 func (x *Role) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[13]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1313,7 +1416,7 @@ func (x *Role) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Role.ProtoReflect.Descriptor instead.
 func (*Role) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{13}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *Role) GetRoleId() string {
@@ -1365,7 +1468,7 @@ type RoleBinding struct {
 
 func (x *RoleBinding) Reset() {
 	*x = RoleBinding{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[14]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1377,7 +1480,7 @@ func (x *RoleBinding) String() string {
 func (*RoleBinding) ProtoMessage() {}
 
 func (x *RoleBinding) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[14]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1390,7 +1493,7 @@ func (x *RoleBinding) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoleBinding.ProtoReflect.Descriptor instead.
 func (*RoleBinding) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{14}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *RoleBinding) GetBindingId() string {
@@ -1448,7 +1551,7 @@ type ServiceAccount struct {
 
 func (x *ServiceAccount) Reset() {
 	*x = ServiceAccount{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[15]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1460,7 +1563,7 @@ func (x *ServiceAccount) String() string {
 func (*ServiceAccount) ProtoMessage() {}
 
 func (x *ServiceAccount) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[15]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1473,7 +1576,7 @@ func (x *ServiceAccount) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServiceAccount.ProtoReflect.Descriptor instead.
 func (*ServiceAccount) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{15}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ServiceAccount) GetServiceAccountId() string {
@@ -1526,7 +1629,7 @@ type ApiKey struct {
 
 func (x *ApiKey) Reset() {
 	*x = ApiKey{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[16]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1538,7 +1641,7 @@ func (x *ApiKey) String() string {
 func (*ApiKey) ProtoMessage() {}
 
 func (x *ApiKey) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[16]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1551,7 +1654,7 @@ func (x *ApiKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKey.ProtoReflect.Descriptor instead.
 func (*ApiKey) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{16}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ApiKey) GetKeyId() string {
@@ -1616,7 +1719,7 @@ type AccountBinding struct {
 
 func (x *AccountBinding) Reset() {
 	*x = AccountBinding{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[17]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1628,7 +1731,7 @@ func (x *AccountBinding) String() string {
 func (*AccountBinding) ProtoMessage() {}
 
 func (x *AccountBinding) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[17]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1641,7 +1744,7 @@ func (x *AccountBinding) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AccountBinding.ProtoReflect.Descriptor instead.
 func (*AccountBinding) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{17}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *AccountBinding) GetAccountId() string {
@@ -1691,7 +1794,7 @@ type MembershipUpdate struct {
 
 func (x *MembershipUpdate) Reset() {
 	*x = MembershipUpdate{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[18]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1703,7 +1806,7 @@ func (x *MembershipUpdate) String() string {
 func (*MembershipUpdate) ProtoMessage() {}
 
 func (x *MembershipUpdate) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[18]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1716,7 +1819,7 @@ func (x *MembershipUpdate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MembershipUpdate.ProtoReflect.Descriptor instead.
 func (*MembershipUpdate) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{18}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *MembershipUpdate) GetBinding() *AccountBinding {
@@ -1756,7 +1859,7 @@ type RuleSet struct {
 
 func (x *RuleSet) Reset() {
 	*x = RuleSet{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[19]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1768,7 +1871,7 @@ func (x *RuleSet) String() string {
 func (*RuleSet) ProtoMessage() {}
 
 func (x *RuleSet) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[19]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1781,7 +1884,7 @@ func (x *RuleSet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RuleSet.ProtoReflect.Descriptor instead.
 func (*RuleSet) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{19}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *RuleSet) GetRules() []*v11.Rule {
@@ -1800,7 +1903,7 @@ type TagSet struct {
 
 func (x *TagSet) Reset() {
 	*x = TagSet{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[20]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1812,7 +1915,7 @@ func (x *TagSet) String() string {
 func (*TagSet) ProtoMessage() {}
 
 func (x *TagSet) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[20]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1825,7 +1928,7 @@ func (x *TagSet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TagSet.ProtoReflect.Descriptor instead.
 func (*TagSet) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{20}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *TagSet) GetTags() []string {
@@ -1859,7 +1962,7 @@ type ExecuteCommandRequest struct {
 
 func (x *ExecuteCommandRequest) Reset() {
 	*x = ExecuteCommandRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[21]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1871,7 +1974,7 @@ func (x *ExecuteCommandRequest) String() string {
 func (*ExecuteCommandRequest) ProtoMessage() {}
 
 func (x *ExecuteCommandRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[21]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1884,7 +1987,7 @@ func (x *ExecuteCommandRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecuteCommandRequest.ProtoReflect.Descriptor instead.
 func (*ExecuteCommandRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{21}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ExecuteCommandRequest) GetAccountId() string {
@@ -1987,7 +2090,7 @@ type ExecuteCommandResponse struct {
 
 func (x *ExecuteCommandResponse) Reset() {
 	*x = ExecuteCommandResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[22]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1999,7 +2102,7 @@ func (x *ExecuteCommandResponse) String() string {
 func (*ExecuteCommandResponse) ProtoMessage() {}
 
 func (x *ExecuteCommandResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[22]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2012,7 +2115,7 @@ func (x *ExecuteCommandResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecuteCommandResponse.ProtoReflect.Descriptor instead.
 func (*ExecuteCommandResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{22}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ExecuteCommandResponse) GetOperation() *Operation {
@@ -2035,7 +2138,7 @@ type GetStateRequest struct {
 
 func (x *GetStateRequest) Reset() {
 	*x = GetStateRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[23]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2047,7 +2150,7 @@ func (x *GetStateRequest) String() string {
 func (*GetStateRequest) ProtoMessage() {}
 
 func (x *GetStateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[23]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2060,7 +2163,7 @@ func (x *GetStateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetStateRequest.ProtoReflect.Descriptor instead.
 func (*GetStateRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{23}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetStateRequest) GetTelemetryIncarnationId() string {
@@ -2107,7 +2210,7 @@ type GetStateResponse struct {
 
 func (x *GetStateResponse) Reset() {
 	*x = GetStateResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[24]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2119,7 +2222,7 @@ func (x *GetStateResponse) String() string {
 func (*GetStateResponse) ProtoMessage() {}
 
 func (x *GetStateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[24]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2132,7 +2235,7 @@ func (x *GetStateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetStateResponse.ProtoReflect.Descriptor instead.
 func (*GetStateResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{24}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GetStateResponse) GetState() *State {
@@ -2154,7 +2257,7 @@ type GetScopeRequest struct {
 
 func (x *GetScopeRequest) Reset() {
 	*x = GetScopeRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[25]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2166,7 +2269,7 @@ func (x *GetScopeRequest) String() string {
 func (*GetScopeRequest) ProtoMessage() {}
 
 func (x *GetScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[25]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2179,7 +2282,7 @@ func (x *GetScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetScopeRequest.ProtoReflect.Descriptor instead.
 func (*GetScopeRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{25}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *GetScopeRequest) GetAccountId() string {
@@ -2219,7 +2322,7 @@ type GetScopeResponse struct {
 
 func (x *GetScopeResponse) Reset() {
 	*x = GetScopeResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[26]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2231,7 +2334,7 @@ func (x *GetScopeResponse) String() string {
 func (*GetScopeResponse) ProtoMessage() {}
 
 func (x *GetScopeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[26]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2244,7 +2347,7 @@ func (x *GetScopeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetScopeResponse.ProtoReflect.Descriptor instead.
 func (*GetScopeResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{26}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *GetScopeResponse) GetScope() *ScopeState {
@@ -2266,7 +2369,7 @@ type ListNodesRequest struct {
 
 func (x *ListNodesRequest) Reset() {
 	*x = ListNodesRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[27]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2278,7 +2381,7 @@ func (x *ListNodesRequest) String() string {
 func (*ListNodesRequest) ProtoMessage() {}
 
 func (x *ListNodesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[27]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2291,7 +2394,7 @@ func (x *ListNodesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNodesRequest.ProtoReflect.Descriptor instead.
 func (*ListNodesRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{27}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ListNodesRequest) GetAccountId() string {
@@ -2331,7 +2434,7 @@ type ListNodesResponse struct {
 
 func (x *ListNodesResponse) Reset() {
 	*x = ListNodesResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[28]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2343,7 +2446,7 @@ func (x *ListNodesResponse) String() string {
 func (*ListNodesResponse) ProtoMessage() {}
 
 func (x *ListNodesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[28]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2356,7 +2459,7 @@ func (x *ListNodesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNodesResponse.ProtoReflect.Descriptor instead.
 func (*ListNodesResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{28}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ListNodesResponse) GetNodes() []*Node {
@@ -2379,7 +2482,7 @@ type GetOperationRequest struct {
 
 func (x *GetOperationRequest) Reset() {
 	*x = GetOperationRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[29]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2391,7 +2494,7 @@ func (x *GetOperationRequest) String() string {
 func (*GetOperationRequest) ProtoMessage() {}
 
 func (x *GetOperationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[29]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2404,7 +2507,7 @@ func (x *GetOperationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOperationRequest.ProtoReflect.Descriptor instead.
 func (*GetOperationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{29}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *GetOperationRequest) GetAccountId() string {
@@ -2451,7 +2554,7 @@ type GetOperationResponse struct {
 
 func (x *GetOperationResponse) Reset() {
 	*x = GetOperationResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[30]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2463,7 +2566,7 @@ func (x *GetOperationResponse) String() string {
 func (*GetOperationResponse) ProtoMessage() {}
 
 func (x *GetOperationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[30]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2476,7 +2579,7 @@ func (x *GetOperationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOperationResponse.ProtoReflect.Descriptor instead.
 func (*GetOperationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{30}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *GetOperationResponse) GetOperation() *Operation {
@@ -2499,7 +2602,7 @@ type GetRetirementRequest struct {
 
 func (x *GetRetirementRequest) Reset() {
 	*x = GetRetirementRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[31]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2511,7 +2614,7 @@ func (x *GetRetirementRequest) String() string {
 func (*GetRetirementRequest) ProtoMessage() {}
 
 func (x *GetRetirementRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[31]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2524,7 +2627,7 @@ func (x *GetRetirementRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRetirementRequest.ProtoReflect.Descriptor instead.
 func (*GetRetirementRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{31}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetRetirementRequest) GetAccountId() string {
@@ -2571,7 +2674,7 @@ type GetRetirementResponse struct {
 
 func (x *GetRetirementResponse) Reset() {
 	*x = GetRetirementResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[32]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2583,7 +2686,7 @@ func (x *GetRetirementResponse) String() string {
 func (*GetRetirementResponse) ProtoMessage() {}
 
 func (x *GetRetirementResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[32]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2596,7 +2699,7 @@ func (x *GetRetirementResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRetirementResponse.ProtoReflect.Descriptor instead.
 func (*GetRetirementResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{32}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *GetRetirementResponse) GetRetirement() *Retirement {
@@ -2618,7 +2721,7 @@ type CreateEnrollmentCodeRequest struct {
 
 func (x *CreateEnrollmentCodeRequest) Reset() {
 	*x = CreateEnrollmentCodeRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[33]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2630,7 +2733,7 @@ func (x *CreateEnrollmentCodeRequest) String() string {
 func (*CreateEnrollmentCodeRequest) ProtoMessage() {}
 
 func (x *CreateEnrollmentCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[33]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2643,7 +2746,7 @@ func (x *CreateEnrollmentCodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEnrollmentCodeRequest.ProtoReflect.Descriptor instead.
 func (*CreateEnrollmentCodeRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{33}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *CreateEnrollmentCodeRequest) GetAccountId() string {
@@ -2683,7 +2786,7 @@ type CreateEnrollmentCodeResponse struct {
 
 func (x *CreateEnrollmentCodeResponse) Reset() {
 	*x = CreateEnrollmentCodeResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[34]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2695,7 +2798,7 @@ func (x *CreateEnrollmentCodeResponse) String() string {
 func (*CreateEnrollmentCodeResponse) ProtoMessage() {}
 
 func (x *CreateEnrollmentCodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[34]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2708,7 +2811,7 @@ func (x *CreateEnrollmentCodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEnrollmentCodeResponse.ProtoReflect.Descriptor instead.
 func (*CreateEnrollmentCodeResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{34}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *CreateEnrollmentCodeResponse) GetEnrollmentCode() *EnrollmentCode {
@@ -2727,7 +2830,7 @@ type ListTenantsRequest struct {
 
 func (x *ListTenantsRequest) Reset() {
 	*x = ListTenantsRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[35]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2739,7 +2842,7 @@ func (x *ListTenantsRequest) String() string {
 func (*ListTenantsRequest) ProtoMessage() {}
 
 func (x *ListTenantsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[35]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2752,7 +2855,7 @@ func (x *ListTenantsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTenantsRequest.ProtoReflect.Descriptor instead.
 func (*ListTenantsRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{35}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *ListTenantsRequest) GetAccountId() string {
@@ -2771,7 +2874,7 @@ type ListTenantsResponse struct {
 
 func (x *ListTenantsResponse) Reset() {
 	*x = ListTenantsResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[36]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2783,7 +2886,7 @@ func (x *ListTenantsResponse) String() string {
 func (*ListTenantsResponse) ProtoMessage() {}
 
 func (x *ListTenantsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[36]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2796,7 +2899,7 @@ func (x *ListTenantsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTenantsResponse.ProtoReflect.Descriptor instead.
 func (*ListTenantsResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{36}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *ListTenantsResponse) GetTenants() []*Tenant {
@@ -2816,7 +2919,7 @@ type GetTenantRequest struct {
 
 func (x *GetTenantRequest) Reset() {
 	*x = GetTenantRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[37]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2828,7 +2931,7 @@ func (x *GetTenantRequest) String() string {
 func (*GetTenantRequest) ProtoMessage() {}
 
 func (x *GetTenantRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[37]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2841,7 +2944,7 @@ func (x *GetTenantRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTenantRequest.ProtoReflect.Descriptor instead.
 func (*GetTenantRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{37}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *GetTenantRequest) GetAccountId() string {
@@ -2867,7 +2970,7 @@ type GetTenantResponse struct {
 
 func (x *GetTenantResponse) Reset() {
 	*x = GetTenantResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[38]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2879,7 +2982,7 @@ func (x *GetTenantResponse) String() string {
 func (*GetTenantResponse) ProtoMessage() {}
 
 func (x *GetTenantResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[38]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2892,7 +2995,7 @@ func (x *GetTenantResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTenantResponse.ProtoReflect.Descriptor instead.
 func (*GetTenantResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{38}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *GetTenantResponse) GetTenant() *Tenant {
@@ -2903,18 +3006,28 @@ func (x *GetTenantResponse) GetTenant() *Tenant {
 }
 
 type CreateTenantRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AccountId     string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
-	RequestId     string                 `protobuf:"bytes,2,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Cidr          string                 `protobuf:"bytes,4,opt,name=cidr,proto3" json:"cidr,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	AccountId string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	RequestId string                 `protobuf:"bytes,2,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	Name      string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Cidr      string                 `protobuf:"bytes,4,opt,name=cidr,proto3" json:"cidr,omitempty"`
+	// Canonical setting; cidr (field 4) remains accepted as the legacy IPv4
+	// alias. Reject conflicting nonempty values. If neither is set, use /16
+	// default documented on Tenant.addressing_v4; never reinterpret old cidr.
+	AddressingV4 *string `protobuf:"bytes,5,opt,name=addressing_v4,json=addressingV4,proto3,oneof" json:"addressing_v4,omitempty"`
+	// Optional explicit ULA prefix; omission generates a tenant-specific /48.
+	AddressingV6 *string `protobuf:"bytes,6,opt,name=addressing_v6,json=addressingV6,proto3,oneof" json:"addressing_v6,omitempty"`
+	// Missing subject durations use the defaults documented above.
+	InactivityTimeouts *TenantInactivityTimeouts `protobuf:"bytes,7,opt,name=inactivity_timeouts,json=inactivityTimeouts,proto3" json:"inactivity_timeouts,omitempty"`
+	// Required for new settings-aware clients; legacy requests remain accepted.
+	Reason        *string `protobuf:"bytes,8,opt,name=reason,proto3,oneof" json:"reason,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateTenantRequest) Reset() {
 	*x = CreateTenantRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[39]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2926,7 +3039,7 @@ func (x *CreateTenantRequest) String() string {
 func (*CreateTenantRequest) ProtoMessage() {}
 
 func (x *CreateTenantRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[39]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2939,7 +3052,7 @@ func (x *CreateTenantRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTenantRequest.ProtoReflect.Descriptor instead.
 func (*CreateTenantRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{39}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *CreateTenantRequest) GetAccountId() string {
@@ -2970,6 +3083,34 @@ func (x *CreateTenantRequest) GetCidr() string {
 	return ""
 }
 
+func (x *CreateTenantRequest) GetAddressingV4() string {
+	if x != nil && x.AddressingV4 != nil {
+		return *x.AddressingV4
+	}
+	return ""
+}
+
+func (x *CreateTenantRequest) GetAddressingV6() string {
+	if x != nil && x.AddressingV6 != nil {
+		return *x.AddressingV6
+	}
+	return ""
+}
+
+func (x *CreateTenantRequest) GetInactivityTimeouts() *TenantInactivityTimeouts {
+	if x != nil {
+		return x.InactivityTimeouts
+	}
+	return nil
+}
+
+func (x *CreateTenantRequest) GetReason() string {
+	if x != nil && x.Reason != nil {
+		return *x.Reason
+	}
+	return ""
+}
+
 type CreateTenantResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Tenant        *Tenant                `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
@@ -2979,7 +3120,7 @@ type CreateTenantResponse struct {
 
 func (x *CreateTenantResponse) Reset() {
 	*x = CreateTenantResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[40]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2991,7 +3132,7 @@ func (x *CreateTenantResponse) String() string {
 func (*CreateTenantResponse) ProtoMessage() {}
 
 func (x *CreateTenantResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[40]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3004,7 +3145,7 @@ func (x *CreateTenantResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTenantResponse.ProtoReflect.Descriptor instead.
 func (*CreateTenantResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{40}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *CreateTenantResponse) GetTenant() *Tenant {
@@ -3012,6 +3153,163 @@ func (x *CreateTenantResponse) GetTenant() *Tenant {
 		return x.Tenant
 	}
 	return nil
+}
+
+// A governed settings change. Missing fields preserve the current settings;
+// present empty CIDRs are invalid, and CIDRs must be canonical private IPv4/ULA
+// IPv6 prefixes. Address changes must account for existing node allocations.
+type UpdateTenantSettingsRequest struct {
+	state              protoimpl.MessageState    `protogen:"open.v1"`
+	AccountId          string                    `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	TenantId           string                    `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	AddressingV4       *string                   `protobuf:"bytes,3,opt,name=addressing_v4,json=addressingV4,proto3,oneof" json:"addressing_v4,omitempty"`
+	AddressingV6       *string                   `protobuf:"bytes,4,opt,name=addressing_v6,json=addressingV6,proto3,oneof" json:"addressing_v6,omitempty"`
+	InactivityTimeouts *TenantInactivityTimeouts `protobuf:"bytes,5,opt,name=inactivity_timeouts,json=inactivityTimeouts,proto3" json:"inactivity_timeouts,omitempty"`
+	RequestId          string                    `protobuf:"bytes,6,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	// Required, nonempty; server derives the author from authentication.
+	Reason string `protobuf:"bytes,7,opt,name=reason,proto3" json:"reason,omitempty"`
+	// Present stages only; absent publishes a new revision immediately.
+	DraftRevisionNumber *uint64 `protobuf:"varint,8,opt,name=draft_revision_number,json=draftRevisionNumber,proto3,oneof" json:"draft_revision_number,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *UpdateTenantSettingsRequest) Reset() {
+	*x = UpdateTenantSettingsRequest{}
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateTenantSettingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateTenantSettingsRequest) ProtoMessage() {}
+
+func (x *UpdateTenantSettingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateTenantSettingsRequest.ProtoReflect.Descriptor instead.
+func (*UpdateTenantSettingsRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *UpdateTenantSettingsRequest) GetAccountId() string {
+	if x != nil {
+		return x.AccountId
+	}
+	return ""
+}
+
+func (x *UpdateTenantSettingsRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *UpdateTenantSettingsRequest) GetAddressingV4() string {
+	if x != nil && x.AddressingV4 != nil {
+		return *x.AddressingV4
+	}
+	return ""
+}
+
+func (x *UpdateTenantSettingsRequest) GetAddressingV6() string {
+	if x != nil && x.AddressingV6 != nil {
+		return *x.AddressingV6
+	}
+	return ""
+}
+
+func (x *UpdateTenantSettingsRequest) GetInactivityTimeouts() *TenantInactivityTimeouts {
+	if x != nil {
+		return x.InactivityTimeouts
+	}
+	return nil
+}
+
+func (x *UpdateTenantSettingsRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *UpdateTenantSettingsRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *UpdateTenantSettingsRequest) GetDraftRevisionNumber() uint64 {
+	if x != nil && x.DraftRevisionNumber != nil {
+		return *x.DraftRevisionNumber
+	}
+	return 0
+}
+
+type UpdateTenantSettingsResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Tenant         *Tenant                `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
+	RevisionNumber uint64                 `protobuf:"varint,2,opt,name=revision_number,json=revisionNumber,proto3" json:"revision_number,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *UpdateTenantSettingsResponse) Reset() {
+	*x = UpdateTenantSettingsResponse{}
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateTenantSettingsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateTenantSettingsResponse) ProtoMessage() {}
+
+func (x *UpdateTenantSettingsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateTenantSettingsResponse.ProtoReflect.Descriptor instead.
+func (*UpdateTenantSettingsResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *UpdateTenantSettingsResponse) GetTenant() *Tenant {
+	if x != nil {
+		return x.Tenant
+	}
+	return nil
+}
+
+func (x *UpdateTenantSettingsResponse) GetRevisionNumber() uint64 {
+	if x != nil {
+		return x.RevisionNumber
+	}
+	return 0
 }
 
 type ListPermissionsRequest struct {
@@ -3024,7 +3322,7 @@ type ListPermissionsRequest struct {
 
 func (x *ListPermissionsRequest) Reset() {
 	*x = ListPermissionsRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[41]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3036,7 +3334,7 @@ func (x *ListPermissionsRequest) String() string {
 func (*ListPermissionsRequest) ProtoMessage() {}
 
 func (x *ListPermissionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[41]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3049,7 +3347,7 @@ func (x *ListPermissionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPermissionsRequest.ProtoReflect.Descriptor instead.
 func (*ListPermissionsRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{41}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *ListPermissionsRequest) GetAccountId() string {
@@ -3075,7 +3373,7 @@ type ListPermissionsResponse struct {
 
 func (x *ListPermissionsResponse) Reset() {
 	*x = ListPermissionsResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[42]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3087,7 +3385,7 @@ func (x *ListPermissionsResponse) String() string {
 func (*ListPermissionsResponse) ProtoMessage() {}
 
 func (x *ListPermissionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[42]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3100,7 +3398,7 @@ func (x *ListPermissionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPermissionsResponse.ProtoReflect.Descriptor instead.
 func (*ListPermissionsResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{42}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *ListPermissionsResponse) GetPermissions() []string {
@@ -3120,7 +3418,7 @@ type ListRolesRequest struct {
 
 func (x *ListRolesRequest) Reset() {
 	*x = ListRolesRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[43]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3132,7 +3430,7 @@ func (x *ListRolesRequest) String() string {
 func (*ListRolesRequest) ProtoMessage() {}
 
 func (x *ListRolesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[43]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3145,7 +3443,7 @@ func (x *ListRolesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRolesRequest.ProtoReflect.Descriptor instead.
 func (*ListRolesRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{43}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *ListRolesRequest) GetAccountId() string {
@@ -3171,7 +3469,7 @@ type ListRolesResponse struct {
 
 func (x *ListRolesResponse) Reset() {
 	*x = ListRolesResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[44]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3183,7 +3481,7 @@ func (x *ListRolesResponse) String() string {
 func (*ListRolesResponse) ProtoMessage() {}
 
 func (x *ListRolesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[44]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3196,7 +3494,7 @@ func (x *ListRolesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRolesResponse.ProtoReflect.Descriptor instead.
 func (*ListRolesResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{44}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *ListRolesResponse) GetRoles() []*Role {
@@ -3217,7 +3515,7 @@ type PutRoleRequest struct {
 
 func (x *PutRoleRequest) Reset() {
 	*x = PutRoleRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[45]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3229,7 +3527,7 @@ func (x *PutRoleRequest) String() string {
 func (*PutRoleRequest) ProtoMessage() {}
 
 func (x *PutRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[45]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3242,7 +3540,7 @@ func (x *PutRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutRoleRequest.ProtoReflect.Descriptor instead.
 func (*PutRoleRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{45}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *PutRoleRequest) GetAccountId() string {
@@ -3274,7 +3572,7 @@ type PutRoleResponse struct {
 
 func (x *PutRoleResponse) Reset() {
 	*x = PutRoleResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[46]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3286,7 +3584,7 @@ func (x *PutRoleResponse) String() string {
 func (*PutRoleResponse) ProtoMessage() {}
 
 func (x *PutRoleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[46]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3299,7 +3597,7 @@ func (x *PutRoleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutRoleResponse.ProtoReflect.Descriptor instead.
 func (*PutRoleResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{46}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{49}
 }
 
 type ListRoleBindingsRequest struct {
@@ -3312,7 +3610,7 @@ type ListRoleBindingsRequest struct {
 
 func (x *ListRoleBindingsRequest) Reset() {
 	*x = ListRoleBindingsRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[47]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3324,7 +3622,7 @@ func (x *ListRoleBindingsRequest) String() string {
 func (*ListRoleBindingsRequest) ProtoMessage() {}
 
 func (x *ListRoleBindingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[47]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3337,7 +3635,7 @@ func (x *ListRoleBindingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRoleBindingsRequest.ProtoReflect.Descriptor instead.
 func (*ListRoleBindingsRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{47}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *ListRoleBindingsRequest) GetAccountId() string {
@@ -3363,7 +3661,7 @@ type ListRoleBindingsResponse struct {
 
 func (x *ListRoleBindingsResponse) Reset() {
 	*x = ListRoleBindingsResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[48]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3375,7 +3673,7 @@ func (x *ListRoleBindingsResponse) String() string {
 func (*ListRoleBindingsResponse) ProtoMessage() {}
 
 func (x *ListRoleBindingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[48]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3388,7 +3686,7 @@ func (x *ListRoleBindingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRoleBindingsResponse.ProtoReflect.Descriptor instead.
 func (*ListRoleBindingsResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{48}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *ListRoleBindingsResponse) GetBindings() []*RoleBinding {
@@ -3409,7 +3707,7 @@ type PutRoleBindingRequest struct {
 
 func (x *PutRoleBindingRequest) Reset() {
 	*x = PutRoleBindingRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[49]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3421,7 +3719,7 @@ func (x *PutRoleBindingRequest) String() string {
 func (*PutRoleBindingRequest) ProtoMessage() {}
 
 func (x *PutRoleBindingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[49]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3434,7 +3732,7 @@ func (x *PutRoleBindingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutRoleBindingRequest.ProtoReflect.Descriptor instead.
 func (*PutRoleBindingRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{49}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *PutRoleBindingRequest) GetAccountId() string {
@@ -3466,7 +3764,7 @@ type PutRoleBindingResponse struct {
 
 func (x *PutRoleBindingResponse) Reset() {
 	*x = PutRoleBindingResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[50]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3478,7 +3776,7 @@ func (x *PutRoleBindingResponse) String() string {
 func (*PutRoleBindingResponse) ProtoMessage() {}
 
 func (x *PutRoleBindingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[50]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3491,7 +3789,7 @@ func (x *PutRoleBindingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutRoleBindingResponse.ProtoReflect.Descriptor instead.
 func (*PutRoleBindingResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{50}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{53}
 }
 
 type DeleteRoleBindingRequest struct {
@@ -3505,7 +3803,7 @@ type DeleteRoleBindingRequest struct {
 
 func (x *DeleteRoleBindingRequest) Reset() {
 	*x = DeleteRoleBindingRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[51]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3517,7 +3815,7 @@ func (x *DeleteRoleBindingRequest) String() string {
 func (*DeleteRoleBindingRequest) ProtoMessage() {}
 
 func (x *DeleteRoleBindingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[51]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3530,7 +3828,7 @@ func (x *DeleteRoleBindingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRoleBindingRequest.ProtoReflect.Descriptor instead.
 func (*DeleteRoleBindingRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{51}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *DeleteRoleBindingRequest) GetAccountId() string {
@@ -3562,7 +3860,7 @@ type DeleteRoleBindingResponse struct {
 
 func (x *DeleteRoleBindingResponse) Reset() {
 	*x = DeleteRoleBindingResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[52]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3574,7 +3872,7 @@ func (x *DeleteRoleBindingResponse) String() string {
 func (*DeleteRoleBindingResponse) ProtoMessage() {}
 
 func (x *DeleteRoleBindingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[52]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3587,7 +3885,7 @@ func (x *DeleteRoleBindingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRoleBindingResponse.ProtoReflect.Descriptor instead.
 func (*DeleteRoleBindingResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{52}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{55}
 }
 
 type ListServiceAccountsRequest struct {
@@ -3599,7 +3897,7 @@ type ListServiceAccountsRequest struct {
 
 func (x *ListServiceAccountsRequest) Reset() {
 	*x = ListServiceAccountsRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[53]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3611,7 +3909,7 @@ func (x *ListServiceAccountsRequest) String() string {
 func (*ListServiceAccountsRequest) ProtoMessage() {}
 
 func (x *ListServiceAccountsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[53]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3624,7 +3922,7 @@ func (x *ListServiceAccountsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServiceAccountsRequest.ProtoReflect.Descriptor instead.
 func (*ListServiceAccountsRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{53}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *ListServiceAccountsRequest) GetAccountId() string {
@@ -3643,7 +3941,7 @@ type ListServiceAccountsResponse struct {
 
 func (x *ListServiceAccountsResponse) Reset() {
 	*x = ListServiceAccountsResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[54]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3655,7 +3953,7 @@ func (x *ListServiceAccountsResponse) String() string {
 func (*ListServiceAccountsResponse) ProtoMessage() {}
 
 func (x *ListServiceAccountsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[54]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3668,7 +3966,7 @@ func (x *ListServiceAccountsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServiceAccountsResponse.ProtoReflect.Descriptor instead.
 func (*ListServiceAccountsResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{54}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *ListServiceAccountsResponse) GetServiceAccounts() []*ServiceAccount {
@@ -3688,7 +3986,7 @@ type CreateServiceAccountRequest struct {
 
 func (x *CreateServiceAccountRequest) Reset() {
 	*x = CreateServiceAccountRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[55]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3700,7 +3998,7 @@ func (x *CreateServiceAccountRequest) String() string {
 func (*CreateServiceAccountRequest) ProtoMessage() {}
 
 func (x *CreateServiceAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[55]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3713,7 +4011,7 @@ func (x *CreateServiceAccountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateServiceAccountRequest.ProtoReflect.Descriptor instead.
 func (*CreateServiceAccountRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{55}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *CreateServiceAccountRequest) GetAccountId() string {
@@ -3739,7 +4037,7 @@ type CreateServiceAccountResponse struct {
 
 func (x *CreateServiceAccountResponse) Reset() {
 	*x = CreateServiceAccountResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[56]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3751,7 +4049,7 @@ func (x *CreateServiceAccountResponse) String() string {
 func (*CreateServiceAccountResponse) ProtoMessage() {}
 
 func (x *CreateServiceAccountResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[56]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3764,7 +4062,7 @@ func (x *CreateServiceAccountResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateServiceAccountResponse.ProtoReflect.Descriptor instead.
 func (*CreateServiceAccountResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{56}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *CreateServiceAccountResponse) GetServiceAccount() *ServiceAccount {
@@ -3786,7 +4084,7 @@ type SetServiceAccountStateRequest struct {
 
 func (x *SetServiceAccountStateRequest) Reset() {
 	*x = SetServiceAccountStateRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[57]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3798,7 +4096,7 @@ func (x *SetServiceAccountStateRequest) String() string {
 func (*SetServiceAccountStateRequest) ProtoMessage() {}
 
 func (x *SetServiceAccountStateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[57]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3811,7 +4109,7 @@ func (x *SetServiceAccountStateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetServiceAccountStateRequest.ProtoReflect.Descriptor instead.
 func (*SetServiceAccountStateRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{57}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *SetServiceAccountStateRequest) GetAccountId() string {
@@ -3850,7 +4148,7 @@ type SetServiceAccountStateResponse struct {
 
 func (x *SetServiceAccountStateResponse) Reset() {
 	*x = SetServiceAccountStateResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[58]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3862,7 +4160,7 @@ func (x *SetServiceAccountStateResponse) String() string {
 func (*SetServiceAccountStateResponse) ProtoMessage() {}
 
 func (x *SetServiceAccountStateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[58]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3875,7 +4173,7 @@ func (x *SetServiceAccountStateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetServiceAccountStateResponse.ProtoReflect.Descriptor instead.
 func (*SetServiceAccountStateResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{58}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{61}
 }
 
 type ListApiKeysRequest struct {
@@ -3889,7 +4187,7 @@ type ListApiKeysRequest struct {
 
 func (x *ListApiKeysRequest) Reset() {
 	*x = ListApiKeysRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[59]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3901,7 +4199,7 @@ func (x *ListApiKeysRequest) String() string {
 func (*ListApiKeysRequest) ProtoMessage() {}
 
 func (x *ListApiKeysRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[59]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3914,7 +4212,7 @@ func (x *ListApiKeysRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListApiKeysRequest.ProtoReflect.Descriptor instead.
 func (*ListApiKeysRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{59}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *ListApiKeysRequest) GetAccountId() string {
@@ -3947,7 +4245,7 @@ type ListApiKeysResponse struct {
 
 func (x *ListApiKeysResponse) Reset() {
 	*x = ListApiKeysResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[60]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3959,7 +4257,7 @@ func (x *ListApiKeysResponse) String() string {
 func (*ListApiKeysResponse) ProtoMessage() {}
 
 func (x *ListApiKeysResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[60]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3972,7 +4270,7 @@ func (x *ListApiKeysResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListApiKeysResponse.ProtoReflect.Descriptor instead.
 func (*ListApiKeysResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{60}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *ListApiKeysResponse) GetApiKeys() []*ApiKey {
@@ -3994,7 +4292,7 @@ type CreateApiKeyRequest struct {
 
 func (x *CreateApiKeyRequest) Reset() {
 	*x = CreateApiKeyRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[61]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4006,7 +4304,7 @@ func (x *CreateApiKeyRequest) String() string {
 func (*CreateApiKeyRequest) ProtoMessage() {}
 
 func (x *CreateApiKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[61]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4019,7 +4317,7 @@ func (x *CreateApiKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateApiKeyRequest.ProtoReflect.Descriptor instead.
 func (*CreateApiKeyRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{61}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *CreateApiKeyRequest) GetAccountId() string {
@@ -4060,7 +4358,7 @@ type CreateApiKeyResponse struct {
 
 func (x *CreateApiKeyResponse) Reset() {
 	*x = CreateApiKeyResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[62]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4072,7 +4370,7 @@ func (x *CreateApiKeyResponse) String() string {
 func (*CreateApiKeyResponse) ProtoMessage() {}
 
 func (x *CreateApiKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[62]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4085,7 +4383,7 @@ func (x *CreateApiKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateApiKeyResponse.ProtoReflect.Descriptor instead.
 func (*CreateApiKeyResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{62}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *CreateApiKeyResponse) GetKey() *ApiKey {
@@ -4112,7 +4410,7 @@ type RevokeApiKeyRequest struct {
 
 func (x *RevokeApiKeyRequest) Reset() {
 	*x = RevokeApiKeyRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[63]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4124,7 +4422,7 @@ func (x *RevokeApiKeyRequest) String() string {
 func (*RevokeApiKeyRequest) ProtoMessage() {}
 
 func (x *RevokeApiKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[63]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4137,7 +4435,7 @@ func (x *RevokeApiKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeApiKeyRequest.ProtoReflect.Descriptor instead.
 func (*RevokeApiKeyRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{63}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *RevokeApiKeyRequest) GetAccountId() string {
@@ -4162,7 +4460,7 @@ type RevokeApiKeyResponse struct {
 
 func (x *RevokeApiKeyResponse) Reset() {
 	*x = RevokeApiKeyResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[64]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4174,7 +4472,7 @@ func (x *RevokeApiKeyResponse) String() string {
 func (*RevokeApiKeyResponse) ProtoMessage() {}
 
 func (x *RevokeApiKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[64]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4187,7 +4485,7 @@ func (x *RevokeApiKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeApiKeyResponse.ProtoReflect.Descriptor instead.
 func (*RevokeApiKeyResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{64}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{67}
 }
 
 type MigratePrimaryRequest struct {
@@ -4200,7 +4498,7 @@ type MigratePrimaryRequest struct {
 
 func (x *MigratePrimaryRequest) Reset() {
 	*x = MigratePrimaryRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[65]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4212,7 +4510,7 @@ func (x *MigratePrimaryRequest) String() string {
 func (*MigratePrimaryRequest) ProtoMessage() {}
 
 func (x *MigratePrimaryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[65]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4225,7 +4523,7 @@ func (x *MigratePrimaryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MigratePrimaryRequest.ProtoReflect.Descriptor instead.
 func (*MigratePrimaryRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{65}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *MigratePrimaryRequest) GetCidr() string {
@@ -4250,7 +4548,7 @@ type MigratePrimaryResponse struct {
 
 func (x *MigratePrimaryResponse) Reset() {
 	*x = MigratePrimaryResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[66]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4262,7 +4560,7 @@ func (x *MigratePrimaryResponse) String() string {
 func (*MigratePrimaryResponse) ProtoMessage() {}
 
 func (x *MigratePrimaryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[66]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4275,7 +4573,7 @@ func (x *MigratePrimaryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MigratePrimaryResponse.ProtoReflect.Descriptor instead.
 func (*MigratePrimaryResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{66}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{69}
 }
 
 type ExecuteAdminCommandRequest struct {
@@ -4302,7 +4600,7 @@ type ExecuteAdminCommandRequest struct {
 
 func (x *ExecuteAdminCommandRequest) Reset() {
 	*x = ExecuteAdminCommandRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[67]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4314,7 +4612,7 @@ func (x *ExecuteAdminCommandRequest) String() string {
 func (*ExecuteAdminCommandRequest) ProtoMessage() {}
 
 func (x *ExecuteAdminCommandRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[67]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4327,7 +4625,7 @@ func (x *ExecuteAdminCommandRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecuteAdminCommandRequest.ProtoReflect.Descriptor instead.
 func (*ExecuteAdminCommandRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{67}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *ExecuteAdminCommandRequest) GetAccountId() string {
@@ -4430,7 +4728,7 @@ type ExecuteAdminCommandResponse struct {
 
 func (x *ExecuteAdminCommandResponse) Reset() {
 	*x = ExecuteAdminCommandResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[68]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4442,7 +4740,7 @@ func (x *ExecuteAdminCommandResponse) String() string {
 func (*ExecuteAdminCommandResponse) ProtoMessage() {}
 
 func (x *ExecuteAdminCommandResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[68]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4455,7 +4753,7 @@ func (x *ExecuteAdminCommandResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecuteAdminCommandResponse.ProtoReflect.Descriptor instead.
 func (*ExecuteAdminCommandResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{68}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{71}
 }
 
 func (x *ExecuteAdminCommandResponse) GetOperation() *Operation {
@@ -4477,7 +4775,7 @@ type GetAdminStateRequest struct {
 
 func (x *GetAdminStateRequest) Reset() {
 	*x = GetAdminStateRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[69]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4489,7 +4787,7 @@ func (x *GetAdminStateRequest) String() string {
 func (*GetAdminStateRequest) ProtoMessage() {}
 
 func (x *GetAdminStateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[69]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4502,7 +4800,7 @@ func (x *GetAdminStateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminStateRequest.ProtoReflect.Descriptor instead.
 func (*GetAdminStateRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{69}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *GetAdminStateRequest) GetAccountId() string {
@@ -4542,7 +4840,7 @@ type GetAdminStateResponse struct {
 
 func (x *GetAdminStateResponse) Reset() {
 	*x = GetAdminStateResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[70]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4554,7 +4852,7 @@ func (x *GetAdminStateResponse) String() string {
 func (*GetAdminStateResponse) ProtoMessage() {}
 
 func (x *GetAdminStateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[70]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4567,7 +4865,7 @@ func (x *GetAdminStateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminStateResponse.ProtoReflect.Descriptor instead.
 func (*GetAdminStateResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{70}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{73}
 }
 
 func (x *GetAdminStateResponse) GetState() *State {
@@ -4589,7 +4887,7 @@ type GetAdminScopeRequest struct {
 
 func (x *GetAdminScopeRequest) Reset() {
 	*x = GetAdminScopeRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[71]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4601,7 +4899,7 @@ func (x *GetAdminScopeRequest) String() string {
 func (*GetAdminScopeRequest) ProtoMessage() {}
 
 func (x *GetAdminScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[71]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4614,7 +4912,7 @@ func (x *GetAdminScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminScopeRequest.ProtoReflect.Descriptor instead.
 func (*GetAdminScopeRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{71}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{74}
 }
 
 func (x *GetAdminScopeRequest) GetAccountId() string {
@@ -4654,7 +4952,7 @@ type GetAdminScopeResponse struct {
 
 func (x *GetAdminScopeResponse) Reset() {
 	*x = GetAdminScopeResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[72]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4666,7 +4964,7 @@ func (x *GetAdminScopeResponse) String() string {
 func (*GetAdminScopeResponse) ProtoMessage() {}
 
 func (x *GetAdminScopeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[72]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4679,7 +4977,7 @@ func (x *GetAdminScopeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminScopeResponse.ProtoReflect.Descriptor instead.
 func (*GetAdminScopeResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{72}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *GetAdminScopeResponse) GetScope() *ScopeState {
@@ -4701,7 +4999,7 @@ type ListAdminNodesRequest struct {
 
 func (x *ListAdminNodesRequest) Reset() {
 	*x = ListAdminNodesRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[73]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4713,7 +5011,7 @@ func (x *ListAdminNodesRequest) String() string {
 func (*ListAdminNodesRequest) ProtoMessage() {}
 
 func (x *ListAdminNodesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[73]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4726,7 +5024,7 @@ func (x *ListAdminNodesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminNodesRequest.ProtoReflect.Descriptor instead.
 func (*ListAdminNodesRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{73}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *ListAdminNodesRequest) GetAccountId() string {
@@ -4766,7 +5064,7 @@ type ListAdminNodesResponse struct {
 
 func (x *ListAdminNodesResponse) Reset() {
 	*x = ListAdminNodesResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[74]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4778,7 +5076,7 @@ func (x *ListAdminNodesResponse) String() string {
 func (*ListAdminNodesResponse) ProtoMessage() {}
 
 func (x *ListAdminNodesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[74]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4791,7 +5089,7 @@ func (x *ListAdminNodesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminNodesResponse.ProtoReflect.Descriptor instead.
 func (*ListAdminNodesResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{74}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *ListAdminNodesResponse) GetNodes() []*Node {
@@ -4814,7 +5112,7 @@ type GetAdminOperationRequest struct {
 
 func (x *GetAdminOperationRequest) Reset() {
 	*x = GetAdminOperationRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[75]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4826,7 +5124,7 @@ func (x *GetAdminOperationRequest) String() string {
 func (*GetAdminOperationRequest) ProtoMessage() {}
 
 func (x *GetAdminOperationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[75]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4839,7 +5137,7 @@ func (x *GetAdminOperationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminOperationRequest.ProtoReflect.Descriptor instead.
 func (*GetAdminOperationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{75}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{78}
 }
 
 func (x *GetAdminOperationRequest) GetAccountId() string {
@@ -4886,7 +5184,7 @@ type GetAdminOperationResponse struct {
 
 func (x *GetAdminOperationResponse) Reset() {
 	*x = GetAdminOperationResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[76]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4898,7 +5196,7 @@ func (x *GetAdminOperationResponse) String() string {
 func (*GetAdminOperationResponse) ProtoMessage() {}
 
 func (x *GetAdminOperationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[76]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4911,7 +5209,7 @@ func (x *GetAdminOperationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminOperationResponse.ProtoReflect.Descriptor instead.
 func (*GetAdminOperationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{76}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *GetAdminOperationResponse) GetOperation() *Operation {
@@ -4934,7 +5232,7 @@ type GetAdminRetirementRequest struct {
 
 func (x *GetAdminRetirementRequest) Reset() {
 	*x = GetAdminRetirementRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[77]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4946,7 +5244,7 @@ func (x *GetAdminRetirementRequest) String() string {
 func (*GetAdminRetirementRequest) ProtoMessage() {}
 
 func (x *GetAdminRetirementRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[77]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4959,7 +5257,7 @@ func (x *GetAdminRetirementRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRetirementRequest.ProtoReflect.Descriptor instead.
 func (*GetAdminRetirementRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{77}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{80}
 }
 
 func (x *GetAdminRetirementRequest) GetAccountId() string {
@@ -5006,7 +5304,7 @@ type GetAdminRetirementResponse struct {
 
 func (x *GetAdminRetirementResponse) Reset() {
 	*x = GetAdminRetirementResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[78]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5018,7 +5316,7 @@ func (x *GetAdminRetirementResponse) String() string {
 func (*GetAdminRetirementResponse) ProtoMessage() {}
 
 func (x *GetAdminRetirementResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[78]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5031,7 +5329,7 @@ func (x *GetAdminRetirementResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRetirementResponse.ProtoReflect.Descriptor instead.
 func (*GetAdminRetirementResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{78}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{81}
 }
 
 func (x *GetAdminRetirementResponse) GetRetirement() *Retirement {
@@ -5053,7 +5351,7 @@ type CreateAdminEnrollmentCodeRequest struct {
 
 func (x *CreateAdminEnrollmentCodeRequest) Reset() {
 	*x = CreateAdminEnrollmentCodeRequest{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[79]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5065,7 +5363,7 @@ func (x *CreateAdminEnrollmentCodeRequest) String() string {
 func (*CreateAdminEnrollmentCodeRequest) ProtoMessage() {}
 
 func (x *CreateAdminEnrollmentCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[79]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5078,7 +5376,7 @@ func (x *CreateAdminEnrollmentCodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdminEnrollmentCodeRequest.ProtoReflect.Descriptor instead.
 func (*CreateAdminEnrollmentCodeRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{79}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{82}
 }
 
 func (x *CreateAdminEnrollmentCodeRequest) GetAccountId() string {
@@ -5118,7 +5416,7 @@ type CreateAdminEnrollmentCodeResponse struct {
 
 func (x *CreateAdminEnrollmentCodeResponse) Reset() {
 	*x = CreateAdminEnrollmentCodeResponse{}
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[80]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5130,7 +5428,7 @@ func (x *CreateAdminEnrollmentCodeResponse) String() string {
 func (*CreateAdminEnrollmentCodeResponse) ProtoMessage() {}
 
 func (x *CreateAdminEnrollmentCodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_authority_v1_authority_proto_msgTypes[80]
+	mi := &file_n0x_authority_v1_authority_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5143,7 +5441,7 @@ func (x *CreateAdminEnrollmentCodeResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use CreateAdminEnrollmentCodeResponse.ProtoReflect.Descriptor instead.
 func (*CreateAdminEnrollmentCodeResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{80}
+	return file_n0x_authority_v1_authority_proto_rawDescGZIP(), []int{83}
 }
 
 func (x *CreateAdminEnrollmentCodeResponse) GetEnrollmentCode() *EnrollmentCode {
@@ -5157,7 +5455,7 @@ var File_n0x_authority_v1_authority_proto protoreflect.FileDescriptor
 
 const file_n0x_authority_v1_authority_proto_rawDesc = "" +
 	"\n" +
-	" n0x/authority/v1/authority.proto\x12\x10n0x.authority.v1\x1a\x1cn0x/control/v1/control.proto\x1a\x1an0x/signed/v1/signed.proto\"f\n" +
+	" n0x/authority/v1/authority.proto\x12\x10n0x.authority.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cn0x/control/v1/control.proto\x1a\x1an0x/signed/v1/signed.proto\"f\n" +
 	"\x05Scope\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\x1d\n" +
 	"\n" +
@@ -5279,7 +5577,7 @@ const file_n0x_authority_v1_authority_proto_rawDesc = "" +
 	"\x0eEnrollmentCode\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\tR\x04code\x12\x1d\n" +
 	"\n" +
-	"expires_at\x18\x02 \x01(\tR\texpiresAt\"\xe5\x01\n" +
+	"expires_at\x18\x02 \x01(\tR\texpiresAt\"\xfc\x03\n" +
 	"\x06Tenant\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\x1d\n" +
 	"\n" +
@@ -5289,7 +5587,19 @@ const file_n0x_authority_v1_authority_proto_rawDesc = "" +
 	"\x04cidr\x18\x05 \x01(\tR\x04cidr\x12-\n" +
 	"\x05scope\x18\x06 \x01(\v2\x17.n0x.authority.v1.ScopeR\x05scope\x12\x14\n" +
 	"\x05state\x18\a \x01(\tR\x05state\x12\x18\n" +
-	"\aversion\x18\b \x01(\tR\aversion\"\x94\x01\n" +
+	"\aversion\x18\b \x01(\tR\aversion\x12(\n" +
+	"\raddressing_v4\x18\t \x01(\tH\x00R\faddressingV4\x88\x01\x01\x12(\n" +
+	"\raddressing_v6\x18\n" +
+	" \x01(\tH\x01R\faddressingV6\x88\x01\x01\x12[\n" +
+	"\x13inactivity_timeouts\x18\v \x01(\v2*.n0x.authority.v1.TenantInactivityTimeoutsR\x12inactivityTimeouts\x12,\n" +
+	"\x0frevision_number\x18\f \x01(\x04H\x02R\x0erevisionNumber\x88\x01\x01B\x10\n" +
+	"\x0e_addressing_v4B\x10\n" +
+	"\x0e_addressing_v6B\x12\n" +
+	"\x10_revision_number\"\xc0\x01\n" +
+	"\x18TenantInactivityTimeouts\x121\n" +
+	"\x06person\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x06person\x12-\n" +
+	"\x04node\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\x04node\x12B\n" +
+	"\x0fservice_account\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x0eserviceAccount\"\x94\x01\n" +
 	"\x04Role\x12\x17\n" +
 	"\arole_id\x18\x01 \x01(\tR\x06roleId\x12\x1d\n" +
 	"\n" +
@@ -5433,16 +5743,40 @@ const file_n0x_authority_v1_authority_proto_rawDesc = "" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
 	"\ttenant_id\x18\x02 \x01(\tR\btenantId\"E\n" +
 	"\x11GetTenantResponse\x120\n" +
-	"\x06tenant\x18\x01 \x01(\v2\x18.n0x.authority.v1.TenantR\x06tenant\"{\n" +
+	"\x06tenant\x18\x01 \x01(\v2\x18.n0x.authority.v1.TenantR\x06tenant\"\xf8\x02\n" +
 	"\x13CreateTenantRequest\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x02 \x01(\tR\trequestId\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x12\n" +
-	"\x04cidr\x18\x04 \x01(\tR\x04cidr\"H\n" +
+	"\x04cidr\x18\x04 \x01(\tR\x04cidr\x12(\n" +
+	"\raddressing_v4\x18\x05 \x01(\tH\x00R\faddressingV4\x88\x01\x01\x12(\n" +
+	"\raddressing_v6\x18\x06 \x01(\tH\x01R\faddressingV6\x88\x01\x01\x12[\n" +
+	"\x13inactivity_timeouts\x18\a \x01(\v2*.n0x.authority.v1.TenantInactivityTimeoutsR\x12inactivityTimeouts\x12\x1b\n" +
+	"\x06reason\x18\b \x01(\tH\x02R\x06reason\x88\x01\x01B\x10\n" +
+	"\x0e_addressing_v4B\x10\n" +
+	"\x0e_addressing_v6B\t\n" +
+	"\a_reason\"H\n" +
 	"\x14CreateTenantResponse\x120\n" +
-	"\x06tenant\x18\x01 \x01(\v2\x18.n0x.authority.v1.TenantR\x06tenant\"T\n" +
+	"\x06tenant\x18\x01 \x01(\v2\x18.n0x.authority.v1.TenantR\x06tenant\"\xb8\x03\n" +
+	"\x1bUpdateTenantSettingsRequest\x12\x1d\n" +
+	"\n" +
+	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
+	"\ttenant_id\x18\x02 \x01(\tR\btenantId\x12(\n" +
+	"\raddressing_v4\x18\x03 \x01(\tH\x00R\faddressingV4\x88\x01\x01\x12(\n" +
+	"\raddressing_v6\x18\x04 \x01(\tH\x01R\faddressingV6\x88\x01\x01\x12[\n" +
+	"\x13inactivity_timeouts\x18\x05 \x01(\v2*.n0x.authority.v1.TenantInactivityTimeoutsR\x12inactivityTimeouts\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x06 \x01(\tR\trequestId\x12\x16\n" +
+	"\x06reason\x18\a \x01(\tR\x06reason\x127\n" +
+	"\x15draft_revision_number\x18\b \x01(\x04H\x02R\x13draftRevisionNumber\x88\x01\x01B\x10\n" +
+	"\x0e_addressing_v4B\x10\n" +
+	"\x0e_addressing_v6B\x18\n" +
+	"\x16_draft_revision_number\"y\n" +
+	"\x1cUpdateTenantSettingsResponse\x120\n" +
+	"\x06tenant\x18\x01 \x01(\v2\x18.n0x.authority.v1.TenantR\x06tenant\x12'\n" +
+	"\x0frevision_number\x18\x02 \x01(\x04R\x0erevisionNumber\"T\n" +
 	"\x16ListPermissionsRequest\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
@@ -5612,11 +5946,12 @@ const file_n0x_authority_v1_authority_proto_rawDesc = "" +
 	"\tListNodes\x12\".n0x.authority.v1.ListNodesRequest\x1a#.n0x.authority.v1.ListNodesResponse\x12]\n" +
 	"\fGetOperation\x12%.n0x.authority.v1.GetOperationRequest\x1a&.n0x.authority.v1.GetOperationResponse\x12`\n" +
 	"\rGetRetirement\x12&.n0x.authority.v1.GetRetirementRequest\x1a'.n0x.authority.v1.GetRetirementResponse\x12u\n" +
-	"\x14CreateEnrollmentCode\x12-.n0x.authority.v1.CreateEnrollmentCodeRequest\x1a..n0x.authority.v1.CreateEnrollmentCodeResponse2\xa0\x02\n" +
+	"\x14CreateEnrollmentCode\x12-.n0x.authority.v1.CreateEnrollmentCodeRequest\x1a..n0x.authority.v1.CreateEnrollmentCodeResponse2\x97\x03\n" +
 	"\rTenantService\x12Z\n" +
 	"\vListTenants\x12$.n0x.authority.v1.ListTenantsRequest\x1a%.n0x.authority.v1.ListTenantsResponse\x12T\n" +
 	"\tGetTenant\x12\".n0x.authority.v1.GetTenantRequest\x1a#.n0x.authority.v1.GetTenantResponse\x12]\n" +
-	"\fCreateTenant\x12%.n0x.authority.v1.CreateTenantRequest\x1a&.n0x.authority.v1.CreateTenantResponse2\xda\t\n" +
+	"\fCreateTenant\x12%.n0x.authority.v1.CreateTenantRequest\x1a&.n0x.authority.v1.CreateTenantResponse\x12u\n" +
+	"\x14UpdateTenantSettings\x12-.n0x.authority.v1.UpdateTenantSettingsRequest\x1a..n0x.authority.v1.UpdateTenantSettingsResponse2\xda\t\n" +
 	"\n" +
 	"IamService\x12f\n" +
 	"\x0fListPermissions\x12(.n0x.authority.v1.ListPermissionsRequest\x1a).n0x.authority.v1.ListPermissionsResponse\x12T\n" +
@@ -5653,7 +5988,7 @@ func file_n0x_authority_v1_authority_proto_rawDescGZIP() []byte {
 	return file_n0x_authority_v1_authority_proto_rawDescData
 }
 
-var file_n0x_authority_v1_authority_proto_msgTypes = make([]protoimpl.MessageInfo, 81)
+var file_n0x_authority_v1_authority_proto_msgTypes = make([]protoimpl.MessageInfo, 84)
 var file_n0x_authority_v1_authority_proto_goTypes = []any{
 	(*Scope)(nil),                             // 0: n0x.authority.v1.Scope
 	(*RetirementStatus)(nil),                  // 1: n0x.authority.v1.RetirementStatus
@@ -5668,193 +6003,206 @@ var file_n0x_authority_v1_authority_proto_goTypes = []any{
 	(*Retirement)(nil),                        // 10: n0x.authority.v1.Retirement
 	(*EnrollmentCode)(nil),                    // 11: n0x.authority.v1.EnrollmentCode
 	(*Tenant)(nil),                            // 12: n0x.authority.v1.Tenant
-	(*Role)(nil),                              // 13: n0x.authority.v1.Role
-	(*RoleBinding)(nil),                       // 14: n0x.authority.v1.RoleBinding
-	(*ServiceAccount)(nil),                    // 15: n0x.authority.v1.ServiceAccount
-	(*ApiKey)(nil),                            // 16: n0x.authority.v1.ApiKey
-	(*AccountBinding)(nil),                    // 17: n0x.authority.v1.AccountBinding
-	(*MembershipUpdate)(nil),                  // 18: n0x.authority.v1.MembershipUpdate
-	(*RuleSet)(nil),                           // 19: n0x.authority.v1.RuleSet
-	(*TagSet)(nil),                            // 20: n0x.authority.v1.TagSet
-	(*ExecuteCommandRequest)(nil),             // 21: n0x.authority.v1.ExecuteCommandRequest
-	(*ExecuteCommandResponse)(nil),            // 22: n0x.authority.v1.ExecuteCommandResponse
-	(*GetStateRequest)(nil),                   // 23: n0x.authority.v1.GetStateRequest
-	(*GetStateResponse)(nil),                  // 24: n0x.authority.v1.GetStateResponse
-	(*GetScopeRequest)(nil),                   // 25: n0x.authority.v1.GetScopeRequest
-	(*GetScopeResponse)(nil),                  // 26: n0x.authority.v1.GetScopeResponse
-	(*ListNodesRequest)(nil),                  // 27: n0x.authority.v1.ListNodesRequest
-	(*ListNodesResponse)(nil),                 // 28: n0x.authority.v1.ListNodesResponse
-	(*GetOperationRequest)(nil),               // 29: n0x.authority.v1.GetOperationRequest
-	(*GetOperationResponse)(nil),              // 30: n0x.authority.v1.GetOperationResponse
-	(*GetRetirementRequest)(nil),              // 31: n0x.authority.v1.GetRetirementRequest
-	(*GetRetirementResponse)(nil),             // 32: n0x.authority.v1.GetRetirementResponse
-	(*CreateEnrollmentCodeRequest)(nil),       // 33: n0x.authority.v1.CreateEnrollmentCodeRequest
-	(*CreateEnrollmentCodeResponse)(nil),      // 34: n0x.authority.v1.CreateEnrollmentCodeResponse
-	(*ListTenantsRequest)(nil),                // 35: n0x.authority.v1.ListTenantsRequest
-	(*ListTenantsResponse)(nil),               // 36: n0x.authority.v1.ListTenantsResponse
-	(*GetTenantRequest)(nil),                  // 37: n0x.authority.v1.GetTenantRequest
-	(*GetTenantResponse)(nil),                 // 38: n0x.authority.v1.GetTenantResponse
-	(*CreateTenantRequest)(nil),               // 39: n0x.authority.v1.CreateTenantRequest
-	(*CreateTenantResponse)(nil),              // 40: n0x.authority.v1.CreateTenantResponse
-	(*ListPermissionsRequest)(nil),            // 41: n0x.authority.v1.ListPermissionsRequest
-	(*ListPermissionsResponse)(nil),           // 42: n0x.authority.v1.ListPermissionsResponse
-	(*ListRolesRequest)(nil),                  // 43: n0x.authority.v1.ListRolesRequest
-	(*ListRolesResponse)(nil),                 // 44: n0x.authority.v1.ListRolesResponse
-	(*PutRoleRequest)(nil),                    // 45: n0x.authority.v1.PutRoleRequest
-	(*PutRoleResponse)(nil),                   // 46: n0x.authority.v1.PutRoleResponse
-	(*ListRoleBindingsRequest)(nil),           // 47: n0x.authority.v1.ListRoleBindingsRequest
-	(*ListRoleBindingsResponse)(nil),          // 48: n0x.authority.v1.ListRoleBindingsResponse
-	(*PutRoleBindingRequest)(nil),             // 49: n0x.authority.v1.PutRoleBindingRequest
-	(*PutRoleBindingResponse)(nil),            // 50: n0x.authority.v1.PutRoleBindingResponse
-	(*DeleteRoleBindingRequest)(nil),          // 51: n0x.authority.v1.DeleteRoleBindingRequest
-	(*DeleteRoleBindingResponse)(nil),         // 52: n0x.authority.v1.DeleteRoleBindingResponse
-	(*ListServiceAccountsRequest)(nil),        // 53: n0x.authority.v1.ListServiceAccountsRequest
-	(*ListServiceAccountsResponse)(nil),       // 54: n0x.authority.v1.ListServiceAccountsResponse
-	(*CreateServiceAccountRequest)(nil),       // 55: n0x.authority.v1.CreateServiceAccountRequest
-	(*CreateServiceAccountResponse)(nil),      // 56: n0x.authority.v1.CreateServiceAccountResponse
-	(*SetServiceAccountStateRequest)(nil),     // 57: n0x.authority.v1.SetServiceAccountStateRequest
-	(*SetServiceAccountStateResponse)(nil),    // 58: n0x.authority.v1.SetServiceAccountStateResponse
-	(*ListApiKeysRequest)(nil),                // 59: n0x.authority.v1.ListApiKeysRequest
-	(*ListApiKeysResponse)(nil),               // 60: n0x.authority.v1.ListApiKeysResponse
-	(*CreateApiKeyRequest)(nil),               // 61: n0x.authority.v1.CreateApiKeyRequest
-	(*CreateApiKeyResponse)(nil),              // 62: n0x.authority.v1.CreateApiKeyResponse
-	(*RevokeApiKeyRequest)(nil),               // 63: n0x.authority.v1.RevokeApiKeyRequest
-	(*RevokeApiKeyResponse)(nil),              // 64: n0x.authority.v1.RevokeApiKeyResponse
-	(*MigratePrimaryRequest)(nil),             // 65: n0x.authority.v1.MigratePrimaryRequest
-	(*MigratePrimaryResponse)(nil),            // 66: n0x.authority.v1.MigratePrimaryResponse
-	(*ExecuteAdminCommandRequest)(nil),        // 67: n0x.authority.v1.ExecuteAdminCommandRequest
-	(*ExecuteAdminCommandResponse)(nil),       // 68: n0x.authority.v1.ExecuteAdminCommandResponse
-	(*GetAdminStateRequest)(nil),              // 69: n0x.authority.v1.GetAdminStateRequest
-	(*GetAdminStateResponse)(nil),             // 70: n0x.authority.v1.GetAdminStateResponse
-	(*GetAdminScopeRequest)(nil),              // 71: n0x.authority.v1.GetAdminScopeRequest
-	(*GetAdminScopeResponse)(nil),             // 72: n0x.authority.v1.GetAdminScopeResponse
-	(*ListAdminNodesRequest)(nil),             // 73: n0x.authority.v1.ListAdminNodesRequest
-	(*ListAdminNodesResponse)(nil),            // 74: n0x.authority.v1.ListAdminNodesResponse
-	(*GetAdminOperationRequest)(nil),          // 75: n0x.authority.v1.GetAdminOperationRequest
-	(*GetAdminOperationResponse)(nil),         // 76: n0x.authority.v1.GetAdminOperationResponse
-	(*GetAdminRetirementRequest)(nil),         // 77: n0x.authority.v1.GetAdminRetirementRequest
-	(*GetAdminRetirementResponse)(nil),        // 78: n0x.authority.v1.GetAdminRetirementResponse
-	(*CreateAdminEnrollmentCodeRequest)(nil),  // 79: n0x.authority.v1.CreateAdminEnrollmentCodeRequest
-	(*CreateAdminEnrollmentCodeResponse)(nil), // 80: n0x.authority.v1.CreateAdminEnrollmentCodeResponse
-	(*v1.FlowTelemetry)(nil),                  // 81: n0x.control.v1.FlowTelemetry
-	(*v11.Rule)(nil),                          // 82: n0x.signed.v1.Rule
+	(*TenantInactivityTimeouts)(nil),          // 13: n0x.authority.v1.TenantInactivityTimeouts
+	(*Role)(nil),                              // 14: n0x.authority.v1.Role
+	(*RoleBinding)(nil),                       // 15: n0x.authority.v1.RoleBinding
+	(*ServiceAccount)(nil),                    // 16: n0x.authority.v1.ServiceAccount
+	(*ApiKey)(nil),                            // 17: n0x.authority.v1.ApiKey
+	(*AccountBinding)(nil),                    // 18: n0x.authority.v1.AccountBinding
+	(*MembershipUpdate)(nil),                  // 19: n0x.authority.v1.MembershipUpdate
+	(*RuleSet)(nil),                           // 20: n0x.authority.v1.RuleSet
+	(*TagSet)(nil),                            // 21: n0x.authority.v1.TagSet
+	(*ExecuteCommandRequest)(nil),             // 22: n0x.authority.v1.ExecuteCommandRequest
+	(*ExecuteCommandResponse)(nil),            // 23: n0x.authority.v1.ExecuteCommandResponse
+	(*GetStateRequest)(nil),                   // 24: n0x.authority.v1.GetStateRequest
+	(*GetStateResponse)(nil),                  // 25: n0x.authority.v1.GetStateResponse
+	(*GetScopeRequest)(nil),                   // 26: n0x.authority.v1.GetScopeRequest
+	(*GetScopeResponse)(nil),                  // 27: n0x.authority.v1.GetScopeResponse
+	(*ListNodesRequest)(nil),                  // 28: n0x.authority.v1.ListNodesRequest
+	(*ListNodesResponse)(nil),                 // 29: n0x.authority.v1.ListNodesResponse
+	(*GetOperationRequest)(nil),               // 30: n0x.authority.v1.GetOperationRequest
+	(*GetOperationResponse)(nil),              // 31: n0x.authority.v1.GetOperationResponse
+	(*GetRetirementRequest)(nil),              // 32: n0x.authority.v1.GetRetirementRequest
+	(*GetRetirementResponse)(nil),             // 33: n0x.authority.v1.GetRetirementResponse
+	(*CreateEnrollmentCodeRequest)(nil),       // 34: n0x.authority.v1.CreateEnrollmentCodeRequest
+	(*CreateEnrollmentCodeResponse)(nil),      // 35: n0x.authority.v1.CreateEnrollmentCodeResponse
+	(*ListTenantsRequest)(nil),                // 36: n0x.authority.v1.ListTenantsRequest
+	(*ListTenantsResponse)(nil),               // 37: n0x.authority.v1.ListTenantsResponse
+	(*GetTenantRequest)(nil),                  // 38: n0x.authority.v1.GetTenantRequest
+	(*GetTenantResponse)(nil),                 // 39: n0x.authority.v1.GetTenantResponse
+	(*CreateTenantRequest)(nil),               // 40: n0x.authority.v1.CreateTenantRequest
+	(*CreateTenantResponse)(nil),              // 41: n0x.authority.v1.CreateTenantResponse
+	(*UpdateTenantSettingsRequest)(nil),       // 42: n0x.authority.v1.UpdateTenantSettingsRequest
+	(*UpdateTenantSettingsResponse)(nil),      // 43: n0x.authority.v1.UpdateTenantSettingsResponse
+	(*ListPermissionsRequest)(nil),            // 44: n0x.authority.v1.ListPermissionsRequest
+	(*ListPermissionsResponse)(nil),           // 45: n0x.authority.v1.ListPermissionsResponse
+	(*ListRolesRequest)(nil),                  // 46: n0x.authority.v1.ListRolesRequest
+	(*ListRolesResponse)(nil),                 // 47: n0x.authority.v1.ListRolesResponse
+	(*PutRoleRequest)(nil),                    // 48: n0x.authority.v1.PutRoleRequest
+	(*PutRoleResponse)(nil),                   // 49: n0x.authority.v1.PutRoleResponse
+	(*ListRoleBindingsRequest)(nil),           // 50: n0x.authority.v1.ListRoleBindingsRequest
+	(*ListRoleBindingsResponse)(nil),          // 51: n0x.authority.v1.ListRoleBindingsResponse
+	(*PutRoleBindingRequest)(nil),             // 52: n0x.authority.v1.PutRoleBindingRequest
+	(*PutRoleBindingResponse)(nil),            // 53: n0x.authority.v1.PutRoleBindingResponse
+	(*DeleteRoleBindingRequest)(nil),          // 54: n0x.authority.v1.DeleteRoleBindingRequest
+	(*DeleteRoleBindingResponse)(nil),         // 55: n0x.authority.v1.DeleteRoleBindingResponse
+	(*ListServiceAccountsRequest)(nil),        // 56: n0x.authority.v1.ListServiceAccountsRequest
+	(*ListServiceAccountsResponse)(nil),       // 57: n0x.authority.v1.ListServiceAccountsResponse
+	(*CreateServiceAccountRequest)(nil),       // 58: n0x.authority.v1.CreateServiceAccountRequest
+	(*CreateServiceAccountResponse)(nil),      // 59: n0x.authority.v1.CreateServiceAccountResponse
+	(*SetServiceAccountStateRequest)(nil),     // 60: n0x.authority.v1.SetServiceAccountStateRequest
+	(*SetServiceAccountStateResponse)(nil),    // 61: n0x.authority.v1.SetServiceAccountStateResponse
+	(*ListApiKeysRequest)(nil),                // 62: n0x.authority.v1.ListApiKeysRequest
+	(*ListApiKeysResponse)(nil),               // 63: n0x.authority.v1.ListApiKeysResponse
+	(*CreateApiKeyRequest)(nil),               // 64: n0x.authority.v1.CreateApiKeyRequest
+	(*CreateApiKeyResponse)(nil),              // 65: n0x.authority.v1.CreateApiKeyResponse
+	(*RevokeApiKeyRequest)(nil),               // 66: n0x.authority.v1.RevokeApiKeyRequest
+	(*RevokeApiKeyResponse)(nil),              // 67: n0x.authority.v1.RevokeApiKeyResponse
+	(*MigratePrimaryRequest)(nil),             // 68: n0x.authority.v1.MigratePrimaryRequest
+	(*MigratePrimaryResponse)(nil),            // 69: n0x.authority.v1.MigratePrimaryResponse
+	(*ExecuteAdminCommandRequest)(nil),        // 70: n0x.authority.v1.ExecuteAdminCommandRequest
+	(*ExecuteAdminCommandResponse)(nil),       // 71: n0x.authority.v1.ExecuteAdminCommandResponse
+	(*GetAdminStateRequest)(nil),              // 72: n0x.authority.v1.GetAdminStateRequest
+	(*GetAdminStateResponse)(nil),             // 73: n0x.authority.v1.GetAdminStateResponse
+	(*GetAdminScopeRequest)(nil),              // 74: n0x.authority.v1.GetAdminScopeRequest
+	(*GetAdminScopeResponse)(nil),             // 75: n0x.authority.v1.GetAdminScopeResponse
+	(*ListAdminNodesRequest)(nil),             // 76: n0x.authority.v1.ListAdminNodesRequest
+	(*ListAdminNodesResponse)(nil),            // 77: n0x.authority.v1.ListAdminNodesResponse
+	(*GetAdminOperationRequest)(nil),          // 78: n0x.authority.v1.GetAdminOperationRequest
+	(*GetAdminOperationResponse)(nil),         // 79: n0x.authority.v1.GetAdminOperationResponse
+	(*GetAdminRetirementRequest)(nil),         // 80: n0x.authority.v1.GetAdminRetirementRequest
+	(*GetAdminRetirementResponse)(nil),        // 81: n0x.authority.v1.GetAdminRetirementResponse
+	(*CreateAdminEnrollmentCodeRequest)(nil),  // 82: n0x.authority.v1.CreateAdminEnrollmentCodeRequest
+	(*CreateAdminEnrollmentCodeResponse)(nil), // 83: n0x.authority.v1.CreateAdminEnrollmentCodeResponse
+	(*v1.FlowTelemetry)(nil),                  // 84: n0x.control.v1.FlowTelemetry
+	(*v11.Rule)(nil),                          // 85: n0x.signed.v1.Rule
+	(*durationpb.Duration)(nil),               // 86: google.protobuf.Duration
 }
 var file_n0x_authority_v1_authority_proto_depIdxs = []int32{
 	1,  // 0: n0x.authority.v1.NodeView.retirement:type_name -> n0x.authority.v1.RetirementStatus
-	81, // 1: n0x.authority.v1.NodeView.telemetry:type_name -> n0x.control.v1.FlowTelemetry
+	84, // 1: n0x.authority.v1.NodeView.telemetry:type_name -> n0x.control.v1.FlowTelemetry
 	0,  // 2: n0x.authority.v1.Operation.scope:type_name -> n0x.authority.v1.Scope
 	3,  // 3: n0x.authority.v1.Operation.actor:type_name -> n0x.authority.v1.OperationActor
 	0,  // 4: n0x.authority.v1.State.scope:type_name -> n0x.authority.v1.Scope
 	2,  // 5: n0x.authority.v1.State.nodes:type_name -> n0x.authority.v1.NodeView
 	4,  // 6: n0x.authority.v1.State.operations:type_name -> n0x.authority.v1.Operation
-	82, // 7: n0x.authority.v1.State.rules:type_name -> n0x.signed.v1.Rule
+	85, // 7: n0x.authority.v1.State.rules:type_name -> n0x.signed.v1.Rule
 	5,  // 8: n0x.authority.v1.State.controllers:type_name -> n0x.authority.v1.ControllerView
 	0,  // 9: n0x.authority.v1.ScopeState.scope:type_name -> n0x.authority.v1.Scope
 	0,  // 10: n0x.authority.v1.Node.scope:type_name -> n0x.authority.v1.Scope
 	8,  // 11: n0x.authority.v1.Node.resources:type_name -> n0x.authority.v1.NodeResources
 	0,  // 12: n0x.authority.v1.Retirement.scope:type_name -> n0x.authority.v1.Scope
 	0,  // 13: n0x.authority.v1.Tenant.scope:type_name -> n0x.authority.v1.Scope
-	17, // 14: n0x.authority.v1.MembershipUpdate.binding:type_name -> n0x.authority.v1.AccountBinding
-	82, // 15: n0x.authority.v1.RuleSet.rules:type_name -> n0x.signed.v1.Rule
-	0,  // 16: n0x.authority.v1.ExecuteCommandRequest.scope:type_name -> n0x.authority.v1.Scope
-	19, // 17: n0x.authority.v1.ExecuteCommandRequest.policy:type_name -> n0x.authority.v1.RuleSet
-	20, // 18: n0x.authority.v1.ExecuteCommandRequest.tags:type_name -> n0x.authority.v1.TagSet
-	4,  // 19: n0x.authority.v1.ExecuteCommandResponse.operation:type_name -> n0x.authority.v1.Operation
-	6,  // 20: n0x.authority.v1.GetStateResponse.state:type_name -> n0x.authority.v1.State
-	7,  // 21: n0x.authority.v1.GetScopeResponse.scope:type_name -> n0x.authority.v1.ScopeState
-	9,  // 22: n0x.authority.v1.ListNodesResponse.nodes:type_name -> n0x.authority.v1.Node
-	4,  // 23: n0x.authority.v1.GetOperationResponse.operation:type_name -> n0x.authority.v1.Operation
-	10, // 24: n0x.authority.v1.GetRetirementResponse.retirement:type_name -> n0x.authority.v1.Retirement
-	0,  // 25: n0x.authority.v1.CreateEnrollmentCodeRequest.scope:type_name -> n0x.authority.v1.Scope
-	11, // 26: n0x.authority.v1.CreateEnrollmentCodeResponse.enrollment_code:type_name -> n0x.authority.v1.EnrollmentCode
-	12, // 27: n0x.authority.v1.ListTenantsResponse.tenants:type_name -> n0x.authority.v1.Tenant
-	12, // 28: n0x.authority.v1.GetTenantResponse.tenant:type_name -> n0x.authority.v1.Tenant
-	12, // 29: n0x.authority.v1.CreateTenantResponse.tenant:type_name -> n0x.authority.v1.Tenant
-	13, // 30: n0x.authority.v1.ListRolesResponse.roles:type_name -> n0x.authority.v1.Role
-	13, // 31: n0x.authority.v1.PutRoleRequest.role:type_name -> n0x.authority.v1.Role
-	14, // 32: n0x.authority.v1.ListRoleBindingsResponse.bindings:type_name -> n0x.authority.v1.RoleBinding
-	14, // 33: n0x.authority.v1.PutRoleBindingRequest.binding:type_name -> n0x.authority.v1.RoleBinding
-	15, // 34: n0x.authority.v1.ListServiceAccountsResponse.service_accounts:type_name -> n0x.authority.v1.ServiceAccount
-	15, // 35: n0x.authority.v1.CreateServiceAccountResponse.service_account:type_name -> n0x.authority.v1.ServiceAccount
-	16, // 36: n0x.authority.v1.ListApiKeysResponse.api_keys:type_name -> n0x.authority.v1.ApiKey
-	16, // 37: n0x.authority.v1.CreateApiKeyResponse.key:type_name -> n0x.authority.v1.ApiKey
-	18, // 38: n0x.authority.v1.MigratePrimaryRequest.memberships:type_name -> n0x.authority.v1.MembershipUpdate
-	0,  // 39: n0x.authority.v1.ExecuteAdminCommandRequest.scope:type_name -> n0x.authority.v1.Scope
-	19, // 40: n0x.authority.v1.ExecuteAdminCommandRequest.policy:type_name -> n0x.authority.v1.RuleSet
-	20, // 41: n0x.authority.v1.ExecuteAdminCommandRequest.tags:type_name -> n0x.authority.v1.TagSet
-	4,  // 42: n0x.authority.v1.ExecuteAdminCommandResponse.operation:type_name -> n0x.authority.v1.Operation
-	6,  // 43: n0x.authority.v1.GetAdminStateResponse.state:type_name -> n0x.authority.v1.State
-	7,  // 44: n0x.authority.v1.GetAdminScopeResponse.scope:type_name -> n0x.authority.v1.ScopeState
-	9,  // 45: n0x.authority.v1.ListAdminNodesResponse.nodes:type_name -> n0x.authority.v1.Node
-	4,  // 46: n0x.authority.v1.GetAdminOperationResponse.operation:type_name -> n0x.authority.v1.Operation
-	10, // 47: n0x.authority.v1.GetAdminRetirementResponse.retirement:type_name -> n0x.authority.v1.Retirement
-	0,  // 48: n0x.authority.v1.CreateAdminEnrollmentCodeRequest.scope:type_name -> n0x.authority.v1.Scope
-	11, // 49: n0x.authority.v1.CreateAdminEnrollmentCodeResponse.enrollment_code:type_name -> n0x.authority.v1.EnrollmentCode
-	21, // 50: n0x.authority.v1.ResourceService.ExecuteCommand:input_type -> n0x.authority.v1.ExecuteCommandRequest
-	23, // 51: n0x.authority.v1.ResourceService.GetState:input_type -> n0x.authority.v1.GetStateRequest
-	25, // 52: n0x.authority.v1.ResourceService.GetScope:input_type -> n0x.authority.v1.GetScopeRequest
-	27, // 53: n0x.authority.v1.ResourceService.ListNodes:input_type -> n0x.authority.v1.ListNodesRequest
-	29, // 54: n0x.authority.v1.ResourceService.GetOperation:input_type -> n0x.authority.v1.GetOperationRequest
-	31, // 55: n0x.authority.v1.ResourceService.GetRetirement:input_type -> n0x.authority.v1.GetRetirementRequest
-	33, // 56: n0x.authority.v1.ResourceService.CreateEnrollmentCode:input_type -> n0x.authority.v1.CreateEnrollmentCodeRequest
-	35, // 57: n0x.authority.v1.TenantService.ListTenants:input_type -> n0x.authority.v1.ListTenantsRequest
-	37, // 58: n0x.authority.v1.TenantService.GetTenant:input_type -> n0x.authority.v1.GetTenantRequest
-	39, // 59: n0x.authority.v1.TenantService.CreateTenant:input_type -> n0x.authority.v1.CreateTenantRequest
-	41, // 60: n0x.authority.v1.IamService.ListPermissions:input_type -> n0x.authority.v1.ListPermissionsRequest
-	43, // 61: n0x.authority.v1.IamService.ListRoles:input_type -> n0x.authority.v1.ListRolesRequest
-	45, // 62: n0x.authority.v1.IamService.PutRole:input_type -> n0x.authority.v1.PutRoleRequest
-	47, // 63: n0x.authority.v1.IamService.ListRoleBindings:input_type -> n0x.authority.v1.ListRoleBindingsRequest
-	49, // 64: n0x.authority.v1.IamService.PutRoleBinding:input_type -> n0x.authority.v1.PutRoleBindingRequest
-	51, // 65: n0x.authority.v1.IamService.DeleteRoleBinding:input_type -> n0x.authority.v1.DeleteRoleBindingRequest
-	53, // 66: n0x.authority.v1.IamService.ListServiceAccounts:input_type -> n0x.authority.v1.ListServiceAccountsRequest
-	55, // 67: n0x.authority.v1.IamService.CreateServiceAccount:input_type -> n0x.authority.v1.CreateServiceAccountRequest
-	57, // 68: n0x.authority.v1.IamService.SetServiceAccountState:input_type -> n0x.authority.v1.SetServiceAccountStateRequest
-	59, // 69: n0x.authority.v1.IamService.ListApiKeys:input_type -> n0x.authority.v1.ListApiKeysRequest
-	61, // 70: n0x.authority.v1.IamService.CreateApiKey:input_type -> n0x.authority.v1.CreateApiKeyRequest
-	63, // 71: n0x.authority.v1.IamService.RevokeApiKey:input_type -> n0x.authority.v1.RevokeApiKeyRequest
-	65, // 72: n0x.authority.v1.AdminService.MigratePrimary:input_type -> n0x.authority.v1.MigratePrimaryRequest
-	67, // 73: n0x.authority.v1.AdminService.ExecuteAdminCommand:input_type -> n0x.authority.v1.ExecuteAdminCommandRequest
-	69, // 74: n0x.authority.v1.AdminService.GetAdminState:input_type -> n0x.authority.v1.GetAdminStateRequest
-	71, // 75: n0x.authority.v1.AdminService.GetAdminScope:input_type -> n0x.authority.v1.GetAdminScopeRequest
-	73, // 76: n0x.authority.v1.AdminService.ListAdminNodes:input_type -> n0x.authority.v1.ListAdminNodesRequest
-	75, // 77: n0x.authority.v1.AdminService.GetAdminOperation:input_type -> n0x.authority.v1.GetAdminOperationRequest
-	77, // 78: n0x.authority.v1.AdminService.GetAdminRetirement:input_type -> n0x.authority.v1.GetAdminRetirementRequest
-	79, // 79: n0x.authority.v1.AdminService.CreateAdminEnrollmentCode:input_type -> n0x.authority.v1.CreateAdminEnrollmentCodeRequest
-	22, // 80: n0x.authority.v1.ResourceService.ExecuteCommand:output_type -> n0x.authority.v1.ExecuteCommandResponse
-	24, // 81: n0x.authority.v1.ResourceService.GetState:output_type -> n0x.authority.v1.GetStateResponse
-	26, // 82: n0x.authority.v1.ResourceService.GetScope:output_type -> n0x.authority.v1.GetScopeResponse
-	28, // 83: n0x.authority.v1.ResourceService.ListNodes:output_type -> n0x.authority.v1.ListNodesResponse
-	30, // 84: n0x.authority.v1.ResourceService.GetOperation:output_type -> n0x.authority.v1.GetOperationResponse
-	32, // 85: n0x.authority.v1.ResourceService.GetRetirement:output_type -> n0x.authority.v1.GetRetirementResponse
-	34, // 86: n0x.authority.v1.ResourceService.CreateEnrollmentCode:output_type -> n0x.authority.v1.CreateEnrollmentCodeResponse
-	36, // 87: n0x.authority.v1.TenantService.ListTenants:output_type -> n0x.authority.v1.ListTenantsResponse
-	38, // 88: n0x.authority.v1.TenantService.GetTenant:output_type -> n0x.authority.v1.GetTenantResponse
-	40, // 89: n0x.authority.v1.TenantService.CreateTenant:output_type -> n0x.authority.v1.CreateTenantResponse
-	42, // 90: n0x.authority.v1.IamService.ListPermissions:output_type -> n0x.authority.v1.ListPermissionsResponse
-	44, // 91: n0x.authority.v1.IamService.ListRoles:output_type -> n0x.authority.v1.ListRolesResponse
-	46, // 92: n0x.authority.v1.IamService.PutRole:output_type -> n0x.authority.v1.PutRoleResponse
-	48, // 93: n0x.authority.v1.IamService.ListRoleBindings:output_type -> n0x.authority.v1.ListRoleBindingsResponse
-	50, // 94: n0x.authority.v1.IamService.PutRoleBinding:output_type -> n0x.authority.v1.PutRoleBindingResponse
-	52, // 95: n0x.authority.v1.IamService.DeleteRoleBinding:output_type -> n0x.authority.v1.DeleteRoleBindingResponse
-	54, // 96: n0x.authority.v1.IamService.ListServiceAccounts:output_type -> n0x.authority.v1.ListServiceAccountsResponse
-	56, // 97: n0x.authority.v1.IamService.CreateServiceAccount:output_type -> n0x.authority.v1.CreateServiceAccountResponse
-	58, // 98: n0x.authority.v1.IamService.SetServiceAccountState:output_type -> n0x.authority.v1.SetServiceAccountStateResponse
-	60, // 99: n0x.authority.v1.IamService.ListApiKeys:output_type -> n0x.authority.v1.ListApiKeysResponse
-	62, // 100: n0x.authority.v1.IamService.CreateApiKey:output_type -> n0x.authority.v1.CreateApiKeyResponse
-	64, // 101: n0x.authority.v1.IamService.RevokeApiKey:output_type -> n0x.authority.v1.RevokeApiKeyResponse
-	66, // 102: n0x.authority.v1.AdminService.MigratePrimary:output_type -> n0x.authority.v1.MigratePrimaryResponse
-	68, // 103: n0x.authority.v1.AdminService.ExecuteAdminCommand:output_type -> n0x.authority.v1.ExecuteAdminCommandResponse
-	70, // 104: n0x.authority.v1.AdminService.GetAdminState:output_type -> n0x.authority.v1.GetAdminStateResponse
-	72, // 105: n0x.authority.v1.AdminService.GetAdminScope:output_type -> n0x.authority.v1.GetAdminScopeResponse
-	74, // 106: n0x.authority.v1.AdminService.ListAdminNodes:output_type -> n0x.authority.v1.ListAdminNodesResponse
-	76, // 107: n0x.authority.v1.AdminService.GetAdminOperation:output_type -> n0x.authority.v1.GetAdminOperationResponse
-	78, // 108: n0x.authority.v1.AdminService.GetAdminRetirement:output_type -> n0x.authority.v1.GetAdminRetirementResponse
-	80, // 109: n0x.authority.v1.AdminService.CreateAdminEnrollmentCode:output_type -> n0x.authority.v1.CreateAdminEnrollmentCodeResponse
-	80, // [80:110] is the sub-list for method output_type
-	50, // [50:80] is the sub-list for method input_type
-	50, // [50:50] is the sub-list for extension type_name
-	50, // [50:50] is the sub-list for extension extendee
-	0,  // [0:50] is the sub-list for field type_name
+	13, // 14: n0x.authority.v1.Tenant.inactivity_timeouts:type_name -> n0x.authority.v1.TenantInactivityTimeouts
+	86, // 15: n0x.authority.v1.TenantInactivityTimeouts.person:type_name -> google.protobuf.Duration
+	86, // 16: n0x.authority.v1.TenantInactivityTimeouts.node:type_name -> google.protobuf.Duration
+	86, // 17: n0x.authority.v1.TenantInactivityTimeouts.service_account:type_name -> google.protobuf.Duration
+	18, // 18: n0x.authority.v1.MembershipUpdate.binding:type_name -> n0x.authority.v1.AccountBinding
+	85, // 19: n0x.authority.v1.RuleSet.rules:type_name -> n0x.signed.v1.Rule
+	0,  // 20: n0x.authority.v1.ExecuteCommandRequest.scope:type_name -> n0x.authority.v1.Scope
+	20, // 21: n0x.authority.v1.ExecuteCommandRequest.policy:type_name -> n0x.authority.v1.RuleSet
+	21, // 22: n0x.authority.v1.ExecuteCommandRequest.tags:type_name -> n0x.authority.v1.TagSet
+	4,  // 23: n0x.authority.v1.ExecuteCommandResponse.operation:type_name -> n0x.authority.v1.Operation
+	6,  // 24: n0x.authority.v1.GetStateResponse.state:type_name -> n0x.authority.v1.State
+	7,  // 25: n0x.authority.v1.GetScopeResponse.scope:type_name -> n0x.authority.v1.ScopeState
+	9,  // 26: n0x.authority.v1.ListNodesResponse.nodes:type_name -> n0x.authority.v1.Node
+	4,  // 27: n0x.authority.v1.GetOperationResponse.operation:type_name -> n0x.authority.v1.Operation
+	10, // 28: n0x.authority.v1.GetRetirementResponse.retirement:type_name -> n0x.authority.v1.Retirement
+	0,  // 29: n0x.authority.v1.CreateEnrollmentCodeRequest.scope:type_name -> n0x.authority.v1.Scope
+	11, // 30: n0x.authority.v1.CreateEnrollmentCodeResponse.enrollment_code:type_name -> n0x.authority.v1.EnrollmentCode
+	12, // 31: n0x.authority.v1.ListTenantsResponse.tenants:type_name -> n0x.authority.v1.Tenant
+	12, // 32: n0x.authority.v1.GetTenantResponse.tenant:type_name -> n0x.authority.v1.Tenant
+	13, // 33: n0x.authority.v1.CreateTenantRequest.inactivity_timeouts:type_name -> n0x.authority.v1.TenantInactivityTimeouts
+	12, // 34: n0x.authority.v1.CreateTenantResponse.tenant:type_name -> n0x.authority.v1.Tenant
+	13, // 35: n0x.authority.v1.UpdateTenantSettingsRequest.inactivity_timeouts:type_name -> n0x.authority.v1.TenantInactivityTimeouts
+	12, // 36: n0x.authority.v1.UpdateTenantSettingsResponse.tenant:type_name -> n0x.authority.v1.Tenant
+	14, // 37: n0x.authority.v1.ListRolesResponse.roles:type_name -> n0x.authority.v1.Role
+	14, // 38: n0x.authority.v1.PutRoleRequest.role:type_name -> n0x.authority.v1.Role
+	15, // 39: n0x.authority.v1.ListRoleBindingsResponse.bindings:type_name -> n0x.authority.v1.RoleBinding
+	15, // 40: n0x.authority.v1.PutRoleBindingRequest.binding:type_name -> n0x.authority.v1.RoleBinding
+	16, // 41: n0x.authority.v1.ListServiceAccountsResponse.service_accounts:type_name -> n0x.authority.v1.ServiceAccount
+	16, // 42: n0x.authority.v1.CreateServiceAccountResponse.service_account:type_name -> n0x.authority.v1.ServiceAccount
+	17, // 43: n0x.authority.v1.ListApiKeysResponse.api_keys:type_name -> n0x.authority.v1.ApiKey
+	17, // 44: n0x.authority.v1.CreateApiKeyResponse.key:type_name -> n0x.authority.v1.ApiKey
+	19, // 45: n0x.authority.v1.MigratePrimaryRequest.memberships:type_name -> n0x.authority.v1.MembershipUpdate
+	0,  // 46: n0x.authority.v1.ExecuteAdminCommandRequest.scope:type_name -> n0x.authority.v1.Scope
+	20, // 47: n0x.authority.v1.ExecuteAdminCommandRequest.policy:type_name -> n0x.authority.v1.RuleSet
+	21, // 48: n0x.authority.v1.ExecuteAdminCommandRequest.tags:type_name -> n0x.authority.v1.TagSet
+	4,  // 49: n0x.authority.v1.ExecuteAdminCommandResponse.operation:type_name -> n0x.authority.v1.Operation
+	6,  // 50: n0x.authority.v1.GetAdminStateResponse.state:type_name -> n0x.authority.v1.State
+	7,  // 51: n0x.authority.v1.GetAdminScopeResponse.scope:type_name -> n0x.authority.v1.ScopeState
+	9,  // 52: n0x.authority.v1.ListAdminNodesResponse.nodes:type_name -> n0x.authority.v1.Node
+	4,  // 53: n0x.authority.v1.GetAdminOperationResponse.operation:type_name -> n0x.authority.v1.Operation
+	10, // 54: n0x.authority.v1.GetAdminRetirementResponse.retirement:type_name -> n0x.authority.v1.Retirement
+	0,  // 55: n0x.authority.v1.CreateAdminEnrollmentCodeRequest.scope:type_name -> n0x.authority.v1.Scope
+	11, // 56: n0x.authority.v1.CreateAdminEnrollmentCodeResponse.enrollment_code:type_name -> n0x.authority.v1.EnrollmentCode
+	22, // 57: n0x.authority.v1.ResourceService.ExecuteCommand:input_type -> n0x.authority.v1.ExecuteCommandRequest
+	24, // 58: n0x.authority.v1.ResourceService.GetState:input_type -> n0x.authority.v1.GetStateRequest
+	26, // 59: n0x.authority.v1.ResourceService.GetScope:input_type -> n0x.authority.v1.GetScopeRequest
+	28, // 60: n0x.authority.v1.ResourceService.ListNodes:input_type -> n0x.authority.v1.ListNodesRequest
+	30, // 61: n0x.authority.v1.ResourceService.GetOperation:input_type -> n0x.authority.v1.GetOperationRequest
+	32, // 62: n0x.authority.v1.ResourceService.GetRetirement:input_type -> n0x.authority.v1.GetRetirementRequest
+	34, // 63: n0x.authority.v1.ResourceService.CreateEnrollmentCode:input_type -> n0x.authority.v1.CreateEnrollmentCodeRequest
+	36, // 64: n0x.authority.v1.TenantService.ListTenants:input_type -> n0x.authority.v1.ListTenantsRequest
+	38, // 65: n0x.authority.v1.TenantService.GetTenant:input_type -> n0x.authority.v1.GetTenantRequest
+	40, // 66: n0x.authority.v1.TenantService.CreateTenant:input_type -> n0x.authority.v1.CreateTenantRequest
+	42, // 67: n0x.authority.v1.TenantService.UpdateTenantSettings:input_type -> n0x.authority.v1.UpdateTenantSettingsRequest
+	44, // 68: n0x.authority.v1.IamService.ListPermissions:input_type -> n0x.authority.v1.ListPermissionsRequest
+	46, // 69: n0x.authority.v1.IamService.ListRoles:input_type -> n0x.authority.v1.ListRolesRequest
+	48, // 70: n0x.authority.v1.IamService.PutRole:input_type -> n0x.authority.v1.PutRoleRequest
+	50, // 71: n0x.authority.v1.IamService.ListRoleBindings:input_type -> n0x.authority.v1.ListRoleBindingsRequest
+	52, // 72: n0x.authority.v1.IamService.PutRoleBinding:input_type -> n0x.authority.v1.PutRoleBindingRequest
+	54, // 73: n0x.authority.v1.IamService.DeleteRoleBinding:input_type -> n0x.authority.v1.DeleteRoleBindingRequest
+	56, // 74: n0x.authority.v1.IamService.ListServiceAccounts:input_type -> n0x.authority.v1.ListServiceAccountsRequest
+	58, // 75: n0x.authority.v1.IamService.CreateServiceAccount:input_type -> n0x.authority.v1.CreateServiceAccountRequest
+	60, // 76: n0x.authority.v1.IamService.SetServiceAccountState:input_type -> n0x.authority.v1.SetServiceAccountStateRequest
+	62, // 77: n0x.authority.v1.IamService.ListApiKeys:input_type -> n0x.authority.v1.ListApiKeysRequest
+	64, // 78: n0x.authority.v1.IamService.CreateApiKey:input_type -> n0x.authority.v1.CreateApiKeyRequest
+	66, // 79: n0x.authority.v1.IamService.RevokeApiKey:input_type -> n0x.authority.v1.RevokeApiKeyRequest
+	68, // 80: n0x.authority.v1.AdminService.MigratePrimary:input_type -> n0x.authority.v1.MigratePrimaryRequest
+	70, // 81: n0x.authority.v1.AdminService.ExecuteAdminCommand:input_type -> n0x.authority.v1.ExecuteAdminCommandRequest
+	72, // 82: n0x.authority.v1.AdminService.GetAdminState:input_type -> n0x.authority.v1.GetAdminStateRequest
+	74, // 83: n0x.authority.v1.AdminService.GetAdminScope:input_type -> n0x.authority.v1.GetAdminScopeRequest
+	76, // 84: n0x.authority.v1.AdminService.ListAdminNodes:input_type -> n0x.authority.v1.ListAdminNodesRequest
+	78, // 85: n0x.authority.v1.AdminService.GetAdminOperation:input_type -> n0x.authority.v1.GetAdminOperationRequest
+	80, // 86: n0x.authority.v1.AdminService.GetAdminRetirement:input_type -> n0x.authority.v1.GetAdminRetirementRequest
+	82, // 87: n0x.authority.v1.AdminService.CreateAdminEnrollmentCode:input_type -> n0x.authority.v1.CreateAdminEnrollmentCodeRequest
+	23, // 88: n0x.authority.v1.ResourceService.ExecuteCommand:output_type -> n0x.authority.v1.ExecuteCommandResponse
+	25, // 89: n0x.authority.v1.ResourceService.GetState:output_type -> n0x.authority.v1.GetStateResponse
+	27, // 90: n0x.authority.v1.ResourceService.GetScope:output_type -> n0x.authority.v1.GetScopeResponse
+	29, // 91: n0x.authority.v1.ResourceService.ListNodes:output_type -> n0x.authority.v1.ListNodesResponse
+	31, // 92: n0x.authority.v1.ResourceService.GetOperation:output_type -> n0x.authority.v1.GetOperationResponse
+	33, // 93: n0x.authority.v1.ResourceService.GetRetirement:output_type -> n0x.authority.v1.GetRetirementResponse
+	35, // 94: n0x.authority.v1.ResourceService.CreateEnrollmentCode:output_type -> n0x.authority.v1.CreateEnrollmentCodeResponse
+	37, // 95: n0x.authority.v1.TenantService.ListTenants:output_type -> n0x.authority.v1.ListTenantsResponse
+	39, // 96: n0x.authority.v1.TenantService.GetTenant:output_type -> n0x.authority.v1.GetTenantResponse
+	41, // 97: n0x.authority.v1.TenantService.CreateTenant:output_type -> n0x.authority.v1.CreateTenantResponse
+	43, // 98: n0x.authority.v1.TenantService.UpdateTenantSettings:output_type -> n0x.authority.v1.UpdateTenantSettingsResponse
+	45, // 99: n0x.authority.v1.IamService.ListPermissions:output_type -> n0x.authority.v1.ListPermissionsResponse
+	47, // 100: n0x.authority.v1.IamService.ListRoles:output_type -> n0x.authority.v1.ListRolesResponse
+	49, // 101: n0x.authority.v1.IamService.PutRole:output_type -> n0x.authority.v1.PutRoleResponse
+	51, // 102: n0x.authority.v1.IamService.ListRoleBindings:output_type -> n0x.authority.v1.ListRoleBindingsResponse
+	53, // 103: n0x.authority.v1.IamService.PutRoleBinding:output_type -> n0x.authority.v1.PutRoleBindingResponse
+	55, // 104: n0x.authority.v1.IamService.DeleteRoleBinding:output_type -> n0x.authority.v1.DeleteRoleBindingResponse
+	57, // 105: n0x.authority.v1.IamService.ListServiceAccounts:output_type -> n0x.authority.v1.ListServiceAccountsResponse
+	59, // 106: n0x.authority.v1.IamService.CreateServiceAccount:output_type -> n0x.authority.v1.CreateServiceAccountResponse
+	61, // 107: n0x.authority.v1.IamService.SetServiceAccountState:output_type -> n0x.authority.v1.SetServiceAccountStateResponse
+	63, // 108: n0x.authority.v1.IamService.ListApiKeys:output_type -> n0x.authority.v1.ListApiKeysResponse
+	65, // 109: n0x.authority.v1.IamService.CreateApiKey:output_type -> n0x.authority.v1.CreateApiKeyResponse
+	67, // 110: n0x.authority.v1.IamService.RevokeApiKey:output_type -> n0x.authority.v1.RevokeApiKeyResponse
+	69, // 111: n0x.authority.v1.AdminService.MigratePrimary:output_type -> n0x.authority.v1.MigratePrimaryResponse
+	71, // 112: n0x.authority.v1.AdminService.ExecuteAdminCommand:output_type -> n0x.authority.v1.ExecuteAdminCommandResponse
+	73, // 113: n0x.authority.v1.AdminService.GetAdminState:output_type -> n0x.authority.v1.GetAdminStateResponse
+	75, // 114: n0x.authority.v1.AdminService.GetAdminScope:output_type -> n0x.authority.v1.GetAdminScopeResponse
+	77, // 115: n0x.authority.v1.AdminService.ListAdminNodes:output_type -> n0x.authority.v1.ListAdminNodesResponse
+	79, // 116: n0x.authority.v1.AdminService.GetAdminOperation:output_type -> n0x.authority.v1.GetAdminOperationResponse
+	81, // 117: n0x.authority.v1.AdminService.GetAdminRetirement:output_type -> n0x.authority.v1.GetAdminRetirementResponse
+	83, // 118: n0x.authority.v1.AdminService.CreateAdminEnrollmentCode:output_type -> n0x.authority.v1.CreateAdminEnrollmentCodeResponse
+	88, // [88:119] is the sub-list for method output_type
+	57, // [57:88] is the sub-list for method input_type
+	57, // [57:57] is the sub-list for extension type_name
+	57, // [57:57] is the sub-list for extension extendee
+	0,  // [0:57] is the sub-list for field type_name
 }
 
 func init() { file_n0x_authority_v1_authority_proto_init() }
@@ -5862,13 +6210,16 @@ func file_n0x_authority_v1_authority_proto_init() {
 	if File_n0x_authority_v1_authority_proto != nil {
 		return
 	}
+	file_n0x_authority_v1_authority_proto_msgTypes[12].OneofWrappers = []any{}
+	file_n0x_authority_v1_authority_proto_msgTypes[40].OneofWrappers = []any{}
+	file_n0x_authority_v1_authority_proto_msgTypes[42].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_authority_v1_authority_proto_rawDesc), len(file_n0x_authority_v1_authority_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   81,
+			NumMessages:   84,
 			NumExtensions: 0,
 			NumServices:   4,
 		},

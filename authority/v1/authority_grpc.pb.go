@@ -349,9 +349,10 @@ var ResourceService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	TenantService_ListTenants_FullMethodName  = "/n0x.authority.v1.TenantService/ListTenants"
-	TenantService_GetTenant_FullMethodName    = "/n0x.authority.v1.TenantService/GetTenant"
-	TenantService_CreateTenant_FullMethodName = "/n0x.authority.v1.TenantService/CreateTenant"
+	TenantService_ListTenants_FullMethodName          = "/n0x.authority.v1.TenantService/ListTenants"
+	TenantService_GetTenant_FullMethodName            = "/n0x.authority.v1.TenantService/GetTenant"
+	TenantService_CreateTenant_FullMethodName         = "/n0x.authority.v1.TenantService/CreateTenant"
+	TenantService_UpdateTenantSettings_FullMethodName = "/n0x.authority.v1.TenantService/UpdateTenantSettings"
 )
 
 // TenantServiceClient is the client API for TenantService service.
@@ -361,6 +362,7 @@ type TenantServiceClient interface {
 	ListTenants(ctx context.Context, in *ListTenantsRequest, opts ...grpc.CallOption) (*ListTenantsResponse, error)
 	GetTenant(ctx context.Context, in *GetTenantRequest, opts ...grpc.CallOption) (*GetTenantResponse, error)
 	CreateTenant(ctx context.Context, in *CreateTenantRequest, opts ...grpc.CallOption) (*CreateTenantResponse, error)
+	UpdateTenantSettings(ctx context.Context, in *UpdateTenantSettingsRequest, opts ...grpc.CallOption) (*UpdateTenantSettingsResponse, error)
 }
 
 type tenantServiceClient struct {
@@ -401,6 +403,16 @@ func (c *tenantServiceClient) CreateTenant(ctx context.Context, in *CreateTenant
 	return out, nil
 }
 
+func (c *tenantServiceClient) UpdateTenantSettings(ctx context.Context, in *UpdateTenantSettingsRequest, opts ...grpc.CallOption) (*UpdateTenantSettingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateTenantSettingsResponse)
+	err := c.cc.Invoke(ctx, TenantService_UpdateTenantSettings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TenantServiceServer is the server API for TenantService service.
 // All implementations must embed UnimplementedTenantServiceServer
 // for forward compatibility.
@@ -408,6 +420,7 @@ type TenantServiceServer interface {
 	ListTenants(context.Context, *ListTenantsRequest) (*ListTenantsResponse, error)
 	GetTenant(context.Context, *GetTenantRequest) (*GetTenantResponse, error)
 	CreateTenant(context.Context, *CreateTenantRequest) (*CreateTenantResponse, error)
+	UpdateTenantSettings(context.Context, *UpdateTenantSettingsRequest) (*UpdateTenantSettingsResponse, error)
 	mustEmbedUnimplementedTenantServiceServer()
 }
 
@@ -426,6 +439,9 @@ func (UnimplementedTenantServiceServer) GetTenant(context.Context, *GetTenantReq
 }
 func (UnimplementedTenantServiceServer) CreateTenant(context.Context, *CreateTenantRequest) (*CreateTenantResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTenant not implemented")
+}
+func (UnimplementedTenantServiceServer) UpdateTenantSettings(context.Context, *UpdateTenantSettingsRequest) (*UpdateTenantSettingsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateTenantSettings not implemented")
 }
 func (UnimplementedTenantServiceServer) mustEmbedUnimplementedTenantServiceServer() {}
 func (UnimplementedTenantServiceServer) testEmbeddedByValue()                       {}
@@ -502,6 +518,24 @@ func _TenantService_CreateTenant_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TenantService_UpdateTenantSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateTenantSettingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantServiceServer).UpdateTenantSettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TenantService_UpdateTenantSettings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantServiceServer).UpdateTenantSettings(ctx, req.(*UpdateTenantSettingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TenantService_ServiceDesc is the grpc.ServiceDesc for TenantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -520,6 +554,10 @@ var TenantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateTenant",
 			Handler:    _TenantService_CreateTenant_Handler,
+		},
+		{
+			MethodName: "UpdateTenantSettings",
+			Handler:    _TenantService_UpdateTenantSettings_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
