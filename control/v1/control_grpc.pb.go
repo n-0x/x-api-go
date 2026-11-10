@@ -2377,3 +2377,116 @@ var AlertEvaluationService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "n0x/control/v1/control.proto",
 }
+
+const (
+	NodeWorkloadRegistrationService_RegisterNodeWorkload_FullMethodName = "/n0x.control.v1.NodeWorkloadRegistrationService/RegisterNodeWorkload"
+)
+
+// NodeWorkloadRegistrationServiceClient is the client API for NodeWorkloadRegistrationService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Salto interno controller -> resources: solo lo llama el controller por mTLS
+// con su SVID fijado, tras verificar el SVID de nodo y la Session en
+// NodeControlService.RegisterWorkloadFromHost. Nunca lo llama un nodo ni una
+// persona. Publicar no concede acceso.
+type NodeWorkloadRegistrationServiceClient interface {
+	RegisterNodeWorkload(ctx context.Context, in *RegisterNodeWorkloadRequest, opts ...grpc.CallOption) (*RegisterNodeWorkloadResponse, error)
+}
+
+type nodeWorkloadRegistrationServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewNodeWorkloadRegistrationServiceClient(cc grpc.ClientConnInterface) NodeWorkloadRegistrationServiceClient {
+	return &nodeWorkloadRegistrationServiceClient{cc}
+}
+
+func (c *nodeWorkloadRegistrationServiceClient) RegisterNodeWorkload(ctx context.Context, in *RegisterNodeWorkloadRequest, opts ...grpc.CallOption) (*RegisterNodeWorkloadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RegisterNodeWorkloadResponse)
+	err := c.cc.Invoke(ctx, NodeWorkloadRegistrationService_RegisterNodeWorkload_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// NodeWorkloadRegistrationServiceServer is the server API for NodeWorkloadRegistrationService service.
+// All implementations must embed UnimplementedNodeWorkloadRegistrationServiceServer
+// for forward compatibility.
+//
+// Salto interno controller -> resources: solo lo llama el controller por mTLS
+// con su SVID fijado, tras verificar el SVID de nodo y la Session en
+// NodeControlService.RegisterWorkloadFromHost. Nunca lo llama un nodo ni una
+// persona. Publicar no concede acceso.
+type NodeWorkloadRegistrationServiceServer interface {
+	RegisterNodeWorkload(context.Context, *RegisterNodeWorkloadRequest) (*RegisterNodeWorkloadResponse, error)
+	mustEmbedUnimplementedNodeWorkloadRegistrationServiceServer()
+}
+
+// UnimplementedNodeWorkloadRegistrationServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedNodeWorkloadRegistrationServiceServer struct{}
+
+func (UnimplementedNodeWorkloadRegistrationServiceServer) RegisterNodeWorkload(context.Context, *RegisterNodeWorkloadRequest) (*RegisterNodeWorkloadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterNodeWorkload not implemented")
+}
+func (UnimplementedNodeWorkloadRegistrationServiceServer) mustEmbedUnimplementedNodeWorkloadRegistrationServiceServer() {
+}
+func (UnimplementedNodeWorkloadRegistrationServiceServer) testEmbeddedByValue() {}
+
+// UnsafeNodeWorkloadRegistrationServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to NodeWorkloadRegistrationServiceServer will
+// result in compilation errors.
+type UnsafeNodeWorkloadRegistrationServiceServer interface {
+	mustEmbedUnimplementedNodeWorkloadRegistrationServiceServer()
+}
+
+func RegisterNodeWorkloadRegistrationServiceServer(s grpc.ServiceRegistrar, srv NodeWorkloadRegistrationServiceServer) {
+	// If the following call pancis, it indicates UnimplementedNodeWorkloadRegistrationServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&NodeWorkloadRegistrationService_ServiceDesc, srv)
+}
+
+func _NodeWorkloadRegistrationService_RegisterNodeWorkload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterNodeWorkloadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeWorkloadRegistrationServiceServer).RegisterNodeWorkload(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeWorkloadRegistrationService_RegisterNodeWorkload_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeWorkloadRegistrationServiceServer).RegisterNodeWorkload(ctx, req.(*RegisterNodeWorkloadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// NodeWorkloadRegistrationService_ServiceDesc is the grpc.ServiceDesc for NodeWorkloadRegistrationService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var NodeWorkloadRegistrationService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "n0x.control.v1.NodeWorkloadRegistrationService",
+	HandlerType: (*NodeWorkloadRegistrationServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "RegisterNodeWorkload",
+			Handler:    _NodeWorkloadRegistrationService_RegisterNodeWorkload_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "n0x/control/v1/control.proto",
+}

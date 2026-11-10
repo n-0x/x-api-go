@@ -45,6 +45,9 @@ const (
 	NodeDiscoveryServiceName = "n0x.control.v1.NodeDiscoveryService"
 	// AlertEvaluationServiceName is the fully-qualified name of the AlertEvaluationService service.
 	AlertEvaluationServiceName = "n0x.control.v1.AlertEvaluationService"
+	// NodeWorkloadRegistrationServiceName is the fully-qualified name of the
+	// NodeWorkloadRegistrationService service.
+	NodeWorkloadRegistrationServiceName = "n0x.control.v1.NodeWorkloadRegistrationService"
 )
 
 // These constants are the procedure names of the RPCs defined in this package. They're exposed at
@@ -169,6 +172,9 @@ const (
 	// AlertEvaluationServiceRecordAlertTransitionsProcedure is the procedure name of the
 	// AlertEvaluationService's RecordAlertTransitions RPC.
 	AlertEvaluationServiceRecordAlertTransitionsProcedure = "/n0x.control.v1.AlertEvaluationService/RecordAlertTransitions"
+	// NodeWorkloadRegistrationServiceRegisterNodeWorkloadProcedure is the procedure name of the
+	// NodeWorkloadRegistrationService's RegisterNodeWorkload RPC.
+	NodeWorkloadRegistrationServiceRegisterNodeWorkloadProcedure = "/n0x.control.v1.NodeWorkloadRegistrationService/RegisterNodeWorkload"
 )
 
 var (
@@ -1979,6 +1985,79 @@ func (h alertEvaluationServiceHandler) recordAlertTransitions(ctx context.Contex
 		return err
 	}
 	res, err := h.svc.RecordAlertTransitions(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+var (
+	nodeWorkloadRegistrationServiceRegisterNodeWorkloadSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_control_v1_control_proto.Services().ByName("NodeWorkloadRegistrationService").Methods().ByName("RegisterNodeWorkload"),
+			Procedure:  NodeWorkloadRegistrationServiceRegisterNodeWorkloadProcedure,
+		}
+	})
+)
+
+// NodeWorkloadRegistrationServiceClient is a client for the
+// n0x.control.v1.NodeWorkloadRegistrationService service.
+type NodeWorkloadRegistrationServiceClient interface {
+	RegisterNodeWorkload(context.Context, *v1.RegisterNodeWorkloadRequest) (*v1.RegisterNodeWorkloadResponse, error)
+}
+
+// NewNodeWorkloadRegistrationServiceClient constructs a client for the
+// n0x.control.v1.NodeWorkloadRegistrationService service. Multiple service clients may share a
+// single connect.Client.
+func NewNodeWorkloadRegistrationServiceClient(client *connect.Client) NodeWorkloadRegistrationServiceClient {
+	return &nodeWorkloadRegistrationServiceClient{client: client}
+}
+
+// NodeWorkloadRegistrationServiceHandler is an implementation of the
+// n0x.control.v1.NodeWorkloadRegistrationService service.
+type NodeWorkloadRegistrationServiceHandler interface {
+	RegisterNodeWorkload(context.Context, *v1.RegisterNodeWorkloadRequest) (*v1.RegisterNodeWorkloadResponse, error)
+}
+
+// RegisterNodeWorkloadRegistrationServiceHandler registers svc as the
+// n0x.control.v1.NodeWorkloadRegistrationService implementation on server.
+func RegisterNodeWorkloadRegistrationServiceHandler(server *connect.Server, svc NodeWorkloadRegistrationServiceHandler) {
+	adapter := nodeWorkloadRegistrationServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: nodeWorkloadRegistrationServiceRegisterNodeWorkloadSpec(), Handler: adapter.registerNodeWorkload},
+	)
+}
+
+// UnimplementedNodeWorkloadRegistrationServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedNodeWorkloadRegistrationServiceHandler struct{}
+
+func (UnimplementedNodeWorkloadRegistrationServiceHandler) RegisterNodeWorkload(context.Context, *v1.RegisterNodeWorkloadRequest) (*v1.RegisterNodeWorkloadResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.NodeWorkloadRegistrationService.RegisterNodeWorkload is not implemented")
+}
+
+type nodeWorkloadRegistrationServiceClient struct {
+	client *connect.Client
+}
+
+func (c *nodeWorkloadRegistrationServiceClient) RegisterNodeWorkload(ctx context.Context, req *v1.RegisterNodeWorkloadRequest) (*v1.RegisterNodeWorkloadResponse, error) {
+	var res v1.RegisterNodeWorkloadResponse
+	if err := c.client.CallUnary(ctx, nodeWorkloadRegistrationServiceRegisterNodeWorkloadSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type nodeWorkloadRegistrationServiceHandler struct {
+	svc NodeWorkloadRegistrationServiceHandler
+}
+
+func (h nodeWorkloadRegistrationServiceHandler) registerNodeWorkload(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.RegisterNodeWorkloadRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RegisterNodeWorkload(ctx, &req)
 	if err != nil {
 		return err
 	}

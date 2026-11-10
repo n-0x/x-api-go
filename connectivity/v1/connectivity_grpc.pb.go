@@ -634,12 +634,13 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// The control plane atomically replaces a tenant's proxy table. It is the sole
-// source of targets, replacing static TargetStore configuration (ADR 0024 D7).
-// This is delivery of compiled state, not creation of a governed revision.
-// Only the authenticated control plane may publish. Applying a table rechecks
-// open sessions immediately: retain those still allowed and cut those revoked
-// or quarantined, without waiting for ticket renewal.
+// El plano de control sustituye atomicamente la tabla de proxy de un tenant,
+// unica fuente de destinos en lugar de TargetStore estatico (ADR 0024 D7).
+// Entrega estado compilado, sin crear una revision gobernada; solo publica el
+// plano de control autenticado. El receptor puede ser el proxy o cz-admission:
+// admission solo sustituye la tabla con la que admite ofertas. Quien tenga
+// sesiones abiertas las reevalua de inmediato: conserva las permitidas y corta
+// las revocadas o en cuarentena, sin esperar a renovar el ticket.
 type ProxyControlServiceClient interface {
 	PublishProxyTable(ctx context.Context, in *PublishProxyTableRequest, opts ...grpc.CallOption) (*PublishProxyTableResponse, error)
 }
@@ -666,12 +667,13 @@ func (c *proxyControlServiceClient) PublishProxyTable(ctx context.Context, in *P
 // All implementations must embed UnimplementedProxyControlServiceServer
 // for forward compatibility.
 //
-// The control plane atomically replaces a tenant's proxy table. It is the sole
-// source of targets, replacing static TargetStore configuration (ADR 0024 D7).
-// This is delivery of compiled state, not creation of a governed revision.
-// Only the authenticated control plane may publish. Applying a table rechecks
-// open sessions immediately: retain those still allowed and cut those revoked
-// or quarantined, without waiting for ticket renewal.
+// El plano de control sustituye atomicamente la tabla de proxy de un tenant,
+// unica fuente de destinos en lugar de TargetStore estatico (ADR 0024 D7).
+// Entrega estado compilado, sin crear una revision gobernada; solo publica el
+// plano de control autenticado. El receptor puede ser el proxy o cz-admission:
+// admission solo sustituye la tabla con la que admite ofertas. Quien tenga
+// sesiones abiertas las reevalua de inmediato: conserva las permitidas y corta
+// las revocadas o en cuarentena, sin esperar a renovar el ticket.
 type ProxyControlServiceServer interface {
 	PublishProxyTable(context.Context, *PublishProxyTableRequest) (*PublishProxyTableResponse, error)
 	mustEmbedUnimplementedProxyControlServiceServer()

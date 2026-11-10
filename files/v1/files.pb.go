@@ -648,15 +648,22 @@ type ResourcesProcessConfig struct {
 	ClientTemplate           *ClientBootstrap       `protobuf:"bytes,33,opt,name=client_template,json=clientTemplate,proto3" json:"client_template,omitempty"`
 	TrustDomain              string                 `protobuf:"bytes,34,opt,name=trust_domain,json=trustDomain,proto3" json:"trust_domain,omitempty"`
 	FederatedTrustDomains    []string               `protobuf:"bytes,35,rep,name=federated_trust_domains,json=federatedTrustDomains,proto3" json:"federated_trust_domains,omitempty"`
-	// Destino autenticado de PublishProxyTable, leido por resources. Ausente
-	// conserva la publicacion sin entrega al proxy (publisher_not_configured).
+	// Deprecado: usar proxy_table_publishers. Solo se lee si esa lista esta vacia.
+	//
+	// Deprecated: Marked as deprecated in n0x/files/v1/files.proto.
 	ProxyTablePublisher *ProxyTablePublisher `protobuf:"bytes,36,opt,name=proxy_table_publisher,json=proxyTablePublisher,proto3" json:"proxy_table_publisher,omitempty"`
 	// Rutas de la clave privada de firma y de la confianza publica del token
 	// corto de instancia. No son la confianza de asignacion de cuenta/regional.
 	AssignmentInstanceSigningKeyFile *string `protobuf:"bytes,37,opt,name=assignment_instance_signing_key_file,json=assignmentInstanceSigningKeyFile,proto3,oneof" json:"assignment_instance_signing_key_file,omitempty"`
 	AssignmentInstanceTrustFile      *string `protobuf:"bytes,38,opt,name=assignment_instance_trust_file,json=assignmentInstanceTrustFile,proto3,oneof" json:"assignment_instance_trust_file,omitempty"`
-	unknownFields                    protoimpl.UnknownFields
-	sizeCache                        protoimpl.SizeCache
+	// Resources publica la misma tabla a cada destino y sigue siendo su unico
+	// autor; destinos tipicos son el proxy y cz-admission. Cada destino confirma
+	// su propia aplicacion: el fallo de uno no se oculta ni impide intentar los
+	// demas. Configurar a la vez los campos 36 y 39 es invalido y falla cerrado
+	// al cargar. Lista vacia y sin 36 conserva publisher_not_configured.
+	ProxyTablePublishers []*ProxyTablePublisher `protobuf:"bytes,39,rep,name=proxy_table_publishers,json=proxyTablePublishers,proto3" json:"proxy_table_publishers,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ResourcesProcessConfig) Reset() {
@@ -934,6 +941,7 @@ func (x *ResourcesProcessConfig) GetFederatedTrustDomains() []string {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in n0x/files/v1/files.proto.
 func (x *ResourcesProcessConfig) GetProxyTablePublisher() *ProxyTablePublisher {
 	if x != nil {
 		return x.ProxyTablePublisher
@@ -953,6 +961,13 @@ func (x *ResourcesProcessConfig) GetAssignmentInstanceTrustFile() string {
 		return *x.AssignmentInstanceTrustFile
 	}
 	return ""
+}
+
+func (x *ResourcesProcessConfig) GetProxyTablePublishers() []*ProxyTablePublisher {
+	if x != nil {
+		return x.ProxyTablePublishers
+	}
+	return nil
 }
 
 type ManagerProcessConfig struct {
@@ -1579,9 +1594,13 @@ type ConnectivityProcessConfig struct {
 	// Allowlist de SPIFFE ID fijados para publicar la tabla y autorizar la lectura
 	// GetWorkloadNodeStatus de authority/resources para NodeConnectionSource;
 	// no son los emisores de admision de issuer_ids. Ausente o vacia deniega.
+	// Tambien fija quienes pueden llamar a ProxyControlService.PublishProxyTable
+	// en control_listen del rol cz-admission, que no es autor de tablas.
 	ControlPlaneIds []string `protobuf:"bytes,17,rep,name=control_plane_ids,json=controlPlaneIds,proto3" json:"control_plane_ids,omitempty"`
 	// Listener mTLS de ProxyControlService y de la lectura GetWorkloadNodeStatus
 	// para authority/resources, autorizados con control_plane_ids;
+	// el rol cz-admission tambien sirve aqui ProxyControlService.PublishProxyTable
+	// con esos SPIFFE ID fijados, sin ser autor de tablas;
 	// ausente no habilita este listener.
 	ControlListen           *string                   `protobuf:"bytes,18,opt,name=control_listen,json=controlListen,proto3,oneof" json:"control_listen,omitempty"`
 	WorkloadPublicListeners []*WorkloadPublicListener `protobuf:"bytes,19,rep,name=workload_public_listeners,json=workloadPublicListeners,proto3" json:"workload_public_listeners,omitempty"`
@@ -5186,7 +5205,7 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\fdirectory_id\x18\x06 \x01(\tR\vdirectoryId\x12\x1f\n" +
 	"\vlisten_host\x18\a \x01(\tR\n" +
 	"listenHost\x12>\n" +
-	"\aprocess\x18\b \x01(\v2$.n0x.files.v1.AuthorityProcessConfigR\aprocess\"\xff\r\n" +
+	"\aprocess\x18\b \x01(\v2$.n0x.files.v1.AuthorityProcessConfigR\aprocess\"\xdc\x0e\n" +
 	"\x16ResourcesProcessConfig\x12=\n" +
 	"\x1benrollment_code_ttl_seconds\x18\x01 \x01(\x05R\x18enrollmentCodeTtlSeconds\x12*\n" +
 	"\x11human_access_mode\x18\x02 \x01(\tR\x0fhumanAccessMode\x12.\n" +
@@ -5225,10 +5244,11 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\x06scopes\x18  \x03(\v2\x13.n0x.files.v1.ScopeR\x06scopes\x12F\n" +
 	"\x0fclient_template\x18! \x01(\v2\x1d.n0x.files.v1.ClientBootstrapR\x0eclientTemplate\x12!\n" +
 	"\ftrust_domain\x18\" \x01(\tR\vtrustDomain\x126\n" +
-	"\x17federated_trust_domains\x18# \x03(\tR\x15federatedTrustDomains\x12U\n" +
-	"\x15proxy_table_publisher\x18$ \x01(\v2!.n0x.files.v1.ProxyTablePublisherR\x13proxyTablePublisher\x12S\n" +
+	"\x17federated_trust_domains\x18# \x03(\tR\x15federatedTrustDomains\x12Y\n" +
+	"\x15proxy_table_publisher\x18$ \x01(\v2!.n0x.files.v1.ProxyTablePublisherB\x02\x18\x01R\x13proxyTablePublisher\x12S\n" +
 	"$assignment_instance_signing_key_file\x18% \x01(\tH\x00R assignmentInstanceSigningKeyFile\x88\x01\x01\x12H\n" +
-	"\x1eassignment_instance_trust_file\x18& \x01(\tH\x01R\x1bassignmentInstanceTrustFile\x88\x01\x01B'\n" +
+	"\x1eassignment_instance_trust_file\x18& \x01(\tH\x01R\x1bassignmentInstanceTrustFile\x88\x01\x01\x12W\n" +
+	"\x16proxy_table_publishers\x18' \x03(\v2!.n0x.files.v1.ProxyTablePublisherR\x14proxyTablePublishersB'\n" +
 	"%_assignment_instance_signing_key_fileB!\n" +
 	"\x1f_assignment_instance_trust_file\"\xc5\x0f\n" +
 	"\x14ManagerProcessConfig\x12\x1b\n" +
@@ -5762,59 +5782,60 @@ var file_n0x_files_v1_files_proto_depIdxs = []int32{
 	13, // 9: n0x.files.v1.ResourcesProcessConfig.scopes:type_name -> n0x.files.v1.Scope
 	0,  // 10: n0x.files.v1.ResourcesProcessConfig.client_template:type_name -> n0x.files.v1.ClientBootstrap
 	8,  // 11: n0x.files.v1.ResourcesProcessConfig.proxy_table_publisher:type_name -> n0x.files.v1.ProxyTablePublisher
-	20, // 12: n0x.files.v1.ManagerProcessConfig.google_sign_in:type_name -> n0x.files.v1.GoogleSignIn
-	21, // 13: n0x.files.v1.ManagerProcessConfig.catalog:type_name -> n0x.files.v1.CatalogConfig
-	22, // 14: n0x.files.v1.ManagerProcessConfig.cloudflare_access:type_name -> n0x.files.v1.CloudflareConfig
-	53, // 15: n0x.files.v1.ManagerProcessConfig.public_federation_endpoints:type_name -> n0x.files.v1.ManagerProcessConfig.PublicFederationEndpointsEntry
-	23, // 16: n0x.files.v1.ManagerProcessConfig.billing:type_name -> n0x.files.v1.BillingConfig
-	51, // 17: n0x.files.v1.ManagerProcessConfig.assistant:type_name -> n0x.files.v1.ManagerProcessConfig.AssistantConfig
-	52, // 18: n0x.files.v1.ManagerProcessConfig.playbooks:type_name -> n0x.files.v1.ManagerProcessConfig.PlaybooksConfig
-	13, // 19: n0x.files.v1.ProvisionGatewayProcessConfig.scopes:type_name -> n0x.files.v1.Scope
-	54, // 20: n0x.files.v1.InferenceProcessConfig.upstreams:type_name -> n0x.files.v1.InferenceProcessConfig.Upstream
-	24, // 21: n0x.files.v1.ConnectivityProcessConfig.targets:type_name -> n0x.files.v1.TargetDefinition
-	25, // 22: n0x.files.v1.ConnectivityProcessConfig.forward:type_name -> n0x.files.v1.ForwardConfig
-	26, // 23: n0x.files.v1.ConnectivityProcessConfig.region:type_name -> n0x.files.v1.ConnectivityRegion
-	55, // 24: n0x.files.v1.ConnectivityProcessConfig.federation_ids:type_name -> n0x.files.v1.ConnectivityProcessConfig.FederationIdsEntry
-	56, // 25: n0x.files.v1.ConnectivityProcessConfig.status_endpoints:type_name -> n0x.files.v1.ConnectivityProcessConfig.StatusEndpointsEntry
-	9,  // 26: n0x.files.v1.ConnectivityProcessConfig.workload_public_listeners:type_name -> n0x.files.v1.WorkloadPublicListener
-	47, // 27: n0x.files.v1.ConnectivityProcessConfig.proxy_return_public_keys:type_name -> n0x.files.v1.ProxyReturnPublicKey
-	48, // 28: n0x.files.v1.ConnectivityProcessConfig.tenant_certificates:type_name -> n0x.files.v1.TenantCertificate
-	14, // 29: n0x.files.v1.WorkloadPublicListener.binding:type_name -> n0x.files.v1.Binding
-	27, // 30: n0x.files.v1.OverlaydProcessConfig.peers:type_name -> n0x.files.v1.Peer
-	14, // 31: n0x.files.v1.ConnectivityProfile.binding:type_name -> n0x.files.v1.Binding
-	28, // 32: n0x.files.v1.ControllerConnectivity.admissions:type_name -> n0x.files.v1.AdmissionEndpoint
-	29, // 33: n0x.files.v1.SharedFederationConfig.mesh:type_name -> n0x.files.v1.MeshConfig
-	57, // 34: n0x.files.v1.SharedFederationConfig.broker_endpoints:type_name -> n0x.files.v1.SharedFederationConfig.BrokerEndpointsEntry
-	30, // 35: n0x.files.v1.CatalogConfig.seed:type_name -> n0x.files.v1.CatalogSeed
-	58, // 36: n0x.files.v1.BillingConfig.plans:type_name -> n0x.files.v1.BillingConfig.PlansEntry
-	14, // 37: n0x.files.v1.TargetDefinition.binding:type_name -> n0x.files.v1.Binding
-	13, // 38: n0x.files.v1.TargetDefinition.scopes:type_name -> n0x.files.v1.Scope
-	28, // 39: n0x.files.v1.ForwardConfig.admissions:type_name -> n0x.files.v1.AdmissionEndpoint
-	14, // 40: n0x.files.v1.ConnectivityRegion.bindings:type_name -> n0x.files.v1.Binding
-	32, // 41: n0x.files.v1.ConnectivityRegion.services:type_name -> n0x.files.v1.ConnectivityService
-	33, // 42: n0x.files.v1.ConnectivityRegion.pool:type_name -> n0x.files.v1.ConnectivityLimits
-	59, // 43: n0x.files.v1.ConnectivityRegion.federations:type_name -> n0x.files.v1.ConnectivityRegion.FederationsEntry
-	60, // 44: n0x.files.v1.ConnectivityRegion.accounts:type_name -> n0x.files.v1.ConnectivityRegion.AccountsEntry
-	34, // 45: n0x.files.v1.MeshConfig.peers:type_name -> n0x.files.v1.MeshPeerConfig
-	35, // 46: n0x.files.v1.MeshConfig.timings:type_name -> n0x.files.v1.MeshTimings
-	36, // 47: n0x.files.v1.CatalogSeed.locations:type_name -> n0x.files.v1.CatalogLocation
-	37, // 48: n0x.files.v1.CatalogSeed.federations:type_name -> n0x.files.v1.CatalogFederation
-	38, // 49: n0x.files.v1.CatalogFederation.capacity:type_name -> n0x.files.v1.CatalogCounts
-	38, // 50: n0x.files.v1.CatalogFederation.used:type_name -> n0x.files.v1.CatalogCounts
-	40, // 51: n0x.files.v1.HumanTrust.keys:type_name -> n0x.files.v1.PublicJwk
-	40, // 52: n0x.files.v1.AssignmentTrust.keys:type_name -> n0x.files.v1.PublicJwk
-	13, // 53: n0x.files.v1.AgentCache.scope:type_name -> n0x.files.v1.Scope
-	43, // 54: n0x.files.v1.AgentCache.high_water:type_name -> n0x.files.v1.AgentHighWater
-	46, // 55: n0x.files.v1.OverlaydPolicy.rules:type_name -> n0x.files.v1.OverlaydRule
-	14, // 56: n0x.files.v1.TenantCertificate.binding:type_name -> n0x.files.v1.Binding
-	31, // 57: n0x.files.v1.BillingConfig.PlansEntry.value:type_name -> n0x.files.v1.BillingPlan
-	33, // 58: n0x.files.v1.ConnectivityRegion.FederationsEntry.value:type_name -> n0x.files.v1.ConnectivityLimits
-	33, // 59: n0x.files.v1.ConnectivityRegion.AccountsEntry.value:type_name -> n0x.files.v1.ConnectivityLimits
-	60, // [60:60] is the sub-list for method output_type
-	60, // [60:60] is the sub-list for method input_type
-	60, // [60:60] is the sub-list for extension type_name
-	60, // [60:60] is the sub-list for extension extendee
-	0,  // [0:60] is the sub-list for field type_name
+	8,  // 12: n0x.files.v1.ResourcesProcessConfig.proxy_table_publishers:type_name -> n0x.files.v1.ProxyTablePublisher
+	20, // 13: n0x.files.v1.ManagerProcessConfig.google_sign_in:type_name -> n0x.files.v1.GoogleSignIn
+	21, // 14: n0x.files.v1.ManagerProcessConfig.catalog:type_name -> n0x.files.v1.CatalogConfig
+	22, // 15: n0x.files.v1.ManagerProcessConfig.cloudflare_access:type_name -> n0x.files.v1.CloudflareConfig
+	53, // 16: n0x.files.v1.ManagerProcessConfig.public_federation_endpoints:type_name -> n0x.files.v1.ManagerProcessConfig.PublicFederationEndpointsEntry
+	23, // 17: n0x.files.v1.ManagerProcessConfig.billing:type_name -> n0x.files.v1.BillingConfig
+	51, // 18: n0x.files.v1.ManagerProcessConfig.assistant:type_name -> n0x.files.v1.ManagerProcessConfig.AssistantConfig
+	52, // 19: n0x.files.v1.ManagerProcessConfig.playbooks:type_name -> n0x.files.v1.ManagerProcessConfig.PlaybooksConfig
+	13, // 20: n0x.files.v1.ProvisionGatewayProcessConfig.scopes:type_name -> n0x.files.v1.Scope
+	54, // 21: n0x.files.v1.InferenceProcessConfig.upstreams:type_name -> n0x.files.v1.InferenceProcessConfig.Upstream
+	24, // 22: n0x.files.v1.ConnectivityProcessConfig.targets:type_name -> n0x.files.v1.TargetDefinition
+	25, // 23: n0x.files.v1.ConnectivityProcessConfig.forward:type_name -> n0x.files.v1.ForwardConfig
+	26, // 24: n0x.files.v1.ConnectivityProcessConfig.region:type_name -> n0x.files.v1.ConnectivityRegion
+	55, // 25: n0x.files.v1.ConnectivityProcessConfig.federation_ids:type_name -> n0x.files.v1.ConnectivityProcessConfig.FederationIdsEntry
+	56, // 26: n0x.files.v1.ConnectivityProcessConfig.status_endpoints:type_name -> n0x.files.v1.ConnectivityProcessConfig.StatusEndpointsEntry
+	9,  // 27: n0x.files.v1.ConnectivityProcessConfig.workload_public_listeners:type_name -> n0x.files.v1.WorkloadPublicListener
+	47, // 28: n0x.files.v1.ConnectivityProcessConfig.proxy_return_public_keys:type_name -> n0x.files.v1.ProxyReturnPublicKey
+	48, // 29: n0x.files.v1.ConnectivityProcessConfig.tenant_certificates:type_name -> n0x.files.v1.TenantCertificate
+	14, // 30: n0x.files.v1.WorkloadPublicListener.binding:type_name -> n0x.files.v1.Binding
+	27, // 31: n0x.files.v1.OverlaydProcessConfig.peers:type_name -> n0x.files.v1.Peer
+	14, // 32: n0x.files.v1.ConnectivityProfile.binding:type_name -> n0x.files.v1.Binding
+	28, // 33: n0x.files.v1.ControllerConnectivity.admissions:type_name -> n0x.files.v1.AdmissionEndpoint
+	29, // 34: n0x.files.v1.SharedFederationConfig.mesh:type_name -> n0x.files.v1.MeshConfig
+	57, // 35: n0x.files.v1.SharedFederationConfig.broker_endpoints:type_name -> n0x.files.v1.SharedFederationConfig.BrokerEndpointsEntry
+	30, // 36: n0x.files.v1.CatalogConfig.seed:type_name -> n0x.files.v1.CatalogSeed
+	58, // 37: n0x.files.v1.BillingConfig.plans:type_name -> n0x.files.v1.BillingConfig.PlansEntry
+	14, // 38: n0x.files.v1.TargetDefinition.binding:type_name -> n0x.files.v1.Binding
+	13, // 39: n0x.files.v1.TargetDefinition.scopes:type_name -> n0x.files.v1.Scope
+	28, // 40: n0x.files.v1.ForwardConfig.admissions:type_name -> n0x.files.v1.AdmissionEndpoint
+	14, // 41: n0x.files.v1.ConnectivityRegion.bindings:type_name -> n0x.files.v1.Binding
+	32, // 42: n0x.files.v1.ConnectivityRegion.services:type_name -> n0x.files.v1.ConnectivityService
+	33, // 43: n0x.files.v1.ConnectivityRegion.pool:type_name -> n0x.files.v1.ConnectivityLimits
+	59, // 44: n0x.files.v1.ConnectivityRegion.federations:type_name -> n0x.files.v1.ConnectivityRegion.FederationsEntry
+	60, // 45: n0x.files.v1.ConnectivityRegion.accounts:type_name -> n0x.files.v1.ConnectivityRegion.AccountsEntry
+	34, // 46: n0x.files.v1.MeshConfig.peers:type_name -> n0x.files.v1.MeshPeerConfig
+	35, // 47: n0x.files.v1.MeshConfig.timings:type_name -> n0x.files.v1.MeshTimings
+	36, // 48: n0x.files.v1.CatalogSeed.locations:type_name -> n0x.files.v1.CatalogLocation
+	37, // 49: n0x.files.v1.CatalogSeed.federations:type_name -> n0x.files.v1.CatalogFederation
+	38, // 50: n0x.files.v1.CatalogFederation.capacity:type_name -> n0x.files.v1.CatalogCounts
+	38, // 51: n0x.files.v1.CatalogFederation.used:type_name -> n0x.files.v1.CatalogCounts
+	40, // 52: n0x.files.v1.HumanTrust.keys:type_name -> n0x.files.v1.PublicJwk
+	40, // 53: n0x.files.v1.AssignmentTrust.keys:type_name -> n0x.files.v1.PublicJwk
+	13, // 54: n0x.files.v1.AgentCache.scope:type_name -> n0x.files.v1.Scope
+	43, // 55: n0x.files.v1.AgentCache.high_water:type_name -> n0x.files.v1.AgentHighWater
+	46, // 56: n0x.files.v1.OverlaydPolicy.rules:type_name -> n0x.files.v1.OverlaydRule
+	14, // 57: n0x.files.v1.TenantCertificate.binding:type_name -> n0x.files.v1.Binding
+	31, // 58: n0x.files.v1.BillingConfig.PlansEntry.value:type_name -> n0x.files.v1.BillingPlan
+	33, // 59: n0x.files.v1.ConnectivityRegion.FederationsEntry.value:type_name -> n0x.files.v1.ConnectivityLimits
+	33, // 60: n0x.files.v1.ConnectivityRegion.AccountsEntry.value:type_name -> n0x.files.v1.ConnectivityLimits
+	61, // [61:61] is the sub-list for method output_type
+	61, // [61:61] is the sub-list for method input_type
+	61, // [61:61] is the sub-list for extension type_name
+	61, // [61:61] is the sub-list for extension extendee
+	0,  // [0:61] is the sub-list for field type_name
 }
 
 func init() { file_n0x_files_v1_files_proto_init() }

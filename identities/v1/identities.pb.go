@@ -1364,8 +1364,12 @@ type CreateNodeEnrollmentRequest struct {
 	RequestId           string                 `protobuf:"bytes,6,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	Reason              string                 `protobuf:"bytes,7,opt,name=reason,proto3" json:"reason,omitempty"`
 	DraftRevisionNumber *uint64                `protobuf:"varint,8,opt,name=draft_revision_number,json=draftRevisionNumber,proto3,oneof" json:"draft_revision_number,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Ausente o false conserva el alta con malla; true da de alta un nodo que
+	// solo expone cargas por conexion saliente, sin TUN ni direccion de malla.
+	// El bootstrap resultante lleva files/v1.ClientBootstrap.expose_only.
+	ExposeOnly    *bool `protobuf:"varint,9,opt,name=expose_only,json=exposeOnly,proto3,oneof" json:"expose_only,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateNodeEnrollmentRequest) Reset() {
@@ -1452,6 +1456,13 @@ func (x *CreateNodeEnrollmentRequest) GetDraftRevisionNumber() uint64 {
 		return *x.DraftRevisionNumber
 	}
 	return 0
+}
+
+func (x *CreateNodeEnrollmentRequest) GetExposeOnly() bool {
+	if x != nil && x.ExposeOnly != nil {
+		return *x.ExposeOnly
+	}
+	return false
 }
 
 type CreateNodeEnrollmentResponse struct {
@@ -3561,7 +3572,7 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\bidentity\x18\x01 \x01(\v2\x1b.n0x.identities.v1.IdentityR\bidentity\x12)\n" +
 	"\x10bootstrap_secret\x18\x02 \x01(\tR\x0fbootstrapSecret\x12Y\n" +
 	"\x1bbootstrap_secret_expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x18bootstrapSecretExpiresAt\x12'\n" +
-	"\x0frevision_number\x18\x04 \x01(\x04R\x0erevisionNumber\"\xd8\x02\n" +
+	"\x0frevision_number\x18\x04 \x01(\x04R\x0erevisionNumber\"\x8e\x03\n" +
 	"\x1bCreateNodeEnrollmentRequest\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
@@ -3572,9 +3583,12 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\n" +
 	"request_id\x18\x06 \x01(\tR\trequestId\x12\x16\n" +
 	"\x06reason\x18\a \x01(\tR\x06reason\x127\n" +
-	"\x15draft_revision_number\x18\b \x01(\x04H\x01R\x13draftRevisionNumber\x88\x01\x01B\x11\n" +
+	"\x15draft_revision_number\x18\b \x01(\x04H\x01R\x13draftRevisionNumber\x88\x01\x01\x12$\n" +
+	"\vexpose_only\x18\t \x01(\bH\x02R\n" +
+	"exposeOnly\x88\x01\x01B\x11\n" +
 	"\x0f_incarnation_idB\x18\n" +
-	"\x16_draft_revision_number\"\x86\x02\n" +
+	"\x16_draft_revision_numberB\x0e\n" +
+	"\f_expose_only\"\x86\x02\n" +
 	"\x1cCreateNodeEnrollmentResponse\x127\n" +
 	"\bidentity\x18\x01 \x01(\v2\x1b.n0x.identities.v1.IdentityR\bidentity\x12)\n" +
 	"\x10bootstrap_secret\x18\x02 \x01(\tR\x0fbootstrapSecret\x12Y\n" +
