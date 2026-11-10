@@ -20,6 +20,9 @@ const (
 	PasswordServiceName = "n0x.internal.v1.PasswordService"
 	// ProvisionServiceName is the fully-qualified name of the ProvisionService service.
 	ProvisionServiceName = "n0x.internal.v1.ProvisionService"
+	// AssignmentsRuntimeServiceName is the fully-qualified name of the AssignmentsRuntimeService
+	// service.
+	AssignmentsRuntimeServiceName = "n0x.internal.v1.AssignmentsRuntimeService"
 )
 
 // These constants are the procedure names of the RPCs defined in this package. They're exposed at
@@ -71,6 +74,15 @@ const (
 	ProvisionServiceApplyProcedure = "/n0x.internal.v1.ProvisionService/Apply"
 	// ProvisionServiceObserveProcedure is the procedure name of the ProvisionService's Observe RPC.
 	ProvisionServiceObserveProcedure = "/n0x.internal.v1.ProvisionService/Observe"
+	// ProvisionServiceIssueServiceAccountSVIDProcedure is the procedure name of the ProvisionService's
+	// IssueServiceAccountSVID RPC.
+	ProvisionServiceIssueServiceAccountSVIDProcedure = "/n0x.internal.v1.ProvisionService/IssueServiceAccountSVID"
+	// AssignmentsRuntimeServiceClaimAssignmentRunProcedure is the procedure name of the
+	// AssignmentsRuntimeService's ClaimAssignmentRun RPC.
+	AssignmentsRuntimeServiceClaimAssignmentRunProcedure = "/n0x.internal.v1.AssignmentsRuntimeService/ClaimAssignmentRun"
+	// AssignmentsRuntimeServiceRenewAssignmentInstanceTokenProcedure is the procedure name of the
+	// AssignmentsRuntimeService's RenewAssignmentInstanceToken RPC.
+	AssignmentsRuntimeServiceRenewAssignmentInstanceTokenProcedure = "/n0x.internal.v1.AssignmentsRuntimeService/RenewAssignmentInstanceToken"
 )
 
 var (
@@ -558,6 +570,13 @@ var (
 			Procedure:  ProvisionServiceObserveProcedure,
 		}
 	})
+	provisionServiceIssueServiceAccountSVIDSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_internal_v1_internal_proto.Services().ByName("ProvisionService").Methods().ByName("IssueServiceAccountSVID"),
+			Procedure:  ProvisionServiceIssueServiceAccountSVIDProcedure,
+		}
+	})
 )
 
 // ProvisionServiceClient is a client for the n0x.internal.v1.ProvisionService service.
@@ -568,6 +587,9 @@ type ProvisionServiceClient interface {
 	Prepare(context.Context, *v1.PrepareRequest) (*v1.PrepareResponse, error)
 	Apply(context.Context, *v1.ApplyRequest) (*v1.ApplyResponse, error)
 	Observe(context.Context, *v1.ObserveRequest) (*v1.ObserveResponse, error)
+	// Solo mTLS del emisor autorizado; prepara y aplica una intencion durable
+	// ligada al request_id y al CSR, sin aceptar secretos en claro.
+	IssueServiceAccountSVID(context.Context, *v1.IssueServiceAccountSVIDRequest) (*v1.IssueServiceAccountSVIDResponse, error)
 }
 
 // NewProvisionServiceClient constructs a client for the n0x.internal.v1.ProvisionService service.
@@ -584,6 +606,9 @@ type ProvisionServiceHandler interface {
 	Prepare(context.Context, *v1.PrepareRequest) (*v1.PrepareResponse, error)
 	Apply(context.Context, *v1.ApplyRequest) (*v1.ApplyResponse, error)
 	Observe(context.Context, *v1.ObserveRequest) (*v1.ObserveResponse, error)
+	// Solo mTLS del emisor autorizado; prepara y aplica una intencion durable
+	// ligada al request_id y al CSR, sin aceptar secretos en claro.
+	IssueServiceAccountSVID(context.Context, *v1.IssueServiceAccountSVIDRequest) (*v1.IssueServiceAccountSVIDResponse, error)
 }
 
 // RegisterProvisionServiceHandler registers svc as the n0x.internal.v1.ProvisionService
@@ -597,6 +622,7 @@ func RegisterProvisionServiceHandler(server *connect.Server, svc ProvisionServic
 		connect.Method{Spec: provisionServicePrepareSpec(), Handler: adapter.prepare},
 		connect.Method{Spec: provisionServiceApplySpec(), Handler: adapter.apply},
 		connect.Method{Spec: provisionServiceObserveSpec(), Handler: adapter.observe},
+		connect.Method{Spec: provisionServiceIssueServiceAccountSVIDSpec(), Handler: adapter.issueServiceAccountSVID},
 	)
 }
 
@@ -625,6 +651,10 @@ func (UnimplementedProvisionServiceHandler) Apply(context.Context, *v1.ApplyRequ
 
 func (UnimplementedProvisionServiceHandler) Observe(context.Context, *v1.ObserveRequest) (*v1.ObserveResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.internal.v1.ProvisionService.Observe is not implemented")
+}
+
+func (UnimplementedProvisionServiceHandler) IssueServiceAccountSVID(context.Context, *v1.IssueServiceAccountSVIDRequest) (*v1.IssueServiceAccountSVIDResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.internal.v1.ProvisionService.IssueServiceAccountSVID is not implemented")
 }
 
 type provisionServiceClient struct {
@@ -674,6 +704,14 @@ func (c *provisionServiceClient) Apply(ctx context.Context, req *v1.ApplyRequest
 func (c *provisionServiceClient) Observe(ctx context.Context, req *v1.ObserveRequest) (*v1.ObserveResponse, error) {
 	var res v1.ObserveResponse
 	if err := c.client.CallUnary(ctx, provisionServiceObserveSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *provisionServiceClient) IssueServiceAccountSVID(ctx context.Context, req *v1.IssueServiceAccountSVIDRequest) (*v1.IssueServiceAccountSVIDResponse, error) {
+	var res v1.IssueServiceAccountSVIDResponse
+	if err := c.client.CallUnary(ctx, provisionServiceIssueServiceAccountSVIDSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -747,6 +785,131 @@ func (h provisionServiceHandler) observe(ctx context.Context, _ connect.Spec, st
 		return err
 	}
 	res, err := h.svc.Observe(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h provisionServiceHandler) issueServiceAccountSVID(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.IssueServiceAccountSVIDRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.IssueServiceAccountSVID(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+var (
+	assignmentsRuntimeServiceClaimAssignmentRunSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_internal_v1_internal_proto.Services().ByName("AssignmentsRuntimeService").Methods().ByName("ClaimAssignmentRun"),
+			Procedure:  AssignmentsRuntimeServiceClaimAssignmentRunProcedure,
+		}
+	})
+	assignmentsRuntimeServiceRenewAssignmentInstanceTokenSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_internal_v1_internal_proto.Services().ByName("AssignmentsRuntimeService").Methods().ByName("RenewAssignmentInstanceToken"),
+			Procedure:  AssignmentsRuntimeServiceRenewAssignmentInstanceTokenProcedure,
+		}
+	})
+)
+
+// AssignmentsRuntimeServiceClient is a client for the n0x.internal.v1.AssignmentsRuntimeService
+// service.
+type AssignmentsRuntimeServiceClient interface {
+	// Una respuesta vacia significa que no hay trabajo pendiente.
+	ClaimAssignmentRun(context.Context, *v1.ClaimAssignmentRunRequest) (*v1.ClaimAssignmentRunResponse, error)
+	// Exige el peer mTLS /system/assignments y el Bearer vigente de la ejecucion
+	// reclamada mediante ClaimAssignmentRun. Extiende la validez del token y el lease.
+	RenewAssignmentInstanceToken(context.Context, *v1.RenewAssignmentInstanceTokenRequest) (*v1.RenewAssignmentInstanceTokenResponse, error)
+}
+
+// NewAssignmentsRuntimeServiceClient constructs a client for the
+// n0x.internal.v1.AssignmentsRuntimeService service. Multiple service clients may share a single
+// connect.Client.
+func NewAssignmentsRuntimeServiceClient(client *connect.Client) AssignmentsRuntimeServiceClient {
+	return &assignmentsRuntimeServiceClient{client: client}
+}
+
+// AssignmentsRuntimeServiceHandler is an implementation of the
+// n0x.internal.v1.AssignmentsRuntimeService service.
+type AssignmentsRuntimeServiceHandler interface {
+	// Una respuesta vacia significa que no hay trabajo pendiente.
+	ClaimAssignmentRun(context.Context, *v1.ClaimAssignmentRunRequest) (*v1.ClaimAssignmentRunResponse, error)
+	// Exige el peer mTLS /system/assignments y el Bearer vigente de la ejecucion
+	// reclamada mediante ClaimAssignmentRun. Extiende la validez del token y el lease.
+	RenewAssignmentInstanceToken(context.Context, *v1.RenewAssignmentInstanceTokenRequest) (*v1.RenewAssignmentInstanceTokenResponse, error)
+}
+
+// RegisterAssignmentsRuntimeServiceHandler registers svc as the
+// n0x.internal.v1.AssignmentsRuntimeService implementation on server.
+func RegisterAssignmentsRuntimeServiceHandler(server *connect.Server, svc AssignmentsRuntimeServiceHandler) {
+	adapter := assignmentsRuntimeServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: assignmentsRuntimeServiceClaimAssignmentRunSpec(), Handler: adapter.claimAssignmentRun},
+		connect.Method{Spec: assignmentsRuntimeServiceRenewAssignmentInstanceTokenSpec(), Handler: adapter.renewAssignmentInstanceToken},
+	)
+}
+
+// UnimplementedAssignmentsRuntimeServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedAssignmentsRuntimeServiceHandler struct{}
+
+func (UnimplementedAssignmentsRuntimeServiceHandler) ClaimAssignmentRun(context.Context, *v1.ClaimAssignmentRunRequest) (*v1.ClaimAssignmentRunResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.internal.v1.AssignmentsRuntimeService.ClaimAssignmentRun is not implemented")
+}
+
+func (UnimplementedAssignmentsRuntimeServiceHandler) RenewAssignmentInstanceToken(context.Context, *v1.RenewAssignmentInstanceTokenRequest) (*v1.RenewAssignmentInstanceTokenResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.internal.v1.AssignmentsRuntimeService.RenewAssignmentInstanceToken is not implemented")
+}
+
+type assignmentsRuntimeServiceClient struct {
+	client *connect.Client
+}
+
+func (c *assignmentsRuntimeServiceClient) ClaimAssignmentRun(ctx context.Context, req *v1.ClaimAssignmentRunRequest) (*v1.ClaimAssignmentRunResponse, error) {
+	var res v1.ClaimAssignmentRunResponse
+	if err := c.client.CallUnary(ctx, assignmentsRuntimeServiceClaimAssignmentRunSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *assignmentsRuntimeServiceClient) RenewAssignmentInstanceToken(ctx context.Context, req *v1.RenewAssignmentInstanceTokenRequest) (*v1.RenewAssignmentInstanceTokenResponse, error) {
+	var res v1.RenewAssignmentInstanceTokenResponse
+	if err := c.client.CallUnary(ctx, assignmentsRuntimeServiceRenewAssignmentInstanceTokenSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type assignmentsRuntimeServiceHandler struct {
+	svc AssignmentsRuntimeServiceHandler
+}
+
+func (h assignmentsRuntimeServiceHandler) claimAssignmentRun(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ClaimAssignmentRunRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ClaimAssignmentRun(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h assignmentsRuntimeServiceHandler) renewAssignmentInstanceToken(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.RenewAssignmentInstanceTokenRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RenewAssignmentInstanceToken(ctx, &req)
 	if err != nil {
 		return err
 	}

@@ -24,6 +24,8 @@ const (
 	AuthService_CreatePasswordChallenge_FullMethodName = "/n0x.manager.v1.AuthService/CreatePasswordChallenge"
 	AuthService_LoginPassword_FullMethodName           = "/n0x.manager.v1.AuthService/LoginPassword"
 	AuthService_Logout_FullMethodName                  = "/n0x.manager.v1.AuthService/Logout"
+	AuthService_ProxyLoginContext_FullMethodName       = "/n0x.manager.v1.AuthService/ProxyLoginContext"
+	AuthService_IssueProxyReturn_FullMethodName        = "/n0x.manager.v1.AuthService/IssueProxyReturn"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -35,6 +37,13 @@ type AuthServiceClient interface {
 	CreatePasswordChallenge(ctx context.Context, in *CreatePasswordChallengeRequest, opts ...grpc.CallOption) (*CreatePasswordChallengeResponse, error)
 	LoginPassword(ctx context.Context, in *LoginPasswordRequest, opts ...grpc.CallOption) (*LoginPasswordResponse, error)
 	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error)
+	// Contexto de navegador: lee la cookie de sesion humana si existe; sin ella
+	// devuelve LOGIN_REQUIRED. No acepta el bearer de CLI ni emite credenciales.
+	ProxyLoginContext(ctx context.Context, in *ProxyLoginContextRequest, opts ...grpc.CallOption) (*ProxyLoginContextResponse, error)
+	// Exige cookie de sesion humana y CSRF; MFA reciente cuando corresponda.
+	// El host se valida contra proxy_public_domain y contra la carga publicada
+	// antes de firmar la vuelta, para impedir una redireccion abierta.
+	IssueProxyReturn(ctx context.Context, in *IssueProxyReturnRequest, opts ...grpc.CallOption) (*IssueProxyReturnResponse, error)
 }
 
 type authServiceClient struct {
@@ -95,6 +104,26 @@ func (c *authServiceClient) Logout(ctx context.Context, in *LogoutRequest, opts 
 	return out, nil
 }
 
+func (c *authServiceClient) ProxyLoginContext(ctx context.Context, in *ProxyLoginContextRequest, opts ...grpc.CallOption) (*ProxyLoginContextResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ProxyLoginContextResponse)
+	err := c.cc.Invoke(ctx, AuthService_ProxyLoginContext_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) IssueProxyReturn(ctx context.Context, in *IssueProxyReturnRequest, opts ...grpc.CallOption) (*IssueProxyReturnResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IssueProxyReturnResponse)
+	err := c.cc.Invoke(ctx, AuthService_IssueProxyReturn_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
@@ -104,6 +133,13 @@ type AuthServiceServer interface {
 	CreatePasswordChallenge(context.Context, *CreatePasswordChallengeRequest) (*CreatePasswordChallengeResponse, error)
 	LoginPassword(context.Context, *LoginPasswordRequest) (*LoginPasswordResponse, error)
 	Logout(context.Context, *LogoutRequest) (*LogoutResponse, error)
+	// Contexto de navegador: lee la cookie de sesion humana si existe; sin ella
+	// devuelve LOGIN_REQUIRED. No acepta el bearer de CLI ni emite credenciales.
+	ProxyLoginContext(context.Context, *ProxyLoginContextRequest) (*ProxyLoginContextResponse, error)
+	// Exige cookie de sesion humana y CSRF; MFA reciente cuando corresponda.
+	// El host se valida contra proxy_public_domain y contra la carga publicada
+	// antes de firmar la vuelta, para impedir una redireccion abierta.
+	IssueProxyReturn(context.Context, *IssueProxyReturnRequest) (*IssueProxyReturnResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -128,6 +164,12 @@ func (UnimplementedAuthServiceServer) LoginPassword(context.Context, *LoginPassw
 }
 func (UnimplementedAuthServiceServer) Logout(context.Context, *LogoutRequest) (*LogoutResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
+}
+func (UnimplementedAuthServiceServer) ProxyLoginContext(context.Context, *ProxyLoginContextRequest) (*ProxyLoginContextResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProxyLoginContext not implemented")
+}
+func (UnimplementedAuthServiceServer) IssueProxyReturn(context.Context, *IssueProxyReturnRequest) (*IssueProxyReturnResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IssueProxyReturn not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -240,6 +282,42 @@ func _AuthService_Logout_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_ProxyLoginContext_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProxyLoginContextRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).ProxyLoginContext(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_ProxyLoginContext_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).ProxyLoginContext(ctx, req.(*ProxyLoginContextRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_IssueProxyReturn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IssueProxyReturnRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).IssueProxyReturn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_IssueProxyReturn_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).IssueProxyReturn(ctx, req.(*IssueProxyReturnRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -267,16 +345,25 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "Logout",
 			Handler:    _AuthService_Logout_Handler,
 		},
+		{
+			MethodName: "ProxyLoginContext",
+			Handler:    _AuthService_ProxyLoginContext_Handler,
+		},
+		{
+			MethodName: "IssueProxyReturn",
+			Handler:    _AuthService_IssueProxyReturn_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "n0x/manager/v1/manager.proto",
 }
 
 const (
-	CliService_Login_FullMethodName           = "/n0x.manager.v1.CliService/Login"
-	CliService_ExchangeToken_FullMethodName   = "/n0x.manager.v1.CliService/ExchangeToken"
-	CliService_ListCliAccounts_FullMethodName = "/n0x.manager.v1.CliService/ListCliAccounts"
-	CliService_GetCliAccess_FullMethodName    = "/n0x.manager.v1.CliService/GetCliAccess"
+	CliService_Login_FullMethodName               = "/n0x.manager.v1.CliService/Login"
+	CliService_ExchangeToken_FullMethodName       = "/n0x.manager.v1.CliService/ExchangeToken"
+	CliService_ListCliAccounts_FullMethodName     = "/n0x.manager.v1.CliService/ListCliAccounts"
+	CliService_GetCliAccess_FullMethodName        = "/n0x.manager.v1.CliService/GetCliAccess"
+	CliService_IssueSshCertificate_FullMethodName = "/n0x.manager.v1.CliService/IssueSshCertificate"
 )
 
 // CliServiceClient is the client API for CliService service.
@@ -287,6 +374,10 @@ type CliServiceClient interface {
 	ExchangeToken(ctx context.Context, in *ExchangeTokenRequest, opts ...grpc.CallOption) (*ExchangeTokenResponse, error)
 	ListCliAccounts(ctx context.Context, in *ListCliAccountsRequest, opts ...grpc.CallOption) (*ListCliAccountsResponse, error)
 	GetCliAccess(ctx context.Context, in *GetCliAccessRequest, opts ...grpc.CallOption) (*GetCliAccessResponse, error)
+	// Exige Bearer de sesion humana de CLI (n2xc_), sin cookies de navegador.
+	// El principal SSH se deriva del permiso, nunca de la peticion; el servidor
+	// revalida permiso, MFA y cuarentena antes de emitir el certificado corto.
+	IssueSshCertificate(ctx context.Context, in *IssueSshCertificateRequest, opts ...grpc.CallOption) (*IssueSshCertificateResponse, error)
 }
 
 type cliServiceClient struct {
@@ -337,6 +428,16 @@ func (c *cliServiceClient) GetCliAccess(ctx context.Context, in *GetCliAccessReq
 	return out, nil
 }
 
+func (c *cliServiceClient) IssueSshCertificate(ctx context.Context, in *IssueSshCertificateRequest, opts ...grpc.CallOption) (*IssueSshCertificateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IssueSshCertificateResponse)
+	err := c.cc.Invoke(ctx, CliService_IssueSshCertificate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CliServiceServer is the server API for CliService service.
 // All implementations must embed UnimplementedCliServiceServer
 // for forward compatibility.
@@ -345,6 +446,10 @@ type CliServiceServer interface {
 	ExchangeToken(context.Context, *ExchangeTokenRequest) (*ExchangeTokenResponse, error)
 	ListCliAccounts(context.Context, *ListCliAccountsRequest) (*ListCliAccountsResponse, error)
 	GetCliAccess(context.Context, *GetCliAccessRequest) (*GetCliAccessResponse, error)
+	// Exige Bearer de sesion humana de CLI (n2xc_), sin cookies de navegador.
+	// El principal SSH se deriva del permiso, nunca de la peticion; el servidor
+	// revalida permiso, MFA y cuarentena antes de emitir el certificado corto.
+	IssueSshCertificate(context.Context, *IssueSshCertificateRequest) (*IssueSshCertificateResponse, error)
 	mustEmbedUnimplementedCliServiceServer()
 }
 
@@ -366,6 +471,9 @@ func (UnimplementedCliServiceServer) ListCliAccounts(context.Context, *ListCliAc
 }
 func (UnimplementedCliServiceServer) GetCliAccess(context.Context, *GetCliAccessRequest) (*GetCliAccessResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCliAccess not implemented")
+}
+func (UnimplementedCliServiceServer) IssueSshCertificate(context.Context, *IssueSshCertificateRequest) (*IssueSshCertificateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IssueSshCertificate not implemented")
 }
 func (UnimplementedCliServiceServer) mustEmbedUnimplementedCliServiceServer() {}
 func (UnimplementedCliServiceServer) testEmbeddedByValue()                    {}
@@ -460,6 +568,24 @@ func _CliService_GetCliAccess_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CliService_IssueSshCertificate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IssueSshCertificateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CliServiceServer).IssueSshCertificate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CliService_IssueSshCertificate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CliServiceServer).IssueSshCertificate(ctx, req.(*IssueSshCertificateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CliService_ServiceDesc is the grpc.ServiceDesc for CliService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -482,6 +608,10 @@ var CliService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCliAccess",
 			Handler:    _CliService_GetCliAccess_Handler,
+		},
+		{
+			MethodName: "IssueSshCertificate",
+			Handler:    _CliService_IssueSshCertificate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

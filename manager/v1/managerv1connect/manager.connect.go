@@ -43,6 +43,12 @@ const (
 	AuthServiceLoginPasswordProcedure = "/n0x.manager.v1.AuthService/LoginPassword"
 	// AuthServiceLogoutProcedure is the procedure name of the AuthService's Logout RPC.
 	AuthServiceLogoutProcedure = "/n0x.manager.v1.AuthService/Logout"
+	// AuthServiceProxyLoginContextProcedure is the procedure name of the AuthService's
+	// ProxyLoginContext RPC.
+	AuthServiceProxyLoginContextProcedure = "/n0x.manager.v1.AuthService/ProxyLoginContext"
+	// AuthServiceIssueProxyReturnProcedure is the procedure name of the AuthService's IssueProxyReturn
+	// RPC.
+	AuthServiceIssueProxyReturnProcedure = "/n0x.manager.v1.AuthService/IssueProxyReturn"
 	// CliServiceLoginProcedure is the procedure name of the CliService's Login RPC.
 	CliServiceLoginProcedure = "/n0x.manager.v1.CliService/Login"
 	// CliServiceExchangeTokenProcedure is the procedure name of the CliService's ExchangeToken RPC.
@@ -51,6 +57,9 @@ const (
 	CliServiceListCliAccountsProcedure = "/n0x.manager.v1.CliService/ListCliAccounts"
 	// CliServiceGetCliAccessProcedure is the procedure name of the CliService's GetCliAccess RPC.
 	CliServiceGetCliAccessProcedure = "/n0x.manager.v1.CliService/GetCliAccess"
+	// CliServiceIssueSshCertificateProcedure is the procedure name of the CliService's
+	// IssueSshCertificate RPC.
+	CliServiceIssueSshCertificateProcedure = "/n0x.manager.v1.CliService/IssueSshCertificate"
 	// AccountServiceGetAccountProcedure is the procedure name of the AccountService's GetAccount RPC.
 	AccountServiceGetAccountProcedure = "/n0x.manager.v1.AccountService/GetAccount"
 	// AccountServiceListAccountsProcedure is the procedure name of the AccountService's ListAccounts
@@ -138,6 +147,20 @@ var (
 			Procedure:  AuthServiceLogoutProcedure,
 		}
 	})
+	authServiceProxyLoginContextSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_manager_v1_manager_proto.Services().ByName("AuthService").Methods().ByName("ProxyLoginContext"),
+			Procedure:  AuthServiceProxyLoginContextProcedure,
+		}
+	})
+	authServiceIssueProxyReturnSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_manager_v1_manager_proto.Services().ByName("AuthService").Methods().ByName("IssueProxyReturn"),
+			Procedure:  AuthServiceIssueProxyReturnProcedure,
+		}
+	})
 )
 
 // AuthServiceClient is a client for the n0x.manager.v1.AuthService service.
@@ -147,6 +170,13 @@ type AuthServiceClient interface {
 	CreatePasswordChallenge(context.Context, *v1.CreatePasswordChallengeRequest) (*v1.CreatePasswordChallengeResponse, error)
 	LoginPassword(context.Context, *v1.LoginPasswordRequest) (*v1.LoginPasswordResponse, error)
 	Logout(context.Context, *v1.LogoutRequest) (*v1.LogoutResponse, error)
+	// Contexto de navegador: lee la cookie de sesion humana si existe; sin ella
+	// devuelve LOGIN_REQUIRED. No acepta el bearer de CLI ni emite credenciales.
+	ProxyLoginContext(context.Context, *v1.ProxyLoginContextRequest) (*v1.ProxyLoginContextResponse, error)
+	// Exige cookie de sesion humana y CSRF; MFA reciente cuando corresponda.
+	// El host se valida contra proxy_public_domain y contra la carga publicada
+	// antes de firmar la vuelta, para impedir una redireccion abierta.
+	IssueProxyReturn(context.Context, *v1.IssueProxyReturnRequest) (*v1.IssueProxyReturnResponse, error)
 }
 
 // NewAuthServiceClient constructs a client for the n0x.manager.v1.AuthService service. Multiple
@@ -162,6 +192,13 @@ type AuthServiceHandler interface {
 	CreatePasswordChallenge(context.Context, *v1.CreatePasswordChallengeRequest) (*v1.CreatePasswordChallengeResponse, error)
 	LoginPassword(context.Context, *v1.LoginPasswordRequest) (*v1.LoginPasswordResponse, error)
 	Logout(context.Context, *v1.LogoutRequest) (*v1.LogoutResponse, error)
+	// Contexto de navegador: lee la cookie de sesion humana si existe; sin ella
+	// devuelve LOGIN_REQUIRED. No acepta el bearer de CLI ni emite credenciales.
+	ProxyLoginContext(context.Context, *v1.ProxyLoginContextRequest) (*v1.ProxyLoginContextResponse, error)
+	// Exige cookie de sesion humana y CSRF; MFA reciente cuando corresponda.
+	// El host se valida contra proxy_public_domain y contra la carga publicada
+	// antes de firmar la vuelta, para impedir una redireccion abierta.
+	IssueProxyReturn(context.Context, *v1.IssueProxyReturnRequest) (*v1.IssueProxyReturnResponse, error)
 }
 
 // RegisterAuthServiceHandler registers svc as the n0x.manager.v1.AuthService implementation on
@@ -174,6 +211,8 @@ func RegisterAuthServiceHandler(server *connect.Server, svc AuthServiceHandler) 
 		connect.Method{Spec: authServiceCreatePasswordChallengeSpec(), Handler: adapter.createPasswordChallenge},
 		connect.Method{Spec: authServiceLoginPasswordSpec(), Handler: adapter.loginPassword},
 		connect.Method{Spec: authServiceLogoutSpec(), Handler: adapter.logout},
+		connect.Method{Spec: authServiceProxyLoginContextSpec(), Handler: adapter.proxyLoginContext},
+		connect.Method{Spec: authServiceIssueProxyReturnSpec(), Handler: adapter.issueProxyReturn},
 	)
 }
 
@@ -198,6 +237,14 @@ func (UnimplementedAuthServiceHandler) LoginPassword(context.Context, *v1.LoginP
 
 func (UnimplementedAuthServiceHandler) Logout(context.Context, *v1.LogoutRequest) (*v1.LogoutResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.manager.v1.AuthService.Logout is not implemented")
+}
+
+func (UnimplementedAuthServiceHandler) ProxyLoginContext(context.Context, *v1.ProxyLoginContextRequest) (*v1.ProxyLoginContextResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.manager.v1.AuthService.ProxyLoginContext is not implemented")
+}
+
+func (UnimplementedAuthServiceHandler) IssueProxyReturn(context.Context, *v1.IssueProxyReturnRequest) (*v1.IssueProxyReturnResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.manager.v1.AuthService.IssueProxyReturn is not implemented")
 }
 
 type authServiceClient struct {
@@ -239,6 +286,22 @@ func (c *authServiceClient) LoginPassword(ctx context.Context, req *v1.LoginPass
 func (c *authServiceClient) Logout(ctx context.Context, req *v1.LogoutRequest) (*v1.LogoutResponse, error) {
 	var res v1.LogoutResponse
 	if err := c.client.CallUnary(ctx, authServiceLogoutSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *authServiceClient) ProxyLoginContext(ctx context.Context, req *v1.ProxyLoginContextRequest) (*v1.ProxyLoginContextResponse, error) {
+	var res v1.ProxyLoginContextResponse
+	if err := c.client.CallUnary(ctx, authServiceProxyLoginContextSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *authServiceClient) IssueProxyReturn(ctx context.Context, req *v1.IssueProxyReturnRequest) (*v1.IssueProxyReturnResponse, error) {
+	var res v1.IssueProxyReturnResponse
+	if err := c.client.CallUnary(ctx, authServiceIssueProxyReturnSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -306,6 +369,30 @@ func (h authServiceHandler) logout(ctx context.Context, _ connect.Spec, stream c
 	return stream.Send(res)
 }
 
+func (h authServiceHandler) proxyLoginContext(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ProxyLoginContextRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ProxyLoginContext(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h authServiceHandler) issueProxyReturn(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.IssueProxyReturnRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.IssueProxyReturn(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
 var (
 	cliServiceLoginSpec = sync.OnceValue(func() connect.Spec {
 		return connect.Spec{
@@ -335,6 +422,13 @@ var (
 			Procedure:  CliServiceGetCliAccessProcedure,
 		}
 	})
+	cliServiceIssueSshCertificateSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_manager_v1_manager_proto.Services().ByName("CliService").Methods().ByName("IssueSshCertificate"),
+			Procedure:  CliServiceIssueSshCertificateProcedure,
+		}
+	})
 )
 
 // CliServiceClient is a client for the n0x.manager.v1.CliService service.
@@ -343,6 +437,10 @@ type CliServiceClient interface {
 	ExchangeToken(context.Context, *v1.ExchangeTokenRequest) (*v1.ExchangeTokenResponse, error)
 	ListCliAccounts(context.Context, *v1.ListCliAccountsRequest) (*v1.ListCliAccountsResponse, error)
 	GetCliAccess(context.Context, *v1.GetCliAccessRequest) (*v1.GetCliAccessResponse, error)
+	// Exige Bearer de sesion humana de CLI (n2xc_), sin cookies de navegador.
+	// El principal SSH se deriva del permiso, nunca de la peticion; el servidor
+	// revalida permiso, MFA y cuarentena antes de emitir el certificado corto.
+	IssueSshCertificate(context.Context, *v1.IssueSshCertificateRequest) (*v1.IssueSshCertificateResponse, error)
 }
 
 // NewCliServiceClient constructs a client for the n0x.manager.v1.CliService service. Multiple
@@ -357,6 +455,10 @@ type CliServiceHandler interface {
 	ExchangeToken(context.Context, *v1.ExchangeTokenRequest) (*v1.ExchangeTokenResponse, error)
 	ListCliAccounts(context.Context, *v1.ListCliAccountsRequest) (*v1.ListCliAccountsResponse, error)
 	GetCliAccess(context.Context, *v1.GetCliAccessRequest) (*v1.GetCliAccessResponse, error)
+	// Exige Bearer de sesion humana de CLI (n2xc_), sin cookies de navegador.
+	// El principal SSH se deriva del permiso, nunca de la peticion; el servidor
+	// revalida permiso, MFA y cuarentena antes de emitir el certificado corto.
+	IssueSshCertificate(context.Context, *v1.IssueSshCertificateRequest) (*v1.IssueSshCertificateResponse, error)
 }
 
 // RegisterCliServiceHandler registers svc as the n0x.manager.v1.CliService implementation on
@@ -368,6 +470,7 @@ func RegisterCliServiceHandler(server *connect.Server, svc CliServiceHandler) {
 		connect.Method{Spec: cliServiceExchangeTokenSpec(), Handler: adapter.exchangeToken},
 		connect.Method{Spec: cliServiceListCliAccountsSpec(), Handler: adapter.listCliAccounts},
 		connect.Method{Spec: cliServiceGetCliAccessSpec(), Handler: adapter.getCliAccess},
+		connect.Method{Spec: cliServiceIssueSshCertificateSpec(), Handler: adapter.issueSshCertificate},
 	)
 }
 
@@ -388,6 +491,10 @@ func (UnimplementedCliServiceHandler) ListCliAccounts(context.Context, *v1.ListC
 
 func (UnimplementedCliServiceHandler) GetCliAccess(context.Context, *v1.GetCliAccessRequest) (*v1.GetCliAccessResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.manager.v1.CliService.GetCliAccess is not implemented")
+}
+
+func (UnimplementedCliServiceHandler) IssueSshCertificate(context.Context, *v1.IssueSshCertificateRequest) (*v1.IssueSshCertificateResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.manager.v1.CliService.IssueSshCertificate is not implemented")
 }
 
 type cliServiceClient struct {
@@ -421,6 +528,14 @@ func (c *cliServiceClient) ListCliAccounts(ctx context.Context, req *v1.ListCliA
 func (c *cliServiceClient) GetCliAccess(ctx context.Context, req *v1.GetCliAccessRequest) (*v1.GetCliAccessResponse, error) {
 	var res v1.GetCliAccessResponse
 	if err := c.client.CallUnary(ctx, cliServiceGetCliAccessSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *cliServiceClient) IssueSshCertificate(ctx context.Context, req *v1.IssueSshCertificateRequest) (*v1.IssueSshCertificateResponse, error) {
+	var res v1.IssueSshCertificateResponse
+	if err := c.client.CallUnary(ctx, cliServiceIssueSshCertificateSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -470,6 +585,18 @@ func (h cliServiceHandler) getCliAccess(ctx context.Context, _ connect.Spec, str
 		return err
 	}
 	res, err := h.svc.GetCliAccess(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h cliServiceHandler) issueSshCertificate(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.IssueSshCertificateRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.IssueSshCertificate(ctx, &req)
 	if err != nil {
 		return err
 	}

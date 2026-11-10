@@ -43,8 +43,11 @@ type ClientBootstrap struct {
 	Tun                        string                 `protobuf:"bytes,18,opt,name=tun,proto3" json:"tun,omitempty"`
 	CachePath                  string                 `protobuf:"bytes,19,opt,name=cache_path,json=cachePath,proto3" json:"cache_path,omitempty"`
 	TrustDomain                string                 `protobuf:"bytes,20,opt,name=trust_domain,json=trustDomain,proto3" json:"trust_domain,omitempty"`
-	unknownFields              protoimpl.UnknownFields
-	sizeCache                  protoimpl.SizeCache
+	// Ausente o false conserva el agente de malla; true expone solo la carga
+	// mediante una conexion saliente, sin TUN ni direccion de malla.
+	ExposeOnly    *bool `protobuf:"varint,21,opt,name=expose_only,json=exposeOnly,proto3,oneof" json:"expose_only,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ClientBootstrap) Reset() {
@@ -215,6 +218,13 @@ func (x *ClientBootstrap) GetTrustDomain() string {
 		return x.TrustDomain
 	}
 	return ""
+}
+
+func (x *ClientBootstrap) GetExposeOnly() bool {
+	if x != nil && x.ExposeOnly != nil {
+		return *x.ExposeOnly
+	}
+	return false
 }
 
 type AuthorityProcessConfig struct {
@@ -638,8 +648,15 @@ type ResourcesProcessConfig struct {
 	ClientTemplate           *ClientBootstrap       `protobuf:"bytes,33,opt,name=client_template,json=clientTemplate,proto3" json:"client_template,omitempty"`
 	TrustDomain              string                 `protobuf:"bytes,34,opt,name=trust_domain,json=trustDomain,proto3" json:"trust_domain,omitempty"`
 	FederatedTrustDomains    []string               `protobuf:"bytes,35,rep,name=federated_trust_domains,json=federatedTrustDomains,proto3" json:"federated_trust_domains,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	// Destino autenticado de PublishProxyTable, leido por resources. Ausente
+	// conserva la publicacion sin entrega al proxy (publisher_not_configured).
+	ProxyTablePublisher *ProxyTablePublisher `protobuf:"bytes,36,opt,name=proxy_table_publisher,json=proxyTablePublisher,proto3" json:"proxy_table_publisher,omitempty"`
+	// Rutas de la clave privada de firma y de la confianza publica del token
+	// corto de instancia. No son la confianza de asignacion de cuenta/regional.
+	AssignmentInstanceSigningKeyFile *string `protobuf:"bytes,37,opt,name=assignment_instance_signing_key_file,json=assignmentInstanceSigningKeyFile,proto3,oneof" json:"assignment_instance_signing_key_file,omitempty"`
+	AssignmentInstanceTrustFile      *string `protobuf:"bytes,38,opt,name=assignment_instance_trust_file,json=assignmentInstanceTrustFile,proto3,oneof" json:"assignment_instance_trust_file,omitempty"`
+	unknownFields                    protoimpl.UnknownFields
+	sizeCache                        protoimpl.SizeCache
 }
 
 func (x *ResourcesProcessConfig) Reset() {
@@ -917,6 +934,27 @@ func (x *ResourcesProcessConfig) GetFederatedTrustDomains() []string {
 	return nil
 }
 
+func (x *ResourcesProcessConfig) GetProxyTablePublisher() *ProxyTablePublisher {
+	if x != nil {
+		return x.ProxyTablePublisher
+	}
+	return nil
+}
+
+func (x *ResourcesProcessConfig) GetAssignmentInstanceSigningKeyFile() string {
+	if x != nil && x.AssignmentInstanceSigningKeyFile != nil {
+		return *x.AssignmentInstanceSigningKeyFile
+	}
+	return ""
+}
+
+func (x *ResourcesProcessConfig) GetAssignmentInstanceTrustFile() string {
+	if x != nil && x.AssignmentInstanceTrustFile != nil {
+		return *x.AssignmentInstanceTrustFile
+	}
+	return ""
+}
+
 type ManagerProcessConfig struct {
 	state                     protoimpl.MessageState                `protogen:"open.v1"`
 	AuthMode                  string                                `protobuf:"bytes,1,opt,name=auth_mode,json=authMode,proto3" json:"auth_mode,omitempty"`
@@ -946,8 +984,13 @@ type ManagerProcessConfig struct {
 	FederatedTrustDomains     []string                              `protobuf:"bytes,25,rep,name=federated_trust_domains,json=federatedTrustDomains,proto3" json:"federated_trust_domains,omitempty"`
 	Assistant                 *ManagerProcessConfig_AssistantConfig `protobuf:"bytes,26,opt,name=assistant,proto3" json:"assistant,omitempty"`
 	Playbooks                 *ManagerProcessConfig_PlaybooksConfig `protobuf:"bytes,27,opt,name=playbooks,proto3" json:"playbooks,omitempty"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
+	// Clave privada ES256 solo por ruta de fichero, nunca PEM en linea.
+	ProxyReturnSigningKeyFile *string `protobuf:"bytes,28,opt,name=proxy_return_signing_key_file,json=proxyReturnSigningKeyFile,proto3,oneof" json:"proxy_return_signing_key_file,omitempty"`
+	ProxyReturnKeyId          *string `protobuf:"bytes,29,opt,name=proxy_return_key_id,json=proxyReturnKeyId,proto3,oneof" json:"proxy_return_key_id,omitempty"`
+	// Dominio publico explicito contra el que se valida el host de vuelta.
+	ProxyPublicDomain *string `protobuf:"bytes,30,opt,name=proxy_public_domain,json=proxyPublicDomain,proto3,oneof" json:"proxy_public_domain,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ManagerProcessConfig) Reset() {
@@ -1167,6 +1210,27 @@ func (x *ManagerProcessConfig) GetPlaybooks() *ManagerProcessConfig_PlaybooksCon
 		return x.Playbooks
 	}
 	return nil
+}
+
+func (x *ManagerProcessConfig) GetProxyReturnSigningKeyFile() string {
+	if x != nil && x.ProxyReturnSigningKeyFile != nil {
+		return *x.ProxyReturnSigningKeyFile
+	}
+	return ""
+}
+
+func (x *ManagerProcessConfig) GetProxyReturnKeyId() string {
+	if x != nil && x.ProxyReturnKeyId != nil {
+		return *x.ProxyReturnKeyId
+	}
+	return ""
+}
+
+func (x *ManagerProcessConfig) GetProxyPublicDomain() string {
+	if x != nil && x.ProxyPublicDomain != nil {
+		return *x.ProxyPublicDomain
+	}
+	return ""
 }
 
 type ProvisionGatewayProcessConfig struct {
@@ -1494,25 +1558,42 @@ func (x *InferenceProcessConfig) GetAllowedModels() []string {
 }
 
 type ConnectivityProcessConfig struct {
-	state                 protoimpl.MessageState `protogen:"open.v1"`
-	Targets               []*TargetDefinition    `protobuf:"bytes,1,rep,name=targets,proto3" json:"targets,omitempty"`
-	BlockedNetworks       []string               `protobuf:"bytes,2,rep,name=blocked_networks,json=blockedNetworks,proto3" json:"blocked_networks,omitempty"`
-	Forward               *ForwardConfig         `protobuf:"bytes,3,opt,name=forward,proto3" json:"forward,omitempty"`
-	Role                  string                 `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
-	SpiffeId              string                 `protobuf:"bytes,5,opt,name=spiffe_id,json=spiffeId,proto3" json:"spiffe_id,omitempty"`
-	IssuerIds             []string               `protobuf:"bytes,6,rep,name=issuer_ids,json=issuerIds,proto3" json:"issuer_ids,omitempty"`
-	Socket                string                 `protobuf:"bytes,7,opt,name=socket,proto3" json:"socket,omitempty"`
-	Listen                string                 `protobuf:"bytes,8,opt,name=listen,proto3" json:"listen,omitempty"`
-	ClockHealthPath       string                 `protobuf:"bytes,9,opt,name=clock_health_path,json=clockHealthPath,proto3" json:"clock_health_path,omitempty"`
-	MongoUriFile          string                 `protobuf:"bytes,10,opt,name=mongo_uri_file,json=mongoUriFile,proto3" json:"mongo_uri_file,omitempty"`
-	Database              string                 `protobuf:"bytes,11,opt,name=database,proto3" json:"database,omitempty"`
-	Region                *ConnectivityRegion    `protobuf:"bytes,12,opt,name=region,proto3" json:"region,omitempty"`
-	FederationIds         map[string]string      `protobuf:"bytes,13,rep,name=federation_ids,json=federationIds,proto3" json:"federation_ids,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	StatusEndpoints       map[string]string      `protobuf:"bytes,14,rep,name=status_endpoints,json=statusEndpoints,proto3" json:"status_endpoints,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	TrustDomain           string                 `protobuf:"bytes,15,opt,name=trust_domain,json=trustDomain,proto3" json:"trust_domain,omitempty"`
-	FederatedTrustDomains []string               `protobuf:"bytes,16,rep,name=federated_trust_domains,json=federatedTrustDomains,proto3" json:"federated_trust_domains,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Targets         []*TargetDefinition    `protobuf:"bytes,1,rep,name=targets,proto3" json:"targets,omitempty"`
+	BlockedNetworks []string               `protobuf:"bytes,2,rep,name=blocked_networks,json=blockedNetworks,proto3" json:"blocked_networks,omitempty"`
+	Forward         *ForwardConfig         `protobuf:"bytes,3,opt,name=forward,proto3" json:"forward,omitempty"`
+	Role            string                 `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
+	SpiffeId        string                 `protobuf:"bytes,5,opt,name=spiffe_id,json=spiffeId,proto3" json:"spiffe_id,omitempty"`
+	IssuerIds       []string               `protobuf:"bytes,6,rep,name=issuer_ids,json=issuerIds,proto3" json:"issuer_ids,omitempty"`
+	Socket          string                 `protobuf:"bytes,7,opt,name=socket,proto3" json:"socket,omitempty"`
+	// Listener QUIC de ofertas salientes de los nodos en el rol proxy de cargas.
+	Listen                string              `protobuf:"bytes,8,opt,name=listen,proto3" json:"listen,omitempty"`
+	ClockHealthPath       string              `protobuf:"bytes,9,opt,name=clock_health_path,json=clockHealthPath,proto3" json:"clock_health_path,omitempty"`
+	MongoUriFile          string              `protobuf:"bytes,10,opt,name=mongo_uri_file,json=mongoUriFile,proto3" json:"mongo_uri_file,omitempty"`
+	Database              string              `protobuf:"bytes,11,opt,name=database,proto3" json:"database,omitempty"`
+	Region                *ConnectivityRegion `protobuf:"bytes,12,opt,name=region,proto3" json:"region,omitempty"`
+	FederationIds         map[string]string   `protobuf:"bytes,13,rep,name=federation_ids,json=federationIds,proto3" json:"federation_ids,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	StatusEndpoints       map[string]string   `protobuf:"bytes,14,rep,name=status_endpoints,json=statusEndpoints,proto3" json:"status_endpoints,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	TrustDomain           string              `protobuf:"bytes,15,opt,name=trust_domain,json=trustDomain,proto3" json:"trust_domain,omitempty"`
+	FederatedTrustDomains []string            `protobuf:"bytes,16,rep,name=federated_trust_domains,json=federatedTrustDomains,proto3" json:"federated_trust_domains,omitempty"`
+	// Allowlist de SPIFFE ID fijados para publicar la tabla y autorizar la lectura
+	// GetWorkloadNodeStatus de authority/resources para NodeConnectionSource;
+	// no son los emisores de admision de issuer_ids. Ausente o vacia deniega.
+	ControlPlaneIds []string `protobuf:"bytes,17,rep,name=control_plane_ids,json=controlPlaneIds,proto3" json:"control_plane_ids,omitempty"`
+	// Listener mTLS de ProxyControlService y de la lectura GetWorkloadNodeStatus
+	// para authority/resources, autorizados con control_plane_ids;
+	// ausente no habilita este listener.
+	ControlListen           *string                   `protobuf:"bytes,18,opt,name=control_listen,json=controlListen,proto3,oneof" json:"control_listen,omitempty"`
+	WorkloadPublicListeners []*WorkloadPublicListener `protobuf:"bytes,19,rep,name=workload_public_listeners,json=workloadPublicListeners,proto3" json:"workload_public_listeners,omitempty"`
+	HttpsListen             *string                   `protobuf:"bytes,20,opt,name=https_listen,json=httpsListen,proto3,oneof" json:"https_listen,omitempty"`
+	ConsoleUrl              *string                   `protobuf:"bytes,21,opt,name=console_url,json=consoleUrl,proto3,oneof" json:"console_url,omitempty"`
+	PublicDomain            *string                   `protobuf:"bytes,22,opt,name=public_domain,json=publicDomain,proto3,oneof" json:"public_domain,omitempty"`
+	ProxyReturnPublicKeys   []*ProxyReturnPublicKey   `protobuf:"bytes,23,rep,name=proxy_return_public_keys,json=proxyReturnPublicKeys,proto3" json:"proxy_return_public_keys,omitempty"`
+	// Clave privada de sellado de cookies solo por ruta de fichero.
+	SessionKeyFile     *string              `protobuf:"bytes,24,opt,name=session_key_file,json=sessionKeyFile,proto3,oneof" json:"session_key_file,omitempty"`
+	TenantCertificates []*TenantCertificate `protobuf:"bytes,25,rep,name=tenant_certificates,json=tenantCertificates,proto3" json:"tenant_certificates,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *ConnectivityProcessConfig) Reset() {
@@ -1657,6 +1738,191 @@ func (x *ConnectivityProcessConfig) GetFederatedTrustDomains() []string {
 	return nil
 }
 
+func (x *ConnectivityProcessConfig) GetControlPlaneIds() []string {
+	if x != nil {
+		return x.ControlPlaneIds
+	}
+	return nil
+}
+
+func (x *ConnectivityProcessConfig) GetControlListen() string {
+	if x != nil && x.ControlListen != nil {
+		return *x.ControlListen
+	}
+	return ""
+}
+
+func (x *ConnectivityProcessConfig) GetWorkloadPublicListeners() []*WorkloadPublicListener {
+	if x != nil {
+		return x.WorkloadPublicListeners
+	}
+	return nil
+}
+
+func (x *ConnectivityProcessConfig) GetHttpsListen() string {
+	if x != nil && x.HttpsListen != nil {
+		return *x.HttpsListen
+	}
+	return ""
+}
+
+func (x *ConnectivityProcessConfig) GetConsoleUrl() string {
+	if x != nil && x.ConsoleUrl != nil {
+		return *x.ConsoleUrl
+	}
+	return ""
+}
+
+func (x *ConnectivityProcessConfig) GetPublicDomain() string {
+	if x != nil && x.PublicDomain != nil {
+		return *x.PublicDomain
+	}
+	return ""
+}
+
+func (x *ConnectivityProcessConfig) GetProxyReturnPublicKeys() []*ProxyReturnPublicKey {
+	if x != nil {
+		return x.ProxyReturnPublicKeys
+	}
+	return nil
+}
+
+func (x *ConnectivityProcessConfig) GetSessionKeyFile() string {
+	if x != nil && x.SessionKeyFile != nil {
+		return *x.SessionKeyFile
+	}
+	return ""
+}
+
+func (x *ConnectivityProcessConfig) GetTenantCertificates() []*TenantCertificate {
+	if x != nil {
+		return x.TenantCertificates
+	}
+	return nil
+}
+
+// Configuracion explicita del publicador, nunca un destino aportado por el cliente.
+type ProxyTablePublisher struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServiceId     *string                `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3,oneof" json:"service_id,omitempty"`
+	Endpoint      *string                `protobuf:"bytes,2,opt,name=endpoint,proto3,oneof" json:"endpoint,omitempty"`
+	SpiffeId      *string                `protobuf:"bytes,3,opt,name=spiffe_id,json=spiffeId,proto3,oneof" json:"spiffe_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProxyTablePublisher) Reset() {
+	*x = ProxyTablePublisher{}
+	mi := &file_n0x_files_v1_files_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProxyTablePublisher) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProxyTablePublisher) ProtoMessage() {}
+
+func (x *ProxyTablePublisher) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_files_v1_files_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProxyTablePublisher.ProtoReflect.Descriptor instead.
+func (*ProxyTablePublisher) Descriptor() ([]byte, []int) {
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ProxyTablePublisher) GetServiceId() string {
+	if x != nil && x.ServiceId != nil {
+		return *x.ServiceId
+	}
+	return ""
+}
+
+func (x *ProxyTablePublisher) GetEndpoint() string {
+	if x != nil && x.Endpoint != nil {
+		return *x.Endpoint
+	}
+	return ""
+}
+
+func (x *ProxyTablePublisher) GetSpiffeId() string {
+	if x != nil && x.SpiffeId != nil {
+		return *x.SpiffeId
+	}
+	return ""
+}
+
+// Listener publico ligado a una carga y un binding del proceso.
+type WorkloadPublicListener struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Binding       *Binding               `protobuf:"bytes,1,opt,name=binding,proto3" json:"binding,omitempty"`
+	WorkloadId    *string                `protobuf:"bytes,2,opt,name=workload_id,json=workloadId,proto3,oneof" json:"workload_id,omitempty"`
+	Address       *string                `protobuf:"bytes,3,opt,name=address,proto3,oneof" json:"address,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WorkloadPublicListener) Reset() {
+	*x = WorkloadPublicListener{}
+	mi := &file_n0x_files_v1_files_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WorkloadPublicListener) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WorkloadPublicListener) ProtoMessage() {}
+
+func (x *WorkloadPublicListener) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_files_v1_files_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WorkloadPublicListener.ProtoReflect.Descriptor instead.
+func (*WorkloadPublicListener) Descriptor() ([]byte, []int) {
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *WorkloadPublicListener) GetBinding() *Binding {
+	if x != nil {
+		return x.Binding
+	}
+	return nil
+}
+
+func (x *WorkloadPublicListener) GetWorkloadId() string {
+	if x != nil && x.WorkloadId != nil {
+		return *x.WorkloadId
+	}
+	return ""
+}
+
+func (x *WorkloadPublicListener) GetAddress() string {
+	if x != nil && x.Address != nil {
+		return *x.Address
+	}
+	return ""
+}
+
 type CliConfig struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	ManagerOrigin    string                 `protobuf:"bytes,1,opt,name=manager_origin,json=managerOrigin,proto3" json:"manager_origin,omitempty"`
@@ -1671,7 +1937,7 @@ type CliConfig struct {
 
 func (x *CliConfig) Reset() {
 	*x = CliConfig{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[8]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1683,7 +1949,7 @@ func (x *CliConfig) String() string {
 func (*CliConfig) ProtoMessage() {}
 
 func (x *CliConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[8]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1696,7 +1962,7 @@ func (x *CliConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CliConfig.ProtoReflect.Descriptor instead.
 func (*CliConfig) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{8}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *CliConfig) GetManagerOrigin() string {
@@ -1746,13 +2012,15 @@ type CliSession struct {
 	ManagerOrigin string                 `protobuf:"bytes,1,opt,name=manager_origin,json=managerOrigin,proto3" json:"manager_origin,omitempty"`
 	Session       string                 `protobuf:"bytes,2,opt,name=session,proto3" json:"session,omitempty"`
 	ExpiresAt     uint32                 `protobuf:"varint,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	// Segundos Unix, como expires_at; ausente no acredita MFA.
+	MfaAt         *uint32 `protobuf:"varint,4,opt,name=mfa_at,json=mfaAt,proto3,oneof" json:"mfa_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CliSession) Reset() {
 	*x = CliSession{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[9]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1764,7 +2032,7 @@ func (x *CliSession) String() string {
 func (*CliSession) ProtoMessage() {}
 
 func (x *CliSession) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[9]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1777,7 +2045,7 @@ func (x *CliSession) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CliSession.ProtoReflect.Descriptor instead.
 func (*CliSession) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{9}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CliSession) GetManagerOrigin() string {
@@ -1801,6 +2069,13 @@ func (x *CliSession) GetExpiresAt() uint32 {
 	return 0
 }
 
+func (x *CliSession) GetMfaAt() uint32 {
+	if x != nil && x.MfaAt != nil {
+		return *x.MfaAt
+	}
+	return 0
+}
+
 type OverlaydProcessConfig struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -1816,7 +2091,7 @@ type OverlaydProcessConfig struct {
 
 func (x *OverlaydProcessConfig) Reset() {
 	*x = OverlaydProcessConfig{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[10]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1828,7 +2103,7 @@ func (x *OverlaydProcessConfig) String() string {
 func (*OverlaydProcessConfig) ProtoMessage() {}
 
 func (x *OverlaydProcessConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[10]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1841,7 +2116,7 @@ func (x *OverlaydProcessConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OverlaydProcessConfig.ProtoReflect.Descriptor instead.
 func (*OverlaydProcessConfig) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{10}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *OverlaydProcessConfig) GetName() string {
@@ -1904,7 +2179,7 @@ type Scope struct {
 
 func (x *Scope) Reset() {
 	*x = Scope{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[11]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1916,7 +2191,7 @@ func (x *Scope) String() string {
 func (*Scope) ProtoMessage() {}
 
 func (x *Scope) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[11]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1929,7 +2204,7 @@ func (x *Scope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Scope.ProtoReflect.Descriptor instead.
 func (*Scope) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{11}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *Scope) GetTenantId() string {
@@ -1966,7 +2241,7 @@ type Binding struct {
 
 func (x *Binding) Reset() {
 	*x = Binding{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[12]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1978,7 +2253,7 @@ func (x *Binding) String() string {
 func (*Binding) ProtoMessage() {}
 
 func (x *Binding) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[12]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1991,7 +2266,7 @@ func (x *Binding) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Binding.ProtoReflect.Descriptor instead.
 func (*Binding) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{12}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *Binding) GetAccountId() string {
@@ -2042,7 +2317,7 @@ type ConnectivityProfile struct {
 
 func (x *ConnectivityProfile) Reset() {
 	*x = ConnectivityProfile{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[13]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2054,7 +2329,7 @@ func (x *ConnectivityProfile) String() string {
 func (*ConnectivityProfile) ProtoMessage() {}
 
 func (x *ConnectivityProfile) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[13]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2067,7 +2342,7 @@ func (x *ConnectivityProfile) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectivityProfile.ProtoReflect.Descriptor instead.
 func (*ConnectivityProfile) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{13}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ConnectivityProfile) GetMode() string {
@@ -2115,7 +2390,7 @@ type ControllerConnectivity struct {
 
 func (x *ControllerConnectivity) Reset() {
 	*x = ControllerConnectivity{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[14]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2127,7 +2402,7 @@ func (x *ControllerConnectivity) String() string {
 func (*ControllerConnectivity) ProtoMessage() {}
 
 func (x *ControllerConnectivity) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[14]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2140,7 +2415,7 @@ func (x *ControllerConnectivity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ControllerConnectivity.ProtoReflect.Descriptor instead.
 func (*ControllerConnectivity) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{14}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ControllerConnectivity) GetAdmissions() []*AdmissionEndpoint {
@@ -2167,7 +2442,7 @@ type HaPolicy struct {
 
 func (x *HaPolicy) Reset() {
 	*x = HaPolicy{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[15]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2179,7 +2454,7 @@ func (x *HaPolicy) String() string {
 func (*HaPolicy) ProtoMessage() {}
 
 func (x *HaPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[15]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2192,7 +2467,7 @@ func (x *HaPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HaPolicy.ProtoReflect.Descriptor instead.
 func (*HaPolicy) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{15}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *HaPolicy) GetVersion() string {
@@ -2221,7 +2496,7 @@ type SharedFederationConfig struct {
 
 func (x *SharedFederationConfig) Reset() {
 	*x = SharedFederationConfig{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[16]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2233,7 +2508,7 @@ func (x *SharedFederationConfig) String() string {
 func (*SharedFederationConfig) ProtoMessage() {}
 
 func (x *SharedFederationConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[16]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2246,7 +2521,7 @@ func (x *SharedFederationConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SharedFederationConfig.ProtoReflect.Descriptor instead.
 func (*SharedFederationConfig) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{16}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *SharedFederationConfig) GetMesh() *MeshConfig {
@@ -2287,7 +2562,7 @@ type SharedControlConfig struct {
 
 func (x *SharedControlConfig) Reset() {
 	*x = SharedControlConfig{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[17]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2299,7 +2574,7 @@ func (x *SharedControlConfig) String() string {
 func (*SharedControlConfig) ProtoMessage() {}
 
 func (x *SharedControlConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[17]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2312,7 +2587,7 @@ func (x *SharedControlConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SharedControlConfig.ProtoReflect.Descriptor instead.
 func (*SharedControlConfig) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{17}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *SharedControlConfig) GetSeed() string {
@@ -2341,7 +2616,7 @@ type GoogleSignIn struct {
 
 func (x *GoogleSignIn) Reset() {
 	*x = GoogleSignIn{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[18]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2353,7 +2628,7 @@ func (x *GoogleSignIn) String() string {
 func (*GoogleSignIn) ProtoMessage() {}
 
 func (x *GoogleSignIn) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[18]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2366,7 +2641,7 @@ func (x *GoogleSignIn) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GoogleSignIn.ProtoReflect.Descriptor instead.
 func (*GoogleSignIn) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{18}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GoogleSignIn) GetClientId() string {
@@ -2409,7 +2684,7 @@ type CatalogConfig struct {
 
 func (x *CatalogConfig) Reset() {
 	*x = CatalogConfig{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[19]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2421,7 +2696,7 @@ func (x *CatalogConfig) String() string {
 func (*CatalogConfig) ProtoMessage() {}
 
 func (x *CatalogConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[19]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2434,7 +2709,7 @@ func (x *CatalogConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CatalogConfig.ProtoReflect.Descriptor instead.
 func (*CatalogConfig) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{19}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *CatalogConfig) GetListen() string {
@@ -2477,7 +2752,7 @@ type CloudflareConfig struct {
 
 func (x *CloudflareConfig) Reset() {
 	*x = CloudflareConfig{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[20]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2489,7 +2764,7 @@ func (x *CloudflareConfig) String() string {
 func (*CloudflareConfig) ProtoMessage() {}
 
 func (x *CloudflareConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[20]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2502,7 +2777,7 @@ func (x *CloudflareConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CloudflareConfig.ProtoReflect.Descriptor instead.
 func (*CloudflareConfig) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{20}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *CloudflareConfig) GetIssuer() string {
@@ -2549,7 +2824,7 @@ type BillingConfig struct {
 
 func (x *BillingConfig) Reset() {
 	*x = BillingConfig{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[21]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2561,7 +2836,7 @@ func (x *BillingConfig) String() string {
 func (*BillingConfig) ProtoMessage() {}
 
 func (x *BillingConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[21]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2574,7 +2849,7 @@ func (x *BillingConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BillingConfig.ProtoReflect.Descriptor instead.
 func (*BillingConfig) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{21}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *BillingConfig) GetProviderAccount() string {
@@ -2650,7 +2925,7 @@ type TargetDefinition struct {
 
 func (x *TargetDefinition) Reset() {
 	*x = TargetDefinition{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[22]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2662,7 +2937,7 @@ func (x *TargetDefinition) String() string {
 func (*TargetDefinition) ProtoMessage() {}
 
 func (x *TargetDefinition) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[22]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2675,7 +2950,7 @@ func (x *TargetDefinition) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TargetDefinition.ProtoReflect.Descriptor instead.
 func (*TargetDefinition) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{22}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *TargetDefinition) GetId() string {
@@ -2753,7 +3028,7 @@ type ForwardConfig struct {
 
 func (x *ForwardConfig) Reset() {
 	*x = ForwardConfig{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[23]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2765,7 +3040,7 @@ func (x *ForwardConfig) String() string {
 func (*ForwardConfig) ProtoMessage() {}
 
 func (x *ForwardConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[23]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2778,7 +3053,7 @@ func (x *ForwardConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ForwardConfig.ProtoReflect.Descriptor instead.
 func (*ForwardConfig) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{23}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ForwardConfig) GetServiceId() string {
@@ -2823,7 +3098,7 @@ type ConnectivityRegion struct {
 
 func (x *ConnectivityRegion) Reset() {
 	*x = ConnectivityRegion{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[24]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2835,7 +3110,7 @@ func (x *ConnectivityRegion) String() string {
 func (*ConnectivityRegion) ProtoMessage() {}
 
 func (x *ConnectivityRegion) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[24]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2848,7 +3123,7 @@ func (x *ConnectivityRegion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectivityRegion.ProtoReflect.Descriptor instead.
 func (*ConnectivityRegion) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{24}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ConnectivityRegion) GetRegionId() string {
@@ -2905,7 +3180,7 @@ type Peer struct {
 
 func (x *Peer) Reset() {
 	*x = Peer{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[25]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2917,7 +3192,7 @@ func (x *Peer) String() string {
 func (*Peer) ProtoMessage() {}
 
 func (x *Peer) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[25]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2930,7 +3205,7 @@ func (x *Peer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Peer.ProtoReflect.Descriptor instead.
 func (*Peer) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{25}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *Peer) GetName() string {
@@ -2971,7 +3246,7 @@ type AdmissionEndpoint struct {
 
 func (x *AdmissionEndpoint) Reset() {
 	*x = AdmissionEndpoint{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[26]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2983,7 +3258,7 @@ func (x *AdmissionEndpoint) String() string {
 func (*AdmissionEndpoint) ProtoMessage() {}
 
 func (x *AdmissionEndpoint) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[26]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2996,7 +3271,7 @@ func (x *AdmissionEndpoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdmissionEndpoint.ProtoReflect.Descriptor instead.
 func (*AdmissionEndpoint) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{26}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *AdmissionEndpoint) GetEndpoint() string {
@@ -3030,7 +3305,7 @@ type MeshConfig struct {
 
 func (x *MeshConfig) Reset() {
 	*x = MeshConfig{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[27]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3042,7 +3317,7 @@ func (x *MeshConfig) String() string {
 func (*MeshConfig) ProtoMessage() {}
 
 func (x *MeshConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[27]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3055,7 +3330,7 @@ func (x *MeshConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MeshConfig.ProtoReflect.Descriptor instead.
 func (*MeshConfig) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{27}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *MeshConfig) GetListen() string {
@@ -3131,7 +3406,7 @@ type CatalogSeed struct {
 
 func (x *CatalogSeed) Reset() {
 	*x = CatalogSeed{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[28]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3143,7 +3418,7 @@ func (x *CatalogSeed) String() string {
 func (*CatalogSeed) ProtoMessage() {}
 
 func (x *CatalogSeed) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[28]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3156,7 +3431,7 @@ func (x *CatalogSeed) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CatalogSeed.ProtoReflect.Descriptor instead.
 func (*CatalogSeed) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{28}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *CatalogSeed) GetLocations() []*CatalogLocation {
@@ -3183,7 +3458,7 @@ type BillingPlan struct {
 
 func (x *BillingPlan) Reset() {
 	*x = BillingPlan{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[29]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3195,7 +3470,7 @@ func (x *BillingPlan) String() string {
 func (*BillingPlan) ProtoMessage() {}
 
 func (x *BillingPlan) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[29]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3208,7 +3483,7 @@ func (x *BillingPlan) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BillingPlan.ProtoReflect.Descriptor instead.
 func (*BillingPlan) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{29}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *BillingPlan) GetPriceId() string {
@@ -3240,7 +3515,7 @@ type ConnectivityService struct {
 
 func (x *ConnectivityService) Reset() {
 	*x = ConnectivityService{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[30]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3252,7 +3527,7 @@ func (x *ConnectivityService) String() string {
 func (*ConnectivityService) ProtoMessage() {}
 
 func (x *ConnectivityService) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[30]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3265,7 +3540,7 @@ func (x *ConnectivityService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectivityService.ProtoReflect.Descriptor instead.
 func (*ConnectivityService) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{30}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *ConnectivityService) GetId() string {
@@ -3329,7 +3604,7 @@ type ConnectivityLimits struct {
 
 func (x *ConnectivityLimits) Reset() {
 	*x = ConnectivityLimits{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[31]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3341,7 +3616,7 @@ func (x *ConnectivityLimits) String() string {
 func (*ConnectivityLimits) ProtoMessage() {}
 
 func (x *ConnectivityLimits) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[31]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3354,7 +3629,7 @@ func (x *ConnectivityLimits) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectivityLimits.ProtoReflect.Descriptor instead.
 func (*ConnectivityLimits) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{31}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *ConnectivityLimits) GetActive() int32 {
@@ -3398,7 +3673,7 @@ type MeshPeerConfig struct {
 
 func (x *MeshPeerConfig) Reset() {
 	*x = MeshPeerConfig{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[32]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3410,7 +3685,7 @@ func (x *MeshPeerConfig) String() string {
 func (*MeshPeerConfig) ProtoMessage() {}
 
 func (x *MeshPeerConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[32]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3423,7 +3698,7 @@ func (x *MeshPeerConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MeshPeerConfig.ProtoReflect.Descriptor instead.
 func (*MeshPeerConfig) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{32}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *MeshPeerConfig) GetInstanceId() string {
@@ -3480,7 +3755,7 @@ type MeshTimings struct {
 
 func (x *MeshTimings) Reset() {
 	*x = MeshTimings{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[33]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3492,7 +3767,7 @@ func (x *MeshTimings) String() string {
 func (*MeshTimings) ProtoMessage() {}
 
 func (x *MeshTimings) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[33]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3505,7 +3780,7 @@ func (x *MeshTimings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MeshTimings.ProtoReflect.Descriptor instead.
 func (*MeshTimings) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{33}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *MeshTimings) GetAttestTimeout() string {
@@ -3601,7 +3876,7 @@ type CatalogLocation struct {
 
 func (x *CatalogLocation) Reset() {
 	*x = CatalogLocation{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[34]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3613,7 +3888,7 @@ func (x *CatalogLocation) String() string {
 func (*CatalogLocation) ProtoMessage() {}
 
 func (x *CatalogLocation) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[34]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3626,7 +3901,7 @@ func (x *CatalogLocation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CatalogLocation.ProtoReflect.Descriptor instead.
 func (*CatalogLocation) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{34}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *CatalogLocation) GetDisplayName() string {
@@ -3706,7 +3981,7 @@ type CatalogFederation struct {
 
 func (x *CatalogFederation) Reset() {
 	*x = CatalogFederation{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[35]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3718,7 +3993,7 @@ func (x *CatalogFederation) String() string {
 func (*CatalogFederation) ProtoMessage() {}
 
 func (x *CatalogFederation) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[35]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3731,7 +4006,7 @@ func (x *CatalogFederation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CatalogFederation.ProtoReflect.Descriptor instead.
 func (*CatalogFederation) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{35}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *CatalogFederation) GetFederationId() string {
@@ -3834,7 +4109,7 @@ type CatalogCounts struct {
 
 func (x *CatalogCounts) Reset() {
 	*x = CatalogCounts{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[36]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3846,7 +4121,7 @@ func (x *CatalogCounts) String() string {
 func (*CatalogCounts) ProtoMessage() {}
 
 func (x *CatalogCounts) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[36]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3859,7 +4134,7 @@ func (x *CatalogCounts) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CatalogCounts.ProtoReflect.Descriptor instead.
 func (*CatalogCounts) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{36}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *CatalogCounts) GetAccounts() int32 {
@@ -3880,7 +4155,7 @@ type ClockHealth struct {
 
 func (x *ClockHealth) Reset() {
 	*x = ClockHealth{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[37]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3892,7 +4167,7 @@ func (x *ClockHealth) String() string {
 func (*ClockHealth) ProtoMessage() {}
 
 func (x *ClockHealth) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[37]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3905,7 +4180,7 @@ func (x *ClockHealth) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClockHealth.ProtoReflect.Descriptor instead.
 func (*ClockHealth) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{37}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ClockHealth) GetMeasuredAt() uint32 {
@@ -3937,7 +4212,7 @@ type PublicJwk struct {
 
 func (x *PublicJwk) Reset() {
 	*x = PublicJwk{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[38]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3949,7 +4224,7 @@ func (x *PublicJwk) String() string {
 func (*PublicJwk) ProtoMessage() {}
 
 func (x *PublicJwk) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[38]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3962,7 +4237,7 @@ func (x *PublicJwk) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublicJwk.ProtoReflect.Descriptor instead.
 func (*PublicJwk) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{38}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *PublicJwk) GetKty() string {
@@ -4018,7 +4293,7 @@ type HumanTrust struct {
 
 func (x *HumanTrust) Reset() {
 	*x = HumanTrust{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[39]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4030,7 +4305,7 @@ func (x *HumanTrust) String() string {
 func (*HumanTrust) ProtoMessage() {}
 
 func (x *HumanTrust) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[39]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4043,7 +4318,7 @@ func (x *HumanTrust) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HumanTrust.ProtoReflect.Descriptor instead.
 func (*HumanTrust) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{39}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *HumanTrust) GetVersion() string {
@@ -4076,7 +4351,7 @@ type AssignmentTrust struct {
 
 func (x *AssignmentTrust) Reset() {
 	*x = AssignmentTrust{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[40]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4088,7 +4363,7 @@ func (x *AssignmentTrust) String() string {
 func (*AssignmentTrust) ProtoMessage() {}
 
 func (x *AssignmentTrust) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[40]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4101,7 +4376,7 @@ func (x *AssignmentTrust) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentTrust.ProtoReflect.Descriptor instead.
 func (*AssignmentTrust) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{40}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *AssignmentTrust) GetKeys() []*PublicJwk {
@@ -4123,7 +4398,7 @@ type AgentHighWater struct {
 
 func (x *AgentHighWater) Reset() {
 	*x = AgentHighWater{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[41]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4135,7 +4410,7 @@ func (x *AgentHighWater) String() string {
 func (*AgentHighWater) ProtoMessage() {}
 
 func (x *AgentHighWater) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[41]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4148,7 +4423,7 @@ func (x *AgentHighWater) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentHighWater.ProtoReflect.Descriptor instead.
 func (*AgentHighWater) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{41}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *AgentHighWater) GetRevision() string {
@@ -4195,7 +4470,7 @@ type AgentCache struct {
 
 func (x *AgentCache) Reset() {
 	*x = AgentCache{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[42]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4207,7 +4482,7 @@ func (x *AgentCache) String() string {
 func (*AgentCache) ProtoMessage() {}
 
 func (x *AgentCache) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[42]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4220,7 +4495,7 @@ func (x *AgentCache) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentCache.ProtoReflect.Descriptor instead.
 func (*AgentCache) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{42}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *AgentCache) GetSchemaVersion() int32 {
@@ -4282,7 +4557,7 @@ type OverlaydPolicy struct {
 
 func (x *OverlaydPolicy) Reset() {
 	*x = OverlaydPolicy{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[43]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4294,7 +4569,7 @@ func (x *OverlaydPolicy) String() string {
 func (*OverlaydPolicy) ProtoMessage() {}
 
 func (x *OverlaydPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[43]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4307,7 +4582,7 @@ func (x *OverlaydPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OverlaydPolicy.ProtoReflect.Descriptor instead.
 func (*OverlaydPolicy) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{43}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *OverlaydPolicy) GetRevision() string {
@@ -4337,7 +4612,7 @@ type OverlaydRule struct {
 
 func (x *OverlaydRule) Reset() {
 	*x = OverlaydRule{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[44]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4349,7 +4624,7 @@ func (x *OverlaydRule) String() string {
 func (*OverlaydRule) ProtoMessage() {}
 
 func (x *OverlaydRule) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[44]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4362,7 +4637,7 @@ func (x *OverlaydRule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OverlaydRule.ProtoReflect.Descriptor instead.
 func (*OverlaydRule) Descriptor() ([]byte, []int) {
-	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{44}
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *OverlaydRule) GetSource() string {
@@ -4400,6 +4675,238 @@ func (x *OverlaydRule) GetPortEnd() uint32 {
 	return 0
 }
 
+// Solo material publico de verificacion del aserto de retorno del manager.
+type ProxyReturnPublicKey struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Kid           *string                `protobuf:"bytes,1,opt,name=kid,proto3,oneof" json:"kid,omitempty"`
+	PublicKeyPem  *string                `protobuf:"bytes,2,opt,name=public_key_pem,json=publicKeyPem,proto3,oneof" json:"public_key_pem,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProxyReturnPublicKey) Reset() {
+	*x = ProxyReturnPublicKey{}
+	mi := &file_n0x_files_v1_files_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProxyReturnPublicKey) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProxyReturnPublicKey) ProtoMessage() {}
+
+func (x *ProxyReturnPublicKey) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_files_v1_files_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProxyReturnPublicKey.ProtoReflect.Descriptor instead.
+func (*ProxyReturnPublicKey) Descriptor() ([]byte, []int) {
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *ProxyReturnPublicKey) GetKid() string {
+	if x != nil && x.Kid != nil {
+		return *x.Kid
+	}
+	return ""
+}
+
+func (x *ProxyReturnPublicKey) GetPublicKeyPem() string {
+	if x != nil && x.PublicKeyPem != nil {
+		return *x.PublicKeyPem
+	}
+	return ""
+}
+
+// Certificado comodin de tenant; material privado siempre fuera del JSON.
+type TenantCertificate struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantLabel   *string                `protobuf:"bytes,1,opt,name=tenant_label,json=tenantLabel,proto3,oneof" json:"tenant_label,omitempty"`
+	Binding       *Binding               `protobuf:"bytes,2,opt,name=binding,proto3" json:"binding,omitempty"`
+	CertFile      *string                `protobuf:"bytes,3,opt,name=cert_file,json=certFile,proto3,oneof" json:"cert_file,omitempty"`
+	KeyFile       *string                `protobuf:"bytes,4,opt,name=key_file,json=keyFile,proto3,oneof" json:"key_file,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TenantCertificate) Reset() {
+	*x = TenantCertificate{}
+	mi := &file_n0x_files_v1_files_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantCertificate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantCertificate) ProtoMessage() {}
+
+func (x *TenantCertificate) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_files_v1_files_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TenantCertificate.ProtoReflect.Descriptor instead.
+func (*TenantCertificate) Descriptor() ([]byte, []int) {
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *TenantCertificate) GetTenantLabel() string {
+	if x != nil && x.TenantLabel != nil {
+		return *x.TenantLabel
+	}
+	return ""
+}
+
+func (x *TenantCertificate) GetBinding() *Binding {
+	if x != nil {
+		return x.Binding
+	}
+	return nil
+}
+
+func (x *TenantCertificate) GetCertFile() string {
+	if x != nil && x.CertFile != nil {
+		return *x.CertFile
+	}
+	return ""
+}
+
+func (x *TenantCertificate) GetKeyFile() string {
+	if x != nil && x.KeyFile != nil {
+		return *x.KeyFile
+	}
+	return ""
+}
+
+// Runtime de assignments sin acceso directo a Mongo.
+type AssignmentsProcessConfig struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	AuthorityUrl      *string                `protobuf:"bytes,1,opt,name=authority_url,json=authorityUrl,proto3,oneof" json:"authority_url,omitempty"`
+	AuthoritySpiffeId *string                `protobuf:"bytes,2,opt,name=authority_spiffe_id,json=authoritySpiffeId,proto3,oneof" json:"authority_spiffe_id,omitempty"`
+	SvidCertFile      *string                `protobuf:"bytes,3,opt,name=svid_cert_file,json=svidCertFile,proto3,oneof" json:"svid_cert_file,omitempty"`
+	SvidKeyFile       *string                `protobuf:"bytes,4,opt,name=svid_key_file,json=svidKeyFile,proto3,oneof" json:"svid_key_file,omitempty"`
+	BundleFile        *string                `protobuf:"bytes,5,opt,name=bundle_file,json=bundleFile,proto3,oneof" json:"bundle_file,omitempty"`
+	InferenceUrl      *string                `protobuf:"bytes,6,opt,name=inference_url,json=inferenceUrl,proto3,oneof" json:"inference_url,omitempty"`
+	InferenceSpiffeId *string                `protobuf:"bytes,7,opt,name=inference_spiffe_id,json=inferenceSpiffeId,proto3,oneof" json:"inference_spiffe_id,omitempty"`
+	Model             *string                `protobuf:"bytes,8,opt,name=model,proto3,oneof" json:"model,omitempty"`
+	// Intervalo de sondeo en segundos; ausente conserva el valor del runtime.
+	PollSeconds   *uint32 `protobuf:"varint,9,opt,name=poll_seconds,json=pollSeconds,proto3,oneof" json:"poll_seconds,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AssignmentsProcessConfig) Reset() {
+	*x = AssignmentsProcessConfig{}
+	mi := &file_n0x_files_v1_files_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AssignmentsProcessConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AssignmentsProcessConfig) ProtoMessage() {}
+
+func (x *AssignmentsProcessConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_files_v1_files_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AssignmentsProcessConfig.ProtoReflect.Descriptor instead.
+func (*AssignmentsProcessConfig) Descriptor() ([]byte, []int) {
+	return file_n0x_files_v1_files_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *AssignmentsProcessConfig) GetAuthorityUrl() string {
+	if x != nil && x.AuthorityUrl != nil {
+		return *x.AuthorityUrl
+	}
+	return ""
+}
+
+func (x *AssignmentsProcessConfig) GetAuthoritySpiffeId() string {
+	if x != nil && x.AuthoritySpiffeId != nil {
+		return *x.AuthoritySpiffeId
+	}
+	return ""
+}
+
+func (x *AssignmentsProcessConfig) GetSvidCertFile() string {
+	if x != nil && x.SvidCertFile != nil {
+		return *x.SvidCertFile
+	}
+	return ""
+}
+
+func (x *AssignmentsProcessConfig) GetSvidKeyFile() string {
+	if x != nil && x.SvidKeyFile != nil {
+		return *x.SvidKeyFile
+	}
+	return ""
+}
+
+func (x *AssignmentsProcessConfig) GetBundleFile() string {
+	if x != nil && x.BundleFile != nil {
+		return *x.BundleFile
+	}
+	return ""
+}
+
+func (x *AssignmentsProcessConfig) GetInferenceUrl() string {
+	if x != nil && x.InferenceUrl != nil {
+		return *x.InferenceUrl
+	}
+	return ""
+}
+
+func (x *AssignmentsProcessConfig) GetInferenceSpiffeId() string {
+	if x != nil && x.InferenceSpiffeId != nil {
+		return *x.InferenceSpiffeId
+	}
+	return ""
+}
+
+func (x *AssignmentsProcessConfig) GetModel() string {
+	if x != nil && x.Model != nil {
+		return *x.Model
+	}
+	return ""
+}
+
+func (x *AssignmentsProcessConfig) GetPollSeconds() uint32 {
+	if x != nil && x.PollSeconds != nil {
+		return *x.PollSeconds
+	}
+	return 0
+}
+
 type ManagerProcessConfig_AssistantConfig struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Enabled          bool                   `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
@@ -4412,7 +4919,7 @@ type ManagerProcessConfig_AssistantConfig struct {
 
 func (x *ManagerProcessConfig_AssistantConfig) Reset() {
 	*x = ManagerProcessConfig_AssistantConfig{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[46]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4424,7 +4931,7 @@ func (x *ManagerProcessConfig_AssistantConfig) String() string {
 func (*ManagerProcessConfig_AssistantConfig) ProtoMessage() {}
 
 func (x *ManagerProcessConfig_AssistantConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[46]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4481,7 +4988,7 @@ type ManagerProcessConfig_PlaybooksConfig struct {
 
 func (x *ManagerProcessConfig_PlaybooksConfig) Reset() {
 	*x = ManagerProcessConfig_PlaybooksConfig{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[47]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4493,7 +5000,7 @@ func (x *ManagerProcessConfig_PlaybooksConfig) String() string {
 func (*ManagerProcessConfig_PlaybooksConfig) ProtoMessage() {}
 
 func (x *ManagerProcessConfig_PlaybooksConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[47]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4554,7 +5061,7 @@ type InferenceProcessConfig_Upstream struct {
 
 func (x *InferenceProcessConfig_Upstream) Reset() {
 	*x = InferenceProcessConfig_Upstream{}
-	mi := &file_n0x_files_v1_files_proto_msgTypes[49]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4566,7 +5073,7 @@ func (x *InferenceProcessConfig_Upstream) String() string {
 func (*InferenceProcessConfig_Upstream) ProtoMessage() {}
 
 func (x *InferenceProcessConfig_Upstream) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_files_v1_files_proto_msgTypes[49]
+	mi := &file_n0x_files_v1_files_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4600,7 +5107,7 @@ var File_n0x_files_v1_files_proto protoreflect.FileDescriptor
 
 const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\n" +
-	"\x18n0x/files/v1/files.proto\x12\fn0x.files.v1\"\xdf\x06\n" +
+	"\x18n0x/files/v1/files.proto\x12\fn0x.files.v1\"\x95\a\n" +
 	"\x0fClientBootstrap\x12+\n" +
 	"\x11bootstrap_version\x18\x01 \x01(\x05R\x10bootstrapVersion\x12'\n" +
 	"\x0fcontroller_seed\x18\x02 \x01(\tR\x0econtrollerSeed\x12T\n" +
@@ -4623,10 +5130,13 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\x03tun\x18\x12 \x01(\tR\x03tun\x12\x1d\n" +
 	"\n" +
 	"cache_path\x18\x13 \x01(\tR\tcachePath\x12!\n" +
-	"\ftrust_domain\x18\x14 \x01(\tR\vtrustDomainB\x1f\n" +
+	"\ftrust_domain\x18\x14 \x01(\tR\vtrustDomain\x12$\n" +
+	"\vexpose_only\x18\x15 \x01(\bH\x03R\n" +
+	"exposeOnly\x88\x01\x01B\x1f\n" +
 	"\x1d_alternate_controller_addressB\x15\n" +
 	"\x13_controller_addressB\x11\n" +
-	"\x0f_broker_address\"\xcc\n" +
+	"\x0f_broker_addressB\x0e\n" +
+	"\f_expose_only\"\xcc\n" +
 	"\n" +
 	"\x16AuthorityProcessConfig\x12\x1f\n" +
 	"\vinstance_id\x18\x01 \x01(\tR\n" +
@@ -4676,7 +5186,7 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\fdirectory_id\x18\x06 \x01(\tR\vdirectoryId\x12\x1f\n" +
 	"\vlisten_host\x18\a \x01(\tR\n" +
 	"listenHost\x12>\n" +
-	"\aprocess\x18\b \x01(\v2$.n0x.files.v1.AuthorityProcessConfigR\aprocess\"\xbd\v\n" +
+	"\aprocess\x18\b \x01(\v2$.n0x.files.v1.AuthorityProcessConfigR\aprocess\"\xff\r\n" +
 	"\x16ResourcesProcessConfig\x12=\n" +
 	"\x1benrollment_code_ttl_seconds\x18\x01 \x01(\x05R\x18enrollmentCodeTtlSeconds\x12*\n" +
 	"\x11human_access_mode\x18\x02 \x01(\tR\x0fhumanAccessMode\x12.\n" +
@@ -4715,7 +5225,12 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\x06scopes\x18  \x03(\v2\x13.n0x.files.v1.ScopeR\x06scopes\x12F\n" +
 	"\x0fclient_template\x18! \x01(\v2\x1d.n0x.files.v1.ClientBootstrapR\x0eclientTemplate\x12!\n" +
 	"\ftrust_domain\x18\" \x01(\tR\vtrustDomain\x126\n" +
-	"\x17federated_trust_domains\x18# \x03(\tR\x15federatedTrustDomains\"\xc3\r\n" +
+	"\x17federated_trust_domains\x18# \x03(\tR\x15federatedTrustDomains\x12U\n" +
+	"\x15proxy_table_publisher\x18$ \x01(\v2!.n0x.files.v1.ProxyTablePublisherR\x13proxyTablePublisher\x12S\n" +
+	"$assignment_instance_signing_key_file\x18% \x01(\tH\x00R assignmentInstanceSigningKeyFile\x88\x01\x01\x12H\n" +
+	"\x1eassignment_instance_trust_file\x18& \x01(\tH\x01R\x1bassignmentInstanceTrustFile\x88\x01\x01B'\n" +
+	"%_assignment_instance_signing_key_fileB!\n" +
+	"\x1f_assignment_instance_trust_file\"\xc5\x0f\n" +
 	"\x14ManagerProcessConfig\x12\x1b\n" +
 	"\tauth_mode\x18\x01 \x01(\tR\bauthMode\x12@\n" +
 	"\x0egoogle_sign_in\x18\x02 \x01(\v2\x1a.n0x.files.v1.GoogleSignInR\fgoogleSignIn\x125\n" +
@@ -4746,7 +5261,10 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\ftrust_domain\x18\x18 \x01(\tR\vtrustDomain\x126\n" +
 	"\x17federated_trust_domains\x18\x19 \x03(\tR\x15federatedTrustDomains\x12P\n" +
 	"\tassistant\x18\x1a \x01(\v22.n0x.files.v1.ManagerProcessConfig.AssistantConfigR\tassistant\x12P\n" +
-	"\tplaybooks\x18\x1b \x01(\v22.n0x.files.v1.ManagerProcessConfig.PlaybooksConfigR\tplaybooks\x1a\x9a\x01\n" +
+	"\tplaybooks\x18\x1b \x01(\v22.n0x.files.v1.ManagerProcessConfig.PlaybooksConfigR\tplaybooks\x12E\n" +
+	"\x1dproxy_return_signing_key_file\x18\x1c \x01(\tH\x00R\x19proxyReturnSigningKeyFile\x88\x01\x01\x122\n" +
+	"\x13proxy_return_key_id\x18\x1d \x01(\tH\x01R\x10proxyReturnKeyId\x88\x01\x01\x123\n" +
+	"\x13proxy_public_domain\x18\x1e \x01(\tH\x02R\x11proxyPublicDomain\x88\x01\x01\x1a\x9a\x01\n" +
 	"\x0fAssistantConfig\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x12+\n" +
 	"\x11gateway_endpoints\x18\x02 \x03(\tR\x10gatewayEndpoints\x12*\n" +
@@ -4760,7 +5278,10 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\x05model\x18\x05 \x01(\tR\x05model\x1aL\n" +
 	"\x1ePublicFederationEndpointsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xee\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B \n" +
+	"\x1e_proxy_return_signing_key_fileB\x16\n" +
+	"\x14_proxy_return_key_idB\x16\n" +
+	"\x14_proxy_public_domain\"\xee\x03\n" +
 	"\x1dProvisionGatewayProcessConfig\x12\x1b\n" +
 	"\tspiffe_id\x18\x01 \x01(\tR\bspiffeId\x12%\n" +
 	"\x0eprovisioner_id\x18\x02 \x01(\tR\rprovisionerId\x12\x16\n" +
@@ -4798,7 +5319,7 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\x0eallowed_models\x18\x12 \x03(\tR\rallowedModels\x1a8\n" +
 	"\bUpstream\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
-	"\aenabled\x18\x02 \x01(\bR\aenabled\"\x8c\a\n" +
+	"\aenabled\x18\x02 \x01(\bR\aenabled\"\xf7\v\n" +
 	"\x19ConnectivityProcessConfig\x128\n" +
 	"\atargets\x18\x01 \x03(\v2\x1e.n0x.files.v1.TargetDefinitionR\atargets\x12)\n" +
 	"\x10blocked_networks\x18\x02 \x03(\tR\x0fblockedNetworks\x125\n" +
@@ -4817,13 +5338,45 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\x0efederation_ids\x18\r \x03(\v2:.n0x.files.v1.ConnectivityProcessConfig.FederationIdsEntryR\rfederationIds\x12g\n" +
 	"\x10status_endpoints\x18\x0e \x03(\v2<.n0x.files.v1.ConnectivityProcessConfig.StatusEndpointsEntryR\x0fstatusEndpoints\x12!\n" +
 	"\ftrust_domain\x18\x0f \x01(\tR\vtrustDomain\x126\n" +
-	"\x17federated_trust_domains\x18\x10 \x03(\tR\x15federatedTrustDomains\x1a@\n" +
+	"\x17federated_trust_domains\x18\x10 \x03(\tR\x15federatedTrustDomains\x12*\n" +
+	"\x11control_plane_ids\x18\x11 \x03(\tR\x0fcontrolPlaneIds\x12*\n" +
+	"\x0econtrol_listen\x18\x12 \x01(\tH\x00R\rcontrolListen\x88\x01\x01\x12`\n" +
+	"\x19workload_public_listeners\x18\x13 \x03(\v2$.n0x.files.v1.WorkloadPublicListenerR\x17workloadPublicListeners\x12&\n" +
+	"\fhttps_listen\x18\x14 \x01(\tH\x01R\vhttpsListen\x88\x01\x01\x12$\n" +
+	"\vconsole_url\x18\x15 \x01(\tH\x02R\n" +
+	"consoleUrl\x88\x01\x01\x12(\n" +
+	"\rpublic_domain\x18\x16 \x01(\tH\x03R\fpublicDomain\x88\x01\x01\x12[\n" +
+	"\x18proxy_return_public_keys\x18\x17 \x03(\v2\".n0x.files.v1.ProxyReturnPublicKeyR\x15proxyReturnPublicKeys\x12-\n" +
+	"\x10session_key_file\x18\x18 \x01(\tH\x04R\x0esessionKeyFile\x88\x01\x01\x12P\n" +
+	"\x13tenant_certificates\x18\x19 \x03(\v2\x1f.n0x.files.v1.TenantCertificateR\x12tenantCertificates\x1a@\n" +
 	"\x12FederationIdsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aB\n" +
 	"\x14StatusEndpointsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xdc\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x11\n" +
+	"\x0f_control_listenB\x0f\n" +
+	"\r_https_listenB\x0e\n" +
+	"\f_console_urlB\x10\n" +
+	"\x0e_public_domainB\x13\n" +
+	"\x11_session_key_file\"\xa6\x01\n" +
+	"\x13ProxyTablePublisher\x12\"\n" +
+	"\n" +
+	"service_id\x18\x01 \x01(\tH\x00R\tserviceId\x88\x01\x01\x12\x1f\n" +
+	"\bendpoint\x18\x02 \x01(\tH\x01R\bendpoint\x88\x01\x01\x12 \n" +
+	"\tspiffe_id\x18\x03 \x01(\tH\x02R\bspiffeId\x88\x01\x01B\r\n" +
+	"\v_service_idB\v\n" +
+	"\t_endpointB\f\n" +
+	"\n" +
+	"_spiffe_id\"\xaa\x01\n" +
+	"\x16WorkloadPublicListener\x12/\n" +
+	"\abinding\x18\x01 \x01(\v2\x15.n0x.files.v1.BindingR\abinding\x12$\n" +
+	"\vworkload_id\x18\x02 \x01(\tH\x00R\n" +
+	"workloadId\x88\x01\x01\x12\x1d\n" +
+	"\aaddress\x18\x03 \x01(\tH\x01R\aaddress\x88\x01\x01B\x0e\n" +
+	"\f_workload_idB\n" +
+	"\n" +
+	"\b_address\"\xdc\x01\n" +
 	"\tCliConfig\x12%\n" +
 	"\x0emanager_origin\x18\x01 \x01(\tR\rmanagerOrigin\x12+\n" +
 	"\x11federation_origin\x18\x02 \x01(\tR\x10federationOrigin\x12\x1d\n" +
@@ -4832,13 +5385,15 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\fapi_key_file\x18\x04 \x01(\tR\n" +
 	"apiKeyFile\x12\x17\n" +
 	"\aca_file\x18\x05 \x01(\tR\x06caFile\x12!\n" +
-	"\fsession_file\x18\x06 \x01(\tR\vsessionFile\"l\n" +
+	"\fsession_file\x18\x06 \x01(\tR\vsessionFile\"\x93\x01\n" +
 	"\n" +
 	"CliSession\x12%\n" +
 	"\x0emanager_origin\x18\x01 \x01(\tR\rmanagerOrigin\x12\x18\n" +
 	"\asession\x18\x02 \x01(\tR\asession\x12\x1d\n" +
 	"\n" +
-	"expires_at\x18\x03 \x01(\rR\texpiresAt\"\xe3\x01\n" +
+	"expires_at\x18\x03 \x01(\rR\texpiresAt\x12\x1a\n" +
+	"\x06mfa_at\x18\x04 \x01(\rH\x00R\x05mfaAt\x88\x01\x01B\t\n" +
+	"\a_mfa_at\"\xe3\x01\n" +
 	"\x15OverlaydProcessConfig\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
 	"\x06socket\x18\x02 \x01(\tR\x06socket\x12\x16\n" +
@@ -5082,7 +5637,41 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\vdestination\x18\x02 \x01(\tR\vdestination\x12\x1a\n" +
 	"\bprotocol\x18\x03 \x01(\tR\bprotocol\x12\x12\n" +
 	"\x04port\x18\x04 \x01(\rR\x04port\x12\x19\n" +
-	"\bport_end\x18\x05 \x01(\rR\aportEndB+Z)github.com/n-0x/x-api-go/files/v1;filesv1b\x06proto3"
+	"\bport_end\x18\x05 \x01(\rR\aportEnd\"s\n" +
+	"\x14ProxyReturnPublicKey\x12\x15\n" +
+	"\x03kid\x18\x01 \x01(\tH\x00R\x03kid\x88\x01\x01\x12)\n" +
+	"\x0epublic_key_pem\x18\x02 \x01(\tH\x01R\fpublicKeyPem\x88\x01\x01B\x06\n" +
+	"\x04_kidB\x11\n" +
+	"\x0f_public_key_pem\"\xda\x01\n" +
+	"\x11TenantCertificate\x12&\n" +
+	"\ftenant_label\x18\x01 \x01(\tH\x00R\vtenantLabel\x88\x01\x01\x12/\n" +
+	"\abinding\x18\x02 \x01(\v2\x15.n0x.files.v1.BindingR\abinding\x12 \n" +
+	"\tcert_file\x18\x03 \x01(\tH\x01R\bcertFile\x88\x01\x01\x12\x1e\n" +
+	"\bkey_file\x18\x04 \x01(\tH\x02R\akeyFile\x88\x01\x01B\x0f\n" +
+	"\r_tenant_labelB\f\n" +
+	"\n" +
+	"_cert_fileB\v\n" +
+	"\t_key_file\"\xb9\x04\n" +
+	"\x18AssignmentsProcessConfig\x12(\n" +
+	"\rauthority_url\x18\x01 \x01(\tH\x00R\fauthorityUrl\x88\x01\x01\x123\n" +
+	"\x13authority_spiffe_id\x18\x02 \x01(\tH\x01R\x11authoritySpiffeId\x88\x01\x01\x12)\n" +
+	"\x0esvid_cert_file\x18\x03 \x01(\tH\x02R\fsvidCertFile\x88\x01\x01\x12'\n" +
+	"\rsvid_key_file\x18\x04 \x01(\tH\x03R\vsvidKeyFile\x88\x01\x01\x12$\n" +
+	"\vbundle_file\x18\x05 \x01(\tH\x04R\n" +
+	"bundleFile\x88\x01\x01\x12(\n" +
+	"\rinference_url\x18\x06 \x01(\tH\x05R\finferenceUrl\x88\x01\x01\x123\n" +
+	"\x13inference_spiffe_id\x18\a \x01(\tH\x06R\x11inferenceSpiffeId\x88\x01\x01\x12\x19\n" +
+	"\x05model\x18\b \x01(\tH\aR\x05model\x88\x01\x01\x12&\n" +
+	"\fpoll_seconds\x18\t \x01(\rH\bR\vpollSeconds\x88\x01\x01B\x10\n" +
+	"\x0e_authority_urlB\x16\n" +
+	"\x14_authority_spiffe_idB\x11\n" +
+	"\x0f_svid_cert_fileB\x10\n" +
+	"\x0e_svid_key_fileB\x0e\n" +
+	"\f_bundle_fileB\x10\n" +
+	"\x0e_inference_urlB\x16\n" +
+	"\x14_inference_spiffe_idB\b\n" +
+	"\x06_modelB\x0f\n" +
+	"\r_poll_secondsB+Z)github.com/n-0x/x-api-go/files/v1;filesv1b\x06proto3"
 
 var (
 	file_n0x_files_v1_files_proto_rawDescOnce sync.Once
@@ -5096,7 +5685,7 @@ func file_n0x_files_v1_files_proto_rawDescGZIP() []byte {
 	return file_n0x_files_v1_files_proto_rawDescData
 }
 
-var file_n0x_files_v1_files_proto_msgTypes = make([]protoimpl.MessageInfo, 56)
+var file_n0x_files_v1_files_proto_msgTypes = make([]protoimpl.MessageInfo, 61)
 var file_n0x_files_v1_files_proto_goTypes = []any{
 	(*ClientBootstrap)(nil),                      // 0: n0x.files.v1.ClientBootstrap
 	(*AuthorityProcessConfig)(nil),               // 1: n0x.files.v1.AuthorityProcessConfig
@@ -5106,115 +5695,126 @@ var file_n0x_files_v1_files_proto_goTypes = []any{
 	(*ProvisionGatewayProcessConfig)(nil),        // 5: n0x.files.v1.ProvisionGatewayProcessConfig
 	(*InferenceProcessConfig)(nil),               // 6: n0x.files.v1.InferenceProcessConfig
 	(*ConnectivityProcessConfig)(nil),            // 7: n0x.files.v1.ConnectivityProcessConfig
-	(*CliConfig)(nil),                            // 8: n0x.files.v1.CliConfig
-	(*CliSession)(nil),                           // 9: n0x.files.v1.CliSession
-	(*OverlaydProcessConfig)(nil),                // 10: n0x.files.v1.OverlaydProcessConfig
-	(*Scope)(nil),                                // 11: n0x.files.v1.Scope
-	(*Binding)(nil),                              // 12: n0x.files.v1.Binding
-	(*ConnectivityProfile)(nil),                  // 13: n0x.files.v1.ConnectivityProfile
-	(*ControllerConnectivity)(nil),               // 14: n0x.files.v1.ControllerConnectivity
-	(*HaPolicy)(nil),                             // 15: n0x.files.v1.HaPolicy
-	(*SharedFederationConfig)(nil),               // 16: n0x.files.v1.SharedFederationConfig
-	(*SharedControlConfig)(nil),                  // 17: n0x.files.v1.SharedControlConfig
-	(*GoogleSignIn)(nil),                         // 18: n0x.files.v1.GoogleSignIn
-	(*CatalogConfig)(nil),                        // 19: n0x.files.v1.CatalogConfig
-	(*CloudflareConfig)(nil),                     // 20: n0x.files.v1.CloudflareConfig
-	(*BillingConfig)(nil),                        // 21: n0x.files.v1.BillingConfig
-	(*TargetDefinition)(nil),                     // 22: n0x.files.v1.TargetDefinition
-	(*ForwardConfig)(nil),                        // 23: n0x.files.v1.ForwardConfig
-	(*ConnectivityRegion)(nil),                   // 24: n0x.files.v1.ConnectivityRegion
-	(*Peer)(nil),                                 // 25: n0x.files.v1.Peer
-	(*AdmissionEndpoint)(nil),                    // 26: n0x.files.v1.AdmissionEndpoint
-	(*MeshConfig)(nil),                           // 27: n0x.files.v1.MeshConfig
-	(*CatalogSeed)(nil),                          // 28: n0x.files.v1.CatalogSeed
-	(*BillingPlan)(nil),                          // 29: n0x.files.v1.BillingPlan
-	(*ConnectivityService)(nil),                  // 30: n0x.files.v1.ConnectivityService
-	(*ConnectivityLimits)(nil),                   // 31: n0x.files.v1.ConnectivityLimits
-	(*MeshPeerConfig)(nil),                       // 32: n0x.files.v1.MeshPeerConfig
-	(*MeshTimings)(nil),                          // 33: n0x.files.v1.MeshTimings
-	(*CatalogLocation)(nil),                      // 34: n0x.files.v1.CatalogLocation
-	(*CatalogFederation)(nil),                    // 35: n0x.files.v1.CatalogFederation
-	(*CatalogCounts)(nil),                        // 36: n0x.files.v1.CatalogCounts
-	(*ClockHealth)(nil),                          // 37: n0x.files.v1.ClockHealth
-	(*PublicJwk)(nil),                            // 38: n0x.files.v1.PublicJwk
-	(*HumanTrust)(nil),                           // 39: n0x.files.v1.HumanTrust
-	(*AssignmentTrust)(nil),                      // 40: n0x.files.v1.AssignmentTrust
-	(*AgentHighWater)(nil),                       // 41: n0x.files.v1.AgentHighWater
-	(*AgentCache)(nil),                           // 42: n0x.files.v1.AgentCache
-	(*OverlaydPolicy)(nil),                       // 43: n0x.files.v1.OverlaydPolicy
-	(*OverlaydRule)(nil),                         // 44: n0x.files.v1.OverlaydRule
-	nil,                                          // 45: n0x.files.v1.AuthorityProcessConfig.InstanceAddressesEntry
-	(*ManagerProcessConfig_AssistantConfig)(nil), // 46: n0x.files.v1.ManagerProcessConfig.AssistantConfig
-	(*ManagerProcessConfig_PlaybooksConfig)(nil), // 47: n0x.files.v1.ManagerProcessConfig.PlaybooksConfig
-	nil,                                     // 48: n0x.files.v1.ManagerProcessConfig.PublicFederationEndpointsEntry
-	(*InferenceProcessConfig_Upstream)(nil), // 49: n0x.files.v1.InferenceProcessConfig.Upstream
-	nil,                                     // 50: n0x.files.v1.ConnectivityProcessConfig.FederationIdsEntry
-	nil,                                     // 51: n0x.files.v1.ConnectivityProcessConfig.StatusEndpointsEntry
-	nil,                                     // 52: n0x.files.v1.SharedFederationConfig.BrokerEndpointsEntry
-	nil,                                     // 53: n0x.files.v1.BillingConfig.PlansEntry
-	nil,                                     // 54: n0x.files.v1.ConnectivityRegion.FederationsEntry
-	nil,                                     // 55: n0x.files.v1.ConnectivityRegion.AccountsEntry
+	(*ProxyTablePublisher)(nil),                  // 8: n0x.files.v1.ProxyTablePublisher
+	(*WorkloadPublicListener)(nil),               // 9: n0x.files.v1.WorkloadPublicListener
+	(*CliConfig)(nil),                            // 10: n0x.files.v1.CliConfig
+	(*CliSession)(nil),                           // 11: n0x.files.v1.CliSession
+	(*OverlaydProcessConfig)(nil),                // 12: n0x.files.v1.OverlaydProcessConfig
+	(*Scope)(nil),                                // 13: n0x.files.v1.Scope
+	(*Binding)(nil),                              // 14: n0x.files.v1.Binding
+	(*ConnectivityProfile)(nil),                  // 15: n0x.files.v1.ConnectivityProfile
+	(*ControllerConnectivity)(nil),               // 16: n0x.files.v1.ControllerConnectivity
+	(*HaPolicy)(nil),                             // 17: n0x.files.v1.HaPolicy
+	(*SharedFederationConfig)(nil),               // 18: n0x.files.v1.SharedFederationConfig
+	(*SharedControlConfig)(nil),                  // 19: n0x.files.v1.SharedControlConfig
+	(*GoogleSignIn)(nil),                         // 20: n0x.files.v1.GoogleSignIn
+	(*CatalogConfig)(nil),                        // 21: n0x.files.v1.CatalogConfig
+	(*CloudflareConfig)(nil),                     // 22: n0x.files.v1.CloudflareConfig
+	(*BillingConfig)(nil),                        // 23: n0x.files.v1.BillingConfig
+	(*TargetDefinition)(nil),                     // 24: n0x.files.v1.TargetDefinition
+	(*ForwardConfig)(nil),                        // 25: n0x.files.v1.ForwardConfig
+	(*ConnectivityRegion)(nil),                   // 26: n0x.files.v1.ConnectivityRegion
+	(*Peer)(nil),                                 // 27: n0x.files.v1.Peer
+	(*AdmissionEndpoint)(nil),                    // 28: n0x.files.v1.AdmissionEndpoint
+	(*MeshConfig)(nil),                           // 29: n0x.files.v1.MeshConfig
+	(*CatalogSeed)(nil),                          // 30: n0x.files.v1.CatalogSeed
+	(*BillingPlan)(nil),                          // 31: n0x.files.v1.BillingPlan
+	(*ConnectivityService)(nil),                  // 32: n0x.files.v1.ConnectivityService
+	(*ConnectivityLimits)(nil),                   // 33: n0x.files.v1.ConnectivityLimits
+	(*MeshPeerConfig)(nil),                       // 34: n0x.files.v1.MeshPeerConfig
+	(*MeshTimings)(nil),                          // 35: n0x.files.v1.MeshTimings
+	(*CatalogLocation)(nil),                      // 36: n0x.files.v1.CatalogLocation
+	(*CatalogFederation)(nil),                    // 37: n0x.files.v1.CatalogFederation
+	(*CatalogCounts)(nil),                        // 38: n0x.files.v1.CatalogCounts
+	(*ClockHealth)(nil),                          // 39: n0x.files.v1.ClockHealth
+	(*PublicJwk)(nil),                            // 40: n0x.files.v1.PublicJwk
+	(*HumanTrust)(nil),                           // 41: n0x.files.v1.HumanTrust
+	(*AssignmentTrust)(nil),                      // 42: n0x.files.v1.AssignmentTrust
+	(*AgentHighWater)(nil),                       // 43: n0x.files.v1.AgentHighWater
+	(*AgentCache)(nil),                           // 44: n0x.files.v1.AgentCache
+	(*OverlaydPolicy)(nil),                       // 45: n0x.files.v1.OverlaydPolicy
+	(*OverlaydRule)(nil),                         // 46: n0x.files.v1.OverlaydRule
+	(*ProxyReturnPublicKey)(nil),                 // 47: n0x.files.v1.ProxyReturnPublicKey
+	(*TenantCertificate)(nil),                    // 48: n0x.files.v1.TenantCertificate
+	(*AssignmentsProcessConfig)(nil),             // 49: n0x.files.v1.AssignmentsProcessConfig
+	nil,                                          // 50: n0x.files.v1.AuthorityProcessConfig.InstanceAddressesEntry
+	(*ManagerProcessConfig_AssistantConfig)(nil), // 51: n0x.files.v1.ManagerProcessConfig.AssistantConfig
+	(*ManagerProcessConfig_PlaybooksConfig)(nil), // 52: n0x.files.v1.ManagerProcessConfig.PlaybooksConfig
+	nil,                                     // 53: n0x.files.v1.ManagerProcessConfig.PublicFederationEndpointsEntry
+	(*InferenceProcessConfig_Upstream)(nil), // 54: n0x.files.v1.InferenceProcessConfig.Upstream
+	nil,                                     // 55: n0x.files.v1.ConnectivityProcessConfig.FederationIdsEntry
+	nil,                                     // 56: n0x.files.v1.ConnectivityProcessConfig.StatusEndpointsEntry
+	nil,                                     // 57: n0x.files.v1.SharedFederationConfig.BrokerEndpointsEntry
+	nil,                                     // 58: n0x.files.v1.BillingConfig.PlansEntry
+	nil,                                     // 59: n0x.files.v1.ConnectivityRegion.FederationsEntry
+	nil,                                     // 60: n0x.files.v1.ConnectivityRegion.AccountsEntry
 }
 var file_n0x_files_v1_files_proto_depIdxs = []int32{
-	13, // 0: n0x.files.v1.ClientBootstrap.connectivity_profile:type_name -> n0x.files.v1.ConnectivityProfile
-	11, // 1: n0x.files.v1.ClientBootstrap.scope:type_name -> n0x.files.v1.Scope
-	45, // 2: n0x.files.v1.AuthorityProcessConfig.instance_addresses:type_name -> n0x.files.v1.AuthorityProcessConfig.InstanceAddressesEntry
-	14, // 3: n0x.files.v1.AuthorityProcessConfig.connectivity:type_name -> n0x.files.v1.ControllerConnectivity
-	15, // 4: n0x.files.v1.AuthorityProcessConfig.ha_policy:type_name -> n0x.files.v1.HaPolicy
-	11, // 5: n0x.files.v1.AuthorityProcessConfig.scope:type_name -> n0x.files.v1.Scope
-	16, // 6: n0x.files.v1.ControllerProcessConfig.shared_control:type_name -> n0x.files.v1.SharedFederationConfig
+	15, // 0: n0x.files.v1.ClientBootstrap.connectivity_profile:type_name -> n0x.files.v1.ConnectivityProfile
+	13, // 1: n0x.files.v1.ClientBootstrap.scope:type_name -> n0x.files.v1.Scope
+	50, // 2: n0x.files.v1.AuthorityProcessConfig.instance_addresses:type_name -> n0x.files.v1.AuthorityProcessConfig.InstanceAddressesEntry
+	16, // 3: n0x.files.v1.AuthorityProcessConfig.connectivity:type_name -> n0x.files.v1.ControllerConnectivity
+	17, // 4: n0x.files.v1.AuthorityProcessConfig.ha_policy:type_name -> n0x.files.v1.HaPolicy
+	13, // 5: n0x.files.v1.AuthorityProcessConfig.scope:type_name -> n0x.files.v1.Scope
+	18, // 6: n0x.files.v1.ControllerProcessConfig.shared_control:type_name -> n0x.files.v1.SharedFederationConfig
 	1,  // 7: n0x.files.v1.ControllerProcessConfig.process:type_name -> n0x.files.v1.AuthorityProcessConfig
-	17, // 8: n0x.files.v1.ResourcesProcessConfig.shared_control:type_name -> n0x.files.v1.SharedControlConfig
-	11, // 9: n0x.files.v1.ResourcesProcessConfig.scopes:type_name -> n0x.files.v1.Scope
+	19, // 8: n0x.files.v1.ResourcesProcessConfig.shared_control:type_name -> n0x.files.v1.SharedControlConfig
+	13, // 9: n0x.files.v1.ResourcesProcessConfig.scopes:type_name -> n0x.files.v1.Scope
 	0,  // 10: n0x.files.v1.ResourcesProcessConfig.client_template:type_name -> n0x.files.v1.ClientBootstrap
-	18, // 11: n0x.files.v1.ManagerProcessConfig.google_sign_in:type_name -> n0x.files.v1.GoogleSignIn
-	19, // 12: n0x.files.v1.ManagerProcessConfig.catalog:type_name -> n0x.files.v1.CatalogConfig
-	20, // 13: n0x.files.v1.ManagerProcessConfig.cloudflare_access:type_name -> n0x.files.v1.CloudflareConfig
-	48, // 14: n0x.files.v1.ManagerProcessConfig.public_federation_endpoints:type_name -> n0x.files.v1.ManagerProcessConfig.PublicFederationEndpointsEntry
-	21, // 15: n0x.files.v1.ManagerProcessConfig.billing:type_name -> n0x.files.v1.BillingConfig
-	46, // 16: n0x.files.v1.ManagerProcessConfig.assistant:type_name -> n0x.files.v1.ManagerProcessConfig.AssistantConfig
-	47, // 17: n0x.files.v1.ManagerProcessConfig.playbooks:type_name -> n0x.files.v1.ManagerProcessConfig.PlaybooksConfig
-	11, // 18: n0x.files.v1.ProvisionGatewayProcessConfig.scopes:type_name -> n0x.files.v1.Scope
-	49, // 19: n0x.files.v1.InferenceProcessConfig.upstreams:type_name -> n0x.files.v1.InferenceProcessConfig.Upstream
-	22, // 20: n0x.files.v1.ConnectivityProcessConfig.targets:type_name -> n0x.files.v1.TargetDefinition
-	23, // 21: n0x.files.v1.ConnectivityProcessConfig.forward:type_name -> n0x.files.v1.ForwardConfig
-	24, // 22: n0x.files.v1.ConnectivityProcessConfig.region:type_name -> n0x.files.v1.ConnectivityRegion
-	50, // 23: n0x.files.v1.ConnectivityProcessConfig.federation_ids:type_name -> n0x.files.v1.ConnectivityProcessConfig.FederationIdsEntry
-	51, // 24: n0x.files.v1.ConnectivityProcessConfig.status_endpoints:type_name -> n0x.files.v1.ConnectivityProcessConfig.StatusEndpointsEntry
-	25, // 25: n0x.files.v1.OverlaydProcessConfig.peers:type_name -> n0x.files.v1.Peer
-	12, // 26: n0x.files.v1.ConnectivityProfile.binding:type_name -> n0x.files.v1.Binding
-	26, // 27: n0x.files.v1.ControllerConnectivity.admissions:type_name -> n0x.files.v1.AdmissionEndpoint
-	27, // 28: n0x.files.v1.SharedFederationConfig.mesh:type_name -> n0x.files.v1.MeshConfig
-	52, // 29: n0x.files.v1.SharedFederationConfig.broker_endpoints:type_name -> n0x.files.v1.SharedFederationConfig.BrokerEndpointsEntry
-	28, // 30: n0x.files.v1.CatalogConfig.seed:type_name -> n0x.files.v1.CatalogSeed
-	53, // 31: n0x.files.v1.BillingConfig.plans:type_name -> n0x.files.v1.BillingConfig.PlansEntry
-	12, // 32: n0x.files.v1.TargetDefinition.binding:type_name -> n0x.files.v1.Binding
-	11, // 33: n0x.files.v1.TargetDefinition.scopes:type_name -> n0x.files.v1.Scope
-	26, // 34: n0x.files.v1.ForwardConfig.admissions:type_name -> n0x.files.v1.AdmissionEndpoint
-	12, // 35: n0x.files.v1.ConnectivityRegion.bindings:type_name -> n0x.files.v1.Binding
-	30, // 36: n0x.files.v1.ConnectivityRegion.services:type_name -> n0x.files.v1.ConnectivityService
-	31, // 37: n0x.files.v1.ConnectivityRegion.pool:type_name -> n0x.files.v1.ConnectivityLimits
-	54, // 38: n0x.files.v1.ConnectivityRegion.federations:type_name -> n0x.files.v1.ConnectivityRegion.FederationsEntry
-	55, // 39: n0x.files.v1.ConnectivityRegion.accounts:type_name -> n0x.files.v1.ConnectivityRegion.AccountsEntry
-	32, // 40: n0x.files.v1.MeshConfig.peers:type_name -> n0x.files.v1.MeshPeerConfig
-	33, // 41: n0x.files.v1.MeshConfig.timings:type_name -> n0x.files.v1.MeshTimings
-	34, // 42: n0x.files.v1.CatalogSeed.locations:type_name -> n0x.files.v1.CatalogLocation
-	35, // 43: n0x.files.v1.CatalogSeed.federations:type_name -> n0x.files.v1.CatalogFederation
-	36, // 44: n0x.files.v1.CatalogFederation.capacity:type_name -> n0x.files.v1.CatalogCounts
-	36, // 45: n0x.files.v1.CatalogFederation.used:type_name -> n0x.files.v1.CatalogCounts
-	38, // 46: n0x.files.v1.HumanTrust.keys:type_name -> n0x.files.v1.PublicJwk
-	38, // 47: n0x.files.v1.AssignmentTrust.keys:type_name -> n0x.files.v1.PublicJwk
-	11, // 48: n0x.files.v1.AgentCache.scope:type_name -> n0x.files.v1.Scope
-	41, // 49: n0x.files.v1.AgentCache.high_water:type_name -> n0x.files.v1.AgentHighWater
-	44, // 50: n0x.files.v1.OverlaydPolicy.rules:type_name -> n0x.files.v1.OverlaydRule
-	29, // 51: n0x.files.v1.BillingConfig.PlansEntry.value:type_name -> n0x.files.v1.BillingPlan
-	31, // 52: n0x.files.v1.ConnectivityRegion.FederationsEntry.value:type_name -> n0x.files.v1.ConnectivityLimits
-	31, // 53: n0x.files.v1.ConnectivityRegion.AccountsEntry.value:type_name -> n0x.files.v1.ConnectivityLimits
-	54, // [54:54] is the sub-list for method output_type
-	54, // [54:54] is the sub-list for method input_type
-	54, // [54:54] is the sub-list for extension type_name
-	54, // [54:54] is the sub-list for extension extendee
-	0,  // [0:54] is the sub-list for field type_name
+	8,  // 11: n0x.files.v1.ResourcesProcessConfig.proxy_table_publisher:type_name -> n0x.files.v1.ProxyTablePublisher
+	20, // 12: n0x.files.v1.ManagerProcessConfig.google_sign_in:type_name -> n0x.files.v1.GoogleSignIn
+	21, // 13: n0x.files.v1.ManagerProcessConfig.catalog:type_name -> n0x.files.v1.CatalogConfig
+	22, // 14: n0x.files.v1.ManagerProcessConfig.cloudflare_access:type_name -> n0x.files.v1.CloudflareConfig
+	53, // 15: n0x.files.v1.ManagerProcessConfig.public_federation_endpoints:type_name -> n0x.files.v1.ManagerProcessConfig.PublicFederationEndpointsEntry
+	23, // 16: n0x.files.v1.ManagerProcessConfig.billing:type_name -> n0x.files.v1.BillingConfig
+	51, // 17: n0x.files.v1.ManagerProcessConfig.assistant:type_name -> n0x.files.v1.ManagerProcessConfig.AssistantConfig
+	52, // 18: n0x.files.v1.ManagerProcessConfig.playbooks:type_name -> n0x.files.v1.ManagerProcessConfig.PlaybooksConfig
+	13, // 19: n0x.files.v1.ProvisionGatewayProcessConfig.scopes:type_name -> n0x.files.v1.Scope
+	54, // 20: n0x.files.v1.InferenceProcessConfig.upstreams:type_name -> n0x.files.v1.InferenceProcessConfig.Upstream
+	24, // 21: n0x.files.v1.ConnectivityProcessConfig.targets:type_name -> n0x.files.v1.TargetDefinition
+	25, // 22: n0x.files.v1.ConnectivityProcessConfig.forward:type_name -> n0x.files.v1.ForwardConfig
+	26, // 23: n0x.files.v1.ConnectivityProcessConfig.region:type_name -> n0x.files.v1.ConnectivityRegion
+	55, // 24: n0x.files.v1.ConnectivityProcessConfig.federation_ids:type_name -> n0x.files.v1.ConnectivityProcessConfig.FederationIdsEntry
+	56, // 25: n0x.files.v1.ConnectivityProcessConfig.status_endpoints:type_name -> n0x.files.v1.ConnectivityProcessConfig.StatusEndpointsEntry
+	9,  // 26: n0x.files.v1.ConnectivityProcessConfig.workload_public_listeners:type_name -> n0x.files.v1.WorkloadPublicListener
+	47, // 27: n0x.files.v1.ConnectivityProcessConfig.proxy_return_public_keys:type_name -> n0x.files.v1.ProxyReturnPublicKey
+	48, // 28: n0x.files.v1.ConnectivityProcessConfig.tenant_certificates:type_name -> n0x.files.v1.TenantCertificate
+	14, // 29: n0x.files.v1.WorkloadPublicListener.binding:type_name -> n0x.files.v1.Binding
+	27, // 30: n0x.files.v1.OverlaydProcessConfig.peers:type_name -> n0x.files.v1.Peer
+	14, // 31: n0x.files.v1.ConnectivityProfile.binding:type_name -> n0x.files.v1.Binding
+	28, // 32: n0x.files.v1.ControllerConnectivity.admissions:type_name -> n0x.files.v1.AdmissionEndpoint
+	29, // 33: n0x.files.v1.SharedFederationConfig.mesh:type_name -> n0x.files.v1.MeshConfig
+	57, // 34: n0x.files.v1.SharedFederationConfig.broker_endpoints:type_name -> n0x.files.v1.SharedFederationConfig.BrokerEndpointsEntry
+	30, // 35: n0x.files.v1.CatalogConfig.seed:type_name -> n0x.files.v1.CatalogSeed
+	58, // 36: n0x.files.v1.BillingConfig.plans:type_name -> n0x.files.v1.BillingConfig.PlansEntry
+	14, // 37: n0x.files.v1.TargetDefinition.binding:type_name -> n0x.files.v1.Binding
+	13, // 38: n0x.files.v1.TargetDefinition.scopes:type_name -> n0x.files.v1.Scope
+	28, // 39: n0x.files.v1.ForwardConfig.admissions:type_name -> n0x.files.v1.AdmissionEndpoint
+	14, // 40: n0x.files.v1.ConnectivityRegion.bindings:type_name -> n0x.files.v1.Binding
+	32, // 41: n0x.files.v1.ConnectivityRegion.services:type_name -> n0x.files.v1.ConnectivityService
+	33, // 42: n0x.files.v1.ConnectivityRegion.pool:type_name -> n0x.files.v1.ConnectivityLimits
+	59, // 43: n0x.files.v1.ConnectivityRegion.federations:type_name -> n0x.files.v1.ConnectivityRegion.FederationsEntry
+	60, // 44: n0x.files.v1.ConnectivityRegion.accounts:type_name -> n0x.files.v1.ConnectivityRegion.AccountsEntry
+	34, // 45: n0x.files.v1.MeshConfig.peers:type_name -> n0x.files.v1.MeshPeerConfig
+	35, // 46: n0x.files.v1.MeshConfig.timings:type_name -> n0x.files.v1.MeshTimings
+	36, // 47: n0x.files.v1.CatalogSeed.locations:type_name -> n0x.files.v1.CatalogLocation
+	37, // 48: n0x.files.v1.CatalogSeed.federations:type_name -> n0x.files.v1.CatalogFederation
+	38, // 49: n0x.files.v1.CatalogFederation.capacity:type_name -> n0x.files.v1.CatalogCounts
+	38, // 50: n0x.files.v1.CatalogFederation.used:type_name -> n0x.files.v1.CatalogCounts
+	40, // 51: n0x.files.v1.HumanTrust.keys:type_name -> n0x.files.v1.PublicJwk
+	40, // 52: n0x.files.v1.AssignmentTrust.keys:type_name -> n0x.files.v1.PublicJwk
+	13, // 53: n0x.files.v1.AgentCache.scope:type_name -> n0x.files.v1.Scope
+	43, // 54: n0x.files.v1.AgentCache.high_water:type_name -> n0x.files.v1.AgentHighWater
+	46, // 55: n0x.files.v1.OverlaydPolicy.rules:type_name -> n0x.files.v1.OverlaydRule
+	14, // 56: n0x.files.v1.TenantCertificate.binding:type_name -> n0x.files.v1.Binding
+	31, // 57: n0x.files.v1.BillingConfig.PlansEntry.value:type_name -> n0x.files.v1.BillingPlan
+	33, // 58: n0x.files.v1.ConnectivityRegion.FederationsEntry.value:type_name -> n0x.files.v1.ConnectivityLimits
+	33, // 59: n0x.files.v1.ConnectivityRegion.AccountsEntry.value:type_name -> n0x.files.v1.ConnectivityLimits
+	60, // [60:60] is the sub-list for method output_type
+	60, // [60:60] is the sub-list for method input_type
+	60, // [60:60] is the sub-list for extension type_name
+	60, // [60:60] is the sub-list for extension extendee
+	0,  // [0:60] is the sub-list for field type_name
 }
 
 func init() { file_n0x_files_v1_files_proto_init() }
@@ -5223,14 +5823,23 @@ func file_n0x_files_v1_files_proto_init() {
 		return
 	}
 	file_n0x_files_v1_files_proto_msgTypes[0].OneofWrappers = []any{}
-	file_n0x_files_v1_files_proto_msgTypes[37].OneofWrappers = []any{}
+	file_n0x_files_v1_files_proto_msgTypes[3].OneofWrappers = []any{}
+	file_n0x_files_v1_files_proto_msgTypes[4].OneofWrappers = []any{}
+	file_n0x_files_v1_files_proto_msgTypes[7].OneofWrappers = []any{}
+	file_n0x_files_v1_files_proto_msgTypes[8].OneofWrappers = []any{}
+	file_n0x_files_v1_files_proto_msgTypes[9].OneofWrappers = []any{}
+	file_n0x_files_v1_files_proto_msgTypes[11].OneofWrappers = []any{}
+	file_n0x_files_v1_files_proto_msgTypes[39].OneofWrappers = []any{}
+	file_n0x_files_v1_files_proto_msgTypes[47].OneofWrappers = []any{}
+	file_n0x_files_v1_files_proto_msgTypes[48].OneofWrappers = []any{}
+	file_n0x_files_v1_files_proto_msgTypes[49].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_files_v1_files_proto_rawDesc), len(file_n0x_files_v1_files_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   56,
+			NumMessages:   61,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

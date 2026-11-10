@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ForwardStatusService_GetStatus_FullMethodName  = "/n0x.connectivity.v1.ForwardStatusService/GetStatus"
-	ForwardStatusService_GetMetrics_FullMethodName = "/n0x.connectivity.v1.ForwardStatusService/GetMetrics"
+	ForwardStatusService_GetStatus_FullMethodName             = "/n0x.connectivity.v1.ForwardStatusService/GetStatus"
+	ForwardStatusService_GetMetrics_FullMethodName            = "/n0x.connectivity.v1.ForwardStatusService/GetMetrics"
+	ForwardStatusService_GetWorkloadNodeStatus_FullMethodName = "/n0x.connectivity.v1.ForwardStatusService/GetWorkloadNodeStatus"
 )
 
 // ForwardStatusServiceClient is the client API for ForwardStatusService service.
@@ -29,6 +30,17 @@ const (
 type ForwardStatusServiceClient interface {
 	GetStatus(ctx context.Context, in *GetStatusRequest, opts ...grpc.CallOption) (*GetStatusResponse, error)
 	GetMetrics(ctx context.Context, in *GetMetricsRequest, opts ...grpc.CallOption) (*GetMetricsResponse, error)
+	// Lectura interna mTLS cuyo lector autorizado es authority/resources para
+	// NodeConnectionSource; no publica ni modifica cargas. Se sirve en el listener
+	// control_listen de ConnectivityProcessConfig, junto a ProxyControlService,
+	// y autoriza contra la allowlist control_plane_ids de SPIFFE ID fijados.
+	// No autoriza con issuer_ids, los emisores de admision que usa el resto de
+	// ForwardStatusService, ni con cualquier SVID del trust domain.
+	// Deniega si falta el peer autenticado, la allowlist esta ausente o vacia,
+	// o falta account_id o tenant_id.
+	// Solo devuelve el ambito account/tenant pedido; una pareja carga-nodo ausente
+	// no certifica conectividad.
+	GetWorkloadNodeStatus(ctx context.Context, in *GetWorkloadNodeStatusRequest, opts ...grpc.CallOption) (*GetWorkloadNodeStatusResponse, error)
 }
 
 type forwardStatusServiceClient struct {
@@ -59,12 +71,33 @@ func (c *forwardStatusServiceClient) GetMetrics(ctx context.Context, in *GetMetr
 	return out, nil
 }
 
+func (c *forwardStatusServiceClient) GetWorkloadNodeStatus(ctx context.Context, in *GetWorkloadNodeStatusRequest, opts ...grpc.CallOption) (*GetWorkloadNodeStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetWorkloadNodeStatusResponse)
+	err := c.cc.Invoke(ctx, ForwardStatusService_GetWorkloadNodeStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ForwardStatusServiceServer is the server API for ForwardStatusService service.
 // All implementations must embed UnimplementedForwardStatusServiceServer
 // for forward compatibility.
 type ForwardStatusServiceServer interface {
 	GetStatus(context.Context, *GetStatusRequest) (*GetStatusResponse, error)
 	GetMetrics(context.Context, *GetMetricsRequest) (*GetMetricsResponse, error)
+	// Lectura interna mTLS cuyo lector autorizado es authority/resources para
+	// NodeConnectionSource; no publica ni modifica cargas. Se sirve en el listener
+	// control_listen de ConnectivityProcessConfig, junto a ProxyControlService,
+	// y autoriza contra la allowlist control_plane_ids de SPIFFE ID fijados.
+	// No autoriza con issuer_ids, los emisores de admision que usa el resto de
+	// ForwardStatusService, ni con cualquier SVID del trust domain.
+	// Deniega si falta el peer autenticado, la allowlist esta ausente o vacia,
+	// o falta account_id o tenant_id.
+	// Solo devuelve el ambito account/tenant pedido; una pareja carga-nodo ausente
+	// no certifica conectividad.
+	GetWorkloadNodeStatus(context.Context, *GetWorkloadNodeStatusRequest) (*GetWorkloadNodeStatusResponse, error)
 	mustEmbedUnimplementedForwardStatusServiceServer()
 }
 
@@ -80,6 +113,9 @@ func (UnimplementedForwardStatusServiceServer) GetStatus(context.Context, *GetSt
 }
 func (UnimplementedForwardStatusServiceServer) GetMetrics(context.Context, *GetMetricsRequest) (*GetMetricsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMetrics not implemented")
+}
+func (UnimplementedForwardStatusServiceServer) GetWorkloadNodeStatus(context.Context, *GetWorkloadNodeStatusRequest) (*GetWorkloadNodeStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWorkloadNodeStatus not implemented")
 }
 func (UnimplementedForwardStatusServiceServer) mustEmbedUnimplementedForwardStatusServiceServer() {}
 func (UnimplementedForwardStatusServiceServer) testEmbeddedByValue()                              {}
@@ -138,6 +174,24 @@ func _ForwardStatusService_GetMetrics_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ForwardStatusService_GetWorkloadNodeStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetWorkloadNodeStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForwardStatusServiceServer).GetWorkloadNodeStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ForwardStatusService_GetWorkloadNodeStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForwardStatusServiceServer).GetWorkloadNodeStatus(ctx, req.(*GetWorkloadNodeStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ForwardStatusService_ServiceDesc is the grpc.ServiceDesc for ForwardStatusService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +206,10 @@ var ForwardStatusService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMetrics",
 			Handler:    _ForwardStatusService_GetMetrics_Handler,
+		},
+		{
+			MethodName: "GetWorkloadNodeStatus",
+			Handler:    _ForwardStatusService_GetWorkloadNodeStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

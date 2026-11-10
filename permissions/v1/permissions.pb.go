@@ -794,7 +794,11 @@ type NodeTarget struct {
 	//	*NodeTarget_Port
 	//	*NodeTarget_PortRange
 	//	*NodeTarget_AllPorts
-	Ports         isNodeTarget_Ports `protobuf_oneof:"ports"`
+	Ports isNodeTarget_Ports `protobuf_oneof:"ports"`
+	// Valores del documento firmado: tcp, udp, icmp o any. Ausente conserva
+	// tcp para puerto/rango y any para all_ports. tcp/udp requieren puerto o
+	// rango; icmp/any requieren all_ports=true y no llevan puertos al compilar.
+	Protocol      *string `protobuf:"bytes,5,opt,name=protocol,proto3,oneof" json:"protocol,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -868,6 +872,13 @@ func (x *NodeTarget) GetAllPorts() bool {
 		}
 	}
 	return false
+}
+
+func (x *NodeTarget) GetProtocol() string {
+	if x != nil && x.Protocol != nil {
+		return *x.Protocol
+	}
+	return ""
 }
 
 type isNodeTarget_Ports interface {
@@ -4374,7 +4385,7 @@ const file_n0x_permissions_v1_permissions_proto_rawDesc = "" +
 	"\asubject\"3\n" +
 	"\tPortRange\x12\x14\n" +
 	"\x05start\x18\x01 \x01(\rR\x05start\x12\x10\n" +
-	"\x03end\x18\x02 \x01(\rR\x03end\"\xab\x01\n" +
+	"\x03end\x18\x02 \x01(\rR\x03end\"\xd9\x01\n" +
 	"\n" +
 	"NodeTarget\x12\x1f\n" +
 	"\videntity_id\x18\x01 \x01(\tR\n" +
@@ -4382,8 +4393,10 @@ const file_n0x_permissions_v1_permissions_proto_rawDesc = "" +
 	"\x04port\x18\x02 \x01(\rH\x00R\x04port\x12>\n" +
 	"\n" +
 	"port_range\x18\x03 \x01(\v2\x1d.n0x.permissions.v1.PortRangeH\x00R\tportRange\x12\x1d\n" +
-	"\tall_ports\x18\x04 \x01(\bH\x00R\ballPortsB\a\n" +
-	"\x05ports\"N\n" +
+	"\tall_ports\x18\x04 \x01(\bH\x00R\ballPorts\x12\x1f\n" +
+	"\bprotocol\x18\x05 \x01(\tH\x01R\bprotocol\x88\x01\x01B\a\n" +
+	"\x05portsB\v\n" +
+	"\t_protocol\"N\n" +
 	"\x0eWorkloadTarget\x12\x1f\n" +
 	"\vworkload_id\x18\x01 \x01(\tR\n" +
 	"workloadId\x12\x1b\n" +

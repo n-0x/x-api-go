@@ -591,12 +591,13 @@ var PasswordService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ProvisionService_Reserve_FullMethodName             = "/n0x.internal.v1.ProvisionService/Reserve"
-	ProvisionService_EnrollmentStatus_FullMethodName    = "/n0x.internal.v1.ProvisionService/EnrollmentStatus"
-	ProvisionService_EnrollmentBootstrap_FullMethodName = "/n0x.internal.v1.ProvisionService/EnrollmentBootstrap"
-	ProvisionService_Prepare_FullMethodName             = "/n0x.internal.v1.ProvisionService/Prepare"
-	ProvisionService_Apply_FullMethodName               = "/n0x.internal.v1.ProvisionService/Apply"
-	ProvisionService_Observe_FullMethodName             = "/n0x.internal.v1.ProvisionService/Observe"
+	ProvisionService_Reserve_FullMethodName                 = "/n0x.internal.v1.ProvisionService/Reserve"
+	ProvisionService_EnrollmentStatus_FullMethodName        = "/n0x.internal.v1.ProvisionService/EnrollmentStatus"
+	ProvisionService_EnrollmentBootstrap_FullMethodName     = "/n0x.internal.v1.ProvisionService/EnrollmentBootstrap"
+	ProvisionService_Prepare_FullMethodName                 = "/n0x.internal.v1.ProvisionService/Prepare"
+	ProvisionService_Apply_FullMethodName                   = "/n0x.internal.v1.ProvisionService/Apply"
+	ProvisionService_Observe_FullMethodName                 = "/n0x.internal.v1.ProvisionService/Observe"
+	ProvisionService_IssueServiceAccountSVID_FullMethodName = "/n0x.internal.v1.ProvisionService/IssueServiceAccountSVID"
 )
 
 // ProvisionServiceClient is the client API for ProvisionService service.
@@ -609,6 +610,9 @@ type ProvisionServiceClient interface {
 	Prepare(ctx context.Context, in *PrepareRequest, opts ...grpc.CallOption) (*PrepareResponse, error)
 	Apply(ctx context.Context, in *ApplyRequest, opts ...grpc.CallOption) (*ApplyResponse, error)
 	Observe(ctx context.Context, in *ObserveRequest, opts ...grpc.CallOption) (*ObserveResponse, error)
+	// Solo mTLS del emisor autorizado; prepara y aplica una intencion durable
+	// ligada al request_id y al CSR, sin aceptar secretos en claro.
+	IssueServiceAccountSVID(ctx context.Context, in *IssueServiceAccountSVIDRequest, opts ...grpc.CallOption) (*IssueServiceAccountSVIDResponse, error)
 }
 
 type provisionServiceClient struct {
@@ -679,6 +683,16 @@ func (c *provisionServiceClient) Observe(ctx context.Context, in *ObserveRequest
 	return out, nil
 }
 
+func (c *provisionServiceClient) IssueServiceAccountSVID(ctx context.Context, in *IssueServiceAccountSVIDRequest, opts ...grpc.CallOption) (*IssueServiceAccountSVIDResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IssueServiceAccountSVIDResponse)
+	err := c.cc.Invoke(ctx, ProvisionService_IssueServiceAccountSVID_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProvisionServiceServer is the server API for ProvisionService service.
 // All implementations must embed UnimplementedProvisionServiceServer
 // for forward compatibility.
@@ -689,6 +703,9 @@ type ProvisionServiceServer interface {
 	Prepare(context.Context, *PrepareRequest) (*PrepareResponse, error)
 	Apply(context.Context, *ApplyRequest) (*ApplyResponse, error)
 	Observe(context.Context, *ObserveRequest) (*ObserveResponse, error)
+	// Solo mTLS del emisor autorizado; prepara y aplica una intencion durable
+	// ligada al request_id y al CSR, sin aceptar secretos en claro.
+	IssueServiceAccountSVID(context.Context, *IssueServiceAccountSVIDRequest) (*IssueServiceAccountSVIDResponse, error)
 	mustEmbedUnimplementedProvisionServiceServer()
 }
 
@@ -716,6 +733,9 @@ func (UnimplementedProvisionServiceServer) Apply(context.Context, *ApplyRequest)
 }
 func (UnimplementedProvisionServiceServer) Observe(context.Context, *ObserveRequest) (*ObserveResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Observe not implemented")
+}
+func (UnimplementedProvisionServiceServer) IssueServiceAccountSVID(context.Context, *IssueServiceAccountSVIDRequest) (*IssueServiceAccountSVIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IssueServiceAccountSVID not implemented")
 }
 func (UnimplementedProvisionServiceServer) mustEmbedUnimplementedProvisionServiceServer() {}
 func (UnimplementedProvisionServiceServer) testEmbeddedByValue()                          {}
@@ -846,6 +866,24 @@ func _ProvisionService_Observe_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProvisionService_IssueServiceAccountSVID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IssueServiceAccountSVIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProvisionServiceServer).IssueServiceAccountSVID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProvisionService_IssueServiceAccountSVID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProvisionServiceServer).IssueServiceAccountSVID(ctx, req.(*IssueServiceAccountSVIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProvisionService_ServiceDesc is the grpc.ServiceDesc for ProvisionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -876,6 +914,163 @@ var ProvisionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Observe",
 			Handler:    _ProvisionService_Observe_Handler,
+		},
+		{
+			MethodName: "IssueServiceAccountSVID",
+			Handler:    _ProvisionService_IssueServiceAccountSVID_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "n0x/internal/v1/internal.proto",
+}
+
+const (
+	AssignmentsRuntimeService_ClaimAssignmentRun_FullMethodName           = "/n0x.internal.v1.AssignmentsRuntimeService/ClaimAssignmentRun"
+	AssignmentsRuntimeService_RenewAssignmentInstanceToken_FullMethodName = "/n0x.internal.v1.AssignmentsRuntimeService/RenewAssignmentInstanceToken"
+)
+
+// AssignmentsRuntimeServiceClient is the client API for AssignmentsRuntimeService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Endpoint privado de resources, solo para el peer mTLS /system/assignments.
+// El runtime descubre trabajo y recibe credenciales cortas sin acceder a Mongo.
+type AssignmentsRuntimeServiceClient interface {
+	// Una respuesta vacia significa que no hay trabajo pendiente.
+	ClaimAssignmentRun(ctx context.Context, in *ClaimAssignmentRunRequest, opts ...grpc.CallOption) (*ClaimAssignmentRunResponse, error)
+	// Exige el peer mTLS /system/assignments y el Bearer vigente de la ejecucion
+	// reclamada mediante ClaimAssignmentRun. Extiende la validez del token y el lease.
+	RenewAssignmentInstanceToken(ctx context.Context, in *RenewAssignmentInstanceTokenRequest, opts ...grpc.CallOption) (*RenewAssignmentInstanceTokenResponse, error)
+}
+
+type assignmentsRuntimeServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewAssignmentsRuntimeServiceClient(cc grpc.ClientConnInterface) AssignmentsRuntimeServiceClient {
+	return &assignmentsRuntimeServiceClient{cc}
+}
+
+func (c *assignmentsRuntimeServiceClient) ClaimAssignmentRun(ctx context.Context, in *ClaimAssignmentRunRequest, opts ...grpc.CallOption) (*ClaimAssignmentRunResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClaimAssignmentRunResponse)
+	err := c.cc.Invoke(ctx, AssignmentsRuntimeService_ClaimAssignmentRun_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assignmentsRuntimeServiceClient) RenewAssignmentInstanceToken(ctx context.Context, in *RenewAssignmentInstanceTokenRequest, opts ...grpc.CallOption) (*RenewAssignmentInstanceTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RenewAssignmentInstanceTokenResponse)
+	err := c.cc.Invoke(ctx, AssignmentsRuntimeService_RenewAssignmentInstanceToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AssignmentsRuntimeServiceServer is the server API for AssignmentsRuntimeService service.
+// All implementations must embed UnimplementedAssignmentsRuntimeServiceServer
+// for forward compatibility.
+//
+// Endpoint privado de resources, solo para el peer mTLS /system/assignments.
+// El runtime descubre trabajo y recibe credenciales cortas sin acceder a Mongo.
+type AssignmentsRuntimeServiceServer interface {
+	// Una respuesta vacia significa que no hay trabajo pendiente.
+	ClaimAssignmentRun(context.Context, *ClaimAssignmentRunRequest) (*ClaimAssignmentRunResponse, error)
+	// Exige el peer mTLS /system/assignments y el Bearer vigente de la ejecucion
+	// reclamada mediante ClaimAssignmentRun. Extiende la validez del token y el lease.
+	RenewAssignmentInstanceToken(context.Context, *RenewAssignmentInstanceTokenRequest) (*RenewAssignmentInstanceTokenResponse, error)
+	mustEmbedUnimplementedAssignmentsRuntimeServiceServer()
+}
+
+// UnimplementedAssignmentsRuntimeServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedAssignmentsRuntimeServiceServer struct{}
+
+func (UnimplementedAssignmentsRuntimeServiceServer) ClaimAssignmentRun(context.Context, *ClaimAssignmentRunRequest) (*ClaimAssignmentRunResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ClaimAssignmentRun not implemented")
+}
+func (UnimplementedAssignmentsRuntimeServiceServer) RenewAssignmentInstanceToken(context.Context, *RenewAssignmentInstanceTokenRequest) (*RenewAssignmentInstanceTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RenewAssignmentInstanceToken not implemented")
+}
+func (UnimplementedAssignmentsRuntimeServiceServer) mustEmbedUnimplementedAssignmentsRuntimeServiceServer() {
+}
+func (UnimplementedAssignmentsRuntimeServiceServer) testEmbeddedByValue() {}
+
+// UnsafeAssignmentsRuntimeServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AssignmentsRuntimeServiceServer will
+// result in compilation errors.
+type UnsafeAssignmentsRuntimeServiceServer interface {
+	mustEmbedUnimplementedAssignmentsRuntimeServiceServer()
+}
+
+func RegisterAssignmentsRuntimeServiceServer(s grpc.ServiceRegistrar, srv AssignmentsRuntimeServiceServer) {
+	// If the following call pancis, it indicates UnimplementedAssignmentsRuntimeServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&AssignmentsRuntimeService_ServiceDesc, srv)
+}
+
+func _AssignmentsRuntimeService_ClaimAssignmentRun_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClaimAssignmentRunRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssignmentsRuntimeServiceServer).ClaimAssignmentRun(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssignmentsRuntimeService_ClaimAssignmentRun_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssignmentsRuntimeServiceServer).ClaimAssignmentRun(ctx, req.(*ClaimAssignmentRunRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssignmentsRuntimeService_RenewAssignmentInstanceToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RenewAssignmentInstanceTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssignmentsRuntimeServiceServer).RenewAssignmentInstanceToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssignmentsRuntimeService_RenewAssignmentInstanceToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssignmentsRuntimeServiceServer).RenewAssignmentInstanceToken(ctx, req.(*RenewAssignmentInstanceTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// AssignmentsRuntimeService_ServiceDesc is the grpc.ServiceDesc for AssignmentsRuntimeService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var AssignmentsRuntimeService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "n0x.internal.v1.AssignmentsRuntimeService",
+	HandlerType: (*AssignmentsRuntimeServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ClaimAssignmentRun",
+			Handler:    _AssignmentsRuntimeService_ClaimAssignmentRun_Handler,
+		},
+		{
+			MethodName: "RenewAssignmentInstanceToken",
+			Handler:    _AssignmentsRuntimeService_RenewAssignmentInstanceToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

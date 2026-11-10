@@ -34,6 +34,9 @@ const (
 	// ForwardStatusServiceGetMetricsProcedure is the procedure name of the ForwardStatusService's
 	// GetMetrics RPC.
 	ForwardStatusServiceGetMetricsProcedure = "/n0x.connectivity.v1.ForwardStatusService/GetMetrics"
+	// ForwardStatusServiceGetWorkloadNodeStatusProcedure is the procedure name of the
+	// ForwardStatusService's GetWorkloadNodeStatus RPC.
+	ForwardStatusServiceGetWorkloadNodeStatusProcedure = "/n0x.connectivity.v1.ForwardStatusService/GetWorkloadNodeStatus"
 	// AdmissionServiceAdmitProcedure is the procedure name of the AdmissionService's Admit RPC.
 	AdmissionServiceAdmitProcedure = "/n0x.connectivity.v1.AdmissionService/Admit"
 	// AdmissionServiceRefillProcedure is the procedure name of the AdmissionService's Refill RPC.
@@ -77,12 +80,30 @@ var (
 			Procedure:  ForwardStatusServiceGetMetricsProcedure,
 		}
 	})
+	forwardStatusServiceGetWorkloadNodeStatusSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_connectivity_v1_connectivity_proto.Services().ByName("ForwardStatusService").Methods().ByName("GetWorkloadNodeStatus"),
+			Procedure:  ForwardStatusServiceGetWorkloadNodeStatusProcedure,
+		}
+	})
 )
 
 // ForwardStatusServiceClient is a client for the n0x.connectivity.v1.ForwardStatusService service.
 type ForwardStatusServiceClient interface {
 	GetStatus(context.Context, *v1.GetStatusRequest) (*v1.GetStatusResponse, error)
 	GetMetrics(context.Context, *v1.GetMetricsRequest) (*v1.GetMetricsResponse, error)
+	// Lectura interna mTLS cuyo lector autorizado es authority/resources para
+	// NodeConnectionSource; no publica ni modifica cargas. Se sirve en el listener
+	// control_listen de ConnectivityProcessConfig, junto a ProxyControlService,
+	// y autoriza contra la allowlist control_plane_ids de SPIFFE ID fijados.
+	// No autoriza con issuer_ids, los emisores de admision que usa el resto de
+	// ForwardStatusService, ni con cualquier SVID del trust domain.
+	// Deniega si falta el peer autenticado, la allowlist esta ausente o vacia,
+	// o falta account_id o tenant_id.
+	// Solo devuelve el ambito account/tenant pedido; una pareja carga-nodo ausente
+	// no certifica conectividad.
+	GetWorkloadNodeStatus(context.Context, *v1.GetWorkloadNodeStatusRequest) (*v1.GetWorkloadNodeStatusResponse, error)
 }
 
 // NewForwardStatusServiceClient constructs a client for the
@@ -97,6 +118,17 @@ func NewForwardStatusServiceClient(client *connect.Client) ForwardStatusServiceC
 type ForwardStatusServiceHandler interface {
 	GetStatus(context.Context, *v1.GetStatusRequest) (*v1.GetStatusResponse, error)
 	GetMetrics(context.Context, *v1.GetMetricsRequest) (*v1.GetMetricsResponse, error)
+	// Lectura interna mTLS cuyo lector autorizado es authority/resources para
+	// NodeConnectionSource; no publica ni modifica cargas. Se sirve en el listener
+	// control_listen de ConnectivityProcessConfig, junto a ProxyControlService,
+	// y autoriza contra la allowlist control_plane_ids de SPIFFE ID fijados.
+	// No autoriza con issuer_ids, los emisores de admision que usa el resto de
+	// ForwardStatusService, ni con cualquier SVID del trust domain.
+	// Deniega si falta el peer autenticado, la allowlist esta ausente o vacia,
+	// o falta account_id o tenant_id.
+	// Solo devuelve el ambito account/tenant pedido; una pareja carga-nodo ausente
+	// no certifica conectividad.
+	GetWorkloadNodeStatus(context.Context, *v1.GetWorkloadNodeStatusRequest) (*v1.GetWorkloadNodeStatusResponse, error)
 }
 
 // RegisterForwardStatusServiceHandler registers svc as the n0x.connectivity.v1.ForwardStatusService
@@ -106,6 +138,7 @@ func RegisterForwardStatusServiceHandler(server *connect.Server, svc ForwardStat
 	server.Register(
 		connect.Method{Spec: forwardStatusServiceGetStatusSpec(), Handler: adapter.getStatus},
 		connect.Method{Spec: forwardStatusServiceGetMetricsSpec(), Handler: adapter.getMetrics},
+		connect.Method{Spec: forwardStatusServiceGetWorkloadNodeStatusSpec(), Handler: adapter.getWorkloadNodeStatus},
 	)
 }
 
@@ -118,6 +151,10 @@ func (UnimplementedForwardStatusServiceHandler) GetStatus(context.Context, *v1.G
 
 func (UnimplementedForwardStatusServiceHandler) GetMetrics(context.Context, *v1.GetMetricsRequest) (*v1.GetMetricsResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.connectivity.v1.ForwardStatusService.GetMetrics is not implemented")
+}
+
+func (UnimplementedForwardStatusServiceHandler) GetWorkloadNodeStatus(context.Context, *v1.GetWorkloadNodeStatusRequest) (*v1.GetWorkloadNodeStatusResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.connectivity.v1.ForwardStatusService.GetWorkloadNodeStatus is not implemented")
 }
 
 type forwardStatusServiceClient struct {
@@ -135,6 +172,14 @@ func (c *forwardStatusServiceClient) GetStatus(ctx context.Context, req *v1.GetS
 func (c *forwardStatusServiceClient) GetMetrics(ctx context.Context, req *v1.GetMetricsRequest) (*v1.GetMetricsResponse, error) {
 	var res v1.GetMetricsResponse
 	if err := c.client.CallUnary(ctx, forwardStatusServiceGetMetricsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *forwardStatusServiceClient) GetWorkloadNodeStatus(ctx context.Context, req *v1.GetWorkloadNodeStatusRequest) (*v1.GetWorkloadNodeStatusResponse, error) {
+	var res v1.GetWorkloadNodeStatusResponse
+	if err := c.client.CallUnary(ctx, forwardStatusServiceGetWorkloadNodeStatusSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -160,6 +205,18 @@ func (h forwardStatusServiceHandler) getMetrics(ctx context.Context, _ connect.S
 		return err
 	}
 	res, err := h.svc.GetMetrics(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h forwardStatusServiceHandler) getWorkloadNodeStatus(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetWorkloadNodeStatusRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetWorkloadNodeStatus(ctx, &req)
 	if err != nil {
 		return err
 	}

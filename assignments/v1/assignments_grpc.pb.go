@@ -63,6 +63,9 @@ type AssignmentsServiceClient interface {
 	// Runtime writes require /system/assignments mTLS plus a short-lived instance
 	// token bound to that SVID. The instance service account remains the IAM actor.
 	// No direct database access; server validates lineage and stores timestamps.
+	// Start, Append, Record* y Finish se sirven en el endpoint privado de
+	// resources: exigen mTLS del peer /system/assignments mas Bearer del token
+	// corto de instancia ligado al SVID; no son operaciones para humanos.
 	StartAssignmentRun(ctx context.Context, in *StartAssignmentRunRequest, opts ...grpc.CallOption) (*StartAssignmentRunResponse, error)
 	AppendAssignmentStep(ctx context.Context, in *AppendAssignmentStepRequest, opts ...grpc.CallOption) (*AppendAssignmentStepResponse, error)
 	RecordAssignmentFinding(ctx context.Context, in *RecordAssignmentFindingRequest, opts ...grpc.CallOption) (*RecordAssignmentFindingResponse, error)
@@ -292,6 +295,9 @@ type AssignmentsServiceServer interface {
 	// Runtime writes require /system/assignments mTLS plus a short-lived instance
 	// token bound to that SVID. The instance service account remains the IAM actor.
 	// No direct database access; server validates lineage and stores timestamps.
+	// Start, Append, Record* y Finish se sirven en el endpoint privado de
+	// resources: exigen mTLS del peer /system/assignments mas Bearer del token
+	// corto de instancia ligado al SVID; no son operaciones para humanos.
 	StartAssignmentRun(context.Context, *StartAssignmentRunRequest) (*StartAssignmentRunResponse, error)
 	AppendAssignmentStep(context.Context, *AppendAssignmentStepRequest) (*AppendAssignmentStepResponse, error)
 	RecordAssignmentFinding(context.Context, *RecordAssignmentFindingRequest) (*RecordAssignmentFindingResponse, error)

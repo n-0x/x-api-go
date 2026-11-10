@@ -9,6 +9,7 @@ package managerv1
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -20,6 +21,111 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+// Estado de consentimiento antes de emitir el aserto de vuelta al proxy.
+type ProxyLoginStatus int32
+
+const (
+	ProxyLoginStatus_PROXY_LOGIN_STATUS_UNSPECIFIED    ProxyLoginStatus = 0
+	ProxyLoginStatus_PROXY_LOGIN_STATUS_LOGIN_REQUIRED ProxyLoginStatus = 1
+	ProxyLoginStatus_PROXY_LOGIN_STATUS_MFA_REQUIRED   ProxyLoginStatus = 2
+	ProxyLoginStatus_PROXY_LOGIN_STATUS_READY          ProxyLoginStatus = 3
+)
+
+// Enum value maps for ProxyLoginStatus.
+var (
+	ProxyLoginStatus_name = map[int32]string{
+		0: "PROXY_LOGIN_STATUS_UNSPECIFIED",
+		1: "PROXY_LOGIN_STATUS_LOGIN_REQUIRED",
+		2: "PROXY_LOGIN_STATUS_MFA_REQUIRED",
+		3: "PROXY_LOGIN_STATUS_READY",
+	}
+	ProxyLoginStatus_value = map[string]int32{
+		"PROXY_LOGIN_STATUS_UNSPECIFIED":    0,
+		"PROXY_LOGIN_STATUS_LOGIN_REQUIRED": 1,
+		"PROXY_LOGIN_STATUS_MFA_REQUIRED":   2,
+		"PROXY_LOGIN_STATUS_READY":          3,
+	}
+)
+
+func (x ProxyLoginStatus) Enum() *ProxyLoginStatus {
+	p := new(ProxyLoginStatus)
+	*p = x
+	return p
+}
+
+func (x ProxyLoginStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ProxyLoginStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_manager_v1_manager_proto_enumTypes[0].Descriptor()
+}
+
+func (ProxyLoginStatus) Type() protoreflect.EnumType {
+	return &file_n0x_manager_v1_manager_proto_enumTypes[0]
+}
+
+func (x ProxyLoginStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ProxyLoginStatus.Descriptor instead.
+func (ProxyLoginStatus) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_manager_v1_manager_proto_rawDescGZIP(), []int{0}
+}
+
+type SshCertificateDenialReason int32
+
+const (
+	SshCertificateDenialReason_SSH_CERTIFICATE_DENIAL_REASON_UNSPECIFIED   SshCertificateDenialReason = 0
+	SshCertificateDenialReason_SSH_CERTIFICATE_DENIAL_REASON_NO_PERMISSION SshCertificateDenialReason = 1
+	SshCertificateDenialReason_SSH_CERTIFICATE_DENIAL_REASON_MFA_REQUIRED  SshCertificateDenialReason = 2
+	SshCertificateDenialReason_SSH_CERTIFICATE_DENIAL_REASON_QUARANTINED   SshCertificateDenialReason = 3
+)
+
+// Enum value maps for SshCertificateDenialReason.
+var (
+	SshCertificateDenialReason_name = map[int32]string{
+		0: "SSH_CERTIFICATE_DENIAL_REASON_UNSPECIFIED",
+		1: "SSH_CERTIFICATE_DENIAL_REASON_NO_PERMISSION",
+		2: "SSH_CERTIFICATE_DENIAL_REASON_MFA_REQUIRED",
+		3: "SSH_CERTIFICATE_DENIAL_REASON_QUARANTINED",
+	}
+	SshCertificateDenialReason_value = map[string]int32{
+		"SSH_CERTIFICATE_DENIAL_REASON_UNSPECIFIED":   0,
+		"SSH_CERTIFICATE_DENIAL_REASON_NO_PERMISSION": 1,
+		"SSH_CERTIFICATE_DENIAL_REASON_MFA_REQUIRED":  2,
+		"SSH_CERTIFICATE_DENIAL_REASON_QUARANTINED":   3,
+	}
+)
+
+func (x SshCertificateDenialReason) Enum() *SshCertificateDenialReason {
+	p := new(SshCertificateDenialReason)
+	*p = x
+	return p
+}
+
+func (x SshCertificateDenialReason) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SshCertificateDenialReason) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_manager_v1_manager_proto_enumTypes[1].Descriptor()
+}
+
+func (SshCertificateDenialReason) Type() protoreflect.EnumType {
+	return &file_n0x_manager_v1_manager_proto_enumTypes[1]
+}
+
+func (x SshCertificateDenialReason) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SshCertificateDenialReason.Descriptor instead.
+func (SshCertificateDenialReason) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_manager_v1_manager_proto_rawDescGZIP(), []int{1}
+}
 
 type Scope struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1260,8 +1366,12 @@ type LoginRequest struct {
 	Nonce               string                 `protobuf:"bytes,3,opt,name=nonce,proto3" json:"nonce,omitempty"`
 	CodeChallenge       string                 `protobuf:"bytes,4,opt,name=code_challenge,json=codeChallenge,proto3" json:"code_challenge,omitempty"`
 	CodeChallengeMethod string                 `protobuf:"bytes,5,opt,name=code_challenge_method,json=codeChallengeMethod,proto3" json:"code_challenge_method,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	WorkloadId          *string                `protobuf:"bytes,6,opt,name=workload_id,json=workloadId,proto3,oneof" json:"workload_id,omitempty"`
+	// Solo puede endurecer el login. Nunca concede acceso ni sustituye la
+	// comprobacion del permiso de la carga, que puede exigir MFA por si mismo.
+	RequireMfa    *bool `protobuf:"varint,7,opt,name=require_mfa,json=requireMfa,proto3,oneof" json:"require_mfa,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *LoginRequest) Reset() {
@@ -1327,6 +1437,20 @@ func (x *LoginRequest) GetCodeChallengeMethod() string {
 		return x.CodeChallengeMethod
 	}
 	return ""
+}
+
+func (x *LoginRequest) GetWorkloadId() string {
+	if x != nil && x.WorkloadId != nil {
+		return *x.WorkloadId
+	}
+	return ""
+}
+
+func (x *LoginRequest) GetRequireMfa() bool {
+	if x != nil && x.RequireMfa != nil {
+		return *x.RequireMfa
+	}
+	return false
 }
 
 type LoginResponse struct {
@@ -1450,9 +1574,13 @@ func (x *ExchangeTokenRequest) GetCodeVerifier() string {
 }
 
 type ExchangeTokenResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Session       string                 `protobuf:"bytes,1,opt,name=session,proto3" json:"session,omitempty"`
-	ExpiresAt     float64                `protobuf:"fixed64,2,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Session   string                 `protobuf:"bytes,1,opt,name=session,proto3" json:"session,omitempty"`
+	ExpiresAt float64                `protobuf:"fixed64,2,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	// Instante de la ultima MFA verificada, nunca una declaracion de la CLI.
+	// Ausente no acredita MFA. Timestamp porque el fichero CliSession usa un
+	// tipo temporal distinto al double de expires_at de este RPC.
+	MfaAt         *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=mfa_at,json=mfaAt,proto3" json:"mfa_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1499,6 +1627,13 @@ func (x *ExchangeTokenResponse) GetExpiresAt() float64 {
 		return x.ExpiresAt
 	}
 	return 0
+}
+
+func (x *ExchangeTokenResponse) GetMfaAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.MfaAt
+	}
+	return nil
 }
 
 type ListCliAccountsRequest struct {
@@ -3341,11 +3476,389 @@ func (x *CreatePortalResponse) GetSession() *PaymentSession {
 	return nil
 }
 
+type ProxyLoginContextRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Host  *string                `protobuf:"bytes,1,opt,name=host,proto3,oneof" json:"host,omitempty"`
+	// Ruta local del host validado, nunca una URL de redireccion arbitraria.
+	ReturnPath *string `protobuf:"bytes,2,opt,name=return_path,json=returnPath,proto3,oneof" json:"return_path,omitempty"`
+	Nonce      *string `protobuf:"bytes,3,opt,name=nonce,proto3,oneof" json:"nonce,omitempty"`
+	// Solo endurece la autenticacion; no concede acceso a la carga.
+	RequireMfa    *bool `protobuf:"varint,4,opt,name=require_mfa,json=requireMfa,proto3,oneof" json:"require_mfa,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProxyLoginContextRequest) Reset() {
+	*x = ProxyLoginContextRequest{}
+	mi := &file_n0x_manager_v1_manager_proto_msgTypes[64]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProxyLoginContextRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProxyLoginContextRequest) ProtoMessage() {}
+
+func (x *ProxyLoginContextRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_manager_v1_manager_proto_msgTypes[64]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProxyLoginContextRequest.ProtoReflect.Descriptor instead.
+func (*ProxyLoginContextRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_manager_v1_manager_proto_rawDescGZIP(), []int{64}
+}
+
+func (x *ProxyLoginContextRequest) GetHost() string {
+	if x != nil && x.Host != nil {
+		return *x.Host
+	}
+	return ""
+}
+
+func (x *ProxyLoginContextRequest) GetReturnPath() string {
+	if x != nil && x.ReturnPath != nil {
+		return *x.ReturnPath
+	}
+	return ""
+}
+
+func (x *ProxyLoginContextRequest) GetNonce() string {
+	if x != nil && x.Nonce != nil {
+		return *x.Nonce
+	}
+	return ""
+}
+
+func (x *ProxyLoginContextRequest) GetRequireMfa() bool {
+	if x != nil && x.RequireMfa != nil {
+		return *x.RequireMfa
+	}
+	return false
+}
+
+type ProxyLoginContextResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        *ProxyLoginStatus      `protobuf:"varint,1,opt,name=status,proto3,enum=n0x.manager.v1.ProxyLoginStatus,oneof" json:"status,omitempty"`
+	WorkloadLabel *string                `protobuf:"bytes,2,opt,name=workload_label,json=workloadLabel,proto3,oneof" json:"workload_label,omitempty"`
+	PersonDisplay *string                `protobuf:"bytes,3,opt,name=person_display,json=personDisplay,proto3,oneof" json:"person_display,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProxyLoginContextResponse) Reset() {
+	*x = ProxyLoginContextResponse{}
+	mi := &file_n0x_manager_v1_manager_proto_msgTypes[65]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProxyLoginContextResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProxyLoginContextResponse) ProtoMessage() {}
+
+func (x *ProxyLoginContextResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_manager_v1_manager_proto_msgTypes[65]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProxyLoginContextResponse.ProtoReflect.Descriptor instead.
+func (*ProxyLoginContextResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_manager_v1_manager_proto_rawDescGZIP(), []int{65}
+}
+
+func (x *ProxyLoginContextResponse) GetStatus() ProxyLoginStatus {
+	if x != nil && x.Status != nil {
+		return *x.Status
+	}
+	return ProxyLoginStatus_PROXY_LOGIN_STATUS_UNSPECIFIED
+}
+
+func (x *ProxyLoginContextResponse) GetWorkloadLabel() string {
+	if x != nil && x.WorkloadLabel != nil {
+		return *x.WorkloadLabel
+	}
+	return ""
+}
+
+func (x *ProxyLoginContextResponse) GetPersonDisplay() string {
+	if x != nil && x.PersonDisplay != nil {
+		return *x.PersonDisplay
+	}
+	return ""
+}
+
+type IssueProxyReturnRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Host       *string                `protobuf:"bytes,1,opt,name=host,proto3,oneof" json:"host,omitempty"`
+	ReturnPath *string                `protobuf:"bytes,2,opt,name=return_path,json=returnPath,proto3,oneof" json:"return_path,omitempty"`
+	Nonce      *string                `protobuf:"bytes,3,opt,name=nonce,proto3,oneof" json:"nonce,omitempty"`
+	// Solo endurece la autenticacion; no sustituye la autorizacion del proxy.
+	RequireMfa    *bool `protobuf:"varint,4,opt,name=require_mfa,json=requireMfa,proto3,oneof" json:"require_mfa,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IssueProxyReturnRequest) Reset() {
+	*x = IssueProxyReturnRequest{}
+	mi := &file_n0x_manager_v1_manager_proto_msgTypes[66]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IssueProxyReturnRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IssueProxyReturnRequest) ProtoMessage() {}
+
+func (x *IssueProxyReturnRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_manager_v1_manager_proto_msgTypes[66]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IssueProxyReturnRequest.ProtoReflect.Descriptor instead.
+func (*IssueProxyReturnRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_manager_v1_manager_proto_rawDescGZIP(), []int{66}
+}
+
+func (x *IssueProxyReturnRequest) GetHost() string {
+	if x != nil && x.Host != nil {
+		return *x.Host
+	}
+	return ""
+}
+
+func (x *IssueProxyReturnRequest) GetReturnPath() string {
+	if x != nil && x.ReturnPath != nil {
+		return *x.ReturnPath
+	}
+	return ""
+}
+
+func (x *IssueProxyReturnRequest) GetNonce() string {
+	if x != nil && x.Nonce != nil {
+		return *x.Nonce
+	}
+	return ""
+}
+
+func (x *IssueProxyReturnRequest) GetRequireMfa() bool {
+	if x != nil && x.RequireMfa != nil {
+		return *x.RequireMfa
+	}
+	return false
+}
+
+type IssueProxyReturnResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Vuelta al host validado con aserto JWS ES256: iss, aud=host, sub=user_id,
+	// nonce, mfa_at, idle_s, iat, exp (maximo iat+60 s) y jti.
+	RedirectUrl   *string `protobuf:"bytes,1,opt,name=redirect_url,json=redirectUrl,proto3,oneof" json:"redirect_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IssueProxyReturnResponse) Reset() {
+	*x = IssueProxyReturnResponse{}
+	mi := &file_n0x_manager_v1_manager_proto_msgTypes[67]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IssueProxyReturnResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IssueProxyReturnResponse) ProtoMessage() {}
+
+func (x *IssueProxyReturnResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_manager_v1_manager_proto_msgTypes[67]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IssueProxyReturnResponse.ProtoReflect.Descriptor instead.
+func (*IssueProxyReturnResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_manager_v1_manager_proto_rawDescGZIP(), []int{67}
+}
+
+func (x *IssueProxyReturnResponse) GetRedirectUrl() string {
+	if x != nil && x.RedirectUrl != nil {
+		return *x.RedirectUrl
+	}
+	return ""
+}
+
+type IssueSshCertificateRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	WorkloadId *string                `protobuf:"bytes,1,opt,name=workload_id,json=workloadId,proto3,oneof" json:"workload_id,omitempty"`
+	// Clave publica de usuario en formato authorized_keys; nunca clave privada.
+	PublicKey     *string `protobuf:"bytes,2,opt,name=public_key,json=publicKey,proto3,oneof" json:"public_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IssueSshCertificateRequest) Reset() {
+	*x = IssueSshCertificateRequest{}
+	mi := &file_n0x_manager_v1_manager_proto_msgTypes[68]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IssueSshCertificateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IssueSshCertificateRequest) ProtoMessage() {}
+
+func (x *IssueSshCertificateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_manager_v1_manager_proto_msgTypes[68]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IssueSshCertificateRequest.ProtoReflect.Descriptor instead.
+func (*IssueSshCertificateRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_manager_v1_manager_proto_rawDescGZIP(), []int{68}
+}
+
+func (x *IssueSshCertificateRequest) GetWorkloadId() string {
+	if x != nil && x.WorkloadId != nil {
+		return *x.WorkloadId
+	}
+	return ""
+}
+
+func (x *IssueSshCertificateRequest) GetPublicKey() string {
+	if x != nil && x.PublicKey != nil {
+		return *x.PublicKey
+	}
+	return ""
+}
+
+type IssueSshCertificateResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Certificado de usuario en formato authorized_keys, valido durante 10 min.
+	Certificate     *string                `protobuf:"bytes,1,opt,name=certificate,proto3,oneof" json:"certificate,omitempty"`
+	ExpiresAt       *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	ProxySshAddress *string                `protobuf:"bytes,3,opt,name=proxy_ssh_address,json=proxySshAddress,proto3,oneof" json:"proxy_ssh_address,omitempty"`
+	// Clave publica del proxy en formato authorized_keys.
+	ProxyHostKey *string `protobuf:"bytes,4,opt,name=proxy_host_key,json=proxyHostKey,proto3,oneof" json:"proxy_host_key,omitempty"`
+	// Una denegacion de negocio devuelve este motivo y no devuelve certificado.
+	// Ausente significa que no se informa una denegacion; no prueba autenticacion.
+	DenialReason  *SshCertificateDenialReason `protobuf:"varint,5,opt,name=denial_reason,json=denialReason,proto3,enum=n0x.manager.v1.SshCertificateDenialReason,oneof" json:"denial_reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IssueSshCertificateResponse) Reset() {
+	*x = IssueSshCertificateResponse{}
+	mi := &file_n0x_manager_v1_manager_proto_msgTypes[69]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IssueSshCertificateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IssueSshCertificateResponse) ProtoMessage() {}
+
+func (x *IssueSshCertificateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_manager_v1_manager_proto_msgTypes[69]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IssueSshCertificateResponse.ProtoReflect.Descriptor instead.
+func (*IssueSshCertificateResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_manager_v1_manager_proto_rawDescGZIP(), []int{69}
+}
+
+func (x *IssueSshCertificateResponse) GetCertificate() string {
+	if x != nil && x.Certificate != nil {
+		return *x.Certificate
+	}
+	return ""
+}
+
+func (x *IssueSshCertificateResponse) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+func (x *IssueSshCertificateResponse) GetProxySshAddress() string {
+	if x != nil && x.ProxySshAddress != nil {
+		return *x.ProxySshAddress
+	}
+	return ""
+}
+
+func (x *IssueSshCertificateResponse) GetProxyHostKey() string {
+	if x != nil && x.ProxyHostKey != nil {
+		return *x.ProxyHostKey
+	}
+	return ""
+}
+
+func (x *IssueSshCertificateResponse) GetDenialReason() SshCertificateDenialReason {
+	if x != nil && x.DenialReason != nil {
+		return *x.DenialReason
+	}
+	return SshCertificateDenialReason_SSH_CERTIFICATE_DENIAL_REASON_UNSPECIFIED
+}
+
 var File_n0x_manager_v1_manager_proto protoreflect.FileDescriptor
 
 const file_n0x_manager_v1_manager_proto_rawDesc = "" +
 	"\n" +
-	"\x1cn0x/manager/v1/manager.proto\x12\x0en0x.manager.v1\"f\n" +
+	"\x1cn0x/manager/v1/manager.proto\x12\x0en0x.manager.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"f\n" +
 	"\x05Scope\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\x1d\n" +
 	"\n" +
@@ -3436,13 +3949,19 @@ const file_n0x_manager_v1_manager_proto_rawDesc = "" +
 	"\n" +
 	"expires_at\x18\x03 \x01(\tR\texpiresAt\"\x0f\n" +
 	"\rLogoutRequest\"\x10\n" +
-	"\x0eLogoutResponse\"\xb8\x01\n" +
+	"\x0eLogoutResponse\"\xa4\x02\n" +
 	"\fLoginRequest\x12!\n" +
 	"\fredirect_uri\x18\x01 \x01(\tR\vredirectUri\x12\x14\n" +
 	"\x05state\x18\x02 \x01(\tR\x05state\x12\x14\n" +
 	"\x05nonce\x18\x03 \x01(\tR\x05nonce\x12%\n" +
 	"\x0ecode_challenge\x18\x04 \x01(\tR\rcodeChallenge\x122\n" +
-	"\x15code_challenge_method\x18\x05 \x01(\tR\x13codeChallengeMethod\"<\n" +
+	"\x15code_challenge_method\x18\x05 \x01(\tR\x13codeChallengeMethod\x12$\n" +
+	"\vworkload_id\x18\x06 \x01(\tH\x00R\n" +
+	"workloadId\x88\x01\x01\x12$\n" +
+	"\vrequire_mfa\x18\a \x01(\bH\x01R\n" +
+	"requireMfa\x88\x01\x01B\x0e\n" +
+	"\f_workload_idB\x0e\n" +
+	"\f_require_mfa\"<\n" +
 	"\rLoginResponse\x12+\n" +
 	"\x11authorization_url\x18\x01 \x01(\tR\x10authorizationUrl\"\x9e\x01\n" +
 	"\x14ExchangeTokenRequest\x12\x12\n" +
@@ -3450,11 +3969,12 @@ const file_n0x_manager_v1_manager_proto_rawDesc = "" +
 	"\fredirect_uri\x18\x02 \x01(\tR\vredirectUri\x12\x14\n" +
 	"\x05state\x18\x03 \x01(\tR\x05state\x12\x14\n" +
 	"\x05nonce\x18\x04 \x01(\tR\x05nonce\x12#\n" +
-	"\rcode_verifier\x18\x05 \x01(\tR\fcodeVerifier\"P\n" +
+	"\rcode_verifier\x18\x05 \x01(\tR\fcodeVerifier\"\x83\x01\n" +
 	"\x15ExchangeTokenResponse\x12\x18\n" +
 	"\asession\x18\x01 \x01(\tR\asession\x12\x1d\n" +
 	"\n" +
-	"expires_at\x18\x02 \x01(\x01R\texpiresAt\"\x18\n" +
+	"expires_at\x18\x02 \x01(\x01R\texpiresAt\x121\n" +
+	"\x06mfa_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x05mfaAt\"\x18\n" +
 	"\x16ListCliAccountsRequest\"U\n" +
 	"\x17ListCliAccountsResponse\x12:\n" +
 	"\baccounts\x18\x01 \x03(\v2\x1e.n0x.manager.v1.AccountSummaryR\baccounts\"4\n" +
@@ -3568,20 +4088,83 @@ const file_n0x_manager_v1_manager_proto_rawDesc = "" +
 	"\n" +
 	"request_id\x18\x02 \x01(\tR\trequestId\"P\n" +
 	"\x14CreatePortalResponse\x128\n" +
-	"\asession\x18\x01 \x01(\v2\x1e.n0x.manager.v1.PaymentSessionR\asession2\xe3\x03\n" +
+	"\asession\x18\x01 \x01(\v2\x1e.n0x.manager.v1.PaymentSessionR\asession\"\xcd\x01\n" +
+	"\x18ProxyLoginContextRequest\x12\x17\n" +
+	"\x04host\x18\x01 \x01(\tH\x00R\x04host\x88\x01\x01\x12$\n" +
+	"\vreturn_path\x18\x02 \x01(\tH\x01R\n" +
+	"returnPath\x88\x01\x01\x12\x19\n" +
+	"\x05nonce\x18\x03 \x01(\tH\x02R\x05nonce\x88\x01\x01\x12$\n" +
+	"\vrequire_mfa\x18\x04 \x01(\bH\x03R\n" +
+	"requireMfa\x88\x01\x01B\a\n" +
+	"\x05_hostB\x0e\n" +
+	"\f_return_pathB\b\n" +
+	"\x06_nonceB\x0e\n" +
+	"\f_require_mfa\"\xe3\x01\n" +
+	"\x19ProxyLoginContextResponse\x12=\n" +
+	"\x06status\x18\x01 \x01(\x0e2 .n0x.manager.v1.ProxyLoginStatusH\x00R\x06status\x88\x01\x01\x12*\n" +
+	"\x0eworkload_label\x18\x02 \x01(\tH\x01R\rworkloadLabel\x88\x01\x01\x12*\n" +
+	"\x0eperson_display\x18\x03 \x01(\tH\x02R\rpersonDisplay\x88\x01\x01B\t\n" +
+	"\a_statusB\x11\n" +
+	"\x0f_workload_labelB\x11\n" +
+	"\x0f_person_display\"\xcc\x01\n" +
+	"\x17IssueProxyReturnRequest\x12\x17\n" +
+	"\x04host\x18\x01 \x01(\tH\x00R\x04host\x88\x01\x01\x12$\n" +
+	"\vreturn_path\x18\x02 \x01(\tH\x01R\n" +
+	"returnPath\x88\x01\x01\x12\x19\n" +
+	"\x05nonce\x18\x03 \x01(\tH\x02R\x05nonce\x88\x01\x01\x12$\n" +
+	"\vrequire_mfa\x18\x04 \x01(\bH\x03R\n" +
+	"requireMfa\x88\x01\x01B\a\n" +
+	"\x05_hostB\x0e\n" +
+	"\f_return_pathB\b\n" +
+	"\x06_nonceB\x0e\n" +
+	"\f_require_mfa\"S\n" +
+	"\x18IssueProxyReturnResponse\x12&\n" +
+	"\fredirect_url\x18\x01 \x01(\tH\x00R\vredirectUrl\x88\x01\x01B\x0f\n" +
+	"\r_redirect_url\"\x85\x01\n" +
+	"\x1aIssueSshCertificateRequest\x12$\n" +
+	"\vworkload_id\x18\x01 \x01(\tH\x00R\n" +
+	"workloadId\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"public_key\x18\x02 \x01(\tH\x01R\tpublicKey\x88\x01\x01B\x0e\n" +
+	"\f_workload_idB\r\n" +
+	"\v_public_key\"\xfc\x02\n" +
+	"\x1bIssueSshCertificateResponse\x12%\n" +
+	"\vcertificate\x18\x01 \x01(\tH\x00R\vcertificate\x88\x01\x01\x129\n" +
+	"\n" +
+	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12/\n" +
+	"\x11proxy_ssh_address\x18\x03 \x01(\tH\x01R\x0fproxySshAddress\x88\x01\x01\x12)\n" +
+	"\x0eproxy_host_key\x18\x04 \x01(\tH\x02R\fproxyHostKey\x88\x01\x01\x12T\n" +
+	"\rdenial_reason\x18\x05 \x01(\x0e2*.n0x.manager.v1.SshCertificateDenialReasonH\x03R\fdenialReason\x88\x01\x01B\x0e\n" +
+	"\f_certificateB\x14\n" +
+	"\x12_proxy_ssh_addressB\x11\n" +
+	"\x0f_proxy_host_keyB\x10\n" +
+	"\x0e_denial_reason*\xa0\x01\n" +
+	"\x10ProxyLoginStatus\x12\"\n" +
+	"\x1ePROXY_LOGIN_STATUS_UNSPECIFIED\x10\x00\x12%\n" +
+	"!PROXY_LOGIN_STATUS_LOGIN_REQUIRED\x10\x01\x12#\n" +
+	"\x1fPROXY_LOGIN_STATUS_MFA_REQUIRED\x10\x02\x12\x1c\n" +
+	"\x18PROXY_LOGIN_STATUS_READY\x10\x03*\xdb\x01\n" +
+	"\x1aSshCertificateDenialReason\x12-\n" +
+	")SSH_CERTIFICATE_DENIAL_REASON_UNSPECIFIED\x10\x00\x12/\n" +
+	"+SSH_CERTIFICATE_DENIAL_REASON_NO_PERMISSION\x10\x01\x12.\n" +
+	"*SSH_CERTIFICATE_DENIAL_REASON_MFA_REQUIRED\x10\x02\x12-\n" +
+	")SSH_CERTIFICATE_DENIAL_REASON_QUARANTINED\x10\x032\xb4\x05\n" +
 	"\vAuthService\x12\\\n" +
 	"\rGetAuthConfig\x12$.n0x.manager.v1.GetAuthConfigRequest\x1a%.n0x.manager.v1.GetAuthConfigResponse\x12S\n" +
 	"\n" +
 	"GetSession\x12!.n0x.manager.v1.GetSessionRequest\x1a\".n0x.manager.v1.GetSessionResponse\x12z\n" +
 	"\x17CreatePasswordChallenge\x12..n0x.manager.v1.CreatePasswordChallengeRequest\x1a/.n0x.manager.v1.CreatePasswordChallengeResponse\x12\\\n" +
 	"\rLoginPassword\x12$.n0x.manager.v1.LoginPasswordRequest\x1a%.n0x.manager.v1.LoginPasswordResponse\x12G\n" +
-	"\x06Logout\x12\x1d.n0x.manager.v1.LogoutRequest\x1a\x1e.n0x.manager.v1.LogoutResponse2\xef\x02\n" +
+	"\x06Logout\x12\x1d.n0x.manager.v1.LogoutRequest\x1a\x1e.n0x.manager.v1.LogoutResponse\x12h\n" +
+	"\x11ProxyLoginContext\x12(.n0x.manager.v1.ProxyLoginContextRequest\x1a).n0x.manager.v1.ProxyLoginContextResponse\x12e\n" +
+	"\x10IssueProxyReturn\x12'.n0x.manager.v1.IssueProxyReturnRequest\x1a(.n0x.manager.v1.IssueProxyReturnResponse2\xdf\x03\n" +
 	"\n" +
 	"CliService\x12D\n" +
 	"\x05Login\x12\x1c.n0x.manager.v1.LoginRequest\x1a\x1d.n0x.manager.v1.LoginResponse\x12\\\n" +
 	"\rExchangeToken\x12$.n0x.manager.v1.ExchangeTokenRequest\x1a%.n0x.manager.v1.ExchangeTokenResponse\x12b\n" +
 	"\x0fListCliAccounts\x12&.n0x.manager.v1.ListCliAccountsRequest\x1a'.n0x.manager.v1.ListCliAccountsResponse\x12Y\n" +
-	"\fGetCliAccess\x12#.n0x.manager.v1.GetCliAccessRequest\x1a$.n0x.manager.v1.GetCliAccessResponse2\xdd\a\n" +
+	"\fGetCliAccess\x12#.n0x.manager.v1.GetCliAccessRequest\x1a$.n0x.manager.v1.GetCliAccessResponse\x12n\n" +
+	"\x13IssueSshCertificate\x12*.n0x.manager.v1.IssueSshCertificateRequest\x1a+.n0x.manager.v1.IssueSshCertificateResponse2\xdd\a\n" +
 	"\x0eAccountService\x12S\n" +
 	"\n" +
 	"GetAccount\x12!.n0x.manager.v1.GetAccountRequest\x1a\".n0x.manager.v1.GetAccountResponse\x12Y\n" +
@@ -3616,150 +4199,170 @@ func file_n0x_manager_v1_manager_proto_rawDescGZIP() []byte {
 	return file_n0x_manager_v1_manager_proto_rawDescData
 }
 
-var file_n0x_manager_v1_manager_proto_msgTypes = make([]protoimpl.MessageInfo, 64)
+var file_n0x_manager_v1_manager_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_n0x_manager_v1_manager_proto_msgTypes = make([]protoimpl.MessageInfo, 70)
 var file_n0x_manager_v1_manager_proto_goTypes = []any{
-	(*Scope)(nil),                           // 0: n0x.manager.v1.Scope
-	(*Binding)(nil),                         // 1: n0x.manager.v1.Binding
-	(*AccountSummary)(nil),                  // 2: n0x.manager.v1.AccountSummary
-	(*AccountOperation)(nil),                // 3: n0x.manager.v1.AccountOperation
-	(*Region)(nil),                          // 4: n0x.manager.v1.Region
-	(*CreateIntent)(nil),                    // 5: n0x.manager.v1.CreateIntent
-	(*Discovery)(nil),                       // 6: n0x.manager.v1.Discovery
-	(*Access)(nil),                          // 7: n0x.manager.v1.Access
-	(*Membership)(nil),                      // 8: n0x.manager.v1.Membership
-	(*BillingPlan)(nil),                     // 9: n0x.manager.v1.BillingPlan
-	(*PaymentSession)(nil),                  // 10: n0x.manager.v1.PaymentSession
-	(*BillingOperation)(nil),                // 11: n0x.manager.v1.BillingOperation
-	(*GetAuthConfigRequest)(nil),            // 12: n0x.manager.v1.GetAuthConfigRequest
-	(*GetAuthConfigResponse)(nil),           // 13: n0x.manager.v1.GetAuthConfigResponse
-	(*GetSessionRequest)(nil),               // 14: n0x.manager.v1.GetSessionRequest
-	(*GetSessionResponse)(nil),              // 15: n0x.manager.v1.GetSessionResponse
-	(*CreatePasswordChallengeRequest)(nil),  // 16: n0x.manager.v1.CreatePasswordChallengeRequest
-	(*CreatePasswordChallengeResponse)(nil), // 17: n0x.manager.v1.CreatePasswordChallengeResponse
-	(*LoginPasswordRequest)(nil),            // 18: n0x.manager.v1.LoginPasswordRequest
-	(*LoginPasswordResponse)(nil),           // 19: n0x.manager.v1.LoginPasswordResponse
-	(*LogoutRequest)(nil),                   // 20: n0x.manager.v1.LogoutRequest
-	(*LogoutResponse)(nil),                  // 21: n0x.manager.v1.LogoutResponse
-	(*LoginRequest)(nil),                    // 22: n0x.manager.v1.LoginRequest
-	(*LoginResponse)(nil),                   // 23: n0x.manager.v1.LoginResponse
-	(*ExchangeTokenRequest)(nil),            // 24: n0x.manager.v1.ExchangeTokenRequest
-	(*ExchangeTokenResponse)(nil),           // 25: n0x.manager.v1.ExchangeTokenResponse
-	(*ListCliAccountsRequest)(nil),          // 26: n0x.manager.v1.ListCliAccountsRequest
-	(*ListCliAccountsResponse)(nil),         // 27: n0x.manager.v1.ListCliAccountsResponse
-	(*GetCliAccessRequest)(nil),             // 28: n0x.manager.v1.GetCliAccessRequest
-	(*GetCliAccessResponse)(nil),            // 29: n0x.manager.v1.GetCliAccessResponse
-	(*GetAccountRequest)(nil),               // 30: n0x.manager.v1.GetAccountRequest
-	(*GetAccountResponse)(nil),              // 31: n0x.manager.v1.GetAccountResponse
-	(*ListAccountsRequest)(nil),             // 32: n0x.manager.v1.ListAccountsRequest
-	(*ListAccountsResponse)(nil),            // 33: n0x.manager.v1.ListAccountsResponse
-	(*ListRegionsRequest)(nil),              // 34: n0x.manager.v1.ListRegionsRequest
-	(*ListRegionsResponse)(nil),             // 35: n0x.manager.v1.ListRegionsResponse
-	(*CreateAccountRequest)(nil),            // 36: n0x.manager.v1.CreateAccountRequest
-	(*CreateAccountResponse)(nil),           // 37: n0x.manager.v1.CreateAccountResponse
-	(*UpdateAccountRequest)(nil),            // 38: n0x.manager.v1.UpdateAccountRequest
-	(*UpdateAccountResponse)(nil),           // 39: n0x.manager.v1.UpdateAccountResponse
-	(*GetAccountOperationRequest)(nil),      // 40: n0x.manager.v1.GetAccountOperationRequest
-	(*GetAccountOperationResponse)(nil),     // 41: n0x.manager.v1.GetAccountOperationResponse
-	(*GetAccountIntentRequest)(nil),         // 42: n0x.manager.v1.GetAccountIntentRequest
-	(*GetAccountIntentResponse)(nil),        // 43: n0x.manager.v1.GetAccountIntentResponse
-	(*RetryAccountRequest)(nil),             // 44: n0x.manager.v1.RetryAccountRequest
-	(*RetryAccountResponse)(nil),            // 45: n0x.manager.v1.RetryAccountResponse
-	(*GetAccountAccessRequest)(nil),         // 46: n0x.manager.v1.GetAccountAccessRequest
-	(*GetAccountAccessResponse)(nil),        // 47: n0x.manager.v1.GetAccountAccessResponse
-	(*GetAccountDiscoveryRequest)(nil),      // 48: n0x.manager.v1.GetAccountDiscoveryRequest
-	(*GetAccountDiscoveryResponse)(nil),     // 49: n0x.manager.v1.GetAccountDiscoveryResponse
-	(*ListMembershipsRequest)(nil),          // 50: n0x.manager.v1.ListMembershipsRequest
-	(*ListMembershipsResponse)(nil),         // 51: n0x.manager.v1.ListMembershipsResponse
-	(*SetMembershipRequest)(nil),            // 52: n0x.manager.v1.SetMembershipRequest
-	(*SetMembershipResponse)(nil),           // 53: n0x.manager.v1.SetMembershipResponse
-	(*DeleteMembershipRequest)(nil),         // 54: n0x.manager.v1.DeleteMembershipRequest
-	(*DeleteMembershipResponse)(nil),        // 55: n0x.manager.v1.DeleteMembershipResponse
-	(*GetBillingStatusRequest)(nil),         // 56: n0x.manager.v1.GetBillingStatusRequest
-	(*GetBillingStatusResponse)(nil),        // 57: n0x.manager.v1.GetBillingStatusResponse
-	(*GetBillingOperationRequest)(nil),      // 58: n0x.manager.v1.GetBillingOperationRequest
-	(*GetBillingOperationResponse)(nil),     // 59: n0x.manager.v1.GetBillingOperationResponse
-	(*CreateCheckoutRequest)(nil),           // 60: n0x.manager.v1.CreateCheckoutRequest
-	(*CreateCheckoutResponse)(nil),          // 61: n0x.manager.v1.CreateCheckoutResponse
-	(*CreatePortalRequest)(nil),             // 62: n0x.manager.v1.CreatePortalRequest
-	(*CreatePortalResponse)(nil),            // 63: n0x.manager.v1.CreatePortalResponse
+	(ProxyLoginStatus)(0),                   // 0: n0x.manager.v1.ProxyLoginStatus
+	(SshCertificateDenialReason)(0),         // 1: n0x.manager.v1.SshCertificateDenialReason
+	(*Scope)(nil),                           // 2: n0x.manager.v1.Scope
+	(*Binding)(nil),                         // 3: n0x.manager.v1.Binding
+	(*AccountSummary)(nil),                  // 4: n0x.manager.v1.AccountSummary
+	(*AccountOperation)(nil),                // 5: n0x.manager.v1.AccountOperation
+	(*Region)(nil),                          // 6: n0x.manager.v1.Region
+	(*CreateIntent)(nil),                    // 7: n0x.manager.v1.CreateIntent
+	(*Discovery)(nil),                       // 8: n0x.manager.v1.Discovery
+	(*Access)(nil),                          // 9: n0x.manager.v1.Access
+	(*Membership)(nil),                      // 10: n0x.manager.v1.Membership
+	(*BillingPlan)(nil),                     // 11: n0x.manager.v1.BillingPlan
+	(*PaymentSession)(nil),                  // 12: n0x.manager.v1.PaymentSession
+	(*BillingOperation)(nil),                // 13: n0x.manager.v1.BillingOperation
+	(*GetAuthConfigRequest)(nil),            // 14: n0x.manager.v1.GetAuthConfigRequest
+	(*GetAuthConfigResponse)(nil),           // 15: n0x.manager.v1.GetAuthConfigResponse
+	(*GetSessionRequest)(nil),               // 16: n0x.manager.v1.GetSessionRequest
+	(*GetSessionResponse)(nil),              // 17: n0x.manager.v1.GetSessionResponse
+	(*CreatePasswordChallengeRequest)(nil),  // 18: n0x.manager.v1.CreatePasswordChallengeRequest
+	(*CreatePasswordChallengeResponse)(nil), // 19: n0x.manager.v1.CreatePasswordChallengeResponse
+	(*LoginPasswordRequest)(nil),            // 20: n0x.manager.v1.LoginPasswordRequest
+	(*LoginPasswordResponse)(nil),           // 21: n0x.manager.v1.LoginPasswordResponse
+	(*LogoutRequest)(nil),                   // 22: n0x.manager.v1.LogoutRequest
+	(*LogoutResponse)(nil),                  // 23: n0x.manager.v1.LogoutResponse
+	(*LoginRequest)(nil),                    // 24: n0x.manager.v1.LoginRequest
+	(*LoginResponse)(nil),                   // 25: n0x.manager.v1.LoginResponse
+	(*ExchangeTokenRequest)(nil),            // 26: n0x.manager.v1.ExchangeTokenRequest
+	(*ExchangeTokenResponse)(nil),           // 27: n0x.manager.v1.ExchangeTokenResponse
+	(*ListCliAccountsRequest)(nil),          // 28: n0x.manager.v1.ListCliAccountsRequest
+	(*ListCliAccountsResponse)(nil),         // 29: n0x.manager.v1.ListCliAccountsResponse
+	(*GetCliAccessRequest)(nil),             // 30: n0x.manager.v1.GetCliAccessRequest
+	(*GetCliAccessResponse)(nil),            // 31: n0x.manager.v1.GetCliAccessResponse
+	(*GetAccountRequest)(nil),               // 32: n0x.manager.v1.GetAccountRequest
+	(*GetAccountResponse)(nil),              // 33: n0x.manager.v1.GetAccountResponse
+	(*ListAccountsRequest)(nil),             // 34: n0x.manager.v1.ListAccountsRequest
+	(*ListAccountsResponse)(nil),            // 35: n0x.manager.v1.ListAccountsResponse
+	(*ListRegionsRequest)(nil),              // 36: n0x.manager.v1.ListRegionsRequest
+	(*ListRegionsResponse)(nil),             // 37: n0x.manager.v1.ListRegionsResponse
+	(*CreateAccountRequest)(nil),            // 38: n0x.manager.v1.CreateAccountRequest
+	(*CreateAccountResponse)(nil),           // 39: n0x.manager.v1.CreateAccountResponse
+	(*UpdateAccountRequest)(nil),            // 40: n0x.manager.v1.UpdateAccountRequest
+	(*UpdateAccountResponse)(nil),           // 41: n0x.manager.v1.UpdateAccountResponse
+	(*GetAccountOperationRequest)(nil),      // 42: n0x.manager.v1.GetAccountOperationRequest
+	(*GetAccountOperationResponse)(nil),     // 43: n0x.manager.v1.GetAccountOperationResponse
+	(*GetAccountIntentRequest)(nil),         // 44: n0x.manager.v1.GetAccountIntentRequest
+	(*GetAccountIntentResponse)(nil),        // 45: n0x.manager.v1.GetAccountIntentResponse
+	(*RetryAccountRequest)(nil),             // 46: n0x.manager.v1.RetryAccountRequest
+	(*RetryAccountResponse)(nil),            // 47: n0x.manager.v1.RetryAccountResponse
+	(*GetAccountAccessRequest)(nil),         // 48: n0x.manager.v1.GetAccountAccessRequest
+	(*GetAccountAccessResponse)(nil),        // 49: n0x.manager.v1.GetAccountAccessResponse
+	(*GetAccountDiscoveryRequest)(nil),      // 50: n0x.manager.v1.GetAccountDiscoveryRequest
+	(*GetAccountDiscoveryResponse)(nil),     // 51: n0x.manager.v1.GetAccountDiscoveryResponse
+	(*ListMembershipsRequest)(nil),          // 52: n0x.manager.v1.ListMembershipsRequest
+	(*ListMembershipsResponse)(nil),         // 53: n0x.manager.v1.ListMembershipsResponse
+	(*SetMembershipRequest)(nil),            // 54: n0x.manager.v1.SetMembershipRequest
+	(*SetMembershipResponse)(nil),           // 55: n0x.manager.v1.SetMembershipResponse
+	(*DeleteMembershipRequest)(nil),         // 56: n0x.manager.v1.DeleteMembershipRequest
+	(*DeleteMembershipResponse)(nil),        // 57: n0x.manager.v1.DeleteMembershipResponse
+	(*GetBillingStatusRequest)(nil),         // 58: n0x.manager.v1.GetBillingStatusRequest
+	(*GetBillingStatusResponse)(nil),        // 59: n0x.manager.v1.GetBillingStatusResponse
+	(*GetBillingOperationRequest)(nil),      // 60: n0x.manager.v1.GetBillingOperationRequest
+	(*GetBillingOperationResponse)(nil),     // 61: n0x.manager.v1.GetBillingOperationResponse
+	(*CreateCheckoutRequest)(nil),           // 62: n0x.manager.v1.CreateCheckoutRequest
+	(*CreateCheckoutResponse)(nil),          // 63: n0x.manager.v1.CreateCheckoutResponse
+	(*CreatePortalRequest)(nil),             // 64: n0x.manager.v1.CreatePortalRequest
+	(*CreatePortalResponse)(nil),            // 65: n0x.manager.v1.CreatePortalResponse
+	(*ProxyLoginContextRequest)(nil),        // 66: n0x.manager.v1.ProxyLoginContextRequest
+	(*ProxyLoginContextResponse)(nil),       // 67: n0x.manager.v1.ProxyLoginContextResponse
+	(*IssueProxyReturnRequest)(nil),         // 68: n0x.manager.v1.IssueProxyReturnRequest
+	(*IssueProxyReturnResponse)(nil),        // 69: n0x.manager.v1.IssueProxyReturnResponse
+	(*IssueSshCertificateRequest)(nil),      // 70: n0x.manager.v1.IssueSshCertificateRequest
+	(*IssueSshCertificateResponse)(nil),     // 71: n0x.manager.v1.IssueSshCertificateResponse
+	(*timestamppb.Timestamp)(nil),           // 72: google.protobuf.Timestamp
 }
 var file_n0x_manager_v1_manager_proto_depIdxs = []int32{
-	1,  // 0: n0x.manager.v1.AccountOperation.binding:type_name -> n0x.manager.v1.Binding
-	0,  // 1: n0x.manager.v1.Discovery.scopes:type_name -> n0x.manager.v1.Scope
-	6,  // 2: n0x.manager.v1.Access.discovery:type_name -> n0x.manager.v1.Discovery
-	10, // 3: n0x.manager.v1.BillingOperation.session:type_name -> n0x.manager.v1.PaymentSession
-	2,  // 4: n0x.manager.v1.ListCliAccountsResponse.accounts:type_name -> n0x.manager.v1.AccountSummary
-	7,  // 5: n0x.manager.v1.GetCliAccessResponse.access:type_name -> n0x.manager.v1.Access
-	2,  // 6: n0x.manager.v1.ListAccountsResponse.accounts:type_name -> n0x.manager.v1.AccountSummary
-	4,  // 7: n0x.manager.v1.ListRegionsResponse.regions:type_name -> n0x.manager.v1.Region
-	3,  // 8: n0x.manager.v1.CreateAccountResponse.operation:type_name -> n0x.manager.v1.AccountOperation
-	3,  // 9: n0x.manager.v1.GetAccountOperationResponse.operation:type_name -> n0x.manager.v1.AccountOperation
-	3,  // 10: n0x.manager.v1.GetAccountIntentResponse.operation:type_name -> n0x.manager.v1.AccountOperation
-	3,  // 11: n0x.manager.v1.RetryAccountResponse.operation:type_name -> n0x.manager.v1.AccountOperation
-	7,  // 12: n0x.manager.v1.GetAccountAccessResponse.access:type_name -> n0x.manager.v1.Access
-	6,  // 13: n0x.manager.v1.GetAccountDiscoveryResponse.discovery:type_name -> n0x.manager.v1.Discovery
-	8,  // 14: n0x.manager.v1.ListMembershipsResponse.members:type_name -> n0x.manager.v1.Membership
-	9,  // 15: n0x.manager.v1.GetBillingStatusResponse.plans:type_name -> n0x.manager.v1.BillingPlan
-	11, // 16: n0x.manager.v1.GetBillingOperationResponse.operation:type_name -> n0x.manager.v1.BillingOperation
-	10, // 17: n0x.manager.v1.CreateCheckoutResponse.session:type_name -> n0x.manager.v1.PaymentSession
-	10, // 18: n0x.manager.v1.CreatePortalResponse.session:type_name -> n0x.manager.v1.PaymentSession
-	12, // 19: n0x.manager.v1.AuthService.GetAuthConfig:input_type -> n0x.manager.v1.GetAuthConfigRequest
-	14, // 20: n0x.manager.v1.AuthService.GetSession:input_type -> n0x.manager.v1.GetSessionRequest
-	16, // 21: n0x.manager.v1.AuthService.CreatePasswordChallenge:input_type -> n0x.manager.v1.CreatePasswordChallengeRequest
-	18, // 22: n0x.manager.v1.AuthService.LoginPassword:input_type -> n0x.manager.v1.LoginPasswordRequest
-	20, // 23: n0x.manager.v1.AuthService.Logout:input_type -> n0x.manager.v1.LogoutRequest
-	22, // 24: n0x.manager.v1.CliService.Login:input_type -> n0x.manager.v1.LoginRequest
-	24, // 25: n0x.manager.v1.CliService.ExchangeToken:input_type -> n0x.manager.v1.ExchangeTokenRequest
-	26, // 26: n0x.manager.v1.CliService.ListCliAccounts:input_type -> n0x.manager.v1.ListCliAccountsRequest
-	28, // 27: n0x.manager.v1.CliService.GetCliAccess:input_type -> n0x.manager.v1.GetCliAccessRequest
-	30, // 28: n0x.manager.v1.AccountService.GetAccount:input_type -> n0x.manager.v1.GetAccountRequest
-	32, // 29: n0x.manager.v1.AccountService.ListAccounts:input_type -> n0x.manager.v1.ListAccountsRequest
-	34, // 30: n0x.manager.v1.AccountService.ListRegions:input_type -> n0x.manager.v1.ListRegionsRequest
-	36, // 31: n0x.manager.v1.AccountService.CreateAccount:input_type -> n0x.manager.v1.CreateAccountRequest
-	38, // 32: n0x.manager.v1.AccountService.UpdateAccount:input_type -> n0x.manager.v1.UpdateAccountRequest
-	40, // 33: n0x.manager.v1.AccountService.GetAccountOperation:input_type -> n0x.manager.v1.GetAccountOperationRequest
-	42, // 34: n0x.manager.v1.AccountService.GetAccountIntent:input_type -> n0x.manager.v1.GetAccountIntentRequest
-	44, // 35: n0x.manager.v1.AccountService.RetryAccount:input_type -> n0x.manager.v1.RetryAccountRequest
-	46, // 36: n0x.manager.v1.AccountService.GetAccountAccess:input_type -> n0x.manager.v1.GetAccountAccessRequest
-	48, // 37: n0x.manager.v1.AccountService.GetAccountDiscovery:input_type -> n0x.manager.v1.GetAccountDiscoveryRequest
-	50, // 38: n0x.manager.v1.MembershipService.ListMemberships:input_type -> n0x.manager.v1.ListMembershipsRequest
-	52, // 39: n0x.manager.v1.MembershipService.SetMembership:input_type -> n0x.manager.v1.SetMembershipRequest
-	54, // 40: n0x.manager.v1.MembershipService.DeleteMembership:input_type -> n0x.manager.v1.DeleteMembershipRequest
-	56, // 41: n0x.manager.v1.BillingService.GetBillingStatus:input_type -> n0x.manager.v1.GetBillingStatusRequest
-	58, // 42: n0x.manager.v1.BillingService.GetBillingOperation:input_type -> n0x.manager.v1.GetBillingOperationRequest
-	60, // 43: n0x.manager.v1.BillingService.CreateCheckout:input_type -> n0x.manager.v1.CreateCheckoutRequest
-	62, // 44: n0x.manager.v1.BillingService.CreatePortal:input_type -> n0x.manager.v1.CreatePortalRequest
-	13, // 45: n0x.manager.v1.AuthService.GetAuthConfig:output_type -> n0x.manager.v1.GetAuthConfigResponse
-	15, // 46: n0x.manager.v1.AuthService.GetSession:output_type -> n0x.manager.v1.GetSessionResponse
-	17, // 47: n0x.manager.v1.AuthService.CreatePasswordChallenge:output_type -> n0x.manager.v1.CreatePasswordChallengeResponse
-	19, // 48: n0x.manager.v1.AuthService.LoginPassword:output_type -> n0x.manager.v1.LoginPasswordResponse
-	21, // 49: n0x.manager.v1.AuthService.Logout:output_type -> n0x.manager.v1.LogoutResponse
-	23, // 50: n0x.manager.v1.CliService.Login:output_type -> n0x.manager.v1.LoginResponse
-	25, // 51: n0x.manager.v1.CliService.ExchangeToken:output_type -> n0x.manager.v1.ExchangeTokenResponse
-	27, // 52: n0x.manager.v1.CliService.ListCliAccounts:output_type -> n0x.manager.v1.ListCliAccountsResponse
-	29, // 53: n0x.manager.v1.CliService.GetCliAccess:output_type -> n0x.manager.v1.GetCliAccessResponse
-	31, // 54: n0x.manager.v1.AccountService.GetAccount:output_type -> n0x.manager.v1.GetAccountResponse
-	33, // 55: n0x.manager.v1.AccountService.ListAccounts:output_type -> n0x.manager.v1.ListAccountsResponse
-	35, // 56: n0x.manager.v1.AccountService.ListRegions:output_type -> n0x.manager.v1.ListRegionsResponse
-	37, // 57: n0x.manager.v1.AccountService.CreateAccount:output_type -> n0x.manager.v1.CreateAccountResponse
-	39, // 58: n0x.manager.v1.AccountService.UpdateAccount:output_type -> n0x.manager.v1.UpdateAccountResponse
-	41, // 59: n0x.manager.v1.AccountService.GetAccountOperation:output_type -> n0x.manager.v1.GetAccountOperationResponse
-	43, // 60: n0x.manager.v1.AccountService.GetAccountIntent:output_type -> n0x.manager.v1.GetAccountIntentResponse
-	45, // 61: n0x.manager.v1.AccountService.RetryAccount:output_type -> n0x.manager.v1.RetryAccountResponse
-	47, // 62: n0x.manager.v1.AccountService.GetAccountAccess:output_type -> n0x.manager.v1.GetAccountAccessResponse
-	49, // 63: n0x.manager.v1.AccountService.GetAccountDiscovery:output_type -> n0x.manager.v1.GetAccountDiscoveryResponse
-	51, // 64: n0x.manager.v1.MembershipService.ListMemberships:output_type -> n0x.manager.v1.ListMembershipsResponse
-	53, // 65: n0x.manager.v1.MembershipService.SetMembership:output_type -> n0x.manager.v1.SetMembershipResponse
-	55, // 66: n0x.manager.v1.MembershipService.DeleteMembership:output_type -> n0x.manager.v1.DeleteMembershipResponse
-	57, // 67: n0x.manager.v1.BillingService.GetBillingStatus:output_type -> n0x.manager.v1.GetBillingStatusResponse
-	59, // 68: n0x.manager.v1.BillingService.GetBillingOperation:output_type -> n0x.manager.v1.GetBillingOperationResponse
-	61, // 69: n0x.manager.v1.BillingService.CreateCheckout:output_type -> n0x.manager.v1.CreateCheckoutResponse
-	63, // 70: n0x.manager.v1.BillingService.CreatePortal:output_type -> n0x.manager.v1.CreatePortalResponse
-	45, // [45:71] is the sub-list for method output_type
-	19, // [19:45] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	3,  // 0: n0x.manager.v1.AccountOperation.binding:type_name -> n0x.manager.v1.Binding
+	2,  // 1: n0x.manager.v1.Discovery.scopes:type_name -> n0x.manager.v1.Scope
+	8,  // 2: n0x.manager.v1.Access.discovery:type_name -> n0x.manager.v1.Discovery
+	12, // 3: n0x.manager.v1.BillingOperation.session:type_name -> n0x.manager.v1.PaymentSession
+	72, // 4: n0x.manager.v1.ExchangeTokenResponse.mfa_at:type_name -> google.protobuf.Timestamp
+	4,  // 5: n0x.manager.v1.ListCliAccountsResponse.accounts:type_name -> n0x.manager.v1.AccountSummary
+	9,  // 6: n0x.manager.v1.GetCliAccessResponse.access:type_name -> n0x.manager.v1.Access
+	4,  // 7: n0x.manager.v1.ListAccountsResponse.accounts:type_name -> n0x.manager.v1.AccountSummary
+	6,  // 8: n0x.manager.v1.ListRegionsResponse.regions:type_name -> n0x.manager.v1.Region
+	5,  // 9: n0x.manager.v1.CreateAccountResponse.operation:type_name -> n0x.manager.v1.AccountOperation
+	5,  // 10: n0x.manager.v1.GetAccountOperationResponse.operation:type_name -> n0x.manager.v1.AccountOperation
+	5,  // 11: n0x.manager.v1.GetAccountIntentResponse.operation:type_name -> n0x.manager.v1.AccountOperation
+	5,  // 12: n0x.manager.v1.RetryAccountResponse.operation:type_name -> n0x.manager.v1.AccountOperation
+	9,  // 13: n0x.manager.v1.GetAccountAccessResponse.access:type_name -> n0x.manager.v1.Access
+	8,  // 14: n0x.manager.v1.GetAccountDiscoveryResponse.discovery:type_name -> n0x.manager.v1.Discovery
+	10, // 15: n0x.manager.v1.ListMembershipsResponse.members:type_name -> n0x.manager.v1.Membership
+	11, // 16: n0x.manager.v1.GetBillingStatusResponse.plans:type_name -> n0x.manager.v1.BillingPlan
+	13, // 17: n0x.manager.v1.GetBillingOperationResponse.operation:type_name -> n0x.manager.v1.BillingOperation
+	12, // 18: n0x.manager.v1.CreateCheckoutResponse.session:type_name -> n0x.manager.v1.PaymentSession
+	12, // 19: n0x.manager.v1.CreatePortalResponse.session:type_name -> n0x.manager.v1.PaymentSession
+	0,  // 20: n0x.manager.v1.ProxyLoginContextResponse.status:type_name -> n0x.manager.v1.ProxyLoginStatus
+	72, // 21: n0x.manager.v1.IssueSshCertificateResponse.expires_at:type_name -> google.protobuf.Timestamp
+	1,  // 22: n0x.manager.v1.IssueSshCertificateResponse.denial_reason:type_name -> n0x.manager.v1.SshCertificateDenialReason
+	14, // 23: n0x.manager.v1.AuthService.GetAuthConfig:input_type -> n0x.manager.v1.GetAuthConfigRequest
+	16, // 24: n0x.manager.v1.AuthService.GetSession:input_type -> n0x.manager.v1.GetSessionRequest
+	18, // 25: n0x.manager.v1.AuthService.CreatePasswordChallenge:input_type -> n0x.manager.v1.CreatePasswordChallengeRequest
+	20, // 26: n0x.manager.v1.AuthService.LoginPassword:input_type -> n0x.manager.v1.LoginPasswordRequest
+	22, // 27: n0x.manager.v1.AuthService.Logout:input_type -> n0x.manager.v1.LogoutRequest
+	66, // 28: n0x.manager.v1.AuthService.ProxyLoginContext:input_type -> n0x.manager.v1.ProxyLoginContextRequest
+	68, // 29: n0x.manager.v1.AuthService.IssueProxyReturn:input_type -> n0x.manager.v1.IssueProxyReturnRequest
+	24, // 30: n0x.manager.v1.CliService.Login:input_type -> n0x.manager.v1.LoginRequest
+	26, // 31: n0x.manager.v1.CliService.ExchangeToken:input_type -> n0x.manager.v1.ExchangeTokenRequest
+	28, // 32: n0x.manager.v1.CliService.ListCliAccounts:input_type -> n0x.manager.v1.ListCliAccountsRequest
+	30, // 33: n0x.manager.v1.CliService.GetCliAccess:input_type -> n0x.manager.v1.GetCliAccessRequest
+	70, // 34: n0x.manager.v1.CliService.IssueSshCertificate:input_type -> n0x.manager.v1.IssueSshCertificateRequest
+	32, // 35: n0x.manager.v1.AccountService.GetAccount:input_type -> n0x.manager.v1.GetAccountRequest
+	34, // 36: n0x.manager.v1.AccountService.ListAccounts:input_type -> n0x.manager.v1.ListAccountsRequest
+	36, // 37: n0x.manager.v1.AccountService.ListRegions:input_type -> n0x.manager.v1.ListRegionsRequest
+	38, // 38: n0x.manager.v1.AccountService.CreateAccount:input_type -> n0x.manager.v1.CreateAccountRequest
+	40, // 39: n0x.manager.v1.AccountService.UpdateAccount:input_type -> n0x.manager.v1.UpdateAccountRequest
+	42, // 40: n0x.manager.v1.AccountService.GetAccountOperation:input_type -> n0x.manager.v1.GetAccountOperationRequest
+	44, // 41: n0x.manager.v1.AccountService.GetAccountIntent:input_type -> n0x.manager.v1.GetAccountIntentRequest
+	46, // 42: n0x.manager.v1.AccountService.RetryAccount:input_type -> n0x.manager.v1.RetryAccountRequest
+	48, // 43: n0x.manager.v1.AccountService.GetAccountAccess:input_type -> n0x.manager.v1.GetAccountAccessRequest
+	50, // 44: n0x.manager.v1.AccountService.GetAccountDiscovery:input_type -> n0x.manager.v1.GetAccountDiscoveryRequest
+	52, // 45: n0x.manager.v1.MembershipService.ListMemberships:input_type -> n0x.manager.v1.ListMembershipsRequest
+	54, // 46: n0x.manager.v1.MembershipService.SetMembership:input_type -> n0x.manager.v1.SetMembershipRequest
+	56, // 47: n0x.manager.v1.MembershipService.DeleteMembership:input_type -> n0x.manager.v1.DeleteMembershipRequest
+	58, // 48: n0x.manager.v1.BillingService.GetBillingStatus:input_type -> n0x.manager.v1.GetBillingStatusRequest
+	60, // 49: n0x.manager.v1.BillingService.GetBillingOperation:input_type -> n0x.manager.v1.GetBillingOperationRequest
+	62, // 50: n0x.manager.v1.BillingService.CreateCheckout:input_type -> n0x.manager.v1.CreateCheckoutRequest
+	64, // 51: n0x.manager.v1.BillingService.CreatePortal:input_type -> n0x.manager.v1.CreatePortalRequest
+	15, // 52: n0x.manager.v1.AuthService.GetAuthConfig:output_type -> n0x.manager.v1.GetAuthConfigResponse
+	17, // 53: n0x.manager.v1.AuthService.GetSession:output_type -> n0x.manager.v1.GetSessionResponse
+	19, // 54: n0x.manager.v1.AuthService.CreatePasswordChallenge:output_type -> n0x.manager.v1.CreatePasswordChallengeResponse
+	21, // 55: n0x.manager.v1.AuthService.LoginPassword:output_type -> n0x.manager.v1.LoginPasswordResponse
+	23, // 56: n0x.manager.v1.AuthService.Logout:output_type -> n0x.manager.v1.LogoutResponse
+	67, // 57: n0x.manager.v1.AuthService.ProxyLoginContext:output_type -> n0x.manager.v1.ProxyLoginContextResponse
+	69, // 58: n0x.manager.v1.AuthService.IssueProxyReturn:output_type -> n0x.manager.v1.IssueProxyReturnResponse
+	25, // 59: n0x.manager.v1.CliService.Login:output_type -> n0x.manager.v1.LoginResponse
+	27, // 60: n0x.manager.v1.CliService.ExchangeToken:output_type -> n0x.manager.v1.ExchangeTokenResponse
+	29, // 61: n0x.manager.v1.CliService.ListCliAccounts:output_type -> n0x.manager.v1.ListCliAccountsResponse
+	31, // 62: n0x.manager.v1.CliService.GetCliAccess:output_type -> n0x.manager.v1.GetCliAccessResponse
+	71, // 63: n0x.manager.v1.CliService.IssueSshCertificate:output_type -> n0x.manager.v1.IssueSshCertificateResponse
+	33, // 64: n0x.manager.v1.AccountService.GetAccount:output_type -> n0x.manager.v1.GetAccountResponse
+	35, // 65: n0x.manager.v1.AccountService.ListAccounts:output_type -> n0x.manager.v1.ListAccountsResponse
+	37, // 66: n0x.manager.v1.AccountService.ListRegions:output_type -> n0x.manager.v1.ListRegionsResponse
+	39, // 67: n0x.manager.v1.AccountService.CreateAccount:output_type -> n0x.manager.v1.CreateAccountResponse
+	41, // 68: n0x.manager.v1.AccountService.UpdateAccount:output_type -> n0x.manager.v1.UpdateAccountResponse
+	43, // 69: n0x.manager.v1.AccountService.GetAccountOperation:output_type -> n0x.manager.v1.GetAccountOperationResponse
+	45, // 70: n0x.manager.v1.AccountService.GetAccountIntent:output_type -> n0x.manager.v1.GetAccountIntentResponse
+	47, // 71: n0x.manager.v1.AccountService.RetryAccount:output_type -> n0x.manager.v1.RetryAccountResponse
+	49, // 72: n0x.manager.v1.AccountService.GetAccountAccess:output_type -> n0x.manager.v1.GetAccountAccessResponse
+	51, // 73: n0x.manager.v1.AccountService.GetAccountDiscovery:output_type -> n0x.manager.v1.GetAccountDiscoveryResponse
+	53, // 74: n0x.manager.v1.MembershipService.ListMemberships:output_type -> n0x.manager.v1.ListMembershipsResponse
+	55, // 75: n0x.manager.v1.MembershipService.SetMembership:output_type -> n0x.manager.v1.SetMembershipResponse
+	57, // 76: n0x.manager.v1.MembershipService.DeleteMembership:output_type -> n0x.manager.v1.DeleteMembershipResponse
+	59, // 77: n0x.manager.v1.BillingService.GetBillingStatus:output_type -> n0x.manager.v1.GetBillingStatusResponse
+	61, // 78: n0x.manager.v1.BillingService.GetBillingOperation:output_type -> n0x.manager.v1.GetBillingOperationResponse
+	63, // 79: n0x.manager.v1.BillingService.CreateCheckout:output_type -> n0x.manager.v1.CreateCheckoutResponse
+	65, // 80: n0x.manager.v1.BillingService.CreatePortal:output_type -> n0x.manager.v1.CreatePortalResponse
+	52, // [52:81] is the sub-list for method output_type
+	23, // [23:52] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_n0x_manager_v1_manager_proto_init() }
@@ -3767,18 +4370,26 @@ func file_n0x_manager_v1_manager_proto_init() {
 	if File_n0x_manager_v1_manager_proto != nil {
 		return
 	}
+	file_n0x_manager_v1_manager_proto_msgTypes[22].OneofWrappers = []any{}
+	file_n0x_manager_v1_manager_proto_msgTypes[64].OneofWrappers = []any{}
+	file_n0x_manager_v1_manager_proto_msgTypes[65].OneofWrappers = []any{}
+	file_n0x_manager_v1_manager_proto_msgTypes[66].OneofWrappers = []any{}
+	file_n0x_manager_v1_manager_proto_msgTypes[67].OneofWrappers = []any{}
+	file_n0x_manager_v1_manager_proto_msgTypes[68].OneofWrappers = []any{}
+	file_n0x_manager_v1_manager_proto_msgTypes[69].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_manager_v1_manager_proto_rawDesc), len(file_n0x_manager_v1_manager_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   64,
+			NumEnums:      2,
+			NumMessages:   70,
 			NumExtensions: 0,
 			NumServices:   5,
 		},
 		GoTypes:           file_n0x_manager_v1_manager_proto_goTypes,
 		DependencyIndexes: file_n0x_manager_v1_manager_proto_depIdxs,
+		EnumInfos:         file_n0x_manager_v1_manager_proto_enumTypes,
 		MessageInfos:      file_n0x_manager_v1_manager_proto_msgTypes,
 	}.Build()
 	File_n0x_manager_v1_manager_proto = out.File

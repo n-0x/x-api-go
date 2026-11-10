@@ -19,13 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	NodeControlService_BeginActivation_FullMethodName = "/n0x.control.v1.NodeControlService/BeginActivation"
-	NodeControlService_ActivateNode_FullMethodName    = "/n0x.control.v1.NodeControlService/ActivateNode"
-	NodeControlService_RecoverSession_FullMethodName  = "/n0x.control.v1.NodeControlService/RecoverSession"
-	NodeControlService_GetSnapshot_FullMethodName     = "/n0x.control.v1.NodeControlService/GetSnapshot"
-	NodeControlService_RenewLease_FullMethodName      = "/n0x.control.v1.NodeControlService/RenewLease"
-	NodeControlService_ReportState_FullMethodName     = "/n0x.control.v1.NodeControlService/ReportState"
-	NodeControlService_ReportFlows_FullMethodName     = "/n0x.control.v1.NodeControlService/ReportFlows"
+	NodeControlService_BeginActivation_FullMethodName          = "/n0x.control.v1.NodeControlService/BeginActivation"
+	NodeControlService_ActivateNode_FullMethodName             = "/n0x.control.v1.NodeControlService/ActivateNode"
+	NodeControlService_RecoverSession_FullMethodName           = "/n0x.control.v1.NodeControlService/RecoverSession"
+	NodeControlService_GetSnapshot_FullMethodName              = "/n0x.control.v1.NodeControlService/GetSnapshot"
+	NodeControlService_RenewLease_FullMethodName               = "/n0x.control.v1.NodeControlService/RenewLease"
+	NodeControlService_ReportState_FullMethodName              = "/n0x.control.v1.NodeControlService/ReportState"
+	NodeControlService_ReportFlows_FullMethodName              = "/n0x.control.v1.NodeControlService/ReportFlows"
+	NodeControlService_RegisterWorkloadFromHost_FullMethodName = "/n0x.control.v1.NodeControlService/RegisterWorkloadFromHost"
 )
 
 // NodeControlServiceClient is the client API for NodeControlService service.
@@ -39,6 +40,9 @@ type NodeControlServiceClient interface {
 	RenewLease(ctx context.Context, in *RenewLeaseRequest, opts ...grpc.CallOption) (*RenewLeaseResponse, error)
 	ReportState(ctx context.Context, in *ReportStateRequest, opts ...grpc.CallOption) (*ReportStateResponse, error)
 	ReportFlows(ctx context.Context, in *ReportFlowsRequest, opts ...grpc.CallOption) (*ReportFlowsResponse, error)
+	// Ruta mTLS de nodo: el sujeto y la sesion verificados deben corresponder
+	// a request.identity_id y al account/tenant. Publicar no concede acceso.
+	RegisterWorkloadFromHost(ctx context.Context, in *RegisterWorkloadFromHostRequest, opts ...grpc.CallOption) (*RegisterWorkloadFromHostResponse, error)
 }
 
 type nodeControlServiceClient struct {
@@ -119,6 +123,16 @@ func (c *nodeControlServiceClient) ReportFlows(ctx context.Context, in *ReportFl
 	return out, nil
 }
 
+func (c *nodeControlServiceClient) RegisterWorkloadFromHost(ctx context.Context, in *RegisterWorkloadFromHostRequest, opts ...grpc.CallOption) (*RegisterWorkloadFromHostResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RegisterWorkloadFromHostResponse)
+	err := c.cc.Invoke(ctx, NodeControlService_RegisterWorkloadFromHost_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodeControlServiceServer is the server API for NodeControlService service.
 // All implementations must embed UnimplementedNodeControlServiceServer
 // for forward compatibility.
@@ -130,6 +144,9 @@ type NodeControlServiceServer interface {
 	RenewLease(context.Context, *RenewLeaseRequest) (*RenewLeaseResponse, error)
 	ReportState(context.Context, *ReportStateRequest) (*ReportStateResponse, error)
 	ReportFlows(context.Context, *ReportFlowsRequest) (*ReportFlowsResponse, error)
+	// Ruta mTLS de nodo: el sujeto y la sesion verificados deben corresponder
+	// a request.identity_id y al account/tenant. Publicar no concede acceso.
+	RegisterWorkloadFromHost(context.Context, *RegisterWorkloadFromHostRequest) (*RegisterWorkloadFromHostResponse, error)
 	mustEmbedUnimplementedNodeControlServiceServer()
 }
 
@@ -160,6 +177,9 @@ func (UnimplementedNodeControlServiceServer) ReportState(context.Context, *Repor
 }
 func (UnimplementedNodeControlServiceServer) ReportFlows(context.Context, *ReportFlowsRequest) (*ReportFlowsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReportFlows not implemented")
+}
+func (UnimplementedNodeControlServiceServer) RegisterWorkloadFromHost(context.Context, *RegisterWorkloadFromHostRequest) (*RegisterWorkloadFromHostResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterWorkloadFromHost not implemented")
 }
 func (UnimplementedNodeControlServiceServer) mustEmbedUnimplementedNodeControlServiceServer() {}
 func (UnimplementedNodeControlServiceServer) testEmbeddedByValue()                            {}
@@ -308,6 +328,24 @@ func _NodeControlService_ReportFlows_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NodeControlService_RegisterWorkloadFromHost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterWorkloadFromHostRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeControlServiceServer).RegisterWorkloadFromHost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeControlService_RegisterWorkloadFromHost_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeControlServiceServer).RegisterWorkloadFromHost(ctx, req.(*RegisterWorkloadFromHostRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NodeControlService_ServiceDesc is the grpc.ServiceDesc for NodeControlService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -342,6 +380,10 @@ var NodeControlService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReportFlows",
 			Handler:    _NodeControlService_ReportFlows_Handler,
+		},
+		{
+			MethodName: "RegisterWorkloadFromHost",
+			Handler:    _NodeControlService_RegisterWorkloadFromHost_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1280,6 +1322,7 @@ var OwnershipAdminService_ServiceDesc = grpc.ServiceDesc{
 
 const (
 	ControlObservationsService_ReadProjection_FullMethodName = "/n0x.control.v1.ControlObservationsService/ReadProjection"
+	ControlObservationsService_ReadFlowEvents_FullMethodName = "/n0x.control.v1.ControlObservationsService/ReadFlowEvents"
 )
 
 // ControlObservationsServiceClient is the client API for ControlObservationsService service.
@@ -1287,6 +1330,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ControlObservationsServiceClient interface {
 	ReadProjection(ctx context.Context, in *ReadProjectionRequest, opts ...grpc.CallOption) (*ReadProjectionResponse, error)
+	// Solo authority autenticado por mTLS; lee el anillo sin depender de que
+	// existan suscriptores en la consola ni del ultimo reporte de 1024 eventos.
+	ReadFlowEvents(ctx context.Context, in *ReadFlowEventsRequest, opts ...grpc.CallOption) (*ReadFlowEventsResponse, error)
 }
 
 type controlObservationsServiceClient struct {
@@ -1307,11 +1353,24 @@ func (c *controlObservationsServiceClient) ReadProjection(ctx context.Context, i
 	return out, nil
 }
 
+func (c *controlObservationsServiceClient) ReadFlowEvents(ctx context.Context, in *ReadFlowEventsRequest, opts ...grpc.CallOption) (*ReadFlowEventsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReadFlowEventsResponse)
+	err := c.cc.Invoke(ctx, ControlObservationsService_ReadFlowEvents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ControlObservationsServiceServer is the server API for ControlObservationsService service.
 // All implementations must embed UnimplementedControlObservationsServiceServer
 // for forward compatibility.
 type ControlObservationsServiceServer interface {
 	ReadProjection(context.Context, *ReadProjectionRequest) (*ReadProjectionResponse, error)
+	// Solo authority autenticado por mTLS; lee el anillo sin depender de que
+	// existan suscriptores en la consola ni del ultimo reporte de 1024 eventos.
+	ReadFlowEvents(context.Context, *ReadFlowEventsRequest) (*ReadFlowEventsResponse, error)
 	mustEmbedUnimplementedControlObservationsServiceServer()
 }
 
@@ -1324,6 +1383,9 @@ type UnimplementedControlObservationsServiceServer struct{}
 
 func (UnimplementedControlObservationsServiceServer) ReadProjection(context.Context, *ReadProjectionRequest) (*ReadProjectionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReadProjection not implemented")
+}
+func (UnimplementedControlObservationsServiceServer) ReadFlowEvents(context.Context, *ReadFlowEventsRequest) (*ReadFlowEventsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReadFlowEvents not implemented")
 }
 func (UnimplementedControlObservationsServiceServer) mustEmbedUnimplementedControlObservationsServiceServer() {
 }
@@ -1365,6 +1427,24 @@ func _ControlObservationsService_ReadProjection_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ControlObservationsService_ReadFlowEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReadFlowEventsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControlObservationsServiceServer).ReadFlowEvents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControlObservationsService_ReadFlowEvents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControlObservationsServiceServer).ReadFlowEvents(ctx, req.(*ReadFlowEventsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ControlObservationsService_ServiceDesc is the grpc.ServiceDesc for ControlObservationsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1375,6 +1455,10 @@ var ControlObservationsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReadProjection",
 			Handler:    _ControlObservationsService_ReadProjection_Handler,
+		},
+		{
+			MethodName: "ReadFlowEvents",
+			Handler:    _ControlObservationsService_ReadFlowEvents_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1869,7 +1953,9 @@ var OwnerRoutesService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ConnectivityControlService_Admit_FullMethodName = "/n0x.control.v1.ConnectivityControlService/Admit"
+	ConnectivityControlService_Admit_FullMethodName              = "/n0x.control.v1.ConnectivityControlService/Admit"
+	ConnectivityControlService_AdmitWorkloadOffer_FullMethodName = "/n0x.control.v1.ConnectivityControlService/AdmitWorkloadOffer"
+	ConnectivityControlService_RenewWorkloadOffer_FullMethodName = "/n0x.control.v1.ConnectivityControlService/RenewWorkloadOffer"
 )
 
 // ConnectivityControlServiceClient is the client API for ConnectivityControlService service.
@@ -1877,6 +1963,10 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ConnectivityControlServiceClient interface {
 	Admit(ctx context.Context, in *AdmitRequest, opts ...grpc.CallOption) (*AdmitResponse, error)
+	// La sesion y el SVID de nodo se verifican como en Admit; request no puede
+	// sustituir el sujeto autenticado ni escoger destinos fuera de la tabla.
+	AdmitWorkloadOffer(ctx context.Context, in *AdmitWorkloadOfferRequest, opts ...grpc.CallOption) (*AdmitWorkloadOfferResponse, error)
+	RenewWorkloadOffer(ctx context.Context, in *RenewWorkloadOfferRequest, opts ...grpc.CallOption) (*RenewWorkloadOfferResponse, error)
 }
 
 type connectivityControlServiceClient struct {
@@ -1897,11 +1987,35 @@ func (c *connectivityControlServiceClient) Admit(ctx context.Context, in *AdmitR
 	return out, nil
 }
 
+func (c *connectivityControlServiceClient) AdmitWorkloadOffer(ctx context.Context, in *AdmitWorkloadOfferRequest, opts ...grpc.CallOption) (*AdmitWorkloadOfferResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdmitWorkloadOfferResponse)
+	err := c.cc.Invoke(ctx, ConnectivityControlService_AdmitWorkloadOffer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *connectivityControlServiceClient) RenewWorkloadOffer(ctx context.Context, in *RenewWorkloadOfferRequest, opts ...grpc.CallOption) (*RenewWorkloadOfferResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RenewWorkloadOfferResponse)
+	err := c.cc.Invoke(ctx, ConnectivityControlService_RenewWorkloadOffer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ConnectivityControlServiceServer is the server API for ConnectivityControlService service.
 // All implementations must embed UnimplementedConnectivityControlServiceServer
 // for forward compatibility.
 type ConnectivityControlServiceServer interface {
 	Admit(context.Context, *AdmitRequest) (*AdmitResponse, error)
+	// La sesion y el SVID de nodo se verifican como en Admit; request no puede
+	// sustituir el sujeto autenticado ni escoger destinos fuera de la tabla.
+	AdmitWorkloadOffer(context.Context, *AdmitWorkloadOfferRequest) (*AdmitWorkloadOfferResponse, error)
+	RenewWorkloadOffer(context.Context, *RenewWorkloadOfferRequest) (*RenewWorkloadOfferResponse, error)
 	mustEmbedUnimplementedConnectivityControlServiceServer()
 }
 
@@ -1914,6 +2028,12 @@ type UnimplementedConnectivityControlServiceServer struct{}
 
 func (UnimplementedConnectivityControlServiceServer) Admit(context.Context, *AdmitRequest) (*AdmitResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Admit not implemented")
+}
+func (UnimplementedConnectivityControlServiceServer) AdmitWorkloadOffer(context.Context, *AdmitWorkloadOfferRequest) (*AdmitWorkloadOfferResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdmitWorkloadOffer not implemented")
+}
+func (UnimplementedConnectivityControlServiceServer) RenewWorkloadOffer(context.Context, *RenewWorkloadOfferRequest) (*RenewWorkloadOfferResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RenewWorkloadOffer not implemented")
 }
 func (UnimplementedConnectivityControlServiceServer) mustEmbedUnimplementedConnectivityControlServiceServer() {
 }
@@ -1955,6 +2075,42 @@ func _ConnectivityControlService_Admit_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ConnectivityControlService_AdmitWorkloadOffer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdmitWorkloadOfferRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConnectivityControlServiceServer).AdmitWorkloadOffer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConnectivityControlService_AdmitWorkloadOffer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConnectivityControlServiceServer).AdmitWorkloadOffer(ctx, req.(*AdmitWorkloadOfferRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConnectivityControlService_RenewWorkloadOffer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RenewWorkloadOfferRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConnectivityControlServiceServer).RenewWorkloadOffer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConnectivityControlService_RenewWorkloadOffer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConnectivityControlServiceServer).RenewWorkloadOffer(ctx, req.(*RenewWorkloadOfferRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ConnectivityControlService_ServiceDesc is the grpc.ServiceDesc for ConnectivityControlService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1965,6 +2121,14 @@ var ConnectivityControlService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Admit",
 			Handler:    _ConnectivityControlService_Admit_Handler,
+		},
+		{
+			MethodName: "AdmitWorkloadOffer",
+			Handler:    _ConnectivityControlService_AdmitWorkloadOffer_Handler,
+		},
+		{
+			MethodName: "RenewWorkloadOffer",
+			Handler:    _ConnectivityControlService_RenewWorkloadOffer_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

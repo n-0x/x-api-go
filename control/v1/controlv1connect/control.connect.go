@@ -76,6 +76,9 @@ const (
 	// NodeControlServiceReportFlowsProcedure is the procedure name of the NodeControlService's
 	// ReportFlows RPC.
 	NodeControlServiceReportFlowsProcedure = "/n0x.control.v1.NodeControlService/ReportFlows"
+	// NodeControlServiceRegisterWorkloadFromHostProcedure is the procedure name of the
+	// NodeControlService's RegisterWorkloadFromHost RPC.
+	NodeControlServiceRegisterWorkloadFromHostProcedure = "/n0x.control.v1.NodeControlService/RegisterWorkloadFromHost"
 	// AuthorityControlServicePublishConfigurationProcedure is the procedure name of the
 	// AuthorityControlService's PublishConfiguration RPC.
 	AuthorityControlServicePublishConfigurationProcedure = "/n0x.control.v1.AuthorityControlService/PublishConfiguration"
@@ -127,6 +130,9 @@ const (
 	// ControlObservationsServiceReadProjectionProcedure is the procedure name of the
 	// ControlObservationsService's ReadProjection RPC.
 	ControlObservationsServiceReadProjectionProcedure = "/n0x.control.v1.ControlObservationsService/ReadProjection"
+	// ControlObservationsServiceReadFlowEventsProcedure is the procedure name of the
+	// ControlObservationsService's ReadFlowEvents RPC.
+	ControlObservationsServiceReadFlowEventsProcedure = "/n0x.control.v1.ControlObservationsService/ReadFlowEvents"
 	// OwnershipAutomaticServiceClaimOwnerProcedure is the procedure name of the
 	// OwnershipAutomaticService's ClaimOwner RPC.
 	OwnershipAutomaticServiceClaimOwnerProcedure = "/n0x.control.v1.OwnershipAutomaticService/ClaimOwner"
@@ -148,6 +154,12 @@ const (
 	// ConnectivityControlServiceAdmitProcedure is the procedure name of the
 	// ConnectivityControlService's Admit RPC.
 	ConnectivityControlServiceAdmitProcedure = "/n0x.control.v1.ConnectivityControlService/Admit"
+	// ConnectivityControlServiceAdmitWorkloadOfferProcedure is the procedure name of the
+	// ConnectivityControlService's AdmitWorkloadOffer RPC.
+	ConnectivityControlServiceAdmitWorkloadOfferProcedure = "/n0x.control.v1.ConnectivityControlService/AdmitWorkloadOffer"
+	// ConnectivityControlServiceRenewWorkloadOfferProcedure is the procedure name of the
+	// ConnectivityControlService's RenewWorkloadOffer RPC.
+	ConnectivityControlServiceRenewWorkloadOfferProcedure = "/n0x.control.v1.ConnectivityControlService/RenewWorkloadOffer"
 	// NodeDiscoveryServiceLocateScopeProcedure is the procedure name of the NodeDiscoveryService's
 	// LocateScope RPC.
 	NodeDiscoveryServiceLocateScopeProcedure = "/n0x.control.v1.NodeDiscoveryService/LocateScope"
@@ -209,6 +221,13 @@ var (
 			Procedure:  NodeControlServiceReportFlowsProcedure,
 		}
 	})
+	nodeControlServiceRegisterWorkloadFromHostSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_control_v1_control_proto.Services().ByName("NodeControlService").Methods().ByName("RegisterWorkloadFromHost"),
+			Procedure:  NodeControlServiceRegisterWorkloadFromHostProcedure,
+		}
+	})
 )
 
 // NodeControlServiceClient is a client for the n0x.control.v1.NodeControlService service.
@@ -220,6 +239,9 @@ type NodeControlServiceClient interface {
 	RenewLease(context.Context, *v1.RenewLeaseRequest) (*v1.RenewLeaseResponse, error)
 	ReportState(context.Context, *v1.ReportStateRequest) (*v1.ReportStateResponse, error)
 	ReportFlows(context.Context, *v1.ReportFlowsRequest) (*v1.ReportFlowsResponse, error)
+	// Ruta mTLS de nodo: el sujeto y la sesion verificados deben corresponder
+	// a request.identity_id y al account/tenant. Publicar no concede acceso.
+	RegisterWorkloadFromHost(context.Context, *v1.RegisterWorkloadFromHostRequest) (*v1.RegisterWorkloadFromHostResponse, error)
 }
 
 // NewNodeControlServiceClient constructs a client for the n0x.control.v1.NodeControlService
@@ -237,6 +259,9 @@ type NodeControlServiceHandler interface {
 	RenewLease(context.Context, *v1.RenewLeaseRequest) (*v1.RenewLeaseResponse, error)
 	ReportState(context.Context, *v1.ReportStateRequest) (*v1.ReportStateResponse, error)
 	ReportFlows(context.Context, *v1.ReportFlowsRequest) (*v1.ReportFlowsResponse, error)
+	// Ruta mTLS de nodo: el sujeto y la sesion verificados deben corresponder
+	// a request.identity_id y al account/tenant. Publicar no concede acceso.
+	RegisterWorkloadFromHost(context.Context, *v1.RegisterWorkloadFromHostRequest) (*v1.RegisterWorkloadFromHostResponse, error)
 }
 
 // RegisterNodeControlServiceHandler registers svc as the n0x.control.v1.NodeControlService
@@ -251,6 +276,7 @@ func RegisterNodeControlServiceHandler(server *connect.Server, svc NodeControlSe
 		connect.Method{Spec: nodeControlServiceRenewLeaseSpec(), Handler: adapter.renewLease},
 		connect.Method{Spec: nodeControlServiceReportStateSpec(), Handler: adapter.reportState},
 		connect.Method{Spec: nodeControlServiceReportFlowsSpec(), Handler: adapter.reportFlows},
+		connect.Method{Spec: nodeControlServiceRegisterWorkloadFromHostSpec(), Handler: adapter.registerWorkloadFromHost},
 	)
 }
 
@@ -283,6 +309,10 @@ func (UnimplementedNodeControlServiceHandler) ReportState(context.Context, *v1.R
 
 func (UnimplementedNodeControlServiceHandler) ReportFlows(context.Context, *v1.ReportFlowsRequest) (*v1.ReportFlowsResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.NodeControlService.ReportFlows is not implemented")
+}
+
+func (UnimplementedNodeControlServiceHandler) RegisterWorkloadFromHost(context.Context, *v1.RegisterWorkloadFromHostRequest) (*v1.RegisterWorkloadFromHostResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.NodeControlService.RegisterWorkloadFromHost is not implemented")
 }
 
 type nodeControlServiceClient struct {
@@ -340,6 +370,14 @@ func (c *nodeControlServiceClient) ReportState(ctx context.Context, req *v1.Repo
 func (c *nodeControlServiceClient) ReportFlows(ctx context.Context, req *v1.ReportFlowsRequest) (*v1.ReportFlowsResponse, error) {
 	var res v1.ReportFlowsResponse
 	if err := c.client.CallUnary(ctx, nodeControlServiceReportFlowsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *nodeControlServiceClient) RegisterWorkloadFromHost(ctx context.Context, req *v1.RegisterWorkloadFromHostRequest) (*v1.RegisterWorkloadFromHostResponse, error) {
+	var res v1.RegisterWorkloadFromHostResponse
+	if err := c.client.CallUnary(ctx, nodeControlServiceRegisterWorkloadFromHostSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -425,6 +463,18 @@ func (h nodeControlServiceHandler) reportFlows(ctx context.Context, _ connect.Sp
 		return err
 	}
 	res, err := h.svc.ReportFlows(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h nodeControlServiceHandler) registerWorkloadFromHost(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.RegisterWorkloadFromHostRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RegisterWorkloadFromHost(ctx, &req)
 	if err != nil {
 		return err
 	}
@@ -1164,12 +1214,22 @@ var (
 			Procedure:  ControlObservationsServiceReadProjectionProcedure,
 		}
 	})
+	controlObservationsServiceReadFlowEventsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_control_v1_control_proto.Services().ByName("ControlObservationsService").Methods().ByName("ReadFlowEvents"),
+			Procedure:  ControlObservationsServiceReadFlowEventsProcedure,
+		}
+	})
 )
 
 // ControlObservationsServiceClient is a client for the n0x.control.v1.ControlObservationsService
 // service.
 type ControlObservationsServiceClient interface {
 	ReadProjection(context.Context, *v1.ReadProjectionRequest) (*v1.ReadProjectionResponse, error)
+	// Solo authority autenticado por mTLS; lee el anillo sin depender de que
+	// existan suscriptores en la consola ni del ultimo reporte de 1024 eventos.
+	ReadFlowEvents(context.Context, *v1.ReadFlowEventsRequest) (*v1.ReadFlowEventsResponse, error)
 }
 
 // NewControlObservationsServiceClient constructs a client for the
@@ -1183,6 +1243,9 @@ func NewControlObservationsServiceClient(client *connect.Client) ControlObservat
 // n0x.control.v1.ControlObservationsService service.
 type ControlObservationsServiceHandler interface {
 	ReadProjection(context.Context, *v1.ReadProjectionRequest) (*v1.ReadProjectionResponse, error)
+	// Solo authority autenticado por mTLS; lee el anillo sin depender de que
+	// existan suscriptores en la consola ni del ultimo reporte de 1024 eventos.
+	ReadFlowEvents(context.Context, *v1.ReadFlowEventsRequest) (*v1.ReadFlowEventsResponse, error)
 }
 
 // RegisterControlObservationsServiceHandler registers svc as the
@@ -1191,6 +1254,7 @@ func RegisterControlObservationsServiceHandler(server *connect.Server, svc Contr
 	adapter := controlObservationsServiceHandler{svc: svc}
 	server.Register(
 		connect.Method{Spec: controlObservationsServiceReadProjectionSpec(), Handler: adapter.readProjection},
+		connect.Method{Spec: controlObservationsServiceReadFlowEventsSpec(), Handler: adapter.readFlowEvents},
 	)
 }
 
@@ -1201,6 +1265,10 @@ func (UnimplementedControlObservationsServiceHandler) ReadProjection(context.Con
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.ControlObservationsService.ReadProjection is not implemented")
 }
 
+func (UnimplementedControlObservationsServiceHandler) ReadFlowEvents(context.Context, *v1.ReadFlowEventsRequest) (*v1.ReadFlowEventsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.ControlObservationsService.ReadFlowEvents is not implemented")
+}
+
 type controlObservationsServiceClient struct {
 	client *connect.Client
 }
@@ -1208,6 +1276,14 @@ type controlObservationsServiceClient struct {
 func (c *controlObservationsServiceClient) ReadProjection(ctx context.Context, req *v1.ReadProjectionRequest) (*v1.ReadProjectionResponse, error) {
 	var res v1.ReadProjectionResponse
 	if err := c.client.CallUnary(ctx, controlObservationsServiceReadProjectionSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *controlObservationsServiceClient) ReadFlowEvents(ctx context.Context, req *v1.ReadFlowEventsRequest) (*v1.ReadFlowEventsResponse, error) {
+	var res v1.ReadFlowEventsResponse
+	if err := c.client.CallUnary(ctx, controlObservationsServiceReadFlowEventsSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -1223,6 +1299,18 @@ func (h controlObservationsServiceHandler) readProjection(ctx context.Context, _
 		return err
 	}
 	res, err := h.svc.ReadProjection(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h controlObservationsServiceHandler) readFlowEvents(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ReadFlowEventsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ReadFlowEvents(ctx, &req)
 	if err != nil {
 		return err
 	}
@@ -1588,12 +1676,30 @@ var (
 			Procedure:  ConnectivityControlServiceAdmitProcedure,
 		}
 	})
+	connectivityControlServiceAdmitWorkloadOfferSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_control_v1_control_proto.Services().ByName("ConnectivityControlService").Methods().ByName("AdmitWorkloadOffer"),
+			Procedure:  ConnectivityControlServiceAdmitWorkloadOfferProcedure,
+		}
+	})
+	connectivityControlServiceRenewWorkloadOfferSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_control_v1_control_proto.Services().ByName("ConnectivityControlService").Methods().ByName("RenewWorkloadOffer"),
+			Procedure:  ConnectivityControlServiceRenewWorkloadOfferProcedure,
+		}
+	})
 )
 
 // ConnectivityControlServiceClient is a client for the n0x.control.v1.ConnectivityControlService
 // service.
 type ConnectivityControlServiceClient interface {
 	Admit(context.Context, *v1.AdmitRequest) (*v1.AdmitResponse, error)
+	// La sesion y el SVID de nodo se verifican como en Admit; request no puede
+	// sustituir el sujeto autenticado ni escoger destinos fuera de la tabla.
+	AdmitWorkloadOffer(context.Context, *v1.AdmitWorkloadOfferRequest) (*v1.AdmitWorkloadOfferResponse, error)
+	RenewWorkloadOffer(context.Context, *v1.RenewWorkloadOfferRequest) (*v1.RenewWorkloadOfferResponse, error)
 }
 
 // NewConnectivityControlServiceClient constructs a client for the
@@ -1607,6 +1713,10 @@ func NewConnectivityControlServiceClient(client *connect.Client) ConnectivityCon
 // n0x.control.v1.ConnectivityControlService service.
 type ConnectivityControlServiceHandler interface {
 	Admit(context.Context, *v1.AdmitRequest) (*v1.AdmitResponse, error)
+	// La sesion y el SVID de nodo se verifican como en Admit; request no puede
+	// sustituir el sujeto autenticado ni escoger destinos fuera de la tabla.
+	AdmitWorkloadOffer(context.Context, *v1.AdmitWorkloadOfferRequest) (*v1.AdmitWorkloadOfferResponse, error)
+	RenewWorkloadOffer(context.Context, *v1.RenewWorkloadOfferRequest) (*v1.RenewWorkloadOfferResponse, error)
 }
 
 // RegisterConnectivityControlServiceHandler registers svc as the
@@ -1615,6 +1725,8 @@ func RegisterConnectivityControlServiceHandler(server *connect.Server, svc Conne
 	adapter := connectivityControlServiceHandler{svc: svc}
 	server.Register(
 		connect.Method{Spec: connectivityControlServiceAdmitSpec(), Handler: adapter.admit},
+		connect.Method{Spec: connectivityControlServiceAdmitWorkloadOfferSpec(), Handler: adapter.admitWorkloadOffer},
+		connect.Method{Spec: connectivityControlServiceRenewWorkloadOfferSpec(), Handler: adapter.renewWorkloadOffer},
 	)
 }
 
@@ -1625,6 +1737,14 @@ func (UnimplementedConnectivityControlServiceHandler) Admit(context.Context, *v1
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.ConnectivityControlService.Admit is not implemented")
 }
 
+func (UnimplementedConnectivityControlServiceHandler) AdmitWorkloadOffer(context.Context, *v1.AdmitWorkloadOfferRequest) (*v1.AdmitWorkloadOfferResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.ConnectivityControlService.AdmitWorkloadOffer is not implemented")
+}
+
+func (UnimplementedConnectivityControlServiceHandler) RenewWorkloadOffer(context.Context, *v1.RenewWorkloadOfferRequest) (*v1.RenewWorkloadOfferResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.ConnectivityControlService.RenewWorkloadOffer is not implemented")
+}
+
 type connectivityControlServiceClient struct {
 	client *connect.Client
 }
@@ -1632,6 +1752,22 @@ type connectivityControlServiceClient struct {
 func (c *connectivityControlServiceClient) Admit(ctx context.Context, req *v1.AdmitRequest) (*v1.AdmitResponse, error) {
 	var res v1.AdmitResponse
 	if err := c.client.CallUnary(ctx, connectivityControlServiceAdmitSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *connectivityControlServiceClient) AdmitWorkloadOffer(ctx context.Context, req *v1.AdmitWorkloadOfferRequest) (*v1.AdmitWorkloadOfferResponse, error) {
+	var res v1.AdmitWorkloadOfferResponse
+	if err := c.client.CallUnary(ctx, connectivityControlServiceAdmitWorkloadOfferSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *connectivityControlServiceClient) RenewWorkloadOffer(ctx context.Context, req *v1.RenewWorkloadOfferRequest) (*v1.RenewWorkloadOfferResponse, error) {
+	var res v1.RenewWorkloadOfferResponse
+	if err := c.client.CallUnary(ctx, connectivityControlServiceRenewWorkloadOfferSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -1647,6 +1783,30 @@ func (h connectivityControlServiceHandler) admit(ctx context.Context, _ connect.
 		return err
 	}
 	res, err := h.svc.Admit(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h connectivityControlServiceHandler) admitWorkloadOffer(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.AdmitWorkloadOfferRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.AdmitWorkloadOffer(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h connectivityControlServiceHandler) renewWorkloadOffer(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.RenewWorkloadOfferRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RenewWorkloadOffer(ctx, &req)
 	if err != nil {
 		return err
 	}

@@ -7,6 +7,7 @@
 package eventsv1
 
 import (
+	v1 "github.com/n-0x/x-api-go/identities/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -35,6 +36,8 @@ const (
 	EventType_EVENT_TYPE_ALERT       EventType = 7
 	// Future-only: the first release has no proxy IP-block execution API.
 	EventType_EVENT_TYPE_BLOCK EventType = 8
+	// Transiciones de fase, observacion o estado de identidad de un nodo.
+	EventType_EVENT_TYPE_NODE EventType = 9
 )
 
 // Enum value maps for EventType.
@@ -49,6 +52,7 @@ var (
 		6: "EVENT_TYPE_ASSIGNMENT",
 		7: "EVENT_TYPE_ALERT",
 		8: "EVENT_TYPE_BLOCK",
+		9: "EVENT_TYPE_NODE",
 	}
 	EventType_value = map[string]int32{
 		"EVENT_TYPE_UNSPECIFIED": 0,
@@ -60,6 +64,7 @@ var (
 		"EVENT_TYPE_ASSIGNMENT":  6,
 		"EVENT_TYPE_ALERT":       7,
 		"EVENT_TYPE_BLOCK":       8,
+		"EVENT_TYPE_NODE":        9,
 	}
 )
 
@@ -222,6 +227,115 @@ func (x EventObjectType) Number() protoreflect.EnumNumber {
 // Deprecated: Use EventObjectType.Descriptor instead.
 func (EventObjectType) EnumDescriptor() ([]byte, []int) {
 	return file_n0x_events_v1_events_proto_rawDescGZIP(), []int{2}
+}
+
+// Fases persistidas del nodo de authority; independientes de IdentityState.
+type NodePhase int32
+
+const (
+	NodePhase_NODE_PHASE_UNSPECIFIED  NodePhase = 0
+	NodePhase_NODE_PHASE_PROVISIONING NodePhase = 1
+	NodePhase_NODE_PHASE_ACTIVE       NodePhase = 2
+	NodePhase_NODE_PHASE_RETIRING     NodePhase = 3
+	NodePhase_NODE_PHASE_RETIRED      NodePhase = 4
+)
+
+// Enum value maps for NodePhase.
+var (
+	NodePhase_name = map[int32]string{
+		0: "NODE_PHASE_UNSPECIFIED",
+		1: "NODE_PHASE_PROVISIONING",
+		2: "NODE_PHASE_ACTIVE",
+		3: "NODE_PHASE_RETIRING",
+		4: "NODE_PHASE_RETIRED",
+	}
+	NodePhase_value = map[string]int32{
+		"NODE_PHASE_UNSPECIFIED":  0,
+		"NODE_PHASE_PROVISIONING": 1,
+		"NODE_PHASE_ACTIVE":       2,
+		"NODE_PHASE_RETIRING":     3,
+		"NODE_PHASE_RETIRED":      4,
+	}
+)
+
+func (x NodePhase) Enum() *NodePhase {
+	p := new(NodePhase)
+	*p = x
+	return p
+}
+
+func (x NodePhase) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NodePhase) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_events_v1_events_proto_enumTypes[3].Descriptor()
+}
+
+func (NodePhase) Type() protoreflect.EnumType {
+	return &file_n0x_events_v1_events_proto_enumTypes[3]
+}
+
+func (x NodePhase) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NodePhase.Descriptor instead.
+func (NodePhase) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_events_v1_events_proto_rawDescGZIP(), []int{3}
+}
+
+// Observacion derivada de la proyeccion; offline no es un IdentityState.
+type NodeObservation int32
+
+const (
+	NodeObservation_NODE_OBSERVATION_UNSPECIFIED NodeObservation = 0
+	NodeObservation_NODE_OBSERVATION_UNKNOWN     NodeObservation = 1
+	NodeObservation_NODE_OBSERVATION_OFFLINE     NodeObservation = 2
+	NodeObservation_NODE_OBSERVATION_CURRENT     NodeObservation = 3
+)
+
+// Enum value maps for NodeObservation.
+var (
+	NodeObservation_name = map[int32]string{
+		0: "NODE_OBSERVATION_UNSPECIFIED",
+		1: "NODE_OBSERVATION_UNKNOWN",
+		2: "NODE_OBSERVATION_OFFLINE",
+		3: "NODE_OBSERVATION_CURRENT",
+	}
+	NodeObservation_value = map[string]int32{
+		"NODE_OBSERVATION_UNSPECIFIED": 0,
+		"NODE_OBSERVATION_UNKNOWN":     1,
+		"NODE_OBSERVATION_OFFLINE":     2,
+		"NODE_OBSERVATION_CURRENT":     3,
+	}
+)
+
+func (x NodeObservation) Enum() *NodeObservation {
+	p := new(NodeObservation)
+	*p = x
+	return p
+}
+
+func (x NodeObservation) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NodeObservation) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_events_v1_events_proto_enumTypes[4].Descriptor()
+}
+
+func (NodeObservation) Type() protoreflect.EnumType {
+	return &file_n0x_events_v1_events_proto_enumTypes[4]
+}
+
+func (x NodeObservation) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NodeObservation.Descriptor instead.
+func (NodeObservation) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_events_v1_events_proto_rawDescGZIP(), []int{4}
 }
 
 type EventActor struct {
@@ -465,8 +579,10 @@ type Event struct {
 	Link string `protobuf:"bytes,9,opt,name=link,proto3" json:"link,omitempty"`
 	// For example the permission behind a connection, or the run awakened by an alert.
 	RelatedObjects []*EventObject `protobuf:"bytes,10,rep,name=related_objects,json=relatedObjects,proto3" json:"related_objects,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Solo EVENT_TYPE_NODE; object usa IDENTITY con el identity_id estable.
+	NodeStateTransition *NodeStateTransition `protobuf:"bytes,11,opt,name=node_state_transition,json=nodeStateTransition,proto3" json:"node_state_transition,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *Event) Reset() {
@@ -565,6 +681,13 @@ func (x *Event) GetLink() string {
 func (x *Event) GetRelatedObjects() []*EventObject {
 	if x != nil {
 		return x.RelatedObjects
+	}
+	return nil
+}
+
+func (x *Event) GetNodeStateTransition() *NodeStateTransition {
+	if x != nil {
+		return x.NodeStateTransition
 	}
 	return nil
 }
@@ -969,8 +1092,14 @@ func (x *SubscribeRequest) GetCursor() string {
 type SubscribeResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Absent on a keepalive/checkpoint; cursor still advances the safe boundary.
-	Event         *Event `protobuf:"bytes,1,opt,name=event,proto3" json:"event,omitempty"`
-	Cursor        string `protobuf:"bytes,2,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	Event  *Event `protobuf:"bytes,1,opt,name=event,proto3" json:"event,omitempty"`
+	Cursor string `protobuf:"bytes,2,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	// Checkpoint tras drenar los eventos conocidos hasta este instante y cursor.
+	// Certifica progreso, no solo que el transporte sigue abierto. Ausente
+	// conserva la semantica anterior y no certifica actualidad. Latido nominal
+	// cada 5 s incluso sin eventos; tras 15 s sin mensaje el consumidor debe
+	// considerar caido el stream. No adelantarlo mientras quede backlog previo.
+	CheckpointAt  *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=checkpoint_at,json=checkpointAt,proto3" json:"checkpoint_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1019,11 +1148,157 @@ func (x *SubscribeResponse) GetCursor() string {
 	return ""
 }
 
+func (x *SubscribeResponse) GetCheckpointAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CheckpointAt
+	}
+	return nil
+}
+
+type NodeStateSnapshot struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Phase         *NodePhase             `protobuf:"varint,1,opt,name=phase,proto3,enum=n0x.events.v1.NodePhase,oneof" json:"phase,omitempty"`
+	Observation   *NodeObservation       `protobuf:"varint,2,opt,name=observation,proto3,enum=n0x.events.v1.NodeObservation,oneof" json:"observation,omitempty"`
+	IdentityState *v1.IdentityState      `protobuf:"varint,3,opt,name=identity_state,json=identityState,proto3,enum=n0x.identities.v1.IdentityState,oneof" json:"identity_state,omitempty"`
+	// Valores observados de NodeView; no implican acceso ni una revision nueva.
+	Ready         *bool `protobuf:"varint,4,opt,name=ready,proto3,oneof" json:"ready,omitempty"`
+	Fresh         *bool `protobuf:"varint,5,opt,name=fresh,proto3,oneof" json:"fresh,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NodeStateSnapshot) Reset() {
+	*x = NodeStateSnapshot{}
+	mi := &file_n0x_events_v1_events_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodeStateSnapshot) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeStateSnapshot) ProtoMessage() {}
+
+func (x *NodeStateSnapshot) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_events_v1_events_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeStateSnapshot.ProtoReflect.Descriptor instead.
+func (*NodeStateSnapshot) Descriptor() ([]byte, []int) {
+	return file_n0x_events_v1_events_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *NodeStateSnapshot) GetPhase() NodePhase {
+	if x != nil && x.Phase != nil {
+		return *x.Phase
+	}
+	return NodePhase_NODE_PHASE_UNSPECIFIED
+}
+
+func (x *NodeStateSnapshot) GetObservation() NodeObservation {
+	if x != nil && x.Observation != nil {
+		return *x.Observation
+	}
+	return NodeObservation_NODE_OBSERVATION_UNSPECIFIED
+}
+
+func (x *NodeStateSnapshot) GetIdentityState() v1.IdentityState {
+	if x != nil && x.IdentityState != nil {
+		return *x.IdentityState
+	}
+	return v1.IdentityState(0)
+}
+
+func (x *NodeStateSnapshot) GetReady() bool {
+	if x != nil && x.Ready != nil {
+		return *x.Ready
+	}
+	return false
+}
+
+func (x *NodeStateSnapshot) GetFresh() bool {
+	if x != nil && x.Fresh != nil {
+		return *x.Fresh
+	}
+	return false
+}
+
+// Instantaneas pequenas para senalar al consumidor que debe refrescar el nodo.
+// before ausente indica primera observacion; after ausente, retirada del inventario.
+type NodeStateTransition struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IncarnationId *string                `protobuf:"bytes,1,opt,name=incarnation_id,json=incarnationId,proto3,oneof" json:"incarnation_id,omitempty"`
+	Before        *NodeStateSnapshot     `protobuf:"bytes,2,opt,name=before,proto3" json:"before,omitempty"`
+	After         *NodeStateSnapshot     `protobuf:"bytes,3,opt,name=after,proto3" json:"after,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NodeStateTransition) Reset() {
+	*x = NodeStateTransition{}
+	mi := &file_n0x_events_v1_events_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodeStateTransition) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeStateTransition) ProtoMessage() {}
+
+func (x *NodeStateTransition) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_events_v1_events_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeStateTransition.ProtoReflect.Descriptor instead.
+func (*NodeStateTransition) Descriptor() ([]byte, []int) {
+	return file_n0x_events_v1_events_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *NodeStateTransition) GetIncarnationId() string {
+	if x != nil && x.IncarnationId != nil {
+		return *x.IncarnationId
+	}
+	return ""
+}
+
+func (x *NodeStateTransition) GetBefore() *NodeStateSnapshot {
+	if x != nil {
+		return x.Before
+	}
+	return nil
+}
+
+func (x *NodeStateTransition) GetAfter() *NodeStateSnapshot {
+	if x != nil {
+		return x.After
+	}
+	return nil
+}
+
 var File_n0x_events_v1_events_proto protoreflect.FileDescriptor
 
 const file_n0x_events_v1_events_proto_rawDesc = "" +
 	"\n" +
-	"\x1an0x/events/v1/events.proto\x12\rn0x.events.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x81\x01\n" +
+	"\x1an0x/events/v1/events.proto\x12\rn0x.events.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\"n0x/identities/v1/identities.proto\"\x81\x01\n" +
 	"\n" +
 	"EventActor\x121\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x1d.n0x.events.v1.EventActorTypeR\x04type\x12\x1f\n" +
@@ -1039,7 +1314,7 @@ const file_n0x_events_v1_events_proto_rawDesc = "" +
 	"\treference\"M\n" +
 	"\x1bEventAssignmentRunReference\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12\x17\n" +
-	"\astep_id\x18\x02 \x01(\tR\x06stepId\"\xa1\x03\n" +
+	"\astep_id\x18\x02 \x01(\tR\x06stepId\"\xf9\x03\n" +
 	"\x05Event\x12\x19\n" +
 	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12\x1d\n" +
 	"\n" +
@@ -1053,7 +1328,8 @@ const file_n0x_events_v1_events_proto_rawDesc = "" +
 	"\asummary\x18\b \x01(\tR\asummary\x12\x12\n" +
 	"\x04link\x18\t \x01(\tR\x04link\x12C\n" +
 	"\x0frelated_objects\x18\n" +
-	" \x03(\v2\x1a.n0x.events.v1.EventObjectR\x0erelatedObjects\"\xaa\x02\n" +
+	" \x03(\v2\x1a.n0x.events.v1.EventObjectR\x0erelatedObjects\x12V\n" +
+	"\x15node_state_transition\x18\v \x01(\v2\".n0x.events.v1.NodeStateTransitionR\x13nodeStateTransition\"\xaa\x02\n" +
 	"\vEventFilter\x12.\n" +
 	"\x05types\x18\x01 \x03(\x0e2\x18.n0x.events.v1.EventTypeR\x05types\x121\n" +
 	"\x06author\x18\x02 \x01(\v2\x19.n0x.events.v1.EventActorR\x06author\x122\n" +
@@ -1084,10 +1360,27 @@ const file_n0x_events_v1_events_proto_rawDesc = "" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
 	"\ttenant_id\x18\x02 \x01(\tR\btenantId\x122\n" +
 	"\x06filter\x18\x03 \x01(\v2\x1a.n0x.events.v1.EventFilterR\x06filter\x12\x16\n" +
-	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"W\n" +
+	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"\x98\x01\n" +
 	"\x11SubscribeResponse\x12*\n" +
 	"\x05event\x18\x01 \x01(\v2\x14.n0x.events.v1.EventR\x05event\x12\x16\n" +
-	"\x06cursor\x18\x02 \x01(\tR\x06cursor*\xe9\x01\n" +
+	"\x06cursor\x18\x02 \x01(\tR\x06cursor\x12?\n" +
+	"\rcheckpoint_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\fcheckpointAt\"\xd4\x02\n" +
+	"\x11NodeStateSnapshot\x123\n" +
+	"\x05phase\x18\x01 \x01(\x0e2\x18.n0x.events.v1.NodePhaseH\x00R\x05phase\x88\x01\x01\x12E\n" +
+	"\vobservation\x18\x02 \x01(\x0e2\x1e.n0x.events.v1.NodeObservationH\x01R\vobservation\x88\x01\x01\x12L\n" +
+	"\x0eidentity_state\x18\x03 \x01(\x0e2 .n0x.identities.v1.IdentityStateH\x02R\ridentityState\x88\x01\x01\x12\x19\n" +
+	"\x05ready\x18\x04 \x01(\bH\x03R\x05ready\x88\x01\x01\x12\x19\n" +
+	"\x05fresh\x18\x05 \x01(\bH\x04R\x05fresh\x88\x01\x01B\b\n" +
+	"\x06_phaseB\x0e\n" +
+	"\f_observationB\x11\n" +
+	"\x0f_identity_stateB\b\n" +
+	"\x06_readyB\b\n" +
+	"\x06_fresh\"\xc6\x01\n" +
+	"\x13NodeStateTransition\x12*\n" +
+	"\x0eincarnation_id\x18\x01 \x01(\tH\x00R\rincarnationId\x88\x01\x01\x128\n" +
+	"\x06before\x18\x02 \x01(\v2 .n0x.events.v1.NodeStateSnapshotR\x06before\x126\n" +
+	"\x05after\x18\x03 \x01(\v2 .n0x.events.v1.NodeStateSnapshotR\x05afterB\x11\n" +
+	"\x0f_incarnation_id*\xfe\x01\n" +
 	"\tEventType\x12\x1a\n" +
 	"\x16EVENT_TYPE_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15EVENT_TYPE_CONNECTION\x10\x01\x12\x15\n" +
@@ -1097,7 +1390,8 @@ const file_n0x_events_v1_events_proto_rawDesc = "" +
 	"\x13EVENT_TYPE_WORKLOAD\x10\x05\x12\x19\n" +
 	"\x15EVENT_TYPE_ASSIGNMENT\x10\x06\x12\x14\n" +
 	"\x10EVENT_TYPE_ALERT\x10\a\x12\x14\n" +
-	"\x10EVENT_TYPE_BLOCK\x10\b*\xd0\x01\n" +
+	"\x10EVENT_TYPE_BLOCK\x10\b\x12\x13\n" +
+	"\x0fEVENT_TYPE_NODE\x10\t*\xd0\x01\n" +
 	"\x0eEventActorType\x12 \n" +
 	"\x1cEVENT_ACTOR_TYPE_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17EVENT_ACTOR_TYPE_PERSON\x10\x01\x12\x19\n" +
@@ -1118,7 +1412,18 @@ const file_n0x_events_v1_events_proto_rawDesc = "" +
 	"\x17EVENT_OBJECT_TYPE_ALERT\x10\t\x12\x1b\n" +
 	"\x17EVENT_OBJECT_TYPE_BLOCK\x10\n" +
 	"\x12\"\n" +
-	"\x1eEVENT_OBJECT_TYPE_ACCESS_CHECK\x10\v2\x81\x02\n" +
+	"\x1eEVENT_OBJECT_TYPE_ACCESS_CHECK\x10\v*\x8c\x01\n" +
+	"\tNodePhase\x12\x1a\n" +
+	"\x16NODE_PHASE_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17NODE_PHASE_PROVISIONING\x10\x01\x12\x15\n" +
+	"\x11NODE_PHASE_ACTIVE\x10\x02\x12\x17\n" +
+	"\x13NODE_PHASE_RETIRING\x10\x03\x12\x16\n" +
+	"\x12NODE_PHASE_RETIRED\x10\x04*\x8d\x01\n" +
+	"\x0fNodeObservation\x12 \n" +
+	"\x1cNODE_OBSERVATION_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18NODE_OBSERVATION_UNKNOWN\x10\x01\x12\x1c\n" +
+	"\x18NODE_OBSERVATION_OFFLINE\x10\x02\x12\x1c\n" +
+	"\x18NODE_OBSERVATION_CURRENT\x10\x032\x81\x02\n" +
 	"\rEventsService\x12Q\n" +
 	"\n" +
 	"ListEvents\x12 .n0x.events.v1.ListEventsRequest\x1a!.n0x.events.v1.ListEventsResponse\x12K\n" +
@@ -1137,55 +1442,67 @@ func file_n0x_events_v1_events_proto_rawDescGZIP() []byte {
 	return file_n0x_events_v1_events_proto_rawDescData
 }
 
-var file_n0x_events_v1_events_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_n0x_events_v1_events_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_n0x_events_v1_events_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_n0x_events_v1_events_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_n0x_events_v1_events_proto_goTypes = []any{
 	(EventType)(0),                      // 0: n0x.events.v1.EventType
 	(EventActorType)(0),                 // 1: n0x.events.v1.EventActorType
 	(EventObjectType)(0),                // 2: n0x.events.v1.EventObjectType
-	(*EventActor)(nil),                  // 3: n0x.events.v1.EventActor
-	(*EventObject)(nil),                 // 4: n0x.events.v1.EventObject
-	(*EventAssignmentRunReference)(nil), // 5: n0x.events.v1.EventAssignmentRunReference
-	(*Event)(nil),                       // 6: n0x.events.v1.Event
-	(*EventFilter)(nil),                 // 7: n0x.events.v1.EventFilter
-	(*ListEventsRequest)(nil),           // 8: n0x.events.v1.ListEventsRequest
-	(*ListEventsResponse)(nil),          // 9: n0x.events.v1.ListEventsResponse
-	(*GetEventRequest)(nil),             // 10: n0x.events.v1.GetEventRequest
-	(*GetEventResponse)(nil),            // 11: n0x.events.v1.GetEventResponse
-	(*SubscribeRequest)(nil),            // 12: n0x.events.v1.SubscribeRequest
-	(*SubscribeResponse)(nil),           // 13: n0x.events.v1.SubscribeResponse
-	(*timestamppb.Timestamp)(nil),       // 14: google.protobuf.Timestamp
+	(NodePhase)(0),                      // 3: n0x.events.v1.NodePhase
+	(NodeObservation)(0),                // 4: n0x.events.v1.NodeObservation
+	(*EventActor)(nil),                  // 5: n0x.events.v1.EventActor
+	(*EventObject)(nil),                 // 6: n0x.events.v1.EventObject
+	(*EventAssignmentRunReference)(nil), // 7: n0x.events.v1.EventAssignmentRunReference
+	(*Event)(nil),                       // 8: n0x.events.v1.Event
+	(*EventFilter)(nil),                 // 9: n0x.events.v1.EventFilter
+	(*ListEventsRequest)(nil),           // 10: n0x.events.v1.ListEventsRequest
+	(*ListEventsResponse)(nil),          // 11: n0x.events.v1.ListEventsResponse
+	(*GetEventRequest)(nil),             // 12: n0x.events.v1.GetEventRequest
+	(*GetEventResponse)(nil),            // 13: n0x.events.v1.GetEventResponse
+	(*SubscribeRequest)(nil),            // 14: n0x.events.v1.SubscribeRequest
+	(*SubscribeResponse)(nil),           // 15: n0x.events.v1.SubscribeResponse
+	(*NodeStateSnapshot)(nil),           // 16: n0x.events.v1.NodeStateSnapshot
+	(*NodeStateTransition)(nil),         // 17: n0x.events.v1.NodeStateTransition
+	(*timestamppb.Timestamp)(nil),       // 18: google.protobuf.Timestamp
+	(v1.IdentityState)(0),               // 19: n0x.identities.v1.IdentityState
 }
 var file_n0x_events_v1_events_proto_depIdxs = []int32{
 	1,  // 0: n0x.events.v1.EventActor.type:type_name -> n0x.events.v1.EventActorType
 	2,  // 1: n0x.events.v1.EventObject.type:type_name -> n0x.events.v1.EventObjectType
-	5,  // 2: n0x.events.v1.EventObject.assignment_run:type_name -> n0x.events.v1.EventAssignmentRunReference
-	14, // 3: n0x.events.v1.Event.occurred_at:type_name -> google.protobuf.Timestamp
+	7,  // 2: n0x.events.v1.EventObject.assignment_run:type_name -> n0x.events.v1.EventAssignmentRunReference
+	18, // 3: n0x.events.v1.Event.occurred_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: n0x.events.v1.Event.type:type_name -> n0x.events.v1.EventType
-	3,  // 5: n0x.events.v1.Event.actor:type_name -> n0x.events.v1.EventActor
-	4,  // 6: n0x.events.v1.Event.object:type_name -> n0x.events.v1.EventObject
-	4,  // 7: n0x.events.v1.Event.related_objects:type_name -> n0x.events.v1.EventObject
-	0,  // 8: n0x.events.v1.EventFilter.types:type_name -> n0x.events.v1.EventType
-	3,  // 9: n0x.events.v1.EventFilter.author:type_name -> n0x.events.v1.EventActor
-	4,  // 10: n0x.events.v1.EventFilter.object:type_name -> n0x.events.v1.EventObject
-	14, // 11: n0x.events.v1.EventFilter.occurred_from:type_name -> google.protobuf.Timestamp
-	14, // 12: n0x.events.v1.EventFilter.occurred_before:type_name -> google.protobuf.Timestamp
-	7,  // 13: n0x.events.v1.ListEventsRequest.filter:type_name -> n0x.events.v1.EventFilter
-	6,  // 14: n0x.events.v1.ListEventsResponse.events:type_name -> n0x.events.v1.Event
-	6,  // 15: n0x.events.v1.GetEventResponse.event:type_name -> n0x.events.v1.Event
-	7,  // 16: n0x.events.v1.SubscribeRequest.filter:type_name -> n0x.events.v1.EventFilter
-	6,  // 17: n0x.events.v1.SubscribeResponse.event:type_name -> n0x.events.v1.Event
-	8,  // 18: n0x.events.v1.EventsService.ListEvents:input_type -> n0x.events.v1.ListEventsRequest
-	10, // 19: n0x.events.v1.EventsService.GetEvent:input_type -> n0x.events.v1.GetEventRequest
-	12, // 20: n0x.events.v1.EventsService.Subscribe:input_type -> n0x.events.v1.SubscribeRequest
-	9,  // 21: n0x.events.v1.EventsService.ListEvents:output_type -> n0x.events.v1.ListEventsResponse
-	11, // 22: n0x.events.v1.EventsService.GetEvent:output_type -> n0x.events.v1.GetEventResponse
-	13, // 23: n0x.events.v1.EventsService.Subscribe:output_type -> n0x.events.v1.SubscribeResponse
-	21, // [21:24] is the sub-list for method output_type
-	18, // [18:21] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	5,  // 5: n0x.events.v1.Event.actor:type_name -> n0x.events.v1.EventActor
+	6,  // 6: n0x.events.v1.Event.object:type_name -> n0x.events.v1.EventObject
+	6,  // 7: n0x.events.v1.Event.related_objects:type_name -> n0x.events.v1.EventObject
+	17, // 8: n0x.events.v1.Event.node_state_transition:type_name -> n0x.events.v1.NodeStateTransition
+	0,  // 9: n0x.events.v1.EventFilter.types:type_name -> n0x.events.v1.EventType
+	5,  // 10: n0x.events.v1.EventFilter.author:type_name -> n0x.events.v1.EventActor
+	6,  // 11: n0x.events.v1.EventFilter.object:type_name -> n0x.events.v1.EventObject
+	18, // 12: n0x.events.v1.EventFilter.occurred_from:type_name -> google.protobuf.Timestamp
+	18, // 13: n0x.events.v1.EventFilter.occurred_before:type_name -> google.protobuf.Timestamp
+	9,  // 14: n0x.events.v1.ListEventsRequest.filter:type_name -> n0x.events.v1.EventFilter
+	8,  // 15: n0x.events.v1.ListEventsResponse.events:type_name -> n0x.events.v1.Event
+	8,  // 16: n0x.events.v1.GetEventResponse.event:type_name -> n0x.events.v1.Event
+	9,  // 17: n0x.events.v1.SubscribeRequest.filter:type_name -> n0x.events.v1.EventFilter
+	8,  // 18: n0x.events.v1.SubscribeResponse.event:type_name -> n0x.events.v1.Event
+	18, // 19: n0x.events.v1.SubscribeResponse.checkpoint_at:type_name -> google.protobuf.Timestamp
+	3,  // 20: n0x.events.v1.NodeStateSnapshot.phase:type_name -> n0x.events.v1.NodePhase
+	4,  // 21: n0x.events.v1.NodeStateSnapshot.observation:type_name -> n0x.events.v1.NodeObservation
+	19, // 22: n0x.events.v1.NodeStateSnapshot.identity_state:type_name -> n0x.identities.v1.IdentityState
+	16, // 23: n0x.events.v1.NodeStateTransition.before:type_name -> n0x.events.v1.NodeStateSnapshot
+	16, // 24: n0x.events.v1.NodeStateTransition.after:type_name -> n0x.events.v1.NodeStateSnapshot
+	10, // 25: n0x.events.v1.EventsService.ListEvents:input_type -> n0x.events.v1.ListEventsRequest
+	12, // 26: n0x.events.v1.EventsService.GetEvent:input_type -> n0x.events.v1.GetEventRequest
+	14, // 27: n0x.events.v1.EventsService.Subscribe:input_type -> n0x.events.v1.SubscribeRequest
+	11, // 28: n0x.events.v1.EventsService.ListEvents:output_type -> n0x.events.v1.ListEventsResponse
+	13, // 29: n0x.events.v1.EventsService.GetEvent:output_type -> n0x.events.v1.GetEventResponse
+	15, // 30: n0x.events.v1.EventsService.Subscribe:output_type -> n0x.events.v1.SubscribeResponse
+	28, // [28:31] is the sub-list for method output_type
+	25, // [25:28] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_n0x_events_v1_events_proto_init() }
@@ -1198,13 +1515,15 @@ func file_n0x_events_v1_events_proto_init() {
 		(*EventObject_RevisionNumber)(nil),
 		(*EventObject_AssignmentRun)(nil),
 	}
+	file_n0x_events_v1_events_proto_msgTypes[11].OneofWrappers = []any{}
+	file_n0x_events_v1_events_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_events_v1_events_proto_rawDesc), len(file_n0x_events_v1_events_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   11,
+			NumEnums:      5,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

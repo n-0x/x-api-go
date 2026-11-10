@@ -7,9 +7,10 @@
 package controlv1
 
 import (
-	v12 "github.com/n-0x/x-api-go/alerts/v1"
-	v11 "github.com/n-0x/x-api-go/connectivity/v1"
+	v13 "github.com/n-0x/x-api-go/alerts/v1"
+	v12 "github.com/n-0x/x-api-go/connectivity/v1"
 	v1 "github.com/n-0x/x-api-go/signed/v1"
+	v11 "github.com/n-0x/x-api-go/workloads/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -2185,6 +2186,55 @@ func (x *HostTelemetry) GetObservedAt() int64 {
 	return 0
 }
 
+// Observacion orientativa del agente: no publica cargas, no concede acceso
+// y no sustituye a la publicacion ni al permiso.
+// Cada informe sustituye al anterior del mismo nodo y viaja por ReportFlows;
+// authority lo lee por ReadProjection en ObservationView.telemetry para servir
+// ListListeningPorts.
+type ListeningPortsObservation struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ListeningPorts []*v11.ListeningPort   `protobuf:"bytes,1,rep,name=listening_ports,json=listeningPorts,proto3" json:"listening_ports,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ListeningPortsObservation) Reset() {
+	*x = ListeningPortsObservation{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListeningPortsObservation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListeningPortsObservation) ProtoMessage() {}
+
+func (x *ListeningPortsObservation) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListeningPortsObservation.ProtoReflect.Descriptor instead.
+func (*ListeningPortsObservation) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *ListeningPortsObservation) GetListeningPorts() []*v11.ListeningPort {
+	if x != nil {
+		return x.ListeningPorts
+	}
+	return nil
+}
+
 type FlowTelemetry struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Flows          []*FlowRecord          `protobuf:"bytes,1,rep,name=flows,proto3" json:"flows,omitempty"`
@@ -2194,13 +2244,16 @@ type FlowTelemetry struct {
 	ObservedAt     int64                  `protobuf:"varint,5,opt,name=observed_at,json=observedAt,proto3" json:"observed_at,omitempty"`
 	ConfigRevision string                 `protobuf:"bytes,6,opt,name=config_revision,json=configRevision,proto3" json:"config_revision,omitempty"`
 	Host           *HostTelemetry         `protobuf:"bytes,7,opt,name=host,proto3" json:"host,omitempty"`
+	// Ausente: el agente no informo; dato no disponible, no acredita que no haya
+	// puertos. Presente con lista vacia: no se observo ninguno.
+	ListeningPorts *ListeningPortsObservation `protobuf:"bytes,8,opt,name=listening_ports,json=listeningPorts,proto3" json:"listening_ports,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *FlowTelemetry) Reset() {
 	*x = FlowTelemetry{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[28]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2212,7 +2265,7 @@ func (x *FlowTelemetry) String() string {
 func (*FlowTelemetry) ProtoMessage() {}
 
 func (x *FlowTelemetry) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[28]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2225,7 +2278,7 @@ func (x *FlowTelemetry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FlowTelemetry.ProtoReflect.Descriptor instead.
 func (*FlowTelemetry) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{28}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *FlowTelemetry) GetFlows() []*FlowRecord {
@@ -2277,6 +2330,13 @@ func (x *FlowTelemetry) GetHost() *HostTelemetry {
 	return nil
 }
 
+func (x *FlowTelemetry) GetListeningPorts() *ListeningPortsObservation {
+	if x != nil {
+		return x.ListeningPorts
+	}
+	return nil
+}
+
 type ReportFlowsRequest struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	Scope             *Scope                 `protobuf:"bytes,1,opt,name=scope,proto3" json:"scope,omitempty"`
@@ -2291,7 +2351,7 @@ type ReportFlowsRequest struct {
 
 func (x *ReportFlowsRequest) Reset() {
 	*x = ReportFlowsRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[29]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2303,7 +2363,7 @@ func (x *ReportFlowsRequest) String() string {
 func (*ReportFlowsRequest) ProtoMessage() {}
 
 func (x *ReportFlowsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[29]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2316,7 +2376,7 @@ func (x *ReportFlowsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportFlowsRequest.ProtoReflect.Descriptor instead.
 func (*ReportFlowsRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{29}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ReportFlowsRequest) GetScope() *Scope {
@@ -2369,7 +2429,7 @@ type ReportFlowsResponse struct {
 
 func (x *ReportFlowsResponse) Reset() {
 	*x = ReportFlowsResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[30]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2381,7 +2441,7 @@ func (x *ReportFlowsResponse) String() string {
 func (*ReportFlowsResponse) ProtoMessage() {}
 
 func (x *ReportFlowsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[30]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2394,7 +2454,7 @@ func (x *ReportFlowsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportFlowsResponse.ProtoReflect.Descriptor instead.
 func (*ReportFlowsResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{30}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{31}
 }
 
 type PublishConfigurationRequest struct {
@@ -2408,7 +2468,7 @@ type PublishConfigurationRequest struct {
 
 func (x *PublishConfigurationRequest) Reset() {
 	*x = PublishConfigurationRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[31]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2420,7 +2480,7 @@ func (x *PublishConfigurationRequest) String() string {
 func (*PublishConfigurationRequest) ProtoMessage() {}
 
 func (x *PublishConfigurationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[31]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2433,7 +2493,7 @@ func (x *PublishConfigurationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublishConfigurationRequest.ProtoReflect.Descriptor instead.
 func (*PublishConfigurationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{31}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *PublishConfigurationRequest) GetConfigDocument() []byte {
@@ -2468,7 +2528,7 @@ type PublishConfigurationResponse struct {
 
 func (x *PublishConfigurationResponse) Reset() {
 	*x = PublishConfigurationResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[32]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2480,7 +2540,7 @@ func (x *PublishConfigurationResponse) String() string {
 func (*PublishConfigurationResponse) ProtoMessage() {}
 
 func (x *PublishConfigurationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[32]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2493,7 +2553,7 @@ func (x *PublishConfigurationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublishConfigurationResponse.ProtoReflect.Descriptor instead.
 func (*PublishConfigurationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{32}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *PublishConfigurationResponse) GetRevision() string {
@@ -2532,7 +2592,7 @@ type AcquireAuthorityGrantRequest struct {
 
 func (x *AcquireAuthorityGrantRequest) Reset() {
 	*x = AcquireAuthorityGrantRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[33]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2544,7 +2604,7 @@ func (x *AcquireAuthorityGrantRequest) String() string {
 func (*AcquireAuthorityGrantRequest) ProtoMessage() {}
 
 func (x *AcquireAuthorityGrantRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[33]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2557,7 +2617,7 @@ func (x *AcquireAuthorityGrantRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AcquireAuthorityGrantRequest.ProtoReflect.Descriptor instead.
 func (*AcquireAuthorityGrantRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{33}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *AcquireAuthorityGrantRequest) GetScope() *Scope {
@@ -2618,7 +2678,7 @@ type AcquireAuthorityGrantResponse struct {
 
 func (x *AcquireAuthorityGrantResponse) Reset() {
 	*x = AcquireAuthorityGrantResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[34]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2630,7 +2690,7 @@ func (x *AcquireAuthorityGrantResponse) String() string {
 func (*AcquireAuthorityGrantResponse) ProtoMessage() {}
 
 func (x *AcquireAuthorityGrantResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[34]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2643,7 +2703,7 @@ func (x *AcquireAuthorityGrantResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AcquireAuthorityGrantResponse.ProtoReflect.Descriptor instead.
 func (*AcquireAuthorityGrantResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{34}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *AcquireAuthorityGrantResponse) GetJws() []byte {
@@ -2663,7 +2723,7 @@ type CommitRecoveryRequest struct {
 
 func (x *CommitRecoveryRequest) Reset() {
 	*x = CommitRecoveryRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[35]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2675,7 +2735,7 @@ func (x *CommitRecoveryRequest) String() string {
 func (*CommitRecoveryRequest) ProtoMessage() {}
 
 func (x *CommitRecoveryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[35]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2688,7 +2748,7 @@ func (x *CommitRecoveryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommitRecoveryRequest.ProtoReflect.Descriptor instead.
 func (*CommitRecoveryRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{35}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *CommitRecoveryRequest) GetRequest() *RecoveryCommit {
@@ -2715,7 +2775,7 @@ type CommitRecoveryResponse struct {
 
 func (x *CommitRecoveryResponse) Reset() {
 	*x = CommitRecoveryResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[36]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2727,7 +2787,7 @@ func (x *CommitRecoveryResponse) String() string {
 func (*CommitRecoveryResponse) ProtoMessage() {}
 
 func (x *CommitRecoveryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[36]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2740,7 +2800,7 @@ func (x *CommitRecoveryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommitRecoveryResponse.ProtoReflect.Descriptor instead.
 func (*CommitRecoveryResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{36}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *CommitRecoveryResponse) GetActivation() *Activation {
@@ -2767,7 +2827,7 @@ type MarkEmissionDeliveredRequest struct {
 
 func (x *MarkEmissionDeliveredRequest) Reset() {
 	*x = MarkEmissionDeliveredRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[37]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2779,7 +2839,7 @@ func (x *MarkEmissionDeliveredRequest) String() string {
 func (*MarkEmissionDeliveredRequest) ProtoMessage() {}
 
 func (x *MarkEmissionDeliveredRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[37]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2792,7 +2852,7 @@ func (x *MarkEmissionDeliveredRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MarkEmissionDeliveredRequest.ProtoReflect.Descriptor instead.
 func (*MarkEmissionDeliveredRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{37}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *MarkEmissionDeliveredRequest) GetScope() *Scope {
@@ -2817,7 +2877,7 @@ type MarkEmissionDeliveredResponse struct {
 
 func (x *MarkEmissionDeliveredResponse) Reset() {
 	*x = MarkEmissionDeliveredResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[38]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2829,7 +2889,7 @@ func (x *MarkEmissionDeliveredResponse) String() string {
 func (*MarkEmissionDeliveredResponse) ProtoMessage() {}
 
 func (x *MarkEmissionDeliveredResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[38]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2842,7 +2902,7 @@ func (x *MarkEmissionDeliveredResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MarkEmissionDeliveredResponse.ProtoReflect.Descriptor instead.
 func (*MarkEmissionDeliveredResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{38}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{39}
 }
 
 type ReadEmissionRequest struct {
@@ -2855,7 +2915,7 @@ type ReadEmissionRequest struct {
 
 func (x *ReadEmissionRequest) Reset() {
 	*x = ReadEmissionRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[39]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2867,7 +2927,7 @@ func (x *ReadEmissionRequest) String() string {
 func (*ReadEmissionRequest) ProtoMessage() {}
 
 func (x *ReadEmissionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[39]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2880,7 +2940,7 @@ func (x *ReadEmissionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadEmissionRequest.ProtoReflect.Descriptor instead.
 func (*ReadEmissionRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{39}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *ReadEmissionRequest) GetScope() *Scope {
@@ -2907,7 +2967,7 @@ type ReadEmissionResponse struct {
 
 func (x *ReadEmissionResponse) Reset() {
 	*x = ReadEmissionResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[40]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2919,7 +2979,7 @@ func (x *ReadEmissionResponse) String() string {
 func (*ReadEmissionResponse) ProtoMessage() {}
 
 func (x *ReadEmissionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[40]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2932,7 +2992,7 @@ func (x *ReadEmissionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadEmissionResponse.ProtoReflect.Descriptor instead.
 func (*ReadEmissionResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{40}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ReadEmissionResponse) GetEmission() *Emission {
@@ -2958,7 +3018,7 @@ type CommitEmissionRequest struct {
 
 func (x *CommitEmissionRequest) Reset() {
 	*x = CommitEmissionRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[41]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2970,7 +3030,7 @@ func (x *CommitEmissionRequest) String() string {
 func (*CommitEmissionRequest) ProtoMessage() {}
 
 func (x *CommitEmissionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[41]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2983,7 +3043,7 @@ func (x *CommitEmissionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommitEmissionRequest.ProtoReflect.Descriptor instead.
 func (*CommitEmissionRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{41}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *CommitEmissionRequest) GetEmission() *Emission {
@@ -3001,7 +3061,7 @@ type CommitEmissionResponse struct {
 
 func (x *CommitEmissionResponse) Reset() {
 	*x = CommitEmissionResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[42]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3013,7 +3073,7 @@ func (x *CommitEmissionResponse) String() string {
 func (*CommitEmissionResponse) ProtoMessage() {}
 
 func (x *CommitEmissionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[42]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3026,7 +3086,7 @@ func (x *CommitEmissionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommitEmissionResponse.ProtoReflect.Descriptor instead.
 func (*CommitEmissionResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{42}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{43}
 }
 
 type CommitAckRequest struct {
@@ -3038,7 +3098,7 @@ type CommitAckRequest struct {
 
 func (x *CommitAckRequest) Reset() {
 	*x = CommitAckRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[43]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3050,7 +3110,7 @@ func (x *CommitAckRequest) String() string {
 func (*CommitAckRequest) ProtoMessage() {}
 
 func (x *CommitAckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[43]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3063,7 +3123,7 @@ func (x *CommitAckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommitAckRequest.ProtoReflect.Descriptor instead.
 func (*CommitAckRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{43}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *CommitAckRequest) GetRequest() *AckRequest {
@@ -3081,7 +3141,7 @@ type CommitAckResponse struct {
 
 func (x *CommitAckResponse) Reset() {
 	*x = CommitAckResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[44]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3093,7 +3153,7 @@ func (x *CommitAckResponse) String() string {
 func (*CommitAckResponse) ProtoMessage() {}
 
 func (x *CommitAckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[44]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3106,7 +3166,7 @@ func (x *CommitAckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommitAckResponse.ProtoReflect.Descriptor instead.
 func (*CommitAckResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{44}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{45}
 }
 
 type ReadScopeRequest struct {
@@ -3118,7 +3178,7 @@ type ReadScopeRequest struct {
 
 func (x *ReadScopeRequest) Reset() {
 	*x = ReadScopeRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[45]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3130,7 +3190,7 @@ func (x *ReadScopeRequest) String() string {
 func (*ReadScopeRequest) ProtoMessage() {}
 
 func (x *ReadScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[45]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3143,7 +3203,7 @@ func (x *ReadScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadScopeRequest.ProtoReflect.Descriptor instead.
 func (*ReadScopeRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{45}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *ReadScopeRequest) GetScope() *Scope {
@@ -3163,7 +3223,7 @@ type ReadScopeResponse struct {
 
 func (x *ReadScopeResponse) Reset() {
 	*x = ReadScopeResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[46]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3175,7 +3235,7 @@ func (x *ReadScopeResponse) String() string {
 func (*ReadScopeResponse) ProtoMessage() {}
 
 func (x *ReadScopeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[46]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3188,7 +3248,7 @@ func (x *ReadScopeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadScopeResponse.ProtoReflect.Descriptor instead.
 func (*ReadScopeResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{46}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *ReadScopeResponse) GetState() *ScopeState {
@@ -3216,7 +3276,7 @@ type ReadConfigurationRequest struct {
 
 func (x *ReadConfigurationRequest) Reset() {
 	*x = ReadConfigurationRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[47]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3228,7 +3288,7 @@ func (x *ReadConfigurationRequest) String() string {
 func (*ReadConfigurationRequest) ProtoMessage() {}
 
 func (x *ReadConfigurationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[47]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3241,7 +3301,7 @@ func (x *ReadConfigurationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadConfigurationRequest.ProtoReflect.Descriptor instead.
 func (*ReadConfigurationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{47}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *ReadConfigurationRequest) GetScope() *Scope {
@@ -3275,7 +3335,7 @@ type ReadConfigurationResponse struct {
 
 func (x *ReadConfigurationResponse) Reset() {
 	*x = ReadConfigurationResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[48]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3287,7 +3347,7 @@ func (x *ReadConfigurationResponse) String() string {
 func (*ReadConfigurationResponse) ProtoMessage() {}
 
 func (x *ReadConfigurationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[48]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3300,7 +3360,7 @@ func (x *ReadConfigurationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadConfigurationResponse.ProtoReflect.Descriptor instead.
 func (*ReadConfigurationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{48}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *ReadConfigurationResponse) GetDocument() []byte {
@@ -3327,7 +3387,7 @@ type ReadActivationRequest struct {
 
 func (x *ReadActivationRequest) Reset() {
 	*x = ReadActivationRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[49]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3339,7 +3399,7 @@ func (x *ReadActivationRequest) String() string {
 func (*ReadActivationRequest) ProtoMessage() {}
 
 func (x *ReadActivationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[49]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3352,7 +3412,7 @@ func (x *ReadActivationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadActivationRequest.ProtoReflect.Descriptor instead.
 func (*ReadActivationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{49}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *ReadActivationRequest) GetScope() *Scope {
@@ -3379,7 +3439,7 @@ type ReadActivationResponse struct {
 
 func (x *ReadActivationResponse) Reset() {
 	*x = ReadActivationResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[50]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3391,7 +3451,7 @@ func (x *ReadActivationResponse) String() string {
 func (*ReadActivationResponse) ProtoMessage() {}
 
 func (x *ReadActivationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[50]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3404,7 +3464,7 @@ func (x *ReadActivationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadActivationResponse.ProtoReflect.Descriptor instead.
 func (*ReadActivationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{50}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *ReadActivationResponse) GetActivation() *Activation {
@@ -3439,7 +3499,7 @@ type CommitActivationRequest struct {
 
 func (x *CommitActivationRequest) Reset() {
 	*x = CommitActivationRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[51]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3451,7 +3511,7 @@ func (x *CommitActivationRequest) String() string {
 func (*CommitActivationRequest) ProtoMessage() {}
 
 func (x *CommitActivationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[51]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3464,7 +3524,7 @@ func (x *CommitActivationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommitActivationRequest.ProtoReflect.Descriptor instead.
 func (*CommitActivationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{51}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *CommitActivationRequest) GetScope() *Scope {
@@ -3547,7 +3607,7 @@ type CommitActivationResponse struct {
 
 func (x *CommitActivationResponse) Reset() {
 	*x = CommitActivationResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[52]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3559,7 +3619,7 @@ func (x *CommitActivationResponse) String() string {
 func (*CommitActivationResponse) ProtoMessage() {}
 
 func (x *CommitActivationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[52]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3572,7 +3632,7 @@ func (x *CommitActivationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommitActivationResponse.ProtoReflect.Descriptor instead.
 func (*CommitActivationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{52}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *CommitActivationResponse) GetActivation() *Activation {
@@ -3600,7 +3660,7 @@ type ReadBrokerConfigurationRequest struct {
 
 func (x *ReadBrokerConfigurationRequest) Reset() {
 	*x = ReadBrokerConfigurationRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[53]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3612,7 +3672,7 @@ func (x *ReadBrokerConfigurationRequest) String() string {
 func (*ReadBrokerConfigurationRequest) ProtoMessage() {}
 
 func (x *ReadBrokerConfigurationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[53]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3625,7 +3685,7 @@ func (x *ReadBrokerConfigurationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadBrokerConfigurationRequest.ProtoReflect.Descriptor instead.
 func (*ReadBrokerConfigurationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{53}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *ReadBrokerConfigurationRequest) GetScope() *Scope {
@@ -3659,7 +3719,7 @@ type ReadBrokerConfigurationResponse struct {
 
 func (x *ReadBrokerConfigurationResponse) Reset() {
 	*x = ReadBrokerConfigurationResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[54]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3671,7 +3731,7 @@ func (x *ReadBrokerConfigurationResponse) String() string {
 func (*ReadBrokerConfigurationResponse) ProtoMessage() {}
 
 func (x *ReadBrokerConfigurationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[54]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3684,7 +3744,7 @@ func (x *ReadBrokerConfigurationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadBrokerConfigurationResponse.ProtoReflect.Descriptor instead.
 func (*ReadBrokerConfigurationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{54}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *ReadBrokerConfigurationResponse) GetDocument() []byte {
@@ -3710,7 +3770,7 @@ type ReadBrokerScopeRequest struct {
 
 func (x *ReadBrokerScopeRequest) Reset() {
 	*x = ReadBrokerScopeRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[55]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3722,7 +3782,7 @@ func (x *ReadBrokerScopeRequest) String() string {
 func (*ReadBrokerScopeRequest) ProtoMessage() {}
 
 func (x *ReadBrokerScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[55]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3735,7 +3795,7 @@ func (x *ReadBrokerScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadBrokerScopeRequest.ProtoReflect.Descriptor instead.
 func (*ReadBrokerScopeRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{55}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *ReadBrokerScopeRequest) GetScope() *Scope {
@@ -3755,7 +3815,7 @@ type ReadBrokerScopeResponse struct {
 
 func (x *ReadBrokerScopeResponse) Reset() {
 	*x = ReadBrokerScopeResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[56]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3767,7 +3827,7 @@ func (x *ReadBrokerScopeResponse) String() string {
 func (*ReadBrokerScopeResponse) ProtoMessage() {}
 
 func (x *ReadBrokerScopeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[56]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3780,7 +3840,7 @@ func (x *ReadBrokerScopeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadBrokerScopeResponse.ProtoReflect.Descriptor instead.
 func (*ReadBrokerScopeResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{56}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *ReadBrokerScopeResponse) GetState() *ScopeState {
@@ -3807,7 +3867,7 @@ type ReadBrokerActivationRequest struct {
 
 func (x *ReadBrokerActivationRequest) Reset() {
 	*x = ReadBrokerActivationRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[57]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3819,7 +3879,7 @@ func (x *ReadBrokerActivationRequest) String() string {
 func (*ReadBrokerActivationRequest) ProtoMessage() {}
 
 func (x *ReadBrokerActivationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[57]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3832,7 +3892,7 @@ func (x *ReadBrokerActivationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadBrokerActivationRequest.ProtoReflect.Descriptor instead.
 func (*ReadBrokerActivationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{57}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *ReadBrokerActivationRequest) GetScope() *Scope {
@@ -3859,7 +3919,7 @@ type ReadBrokerActivationResponse struct {
 
 func (x *ReadBrokerActivationResponse) Reset() {
 	*x = ReadBrokerActivationResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[58]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3871,7 +3931,7 @@ func (x *ReadBrokerActivationResponse) String() string {
 func (*ReadBrokerActivationResponse) ProtoMessage() {}
 
 func (x *ReadBrokerActivationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[58]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3884,7 +3944,7 @@ func (x *ReadBrokerActivationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadBrokerActivationResponse.ProtoReflect.Descriptor instead.
 func (*ReadBrokerActivationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{58}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *ReadBrokerActivationResponse) GetActivation() *Activation {
@@ -3909,7 +3969,7 @@ type GetCandidateRequest struct {
 
 func (x *GetCandidateRequest) Reset() {
 	*x = GetCandidateRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[59]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3921,7 +3981,7 @@ func (x *GetCandidateRequest) String() string {
 func (*GetCandidateRequest) ProtoMessage() {}
 
 func (x *GetCandidateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[59]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3934,7 +3994,7 @@ func (x *GetCandidateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCandidateRequest.ProtoReflect.Descriptor instead.
 func (*GetCandidateRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{59}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{60}
 }
 
 type GetCandidateResponse struct {
@@ -3946,7 +4006,7 @@ type GetCandidateResponse struct {
 
 func (x *GetCandidateResponse) Reset() {
 	*x = GetCandidateResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[60]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3958,7 +4018,7 @@ func (x *GetCandidateResponse) String() string {
 func (*GetCandidateResponse) ProtoMessage() {}
 
 func (x *GetCandidateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[60]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3971,7 +4031,7 @@ func (x *GetCandidateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCandidateResponse.ProtoReflect.Descriptor instead.
 func (*GetCandidateResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{60}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *GetCandidateResponse) GetCandidate() *OwnerCandidate {
@@ -3994,7 +4054,7 @@ type ChangeOwnerRequest struct {
 
 func (x *ChangeOwnerRequest) Reset() {
 	*x = ChangeOwnerRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[61]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4006,7 +4066,7 @@ func (x *ChangeOwnerRequest) String() string {
 func (*ChangeOwnerRequest) ProtoMessage() {}
 
 func (x *ChangeOwnerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[61]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4019,7 +4079,7 @@ func (x *ChangeOwnerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeOwnerRequest.ProtoReflect.Descriptor instead.
 func (*ChangeOwnerRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{61}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *ChangeOwnerRequest) GetScope() *Scope {
@@ -4067,7 +4127,7 @@ type ChangeOwnerResponse struct {
 
 func (x *ChangeOwnerResponse) Reset() {
 	*x = ChangeOwnerResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[62]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4079,7 +4139,7 @@ func (x *ChangeOwnerResponse) String() string {
 func (*ChangeOwnerResponse) ProtoMessage() {}
 
 func (x *ChangeOwnerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[62]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4092,7 +4152,7 @@ func (x *ChangeOwnerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeOwnerResponse.ProtoReflect.Descriptor instead.
 func (*ChangeOwnerResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{62}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *ChangeOwnerResponse) GetState() *ScopeState {
@@ -4120,7 +4180,7 @@ type ReadProjectionRequest struct {
 
 func (x *ReadProjectionRequest) Reset() {
 	*x = ReadProjectionRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[63]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4132,7 +4192,7 @@ func (x *ReadProjectionRequest) String() string {
 func (*ReadProjectionRequest) ProtoMessage() {}
 
 func (x *ReadProjectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[63]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4145,7 +4205,7 @@ func (x *ReadProjectionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadProjectionRequest.ProtoReflect.Descriptor instead.
 func (*ReadProjectionRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{63}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *ReadProjectionRequest) GetTelemetryIncarnationId() string {
@@ -4179,7 +4239,7 @@ type ReadProjectionResponse struct {
 
 func (x *ReadProjectionResponse) Reset() {
 	*x = ReadProjectionResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[64]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4191,7 +4251,7 @@ func (x *ReadProjectionResponse) String() string {
 func (*ReadProjectionResponse) ProtoMessage() {}
 
 func (x *ReadProjectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[64]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4204,7 +4264,7 @@ func (x *ReadProjectionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadProjectionResponse.ProtoReflect.Descriptor instead.
 func (*ReadProjectionResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{64}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *ReadProjectionResponse) GetSnapshot() *ProjectionSnapshot {
@@ -4237,7 +4297,7 @@ type ClaimOwnerRequest struct {
 
 func (x *ClaimOwnerRequest) Reset() {
 	*x = ClaimOwnerRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[65]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4249,7 +4309,7 @@ func (x *ClaimOwnerRequest) String() string {
 func (*ClaimOwnerRequest) ProtoMessage() {}
 
 func (x *ClaimOwnerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[65]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4262,7 +4322,7 @@ func (x *ClaimOwnerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClaimOwnerRequest.ProtoReflect.Descriptor instead.
 func (*ClaimOwnerRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{65}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *ClaimOwnerRequest) GetScope() *Scope {
@@ -4331,7 +4391,7 @@ type ClaimOwnerResponse struct {
 
 func (x *ClaimOwnerResponse) Reset() {
 	*x = ClaimOwnerResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[66]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4343,7 +4403,7 @@ func (x *ClaimOwnerResponse) String() string {
 func (*ClaimOwnerResponse) ProtoMessage() {}
 
 func (x *ClaimOwnerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[66]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4356,7 +4416,7 @@ func (x *ClaimOwnerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClaimOwnerResponse.ProtoReflect.Descriptor instead.
 func (*ClaimOwnerResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{66}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{67}
 }
 
 func (x *ClaimOwnerResponse) GetState() *ScopeState {
@@ -4382,7 +4442,7 @@ type ClaimableScopesRequest struct {
 
 func (x *ClaimableScopesRequest) Reset() {
 	*x = ClaimableScopesRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[67]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4394,7 +4454,7 @@ func (x *ClaimableScopesRequest) String() string {
 func (*ClaimableScopesRequest) ProtoMessage() {}
 
 func (x *ClaimableScopesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[67]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4407,7 +4467,7 @@ func (x *ClaimableScopesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClaimableScopesRequest.ProtoReflect.Descriptor instead.
 func (*ClaimableScopesRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{67}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *ClaimableScopesRequest) GetInstanceId() string {
@@ -4427,7 +4487,7 @@ type ClaimableScopesResponse struct {
 
 func (x *ClaimableScopesResponse) Reset() {
 	*x = ClaimableScopesResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[68]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4439,7 +4499,7 @@ func (x *ClaimableScopesResponse) String() string {
 func (*ClaimableScopesResponse) ProtoMessage() {}
 
 func (x *ClaimableScopesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[68]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4452,7 +4512,7 @@ func (x *ClaimableScopesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClaimableScopesResponse.ProtoReflect.Descriptor instead.
 func (*ClaimableScopesResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{68}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *ClaimableScopesResponse) GetSnapshot() *ClaimableSnapshot {
@@ -4485,7 +4545,7 @@ type HandoffRequest struct {
 
 func (x *HandoffRequest) Reset() {
 	*x = HandoffRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[69]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4497,7 +4557,7 @@ func (x *HandoffRequest) String() string {
 func (*HandoffRequest) ProtoMessage() {}
 
 func (x *HandoffRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[69]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4510,7 +4570,7 @@ func (x *HandoffRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HandoffRequest.ProtoReflect.Descriptor instead.
 func (*HandoffRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{69}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *HandoffRequest) GetScope() *Scope {
@@ -4579,7 +4639,7 @@ type HandoffResponse struct {
 
 func (x *HandoffResponse) Reset() {
 	*x = HandoffResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[70]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4591,7 +4651,7 @@ func (x *HandoffResponse) String() string {
 func (*HandoffResponse) ProtoMessage() {}
 
 func (x *HandoffResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[70]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4604,7 +4664,7 @@ func (x *HandoffResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HandoffResponse.ProtoReflect.Descriptor instead.
 func (*HandoffResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{70}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{71}
 }
 
 func (x *HandoffResponse) GetState() *ScopeState {
@@ -4631,7 +4691,7 @@ type DrainRequest struct {
 
 func (x *DrainRequest) Reset() {
 	*x = DrainRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[71]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4643,7 +4703,7 @@ func (x *DrainRequest) String() string {
 func (*DrainRequest) ProtoMessage() {}
 
 func (x *DrainRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[71]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4656,7 +4716,7 @@ func (x *DrainRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DrainRequest.ProtoReflect.Descriptor instead.
 func (*DrainRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{71}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *DrainRequest) GetInstanceId() string {
@@ -4683,7 +4743,7 @@ type DrainResponse struct {
 
 func (x *DrainResponse) Reset() {
 	*x = DrainResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[72]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4695,7 +4755,7 @@ func (x *DrainResponse) String() string {
 func (*DrainResponse) ProtoMessage() {}
 
 func (x *DrainResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[72]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4708,7 +4768,7 @@ func (x *DrainResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DrainResponse.ProtoReflect.Descriptor instead.
 func (*DrainResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{72}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{73}
 }
 
 func (x *DrainResponse) GetResult() *DrainResult {
@@ -4734,7 +4794,7 @@ type GetRouteCandidateRequest struct {
 
 func (x *GetRouteCandidateRequest) Reset() {
 	*x = GetRouteCandidateRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[73]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4746,7 +4806,7 @@ func (x *GetRouteCandidateRequest) String() string {
 func (*GetRouteCandidateRequest) ProtoMessage() {}
 
 func (x *GetRouteCandidateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[73]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4759,7 +4819,7 @@ func (x *GetRouteCandidateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRouteCandidateRequest.ProtoReflect.Descriptor instead.
 func (*GetRouteCandidateRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{73}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{74}
 }
 
 func (x *GetRouteCandidateRequest) GetScope() *Scope {
@@ -4779,7 +4839,7 @@ type GetRouteCandidateResponse struct {
 
 func (x *GetRouteCandidateResponse) Reset() {
 	*x = GetRouteCandidateResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[74]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4791,7 +4851,7 @@ func (x *GetRouteCandidateResponse) String() string {
 func (*GetRouteCandidateResponse) ProtoMessage() {}
 
 func (x *GetRouteCandidateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[74]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4804,7 +4864,7 @@ func (x *GetRouteCandidateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRouteCandidateResponse.ProtoReflect.Descriptor instead.
 func (*GetRouteCandidateResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{74}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *GetRouteCandidateResponse) GetScope() *Scope {
@@ -4830,7 +4890,7 @@ type ReadRouteRequest struct {
 
 func (x *ReadRouteRequest) Reset() {
 	*x = ReadRouteRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[75]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4842,7 +4902,7 @@ func (x *ReadRouteRequest) String() string {
 func (*ReadRouteRequest) ProtoMessage() {}
 
 func (x *ReadRouteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[75]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4855,7 +4915,7 @@ func (x *ReadRouteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadRouteRequest.ProtoReflect.Descriptor instead.
 func (*ReadRouteRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{75}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *ReadRouteRequest) GetScope() *Scope {
@@ -4875,7 +4935,7 @@ type ReadRouteResponse struct {
 
 func (x *ReadRouteResponse) Reset() {
 	*x = ReadRouteResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[76]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4887,7 +4947,7 @@ func (x *ReadRouteResponse) String() string {
 func (*ReadRouteResponse) ProtoMessage() {}
 
 func (x *ReadRouteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[76]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4900,7 +4960,7 @@ func (x *ReadRouteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadRouteResponse.ProtoReflect.Descriptor instead.
 func (*ReadRouteResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{76}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *ReadRouteResponse) GetRoute() *Route {
@@ -4931,7 +4991,7 @@ type AdmitRequest struct {
 
 func (x *AdmitRequest) Reset() {
 	*x = AdmitRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[77]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4943,7 +5003,7 @@ func (x *AdmitRequest) String() string {
 func (*AdmitRequest) ProtoMessage() {}
 
 func (x *AdmitRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[77]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4956,7 +5016,7 @@ func (x *AdmitRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdmitRequest.ProtoReflect.Descriptor instead.
 func (*AdmitRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{77}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{78}
 }
 
 func (x *AdmitRequest) GetSession() *RenewLeaseRequest {
@@ -5003,14 +5063,14 @@ func (x *AdmitRequest) GetCandidates() []string {
 
 type AdmitResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Result        *v11.AdmitResult       `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	Result        *v12.AdmitResult       `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AdmitResponse) Reset() {
 	*x = AdmitResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[78]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5022,7 +5082,7 @@ func (x *AdmitResponse) String() string {
 func (*AdmitResponse) ProtoMessage() {}
 
 func (x *AdmitResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[78]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5035,10 +5095,10 @@ func (x *AdmitResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdmitResponse.ProtoReflect.Descriptor instead.
 func (*AdmitResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{78}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{79}
 }
 
-func (x *AdmitResponse) GetResult() *v11.AdmitResult {
+func (x *AdmitResponse) GetResult() *v12.AdmitResult {
 	if x != nil {
 		return x.Result
 	}
@@ -5055,7 +5115,7 @@ type LocateScopeRequest struct {
 
 func (x *LocateScopeRequest) Reset() {
 	*x = LocateScopeRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[79]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5067,7 +5127,7 @@ func (x *LocateScopeRequest) String() string {
 func (*LocateScopeRequest) ProtoMessage() {}
 
 func (x *LocateScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[79]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5080,7 +5140,7 @@ func (x *LocateScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LocateScopeRequest.ProtoReflect.Descriptor instead.
 func (*LocateScopeRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{79}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{80}
 }
 
 func (x *LocateScopeRequest) GetScope() *Scope {
@@ -5108,7 +5168,7 @@ type LocateScopeResponse struct {
 
 func (x *LocateScopeResponse) Reset() {
 	*x = LocateScopeResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[80]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5120,7 +5180,7 @@ func (x *LocateScopeResponse) String() string {
 func (*LocateScopeResponse) ProtoMessage() {}
 
 func (x *LocateScopeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[80]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5133,7 +5193,7 @@ func (x *LocateScopeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LocateScopeResponse.ProtoReflect.Descriptor instead.
 func (*LocateScopeResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{80}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{81}
 }
 
 func (x *LocateScopeResponse) GetControlAddress() string {
@@ -5169,7 +5229,7 @@ type ListAlertRulesRequest struct {
 
 func (x *ListAlertRulesRequest) Reset() {
 	*x = ListAlertRulesRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[81]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5181,7 +5241,7 @@ func (x *ListAlertRulesRequest) String() string {
 func (*ListAlertRulesRequest) ProtoMessage() {}
 
 func (x *ListAlertRulesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[81]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5194,7 +5254,7 @@ func (x *ListAlertRulesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAlertRulesRequest.ProtoReflect.Descriptor instead.
 func (*ListAlertRulesRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{81}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{82}
 }
 
 func (x *ListAlertRulesRequest) GetScope() *Scope {
@@ -5220,15 +5280,15 @@ func (x *ListAlertRulesRequest) GetOwnerEpoch() string {
 
 type ListAlertRulesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rules         []*v12.Rule            `protobuf:"bytes,1,rep,name=rules,proto3" json:"rules,omitempty"`
-	Firing        []*v12.Alert           `protobuf:"bytes,2,rep,name=firing,proto3" json:"firing,omitempty"`
+	Rules         []*v13.Rule            `protobuf:"bytes,1,rep,name=rules,proto3" json:"rules,omitempty"`
+	Firing        []*v13.Alert           `protobuf:"bytes,2,rep,name=firing,proto3" json:"firing,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListAlertRulesResponse) Reset() {
 	*x = ListAlertRulesResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[82]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5240,7 +5300,7 @@ func (x *ListAlertRulesResponse) String() string {
 func (*ListAlertRulesResponse) ProtoMessage() {}
 
 func (x *ListAlertRulesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[82]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5253,17 +5313,17 @@ func (x *ListAlertRulesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAlertRulesResponse.ProtoReflect.Descriptor instead.
 func (*ListAlertRulesResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{82}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{83}
 }
 
-func (x *ListAlertRulesResponse) GetRules() []*v12.Rule {
+func (x *ListAlertRulesResponse) GetRules() []*v13.Rule {
 	if x != nil {
 		return x.Rules
 	}
 	return nil
 }
 
-func (x *ListAlertRulesResponse) GetFiring() []*v12.Alert {
+func (x *ListAlertRulesResponse) GetFiring() []*v13.Alert {
 	if x != nil {
 		return x.Firing
 	}
@@ -5285,7 +5345,7 @@ type AlertTransition struct {
 
 func (x *AlertTransition) Reset() {
 	*x = AlertTransition{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[83]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5297,7 +5357,7 @@ func (x *AlertTransition) String() string {
 func (*AlertTransition) ProtoMessage() {}
 
 func (x *AlertTransition) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[83]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5310,7 +5370,7 @@ func (x *AlertTransition) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AlertTransition.ProtoReflect.Descriptor instead.
 func (*AlertTransition) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{83}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{84}
 }
 
 func (x *AlertTransition) GetRuleId() string {
@@ -5374,7 +5434,7 @@ type RecordAlertTransitionsRequest struct {
 
 func (x *RecordAlertTransitionsRequest) Reset() {
 	*x = RecordAlertTransitionsRequest{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[84]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5386,7 +5446,7 @@ func (x *RecordAlertTransitionsRequest) String() string {
 func (*RecordAlertTransitionsRequest) ProtoMessage() {}
 
 func (x *RecordAlertTransitionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[84]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5399,7 +5459,7 @@ func (x *RecordAlertTransitionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecordAlertTransitionsRequest.ProtoReflect.Descriptor instead.
 func (*RecordAlertTransitionsRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{84}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{85}
 }
 
 func (x *RecordAlertTransitionsRequest) GetScope() *Scope {
@@ -5438,7 +5498,7 @@ type RecordAlertTransitionsResponse struct {
 
 func (x *RecordAlertTransitionsResponse) Reset() {
 	*x = RecordAlertTransitionsResponse{}
-	mi := &file_n0x_control_v1_control_proto_msgTypes[85]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5450,7 +5510,7 @@ func (x *RecordAlertTransitionsResponse) String() string {
 func (*RecordAlertTransitionsResponse) ProtoMessage() {}
 
 func (x *RecordAlertTransitionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_control_v1_control_proto_msgTypes[85]
+	mi := &file_n0x_control_v1_control_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5463,14 +5523,504 @@ func (x *RecordAlertTransitionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecordAlertTransitionsResponse.ProtoReflect.Descriptor instead.
 func (*RecordAlertTransitionsResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{85}
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{86}
+}
+
+type AdmitWorkloadOfferRequest struct {
+	state         protoimpl.MessageState         `protogen:"open.v1"`
+	Session       *RenewLeaseRequest             `protobuf:"bytes,1,opt,name=session,proto3" json:"session,omitempty"`
+	Request       *v12.AdmitWorkloadOfferRequest `protobuf:"bytes,2,opt,name=request,proto3" json:"request,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdmitWorkloadOfferRequest) Reset() {
+	*x = AdmitWorkloadOfferRequest{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[87]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdmitWorkloadOfferRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdmitWorkloadOfferRequest) ProtoMessage() {}
+
+func (x *AdmitWorkloadOfferRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[87]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdmitWorkloadOfferRequest.ProtoReflect.Descriptor instead.
+func (*AdmitWorkloadOfferRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{87}
+}
+
+func (x *AdmitWorkloadOfferRequest) GetSession() *RenewLeaseRequest {
+	if x != nil {
+		return x.Session
+	}
+	return nil
+}
+
+func (x *AdmitWorkloadOfferRequest) GetRequest() *v12.AdmitWorkloadOfferRequest {
+	if x != nil {
+		return x.Request
+	}
+	return nil
+}
+
+type RenewWorkloadOfferRequest struct {
+	state         protoimpl.MessageState         `protogen:"open.v1"`
+	Session       *RenewLeaseRequest             `protobuf:"bytes,1,opt,name=session,proto3" json:"session,omitempty"`
+	Request       *v12.RenewWorkloadOfferRequest `protobuf:"bytes,2,opt,name=request,proto3" json:"request,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RenewWorkloadOfferRequest) Reset() {
+	*x = RenewWorkloadOfferRequest{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[88]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RenewWorkloadOfferRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RenewWorkloadOfferRequest) ProtoMessage() {}
+
+func (x *RenewWorkloadOfferRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[88]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RenewWorkloadOfferRequest.ProtoReflect.Descriptor instead.
+func (*RenewWorkloadOfferRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{88}
+}
+
+func (x *RenewWorkloadOfferRequest) GetSession() *RenewLeaseRequest {
+	if x != nil {
+		return x.Session
+	}
+	return nil
+}
+
+func (x *RenewWorkloadOfferRequest) GetRequest() *v12.RenewWorkloadOfferRequest {
+	if x != nil {
+		return x.Request
+	}
+	return nil
+}
+
+type RegisterWorkloadFromHostRequest struct {
+	state         protoimpl.MessageState               `protogen:"open.v1"`
+	Session       *RenewLeaseRequest                   `protobuf:"bytes,1,opt,name=session,proto3" json:"session,omitempty"`
+	Request       *v11.RegisterWorkloadFromHostRequest `protobuf:"bytes,2,opt,name=request,proto3" json:"request,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegisterWorkloadFromHostRequest) Reset() {
+	*x = RegisterWorkloadFromHostRequest{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[89]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterWorkloadFromHostRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterWorkloadFromHostRequest) ProtoMessage() {}
+
+func (x *RegisterWorkloadFromHostRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[89]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterWorkloadFromHostRequest.ProtoReflect.Descriptor instead.
+func (*RegisterWorkloadFromHostRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{89}
+}
+
+func (x *RegisterWorkloadFromHostRequest) GetSession() *RenewLeaseRequest {
+	if x != nil {
+		return x.Session
+	}
+	return nil
+}
+
+func (x *RegisterWorkloadFromHostRequest) GetRequest() *v11.RegisterWorkloadFromHostRequest {
+	if x != nil {
+		return x.Request
+	}
+	return nil
+}
+
+// El scope se autoriza igual que en ReadProjection; no se aceptan ambitos
+// de cuenta o tenant independientes que puedan contradecirlo.
+type ReadFlowEventsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Scope *Scope                 `protobuf:"bytes,1,opt,name=scope,proto3" json:"scope,omitempty"`
+	// Cursor opaco exclusivo ligado al scope y a la epoca del anillo. Vacio
+	// inicia en el evento mas antiguo retenido, no en la frontera en vivo.
+	Cursor *string `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	// Cero usa 100; maximo 1000; valores negativos no son validos.
+	PageSize      *int32 `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReadFlowEventsRequest) Reset() {
+	*x = ReadFlowEventsRequest{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[90]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReadFlowEventsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReadFlowEventsRequest) ProtoMessage() {}
+
+func (x *ReadFlowEventsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[90]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReadFlowEventsRequest.ProtoReflect.Descriptor instead.
+func (*ReadFlowEventsRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{90}
+}
+
+func (x *ReadFlowEventsRequest) GetScope() *Scope {
+	if x != nil {
+		return x.Scope
+	}
+	return nil
+}
+
+func (x *ReadFlowEventsRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+func (x *ReadFlowEventsRequest) GetPageSize() int32 {
+	if x != nil && x.PageSize != nil {
+		return *x.PageSize
+	}
+	return 0
+}
+
+// Conserva el origen del flujo para que authority normalice sesiones por
+// encarnacion/boot y 5-tupla, sin mover esa logica al controller.
+type FlowEventEntry struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IncarnationId *string                `protobuf:"bytes,1,opt,name=incarnation_id,json=incarnationId,proto3,oneof" json:"incarnation_id,omitempty"`
+	BootId        *string                `protobuf:"bytes,2,opt,name=boot_id,json=bootId,proto3,oneof" json:"boot_id,omitempty"`
+	Event         *FlowEvent             `protobuf:"bytes,3,opt,name=event,proto3" json:"event,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FlowEventEntry) Reset() {
+	*x = FlowEventEntry{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[91]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FlowEventEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FlowEventEntry) ProtoMessage() {}
+
+func (x *FlowEventEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[91]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FlowEventEntry.ProtoReflect.Descriptor instead.
+func (*FlowEventEntry) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{91}
+}
+
+func (x *FlowEventEntry) GetIncarnationId() string {
+	if x != nil && x.IncarnationId != nil {
+		return *x.IncarnationId
+	}
+	return ""
+}
+
+func (x *FlowEventEntry) GetBootId() string {
+	if x != nil && x.BootId != nil {
+		return *x.BootId
+	}
+	return ""
+}
+
+func (x *FlowEventEntry) GetEvent() *FlowEvent {
+	if x != nil {
+		return x.Event
+	}
+	return nil
+}
+
+type ReadFlowEventsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Orden estable del anillo; FlowEvent.cursor sigue siendo local al nodo/boot.
+	Entries []*FlowEventEntry `protobuf:"bytes,1,rep,name=entries,proto3" json:"entries,omitempty"`
+	// Limite seguro tras esta pagina, tambien vacia. Persistirlo para la siguiente
+	// lectura; deduplicar por encarnacion, boot y FlowEvent.cursor tras retry.
+	Cursor  *string `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	HasMore *bool   `protobuf:"varint,3,opt,name=has_more,json=hasMore,proto3,oneof" json:"has_more,omitempty"`
+	// Expulsion por capacidad/edad o reinicio: nunca certificar continuidad
+	// silenciosamente. Se devuelve lo retenido y un nuevo cursor utilizable.
+	// Retencion maxima de 24 h en memoria; no garantiza 24 h tras un reinicio.
+	HistoryLost   *bool `protobuf:"varint,4,opt,name=history_lost,json=historyLost,proto3,oneof" json:"history_lost,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReadFlowEventsResponse) Reset() {
+	*x = ReadFlowEventsResponse{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[92]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReadFlowEventsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReadFlowEventsResponse) ProtoMessage() {}
+
+func (x *ReadFlowEventsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[92]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReadFlowEventsResponse.ProtoReflect.Descriptor instead.
+func (*ReadFlowEventsResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{92}
+}
+
+func (x *ReadFlowEventsResponse) GetEntries() []*FlowEventEntry {
+	if x != nil {
+		return x.Entries
+	}
+	return nil
+}
+
+func (x *ReadFlowEventsResponse) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+func (x *ReadFlowEventsResponse) GetHasMore() bool {
+	if x != nil && x.HasMore != nil {
+		return *x.HasMore
+	}
+	return false
+}
+
+func (x *ReadFlowEventsResponse) GetHistoryLost() bool {
+	if x != nil && x.HistoryLost != nil {
+		return *x.HistoryLost
+	}
+	return false
+}
+
+// Envolturas propias de la ruta de control; conservan los mensajes de dominio.
+type AdmitWorkloadOfferResponse struct {
+	state         protoimpl.MessageState          `protogen:"open.v1"`
+	Response      *v12.AdmitWorkloadOfferResponse `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdmitWorkloadOfferResponse) Reset() {
+	*x = AdmitWorkloadOfferResponse{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[93]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdmitWorkloadOfferResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdmitWorkloadOfferResponse) ProtoMessage() {}
+
+func (x *AdmitWorkloadOfferResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[93]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdmitWorkloadOfferResponse.ProtoReflect.Descriptor instead.
+func (*AdmitWorkloadOfferResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{93}
+}
+
+func (x *AdmitWorkloadOfferResponse) GetResponse() *v12.AdmitWorkloadOfferResponse {
+	if x != nil {
+		return x.Response
+	}
+	return nil
+}
+
+type RenewWorkloadOfferResponse struct {
+	state         protoimpl.MessageState          `protogen:"open.v1"`
+	Response      *v12.RenewWorkloadOfferResponse `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RenewWorkloadOfferResponse) Reset() {
+	*x = RenewWorkloadOfferResponse{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[94]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RenewWorkloadOfferResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RenewWorkloadOfferResponse) ProtoMessage() {}
+
+func (x *RenewWorkloadOfferResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[94]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RenewWorkloadOfferResponse.ProtoReflect.Descriptor instead.
+func (*RenewWorkloadOfferResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{94}
+}
+
+func (x *RenewWorkloadOfferResponse) GetResponse() *v12.RenewWorkloadOfferResponse {
+	if x != nil {
+		return x.Response
+	}
+	return nil
+}
+
+type RegisterWorkloadFromHostResponse struct {
+	state         protoimpl.MessageState                `protogen:"open.v1"`
+	Response      *v11.RegisterWorkloadFromHostResponse `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegisterWorkloadFromHostResponse) Reset() {
+	*x = RegisterWorkloadFromHostResponse{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[95]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterWorkloadFromHostResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterWorkloadFromHostResponse) ProtoMessage() {}
+
+func (x *RegisterWorkloadFromHostResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[95]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterWorkloadFromHostResponse.ProtoReflect.Descriptor instead.
+func (*RegisterWorkloadFromHostResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{95}
+}
+
+func (x *RegisterWorkloadFromHostResponse) GetResponse() *v11.RegisterWorkloadFromHostResponse {
+	if x != nil {
+		return x.Response
+	}
+	return nil
 }
 
 var File_n0x_control_v1_control_proto protoreflect.FileDescriptor
 
 const file_n0x_control_v1_control_proto_rawDesc = "" +
 	"\n" +
-	"\x1cn0x/control/v1/control.proto\x12\x0en0x.control.v1\x1a\x1an0x/alerts/v1/alerts.proto\x1a&n0x/connectivity/v1/connectivity.proto\x1a\x1an0x/signed/v1/signed.proto\"D\n" +
+	"\x1cn0x/control/v1/control.proto\x12\x0en0x.control.v1\x1a\x1an0x/alerts/v1/alerts.proto\x1a&n0x/connectivity/v1/connectivity.proto\x1a\x1an0x/signed/v1/signed.proto\x1a n0x/workloads/v1/workloads.proto\"D\n" +
 	"\bHaPolicy\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12\x1e\n" +
 	"\n" +
@@ -5679,7 +6229,9 @@ const file_n0x_control_v1_control_proto_rawDesc = "" +
 	"\x0esystem_boot_id\x18\x06 \x01(\tR\fsystemBootId\x12#\n" +
 	"\ragent_version\x18\a \x01(\tR\fagentVersion\x12\x1f\n" +
 	"\vobserved_at\x18\b \x01(\x03R\n" +
-	"observedAt\"\xaa\x02\n" +
+	"observedAt\"e\n" +
+	"\x19ListeningPortsObservation\x12H\n" +
+	"\x0flistening_ports\x18\x01 \x03(\v2\x1f.n0x.workloads.v1.ListeningPortR\x0elisteningPorts\"\xfe\x02\n" +
 	"\rFlowTelemetry\x120\n" +
 	"\x05flows\x18\x01 \x03(\v2\x1a.n0x.control.v1.FlowRecordR\x05flows\x121\n" +
 	"\x06events\x18\x02 \x03(\v2\x19.n0x.control.v1.FlowEventR\x06events\x12\x16\n" +
@@ -5689,7 +6241,8 @@ const file_n0x_control_v1_control_proto_rawDesc = "" +
 	"\vobserved_at\x18\x05 \x01(\x03R\n" +
 	"observedAt\x12'\n" +
 	"\x0fconfig_revision\x18\x06 \x01(\tR\x0econfigRevision\x121\n" +
-	"\x04host\x18\a \x01(\v2\x1d.n0x.control.v1.HostTelemetryR\x04host\"\x9c\x02\n" +
+	"\x04host\x18\a \x01(\v2\x1d.n0x.control.v1.HostTelemetryR\x04host\x12R\n" +
+	"\x0flistening_ports\x18\b \x01(\v2).n0x.control.v1.ListeningPortsObservationR\x0elisteningPorts\"\x9c\x02\n" +
 	"\x12ReportFlowsRequest\x12+\n" +
 	"\x05scope\x18\x01 \x01(\v2\x15.n0x.control.v1.ScopeR\x05scope\x12%\n" +
 	"\x0eincarnation_id\x18\x02 \x01(\tR\rincarnationId\x12\x17\n" +
@@ -5919,7 +6472,44 @@ const file_n0x_control_v1_control_proto_rawDesc = "" +
 	"\vowner_epoch\x18\x03 \x01(\tR\n" +
 	"ownerEpoch\x12A\n" +
 	"\vtransitions\x18\x04 \x03(\v2\x1f.n0x.control.v1.AlertTransitionR\vtransitions\" \n" +
-	"\x1eRecordAlertTransitionsResponse2\x91\x05\n" +
+	"\x1eRecordAlertTransitionsResponse\"\xa2\x01\n" +
+	"\x19AdmitWorkloadOfferRequest\x12;\n" +
+	"\asession\x18\x01 \x01(\v2!.n0x.control.v1.RenewLeaseRequestR\asession\x12H\n" +
+	"\arequest\x18\x02 \x01(\v2..n0x.connectivity.v1.AdmitWorkloadOfferRequestR\arequest\"\xa2\x01\n" +
+	"\x19RenewWorkloadOfferRequest\x12;\n" +
+	"\asession\x18\x01 \x01(\v2!.n0x.control.v1.RenewLeaseRequestR\asession\x12H\n" +
+	"\arequest\x18\x02 \x01(\v2..n0x.connectivity.v1.RenewWorkloadOfferRequestR\arequest\"\xab\x01\n" +
+	"\x1fRegisterWorkloadFromHostRequest\x12;\n" +
+	"\asession\x18\x01 \x01(\v2!.n0x.control.v1.RenewLeaseRequestR\asession\x12K\n" +
+	"\arequest\x18\x02 \x01(\v21.n0x.workloads.v1.RegisterWorkloadFromHostRequestR\arequest\"\x9c\x01\n" +
+	"\x15ReadFlowEventsRequest\x12+\n" +
+	"\x05scope\x18\x01 \x01(\v2\x15.n0x.control.v1.ScopeR\x05scope\x12\x1b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12 \n" +
+	"\tpage_size\x18\x03 \x01(\x05H\x01R\bpageSize\x88\x01\x01B\t\n" +
+	"\a_cursorB\f\n" +
+	"\n" +
+	"_page_size\"\xaa\x01\n" +
+	"\x0eFlowEventEntry\x12*\n" +
+	"\x0eincarnation_id\x18\x01 \x01(\tH\x00R\rincarnationId\x88\x01\x01\x12\x1c\n" +
+	"\aboot_id\x18\x02 \x01(\tH\x01R\x06bootId\x88\x01\x01\x12/\n" +
+	"\x05event\x18\x03 \x01(\v2\x19.n0x.control.v1.FlowEventR\x05eventB\x11\n" +
+	"\x0f_incarnation_idB\n" +
+	"\n" +
+	"\b_boot_id\"\xe0\x01\n" +
+	"\x16ReadFlowEventsResponse\x128\n" +
+	"\aentries\x18\x01 \x03(\v2\x1e.n0x.control.v1.FlowEventEntryR\aentries\x12\x1b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x1e\n" +
+	"\bhas_more\x18\x03 \x01(\bH\x01R\ahasMore\x88\x01\x01\x12&\n" +
+	"\fhistory_lost\x18\x04 \x01(\bH\x02R\vhistoryLost\x88\x01\x01B\t\n" +
+	"\a_cursorB\v\n" +
+	"\t_has_moreB\x0f\n" +
+	"\r_history_lost\"i\n" +
+	"\x1aAdmitWorkloadOfferResponse\x12K\n" +
+	"\bresponse\x18\x01 \x01(\v2/.n0x.connectivity.v1.AdmitWorkloadOfferResponseR\bresponse\"i\n" +
+	"\x1aRenewWorkloadOfferResponse\x12K\n" +
+	"\bresponse\x18\x01 \x01(\v2/.n0x.connectivity.v1.RenewWorkloadOfferResponseR\bresponse\"r\n" +
+	" RegisterWorkloadFromHostResponse\x12N\n" +
+	"\bresponse\x18\x01 \x01(\v22.n0x.workloads.v1.RegisterWorkloadFromHostResponseR\bresponse2\x90\x06\n" +
 	"\x12NodeControlService\x12b\n" +
 	"\x0fBeginActivation\x12&.n0x.control.v1.BeginActivationRequest\x1a'.n0x.control.v1.BeginActivationResponse\x12Y\n" +
 	"\fActivateNode\x12#.n0x.control.v1.ActivateNodeRequest\x1a$.n0x.control.v1.ActivateNodeResponse\x12_\n" +
@@ -5928,7 +6518,8 @@ const file_n0x_control_v1_control_proto_rawDesc = "" +
 	"\n" +
 	"RenewLease\x12!.n0x.control.v1.RenewLeaseRequest\x1a\".n0x.control.v1.RenewLeaseResponse\x12V\n" +
 	"\vReportState\x12\".n0x.control.v1.ReportStateRequest\x1a#.n0x.control.v1.ReportStateResponse\x12V\n" +
-	"\vReportFlows\x12\".n0x.control.v1.ReportFlowsRequest\x1a#.n0x.control.v1.ReportFlowsResponse2\x82\x02\n" +
+	"\vReportFlows\x12\".n0x.control.v1.ReportFlowsRequest\x1a#.n0x.control.v1.ReportFlowsResponse\x12}\n" +
+	"\x18RegisterWorkloadFromHost\x12/.n0x.control.v1.RegisterWorkloadFromHostRequest\x1a0.n0x.control.v1.RegisterWorkloadFromHostResponse2\x82\x02\n" +
 	"\x17AuthorityControlService\x12q\n" +
 	"\x14PublishConfiguration\x12+.n0x.control.v1.PublishConfigurationRequest\x1a,.n0x.control.v1.PublishConfigurationResponse\x12t\n" +
 	"\x15AcquireAuthorityGrant\x12,.n0x.control.v1.AcquireAuthorityGrantRequest\x1a-.n0x.control.v1.AcquireAuthorityGrantResponse2\x80\a\n" +
@@ -5949,9 +6540,10 @@ const file_n0x_control_v1_control_proto_rawDesc = "" +
 	"\x19OwnershipCandidateService\x12Y\n" +
 	"\fGetCandidate\x12#.n0x.control.v1.GetCandidateRequest\x1a$.n0x.control.v1.GetCandidateResponse2o\n" +
 	"\x15OwnershipAdminService\x12V\n" +
-	"\vChangeOwner\x12\".n0x.control.v1.ChangeOwnerRequest\x1a#.n0x.control.v1.ChangeOwnerResponse2}\n" +
+	"\vChangeOwner\x12\".n0x.control.v1.ChangeOwnerRequest\x1a#.n0x.control.v1.ChangeOwnerResponse2\xde\x01\n" +
 	"\x1aControlObservationsService\x12_\n" +
-	"\x0eReadProjection\x12%.n0x.control.v1.ReadProjectionRequest\x1a&.n0x.control.v1.ReadProjectionResponse2\xa0\x02\n" +
+	"\x0eReadProjection\x12%.n0x.control.v1.ReadProjectionRequest\x1a&.n0x.control.v1.ReadProjectionResponse\x12_\n" +
+	"\x0eReadFlowEvents\x12%.n0x.control.v1.ReadFlowEventsRequest\x1a&.n0x.control.v1.ReadFlowEventsResponse2\xa0\x02\n" +
 	"\x19OwnershipAutomaticService\x12S\n" +
 	"\n" +
 	"ClaimOwner\x12!.n0x.control.v1.ClaimOwnerRequest\x1a\".n0x.control.v1.ClaimOwnerResponse\x12b\n" +
@@ -5962,9 +6554,11 @@ const file_n0x_control_v1_control_proto_rawDesc = "" +
 	"\x1aOwnerRouteCandidateService\x12h\n" +
 	"\x11GetRouteCandidate\x12(.n0x.control.v1.GetRouteCandidateRequest\x1a).n0x.control.v1.GetRouteCandidateResponse2f\n" +
 	"\x12OwnerRoutesService\x12P\n" +
-	"\tReadRoute\x12 .n0x.control.v1.ReadRouteRequest\x1a!.n0x.control.v1.ReadRouteResponse2b\n" +
+	"\tReadRoute\x12 .n0x.control.v1.ReadRouteRequest\x1a!.n0x.control.v1.ReadRouteResponse2\xbc\x02\n" +
 	"\x1aConnectivityControlService\x12D\n" +
-	"\x05Admit\x12\x1c.n0x.control.v1.AdmitRequest\x1a\x1d.n0x.control.v1.AdmitResponse2n\n" +
+	"\x05Admit\x12\x1c.n0x.control.v1.AdmitRequest\x1a\x1d.n0x.control.v1.AdmitResponse\x12k\n" +
+	"\x12AdmitWorkloadOffer\x12).n0x.control.v1.AdmitWorkloadOfferRequest\x1a*.n0x.control.v1.AdmitWorkloadOfferResponse\x12k\n" +
+	"\x12RenewWorkloadOffer\x12).n0x.control.v1.RenewWorkloadOfferRequest\x1a*.n0x.control.v1.RenewWorkloadOfferResponse2n\n" +
 	"\x14NodeDiscoveryService\x12V\n" +
 	"\vLocateScope\x12\".n0x.control.v1.LocateScopeRequest\x1a#.n0x.control.v1.LocateScopeResponse2\xf2\x01\n" +
 	"\x16AlertEvaluationService\x12_\n" +
@@ -5983,107 +6577,124 @@ func file_n0x_control_v1_control_proto_rawDescGZIP() []byte {
 	return file_n0x_control_v1_control_proto_rawDescData
 }
 
-var file_n0x_control_v1_control_proto_msgTypes = make([]protoimpl.MessageInfo, 86)
+var file_n0x_control_v1_control_proto_msgTypes = make([]protoimpl.MessageInfo, 96)
 var file_n0x_control_v1_control_proto_goTypes = []any{
-	(*HaPolicy)(nil),                        // 0: n0x.control.v1.HaPolicy
-	(*ScopeState)(nil),                      // 1: n0x.control.v1.ScopeState
-	(*Activation)(nil),                      // 2: n0x.control.v1.Activation
-	(*Emission)(nil),                        // 3: n0x.control.v1.Emission
-	(*AckRequest)(nil),                      // 4: n0x.control.v1.AckRequest
-	(*RecoveryCommit)(nil),                  // 5: n0x.control.v1.RecoveryCommit
-	(*ObservationView)(nil),                 // 6: n0x.control.v1.ObservationView
-	(*Scope)(nil),                           // 7: n0x.control.v1.Scope
-	(*Route)(nil),                           // 8: n0x.control.v1.Route
-	(*ProjectionSnapshot)(nil),              // 9: n0x.control.v1.ProjectionSnapshot
-	(*ClaimableSnapshot)(nil),               // 10: n0x.control.v1.ClaimableSnapshot
-	(*DrainResult)(nil),                     // 11: n0x.control.v1.DrainResult
-	(*OwnerCandidate)(nil),                  // 12: n0x.control.v1.OwnerCandidate
-	(*BeginActivationRequest)(nil),          // 13: n0x.control.v1.BeginActivationRequest
-	(*BeginActivationResponse)(nil),         // 14: n0x.control.v1.BeginActivationResponse
-	(*ActivateNodeRequest)(nil),             // 15: n0x.control.v1.ActivateNodeRequest
-	(*ActivateNodeResponse)(nil),            // 16: n0x.control.v1.ActivateNodeResponse
-	(*RecoverSessionRequest)(nil),           // 17: n0x.control.v1.RecoverSessionRequest
-	(*RecoverSessionResponse)(nil),          // 18: n0x.control.v1.RecoverSessionResponse
-	(*GetSnapshotRequest)(nil),              // 19: n0x.control.v1.GetSnapshotRequest
-	(*GetSnapshotResponse)(nil),             // 20: n0x.control.v1.GetSnapshotResponse
-	(*RenewLeaseRequest)(nil),               // 21: n0x.control.v1.RenewLeaseRequest
-	(*RenewLeaseResponse)(nil),              // 22: n0x.control.v1.RenewLeaseResponse
-	(*ReportStateRequest)(nil),              // 23: n0x.control.v1.ReportStateRequest
-	(*ReportStateResponse)(nil),             // 24: n0x.control.v1.ReportStateResponse
-	(*FlowRecord)(nil),                      // 25: n0x.control.v1.FlowRecord
-	(*FlowEvent)(nil),                       // 26: n0x.control.v1.FlowEvent
-	(*HostTelemetry)(nil),                   // 27: n0x.control.v1.HostTelemetry
-	(*FlowTelemetry)(nil),                   // 28: n0x.control.v1.FlowTelemetry
-	(*ReportFlowsRequest)(nil),              // 29: n0x.control.v1.ReportFlowsRequest
-	(*ReportFlowsResponse)(nil),             // 30: n0x.control.v1.ReportFlowsResponse
-	(*PublishConfigurationRequest)(nil),     // 31: n0x.control.v1.PublishConfigurationRequest
-	(*PublishConfigurationResponse)(nil),    // 32: n0x.control.v1.PublishConfigurationResponse
-	(*AcquireAuthorityGrantRequest)(nil),    // 33: n0x.control.v1.AcquireAuthorityGrantRequest
-	(*AcquireAuthorityGrantResponse)(nil),   // 34: n0x.control.v1.AcquireAuthorityGrantResponse
-	(*CommitRecoveryRequest)(nil),           // 35: n0x.control.v1.CommitRecoveryRequest
-	(*CommitRecoveryResponse)(nil),          // 36: n0x.control.v1.CommitRecoveryResponse
-	(*MarkEmissionDeliveredRequest)(nil),    // 37: n0x.control.v1.MarkEmissionDeliveredRequest
-	(*MarkEmissionDeliveredResponse)(nil),   // 38: n0x.control.v1.MarkEmissionDeliveredResponse
-	(*ReadEmissionRequest)(nil),             // 39: n0x.control.v1.ReadEmissionRequest
-	(*ReadEmissionResponse)(nil),            // 40: n0x.control.v1.ReadEmissionResponse
-	(*CommitEmissionRequest)(nil),           // 41: n0x.control.v1.CommitEmissionRequest
-	(*CommitEmissionResponse)(nil),          // 42: n0x.control.v1.CommitEmissionResponse
-	(*CommitAckRequest)(nil),                // 43: n0x.control.v1.CommitAckRequest
-	(*CommitAckResponse)(nil),               // 44: n0x.control.v1.CommitAckResponse
-	(*ReadScopeRequest)(nil),                // 45: n0x.control.v1.ReadScopeRequest
-	(*ReadScopeResponse)(nil),               // 46: n0x.control.v1.ReadScopeResponse
-	(*ReadConfigurationRequest)(nil),        // 47: n0x.control.v1.ReadConfigurationRequest
-	(*ReadConfigurationResponse)(nil),       // 48: n0x.control.v1.ReadConfigurationResponse
-	(*ReadActivationRequest)(nil),           // 49: n0x.control.v1.ReadActivationRequest
-	(*ReadActivationResponse)(nil),          // 50: n0x.control.v1.ReadActivationResponse
-	(*CommitActivationRequest)(nil),         // 51: n0x.control.v1.CommitActivationRequest
-	(*CommitActivationResponse)(nil),        // 52: n0x.control.v1.CommitActivationResponse
-	(*ReadBrokerConfigurationRequest)(nil),  // 53: n0x.control.v1.ReadBrokerConfigurationRequest
-	(*ReadBrokerConfigurationResponse)(nil), // 54: n0x.control.v1.ReadBrokerConfigurationResponse
-	(*ReadBrokerScopeRequest)(nil),          // 55: n0x.control.v1.ReadBrokerScopeRequest
-	(*ReadBrokerScopeResponse)(nil),         // 56: n0x.control.v1.ReadBrokerScopeResponse
-	(*ReadBrokerActivationRequest)(nil),     // 57: n0x.control.v1.ReadBrokerActivationRequest
-	(*ReadBrokerActivationResponse)(nil),    // 58: n0x.control.v1.ReadBrokerActivationResponse
-	(*GetCandidateRequest)(nil),             // 59: n0x.control.v1.GetCandidateRequest
-	(*GetCandidateResponse)(nil),            // 60: n0x.control.v1.GetCandidateResponse
-	(*ChangeOwnerRequest)(nil),              // 61: n0x.control.v1.ChangeOwnerRequest
-	(*ChangeOwnerResponse)(nil),             // 62: n0x.control.v1.ChangeOwnerResponse
-	(*ReadProjectionRequest)(nil),           // 63: n0x.control.v1.ReadProjectionRequest
-	(*ReadProjectionResponse)(nil),          // 64: n0x.control.v1.ReadProjectionResponse
-	(*ClaimOwnerRequest)(nil),               // 65: n0x.control.v1.ClaimOwnerRequest
-	(*ClaimOwnerResponse)(nil),              // 66: n0x.control.v1.ClaimOwnerResponse
-	(*ClaimableScopesRequest)(nil),          // 67: n0x.control.v1.ClaimableScopesRequest
-	(*ClaimableScopesResponse)(nil),         // 68: n0x.control.v1.ClaimableScopesResponse
-	(*HandoffRequest)(nil),                  // 69: n0x.control.v1.HandoffRequest
-	(*HandoffResponse)(nil),                 // 70: n0x.control.v1.HandoffResponse
-	(*DrainRequest)(nil),                    // 71: n0x.control.v1.DrainRequest
-	(*DrainResponse)(nil),                   // 72: n0x.control.v1.DrainResponse
-	(*GetRouteCandidateRequest)(nil),        // 73: n0x.control.v1.GetRouteCandidateRequest
-	(*GetRouteCandidateResponse)(nil),       // 74: n0x.control.v1.GetRouteCandidateResponse
-	(*ReadRouteRequest)(nil),                // 75: n0x.control.v1.ReadRouteRequest
-	(*ReadRouteResponse)(nil),               // 76: n0x.control.v1.ReadRouteResponse
-	(*AdmitRequest)(nil),                    // 77: n0x.control.v1.AdmitRequest
-	(*AdmitResponse)(nil),                   // 78: n0x.control.v1.AdmitResponse
-	(*LocateScopeRequest)(nil),              // 79: n0x.control.v1.LocateScopeRequest
-	(*LocateScopeResponse)(nil),             // 80: n0x.control.v1.LocateScopeResponse
-	(*ListAlertRulesRequest)(nil),           // 81: n0x.control.v1.ListAlertRulesRequest
-	(*ListAlertRulesResponse)(nil),          // 82: n0x.control.v1.ListAlertRulesResponse
-	(*AlertTransition)(nil),                 // 83: n0x.control.v1.AlertTransition
-	(*RecordAlertTransitionsRequest)(nil),   // 84: n0x.control.v1.RecordAlertTransitionsRequest
-	(*RecordAlertTransitionsResponse)(nil),  // 85: n0x.control.v1.RecordAlertTransitionsResponse
-	(*v1.NodeReport)(nil),                   // 86: n0x.signed.v1.NodeReport
-	(*v11.AdmitResult)(nil),                 // 87: n0x.connectivity.v1.AdmitResult
-	(*v12.Rule)(nil),                        // 88: n0x.alerts.v1.Rule
-	(*v12.Alert)(nil),                       // 89: n0x.alerts.v1.Alert
+	(*HaPolicy)(nil),                             // 0: n0x.control.v1.HaPolicy
+	(*ScopeState)(nil),                           // 1: n0x.control.v1.ScopeState
+	(*Activation)(nil),                           // 2: n0x.control.v1.Activation
+	(*Emission)(nil),                             // 3: n0x.control.v1.Emission
+	(*AckRequest)(nil),                           // 4: n0x.control.v1.AckRequest
+	(*RecoveryCommit)(nil),                       // 5: n0x.control.v1.RecoveryCommit
+	(*ObservationView)(nil),                      // 6: n0x.control.v1.ObservationView
+	(*Scope)(nil),                                // 7: n0x.control.v1.Scope
+	(*Route)(nil),                                // 8: n0x.control.v1.Route
+	(*ProjectionSnapshot)(nil),                   // 9: n0x.control.v1.ProjectionSnapshot
+	(*ClaimableSnapshot)(nil),                    // 10: n0x.control.v1.ClaimableSnapshot
+	(*DrainResult)(nil),                          // 11: n0x.control.v1.DrainResult
+	(*OwnerCandidate)(nil),                       // 12: n0x.control.v1.OwnerCandidate
+	(*BeginActivationRequest)(nil),               // 13: n0x.control.v1.BeginActivationRequest
+	(*BeginActivationResponse)(nil),              // 14: n0x.control.v1.BeginActivationResponse
+	(*ActivateNodeRequest)(nil),                  // 15: n0x.control.v1.ActivateNodeRequest
+	(*ActivateNodeResponse)(nil),                 // 16: n0x.control.v1.ActivateNodeResponse
+	(*RecoverSessionRequest)(nil),                // 17: n0x.control.v1.RecoverSessionRequest
+	(*RecoverSessionResponse)(nil),               // 18: n0x.control.v1.RecoverSessionResponse
+	(*GetSnapshotRequest)(nil),                   // 19: n0x.control.v1.GetSnapshotRequest
+	(*GetSnapshotResponse)(nil),                  // 20: n0x.control.v1.GetSnapshotResponse
+	(*RenewLeaseRequest)(nil),                    // 21: n0x.control.v1.RenewLeaseRequest
+	(*RenewLeaseResponse)(nil),                   // 22: n0x.control.v1.RenewLeaseResponse
+	(*ReportStateRequest)(nil),                   // 23: n0x.control.v1.ReportStateRequest
+	(*ReportStateResponse)(nil),                  // 24: n0x.control.v1.ReportStateResponse
+	(*FlowRecord)(nil),                           // 25: n0x.control.v1.FlowRecord
+	(*FlowEvent)(nil),                            // 26: n0x.control.v1.FlowEvent
+	(*HostTelemetry)(nil),                        // 27: n0x.control.v1.HostTelemetry
+	(*ListeningPortsObservation)(nil),            // 28: n0x.control.v1.ListeningPortsObservation
+	(*FlowTelemetry)(nil),                        // 29: n0x.control.v1.FlowTelemetry
+	(*ReportFlowsRequest)(nil),                   // 30: n0x.control.v1.ReportFlowsRequest
+	(*ReportFlowsResponse)(nil),                  // 31: n0x.control.v1.ReportFlowsResponse
+	(*PublishConfigurationRequest)(nil),          // 32: n0x.control.v1.PublishConfigurationRequest
+	(*PublishConfigurationResponse)(nil),         // 33: n0x.control.v1.PublishConfigurationResponse
+	(*AcquireAuthorityGrantRequest)(nil),         // 34: n0x.control.v1.AcquireAuthorityGrantRequest
+	(*AcquireAuthorityGrantResponse)(nil),        // 35: n0x.control.v1.AcquireAuthorityGrantResponse
+	(*CommitRecoveryRequest)(nil),                // 36: n0x.control.v1.CommitRecoveryRequest
+	(*CommitRecoveryResponse)(nil),               // 37: n0x.control.v1.CommitRecoveryResponse
+	(*MarkEmissionDeliveredRequest)(nil),         // 38: n0x.control.v1.MarkEmissionDeliveredRequest
+	(*MarkEmissionDeliveredResponse)(nil),        // 39: n0x.control.v1.MarkEmissionDeliveredResponse
+	(*ReadEmissionRequest)(nil),                  // 40: n0x.control.v1.ReadEmissionRequest
+	(*ReadEmissionResponse)(nil),                 // 41: n0x.control.v1.ReadEmissionResponse
+	(*CommitEmissionRequest)(nil),                // 42: n0x.control.v1.CommitEmissionRequest
+	(*CommitEmissionResponse)(nil),               // 43: n0x.control.v1.CommitEmissionResponse
+	(*CommitAckRequest)(nil),                     // 44: n0x.control.v1.CommitAckRequest
+	(*CommitAckResponse)(nil),                    // 45: n0x.control.v1.CommitAckResponse
+	(*ReadScopeRequest)(nil),                     // 46: n0x.control.v1.ReadScopeRequest
+	(*ReadScopeResponse)(nil),                    // 47: n0x.control.v1.ReadScopeResponse
+	(*ReadConfigurationRequest)(nil),             // 48: n0x.control.v1.ReadConfigurationRequest
+	(*ReadConfigurationResponse)(nil),            // 49: n0x.control.v1.ReadConfigurationResponse
+	(*ReadActivationRequest)(nil),                // 50: n0x.control.v1.ReadActivationRequest
+	(*ReadActivationResponse)(nil),               // 51: n0x.control.v1.ReadActivationResponse
+	(*CommitActivationRequest)(nil),              // 52: n0x.control.v1.CommitActivationRequest
+	(*CommitActivationResponse)(nil),             // 53: n0x.control.v1.CommitActivationResponse
+	(*ReadBrokerConfigurationRequest)(nil),       // 54: n0x.control.v1.ReadBrokerConfigurationRequest
+	(*ReadBrokerConfigurationResponse)(nil),      // 55: n0x.control.v1.ReadBrokerConfigurationResponse
+	(*ReadBrokerScopeRequest)(nil),               // 56: n0x.control.v1.ReadBrokerScopeRequest
+	(*ReadBrokerScopeResponse)(nil),              // 57: n0x.control.v1.ReadBrokerScopeResponse
+	(*ReadBrokerActivationRequest)(nil),          // 58: n0x.control.v1.ReadBrokerActivationRequest
+	(*ReadBrokerActivationResponse)(nil),         // 59: n0x.control.v1.ReadBrokerActivationResponse
+	(*GetCandidateRequest)(nil),                  // 60: n0x.control.v1.GetCandidateRequest
+	(*GetCandidateResponse)(nil),                 // 61: n0x.control.v1.GetCandidateResponse
+	(*ChangeOwnerRequest)(nil),                   // 62: n0x.control.v1.ChangeOwnerRequest
+	(*ChangeOwnerResponse)(nil),                  // 63: n0x.control.v1.ChangeOwnerResponse
+	(*ReadProjectionRequest)(nil),                // 64: n0x.control.v1.ReadProjectionRequest
+	(*ReadProjectionResponse)(nil),               // 65: n0x.control.v1.ReadProjectionResponse
+	(*ClaimOwnerRequest)(nil),                    // 66: n0x.control.v1.ClaimOwnerRequest
+	(*ClaimOwnerResponse)(nil),                   // 67: n0x.control.v1.ClaimOwnerResponse
+	(*ClaimableScopesRequest)(nil),               // 68: n0x.control.v1.ClaimableScopesRequest
+	(*ClaimableScopesResponse)(nil),              // 69: n0x.control.v1.ClaimableScopesResponse
+	(*HandoffRequest)(nil),                       // 70: n0x.control.v1.HandoffRequest
+	(*HandoffResponse)(nil),                      // 71: n0x.control.v1.HandoffResponse
+	(*DrainRequest)(nil),                         // 72: n0x.control.v1.DrainRequest
+	(*DrainResponse)(nil),                        // 73: n0x.control.v1.DrainResponse
+	(*GetRouteCandidateRequest)(nil),             // 74: n0x.control.v1.GetRouteCandidateRequest
+	(*GetRouteCandidateResponse)(nil),            // 75: n0x.control.v1.GetRouteCandidateResponse
+	(*ReadRouteRequest)(nil),                     // 76: n0x.control.v1.ReadRouteRequest
+	(*ReadRouteResponse)(nil),                    // 77: n0x.control.v1.ReadRouteResponse
+	(*AdmitRequest)(nil),                         // 78: n0x.control.v1.AdmitRequest
+	(*AdmitResponse)(nil),                        // 79: n0x.control.v1.AdmitResponse
+	(*LocateScopeRequest)(nil),                   // 80: n0x.control.v1.LocateScopeRequest
+	(*LocateScopeResponse)(nil),                  // 81: n0x.control.v1.LocateScopeResponse
+	(*ListAlertRulesRequest)(nil),                // 82: n0x.control.v1.ListAlertRulesRequest
+	(*ListAlertRulesResponse)(nil),               // 83: n0x.control.v1.ListAlertRulesResponse
+	(*AlertTransition)(nil),                      // 84: n0x.control.v1.AlertTransition
+	(*RecordAlertTransitionsRequest)(nil),        // 85: n0x.control.v1.RecordAlertTransitionsRequest
+	(*RecordAlertTransitionsResponse)(nil),       // 86: n0x.control.v1.RecordAlertTransitionsResponse
+	(*AdmitWorkloadOfferRequest)(nil),            // 87: n0x.control.v1.AdmitWorkloadOfferRequest
+	(*RenewWorkloadOfferRequest)(nil),            // 88: n0x.control.v1.RenewWorkloadOfferRequest
+	(*RegisterWorkloadFromHostRequest)(nil),      // 89: n0x.control.v1.RegisterWorkloadFromHostRequest
+	(*ReadFlowEventsRequest)(nil),                // 90: n0x.control.v1.ReadFlowEventsRequest
+	(*FlowEventEntry)(nil),                       // 91: n0x.control.v1.FlowEventEntry
+	(*ReadFlowEventsResponse)(nil),               // 92: n0x.control.v1.ReadFlowEventsResponse
+	(*AdmitWorkloadOfferResponse)(nil),           // 93: n0x.control.v1.AdmitWorkloadOfferResponse
+	(*RenewWorkloadOfferResponse)(nil),           // 94: n0x.control.v1.RenewWorkloadOfferResponse
+	(*RegisterWorkloadFromHostResponse)(nil),     // 95: n0x.control.v1.RegisterWorkloadFromHostResponse
+	(*v1.NodeReport)(nil),                        // 96: n0x.signed.v1.NodeReport
+	(*v11.ListeningPort)(nil),                    // 97: n0x.workloads.v1.ListeningPort
+	(*v12.AdmitResult)(nil),                      // 98: n0x.connectivity.v1.AdmitResult
+	(*v13.Rule)(nil),                             // 99: n0x.alerts.v1.Rule
+	(*v13.Alert)(nil),                            // 100: n0x.alerts.v1.Alert
+	(*v12.AdmitWorkloadOfferRequest)(nil),        // 101: n0x.connectivity.v1.AdmitWorkloadOfferRequest
+	(*v12.RenewWorkloadOfferRequest)(nil),        // 102: n0x.connectivity.v1.RenewWorkloadOfferRequest
+	(*v11.RegisterWorkloadFromHostRequest)(nil),  // 103: n0x.workloads.v1.RegisterWorkloadFromHostRequest
+	(*v12.AdmitWorkloadOfferResponse)(nil),       // 104: n0x.connectivity.v1.AdmitWorkloadOfferResponse
+	(*v12.RenewWorkloadOfferResponse)(nil),       // 105: n0x.connectivity.v1.RenewWorkloadOfferResponse
+	(*v11.RegisterWorkloadFromHostResponse)(nil), // 106: n0x.workloads.v1.RegisterWorkloadFromHostResponse
 }
 var file_n0x_control_v1_control_proto_depIdxs = []int32{
 	0,   // 0: n0x.control.v1.ScopeState.ha_policy:type_name -> n0x.control.v1.HaPolicy
 	7,   // 1: n0x.control.v1.ScopeState.scope:type_name -> n0x.control.v1.Scope
 	7,   // 2: n0x.control.v1.Activation.scope:type_name -> n0x.control.v1.Scope
 	7,   // 3: n0x.control.v1.Emission.scope:type_name -> n0x.control.v1.Scope
-	86,  // 4: n0x.control.v1.AckRequest.report:type_name -> n0x.signed.v1.NodeReport
+	96,  // 4: n0x.control.v1.AckRequest.report:type_name -> n0x.signed.v1.NodeReport
 	7,   // 5: n0x.control.v1.RecoveryCommit.scope:type_name -> n0x.control.v1.Scope
-	28,  // 6: n0x.control.v1.ObservationView.telemetry:type_name -> n0x.control.v1.FlowTelemetry
+	29,  // 6: n0x.control.v1.ObservationView.telemetry:type_name -> n0x.control.v1.FlowTelemetry
 	7,   // 7: n0x.control.v1.Route.scope:type_name -> n0x.control.v1.Scope
 	6,   // 8: n0x.control.v1.ProjectionSnapshot.views:type_name -> n0x.control.v1.ObservationView
 	1,   // 9: n0x.control.v1.ClaimableSnapshot.scopes:type_name -> n0x.control.v1.ScopeState
@@ -6095,128 +6706,150 @@ var file_n0x_control_v1_control_proto_depIdxs = []int32{
 	7,   // 15: n0x.control.v1.GetSnapshotRequest.scope:type_name -> n0x.control.v1.Scope
 	7,   // 16: n0x.control.v1.RenewLeaseRequest.scope:type_name -> n0x.control.v1.Scope
 	25,  // 17: n0x.control.v1.FlowEvent.flow:type_name -> n0x.control.v1.FlowRecord
-	25,  // 18: n0x.control.v1.FlowTelemetry.flows:type_name -> n0x.control.v1.FlowRecord
-	26,  // 19: n0x.control.v1.FlowTelemetry.events:type_name -> n0x.control.v1.FlowEvent
-	27,  // 20: n0x.control.v1.FlowTelemetry.host:type_name -> n0x.control.v1.HostTelemetry
-	7,   // 21: n0x.control.v1.ReportFlowsRequest.scope:type_name -> n0x.control.v1.Scope
-	28,  // 22: n0x.control.v1.ReportFlowsRequest.telemetry:type_name -> n0x.control.v1.FlowTelemetry
-	7,   // 23: n0x.control.v1.AcquireAuthorityGrantRequest.scope:type_name -> n0x.control.v1.Scope
-	5,   // 24: n0x.control.v1.CommitRecoveryRequest.request:type_name -> n0x.control.v1.RecoveryCommit
-	2,   // 25: n0x.control.v1.CommitRecoveryResponse.activation:type_name -> n0x.control.v1.Activation
-	7,   // 26: n0x.control.v1.MarkEmissionDeliveredRequest.scope:type_name -> n0x.control.v1.Scope
-	7,   // 27: n0x.control.v1.ReadEmissionRequest.scope:type_name -> n0x.control.v1.Scope
-	3,   // 28: n0x.control.v1.ReadEmissionResponse.emission:type_name -> n0x.control.v1.Emission
-	3,   // 29: n0x.control.v1.CommitEmissionRequest.emission:type_name -> n0x.control.v1.Emission
-	4,   // 30: n0x.control.v1.CommitAckRequest.request:type_name -> n0x.control.v1.AckRequest
-	7,   // 31: n0x.control.v1.ReadScopeRequest.scope:type_name -> n0x.control.v1.Scope
-	1,   // 32: n0x.control.v1.ReadScopeResponse.state:type_name -> n0x.control.v1.ScopeState
-	7,   // 33: n0x.control.v1.ReadConfigurationRequest.scope:type_name -> n0x.control.v1.Scope
-	7,   // 34: n0x.control.v1.ReadActivationRequest.scope:type_name -> n0x.control.v1.Scope
-	2,   // 35: n0x.control.v1.ReadActivationResponse.activation:type_name -> n0x.control.v1.Activation
-	7,   // 36: n0x.control.v1.CommitActivationRequest.scope:type_name -> n0x.control.v1.Scope
-	2,   // 37: n0x.control.v1.CommitActivationResponse.activation:type_name -> n0x.control.v1.Activation
-	7,   // 38: n0x.control.v1.ReadBrokerConfigurationRequest.scope:type_name -> n0x.control.v1.Scope
-	7,   // 39: n0x.control.v1.ReadBrokerScopeRequest.scope:type_name -> n0x.control.v1.Scope
-	1,   // 40: n0x.control.v1.ReadBrokerScopeResponse.state:type_name -> n0x.control.v1.ScopeState
-	7,   // 41: n0x.control.v1.ReadBrokerActivationRequest.scope:type_name -> n0x.control.v1.Scope
-	2,   // 42: n0x.control.v1.ReadBrokerActivationResponse.activation:type_name -> n0x.control.v1.Activation
-	12,  // 43: n0x.control.v1.GetCandidateResponse.candidate:type_name -> n0x.control.v1.OwnerCandidate
-	7,   // 44: n0x.control.v1.ChangeOwnerRequest.scope:type_name -> n0x.control.v1.Scope
-	12,  // 45: n0x.control.v1.ChangeOwnerRequest.candidate:type_name -> n0x.control.v1.OwnerCandidate
-	1,   // 46: n0x.control.v1.ChangeOwnerResponse.state:type_name -> n0x.control.v1.ScopeState
-	7,   // 47: n0x.control.v1.ReadProjectionRequest.scope:type_name -> n0x.control.v1.Scope
-	9,   // 48: n0x.control.v1.ReadProjectionResponse.snapshot:type_name -> n0x.control.v1.ProjectionSnapshot
-	7,   // 49: n0x.control.v1.ClaimOwnerRequest.scope:type_name -> n0x.control.v1.Scope
-	1,   // 50: n0x.control.v1.ClaimOwnerResponse.state:type_name -> n0x.control.v1.ScopeState
-	10,  // 51: n0x.control.v1.ClaimableScopesResponse.snapshot:type_name -> n0x.control.v1.ClaimableSnapshot
-	7,   // 52: n0x.control.v1.HandoffRequest.scope:type_name -> n0x.control.v1.Scope
-	1,   // 53: n0x.control.v1.HandoffResponse.state:type_name -> n0x.control.v1.ScopeState
-	11,  // 54: n0x.control.v1.DrainResponse.result:type_name -> n0x.control.v1.DrainResult
-	7,   // 55: n0x.control.v1.GetRouteCandidateRequest.scope:type_name -> n0x.control.v1.Scope
-	7,   // 56: n0x.control.v1.GetRouteCandidateResponse.scope:type_name -> n0x.control.v1.Scope
-	7,   // 57: n0x.control.v1.ReadRouteRequest.scope:type_name -> n0x.control.v1.Scope
-	8,   // 58: n0x.control.v1.ReadRouteResponse.route:type_name -> n0x.control.v1.Route
-	21,  // 59: n0x.control.v1.AdmitRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
-	87,  // 60: n0x.control.v1.AdmitResponse.result:type_name -> n0x.connectivity.v1.AdmitResult
-	7,   // 61: n0x.control.v1.LocateScopeRequest.scope:type_name -> n0x.control.v1.Scope
-	7,   // 62: n0x.control.v1.ListAlertRulesRequest.scope:type_name -> n0x.control.v1.Scope
-	88,  // 63: n0x.control.v1.ListAlertRulesResponse.rules:type_name -> n0x.alerts.v1.Rule
-	89,  // 64: n0x.control.v1.ListAlertRulesResponse.firing:type_name -> n0x.alerts.v1.Alert
-	7,   // 65: n0x.control.v1.RecordAlertTransitionsRequest.scope:type_name -> n0x.control.v1.Scope
-	83,  // 66: n0x.control.v1.RecordAlertTransitionsRequest.transitions:type_name -> n0x.control.v1.AlertTransition
-	13,  // 67: n0x.control.v1.NodeControlService.BeginActivation:input_type -> n0x.control.v1.BeginActivationRequest
-	15,  // 68: n0x.control.v1.NodeControlService.ActivateNode:input_type -> n0x.control.v1.ActivateNodeRequest
-	17,  // 69: n0x.control.v1.NodeControlService.RecoverSession:input_type -> n0x.control.v1.RecoverSessionRequest
-	19,  // 70: n0x.control.v1.NodeControlService.GetSnapshot:input_type -> n0x.control.v1.GetSnapshotRequest
-	21,  // 71: n0x.control.v1.NodeControlService.RenewLease:input_type -> n0x.control.v1.RenewLeaseRequest
-	23,  // 72: n0x.control.v1.NodeControlService.ReportState:input_type -> n0x.control.v1.ReportStateRequest
-	29,  // 73: n0x.control.v1.NodeControlService.ReportFlows:input_type -> n0x.control.v1.ReportFlowsRequest
-	31,  // 74: n0x.control.v1.AuthorityControlService.PublishConfiguration:input_type -> n0x.control.v1.PublishConfigurationRequest
-	33,  // 75: n0x.control.v1.AuthorityControlService.AcquireAuthorityGrant:input_type -> n0x.control.v1.AcquireAuthorityGrantRequest
-	35,  // 76: n0x.control.v1.AuthorityStoreService.CommitRecovery:input_type -> n0x.control.v1.CommitRecoveryRequest
-	37,  // 77: n0x.control.v1.AuthorityStoreService.MarkEmissionDelivered:input_type -> n0x.control.v1.MarkEmissionDeliveredRequest
-	39,  // 78: n0x.control.v1.AuthorityStoreService.ReadEmission:input_type -> n0x.control.v1.ReadEmissionRequest
-	41,  // 79: n0x.control.v1.AuthorityStoreService.CommitEmission:input_type -> n0x.control.v1.CommitEmissionRequest
-	43,  // 80: n0x.control.v1.AuthorityStoreService.CommitAck:input_type -> n0x.control.v1.CommitAckRequest
-	45,  // 81: n0x.control.v1.AuthorityStoreService.ReadScope:input_type -> n0x.control.v1.ReadScopeRequest
-	47,  // 82: n0x.control.v1.AuthorityStoreService.ReadConfiguration:input_type -> n0x.control.v1.ReadConfigurationRequest
-	49,  // 83: n0x.control.v1.AuthorityStoreService.ReadActivation:input_type -> n0x.control.v1.ReadActivationRequest
-	51,  // 84: n0x.control.v1.AuthorityStoreService.CommitActivation:input_type -> n0x.control.v1.CommitActivationRequest
-	53,  // 85: n0x.control.v1.BrokerStoreService.ReadBrokerConfiguration:input_type -> n0x.control.v1.ReadBrokerConfigurationRequest
-	55,  // 86: n0x.control.v1.BrokerStoreService.ReadBrokerScope:input_type -> n0x.control.v1.ReadBrokerScopeRequest
-	57,  // 87: n0x.control.v1.BrokerStoreService.ReadBrokerActivation:input_type -> n0x.control.v1.ReadBrokerActivationRequest
-	59,  // 88: n0x.control.v1.OwnershipCandidateService.GetCandidate:input_type -> n0x.control.v1.GetCandidateRequest
-	61,  // 89: n0x.control.v1.OwnershipAdminService.ChangeOwner:input_type -> n0x.control.v1.ChangeOwnerRequest
-	63,  // 90: n0x.control.v1.ControlObservationsService.ReadProjection:input_type -> n0x.control.v1.ReadProjectionRequest
-	65,  // 91: n0x.control.v1.OwnershipAutomaticService.ClaimOwner:input_type -> n0x.control.v1.ClaimOwnerRequest
-	67,  // 92: n0x.control.v1.OwnershipAutomaticService.ClaimableScopes:input_type -> n0x.control.v1.ClaimableScopesRequest
-	69,  // 93: n0x.control.v1.OwnershipAutomaticService.Handoff:input_type -> n0x.control.v1.HandoffRequest
-	71,  // 94: n0x.control.v1.ControllerDrainService.Drain:input_type -> n0x.control.v1.DrainRequest
-	73,  // 95: n0x.control.v1.OwnerRouteCandidateService.GetRouteCandidate:input_type -> n0x.control.v1.GetRouteCandidateRequest
-	75,  // 96: n0x.control.v1.OwnerRoutesService.ReadRoute:input_type -> n0x.control.v1.ReadRouteRequest
-	77,  // 97: n0x.control.v1.ConnectivityControlService.Admit:input_type -> n0x.control.v1.AdmitRequest
-	79,  // 98: n0x.control.v1.NodeDiscoveryService.LocateScope:input_type -> n0x.control.v1.LocateScopeRequest
-	81,  // 99: n0x.control.v1.AlertEvaluationService.ListAlertRules:input_type -> n0x.control.v1.ListAlertRulesRequest
-	84,  // 100: n0x.control.v1.AlertEvaluationService.RecordAlertTransitions:input_type -> n0x.control.v1.RecordAlertTransitionsRequest
-	14,  // 101: n0x.control.v1.NodeControlService.BeginActivation:output_type -> n0x.control.v1.BeginActivationResponse
-	16,  // 102: n0x.control.v1.NodeControlService.ActivateNode:output_type -> n0x.control.v1.ActivateNodeResponse
-	18,  // 103: n0x.control.v1.NodeControlService.RecoverSession:output_type -> n0x.control.v1.RecoverSessionResponse
-	20,  // 104: n0x.control.v1.NodeControlService.GetSnapshot:output_type -> n0x.control.v1.GetSnapshotResponse
-	22,  // 105: n0x.control.v1.NodeControlService.RenewLease:output_type -> n0x.control.v1.RenewLeaseResponse
-	24,  // 106: n0x.control.v1.NodeControlService.ReportState:output_type -> n0x.control.v1.ReportStateResponse
-	30,  // 107: n0x.control.v1.NodeControlService.ReportFlows:output_type -> n0x.control.v1.ReportFlowsResponse
-	32,  // 108: n0x.control.v1.AuthorityControlService.PublishConfiguration:output_type -> n0x.control.v1.PublishConfigurationResponse
-	34,  // 109: n0x.control.v1.AuthorityControlService.AcquireAuthorityGrant:output_type -> n0x.control.v1.AcquireAuthorityGrantResponse
-	36,  // 110: n0x.control.v1.AuthorityStoreService.CommitRecovery:output_type -> n0x.control.v1.CommitRecoveryResponse
-	38,  // 111: n0x.control.v1.AuthorityStoreService.MarkEmissionDelivered:output_type -> n0x.control.v1.MarkEmissionDeliveredResponse
-	40,  // 112: n0x.control.v1.AuthorityStoreService.ReadEmission:output_type -> n0x.control.v1.ReadEmissionResponse
-	42,  // 113: n0x.control.v1.AuthorityStoreService.CommitEmission:output_type -> n0x.control.v1.CommitEmissionResponse
-	44,  // 114: n0x.control.v1.AuthorityStoreService.CommitAck:output_type -> n0x.control.v1.CommitAckResponse
-	46,  // 115: n0x.control.v1.AuthorityStoreService.ReadScope:output_type -> n0x.control.v1.ReadScopeResponse
-	48,  // 116: n0x.control.v1.AuthorityStoreService.ReadConfiguration:output_type -> n0x.control.v1.ReadConfigurationResponse
-	50,  // 117: n0x.control.v1.AuthorityStoreService.ReadActivation:output_type -> n0x.control.v1.ReadActivationResponse
-	52,  // 118: n0x.control.v1.AuthorityStoreService.CommitActivation:output_type -> n0x.control.v1.CommitActivationResponse
-	54,  // 119: n0x.control.v1.BrokerStoreService.ReadBrokerConfiguration:output_type -> n0x.control.v1.ReadBrokerConfigurationResponse
-	56,  // 120: n0x.control.v1.BrokerStoreService.ReadBrokerScope:output_type -> n0x.control.v1.ReadBrokerScopeResponse
-	58,  // 121: n0x.control.v1.BrokerStoreService.ReadBrokerActivation:output_type -> n0x.control.v1.ReadBrokerActivationResponse
-	60,  // 122: n0x.control.v1.OwnershipCandidateService.GetCandidate:output_type -> n0x.control.v1.GetCandidateResponse
-	62,  // 123: n0x.control.v1.OwnershipAdminService.ChangeOwner:output_type -> n0x.control.v1.ChangeOwnerResponse
-	64,  // 124: n0x.control.v1.ControlObservationsService.ReadProjection:output_type -> n0x.control.v1.ReadProjectionResponse
-	66,  // 125: n0x.control.v1.OwnershipAutomaticService.ClaimOwner:output_type -> n0x.control.v1.ClaimOwnerResponse
-	68,  // 126: n0x.control.v1.OwnershipAutomaticService.ClaimableScopes:output_type -> n0x.control.v1.ClaimableScopesResponse
-	70,  // 127: n0x.control.v1.OwnershipAutomaticService.Handoff:output_type -> n0x.control.v1.HandoffResponse
-	72,  // 128: n0x.control.v1.ControllerDrainService.Drain:output_type -> n0x.control.v1.DrainResponse
-	74,  // 129: n0x.control.v1.OwnerRouteCandidateService.GetRouteCandidate:output_type -> n0x.control.v1.GetRouteCandidateResponse
-	76,  // 130: n0x.control.v1.OwnerRoutesService.ReadRoute:output_type -> n0x.control.v1.ReadRouteResponse
-	78,  // 131: n0x.control.v1.ConnectivityControlService.Admit:output_type -> n0x.control.v1.AdmitResponse
-	80,  // 132: n0x.control.v1.NodeDiscoveryService.LocateScope:output_type -> n0x.control.v1.LocateScopeResponse
-	82,  // 133: n0x.control.v1.AlertEvaluationService.ListAlertRules:output_type -> n0x.control.v1.ListAlertRulesResponse
-	85,  // 134: n0x.control.v1.AlertEvaluationService.RecordAlertTransitions:output_type -> n0x.control.v1.RecordAlertTransitionsResponse
-	101, // [101:135] is the sub-list for method output_type
-	67,  // [67:101] is the sub-list for method input_type
-	67,  // [67:67] is the sub-list for extension type_name
-	67,  // [67:67] is the sub-list for extension extendee
-	0,   // [0:67] is the sub-list for field type_name
+	97,  // 18: n0x.control.v1.ListeningPortsObservation.listening_ports:type_name -> n0x.workloads.v1.ListeningPort
+	25,  // 19: n0x.control.v1.FlowTelemetry.flows:type_name -> n0x.control.v1.FlowRecord
+	26,  // 20: n0x.control.v1.FlowTelemetry.events:type_name -> n0x.control.v1.FlowEvent
+	27,  // 21: n0x.control.v1.FlowTelemetry.host:type_name -> n0x.control.v1.HostTelemetry
+	28,  // 22: n0x.control.v1.FlowTelemetry.listening_ports:type_name -> n0x.control.v1.ListeningPortsObservation
+	7,   // 23: n0x.control.v1.ReportFlowsRequest.scope:type_name -> n0x.control.v1.Scope
+	29,  // 24: n0x.control.v1.ReportFlowsRequest.telemetry:type_name -> n0x.control.v1.FlowTelemetry
+	7,   // 25: n0x.control.v1.AcquireAuthorityGrantRequest.scope:type_name -> n0x.control.v1.Scope
+	5,   // 26: n0x.control.v1.CommitRecoveryRequest.request:type_name -> n0x.control.v1.RecoveryCommit
+	2,   // 27: n0x.control.v1.CommitRecoveryResponse.activation:type_name -> n0x.control.v1.Activation
+	7,   // 28: n0x.control.v1.MarkEmissionDeliveredRequest.scope:type_name -> n0x.control.v1.Scope
+	7,   // 29: n0x.control.v1.ReadEmissionRequest.scope:type_name -> n0x.control.v1.Scope
+	3,   // 30: n0x.control.v1.ReadEmissionResponse.emission:type_name -> n0x.control.v1.Emission
+	3,   // 31: n0x.control.v1.CommitEmissionRequest.emission:type_name -> n0x.control.v1.Emission
+	4,   // 32: n0x.control.v1.CommitAckRequest.request:type_name -> n0x.control.v1.AckRequest
+	7,   // 33: n0x.control.v1.ReadScopeRequest.scope:type_name -> n0x.control.v1.Scope
+	1,   // 34: n0x.control.v1.ReadScopeResponse.state:type_name -> n0x.control.v1.ScopeState
+	7,   // 35: n0x.control.v1.ReadConfigurationRequest.scope:type_name -> n0x.control.v1.Scope
+	7,   // 36: n0x.control.v1.ReadActivationRequest.scope:type_name -> n0x.control.v1.Scope
+	2,   // 37: n0x.control.v1.ReadActivationResponse.activation:type_name -> n0x.control.v1.Activation
+	7,   // 38: n0x.control.v1.CommitActivationRequest.scope:type_name -> n0x.control.v1.Scope
+	2,   // 39: n0x.control.v1.CommitActivationResponse.activation:type_name -> n0x.control.v1.Activation
+	7,   // 40: n0x.control.v1.ReadBrokerConfigurationRequest.scope:type_name -> n0x.control.v1.Scope
+	7,   // 41: n0x.control.v1.ReadBrokerScopeRequest.scope:type_name -> n0x.control.v1.Scope
+	1,   // 42: n0x.control.v1.ReadBrokerScopeResponse.state:type_name -> n0x.control.v1.ScopeState
+	7,   // 43: n0x.control.v1.ReadBrokerActivationRequest.scope:type_name -> n0x.control.v1.Scope
+	2,   // 44: n0x.control.v1.ReadBrokerActivationResponse.activation:type_name -> n0x.control.v1.Activation
+	12,  // 45: n0x.control.v1.GetCandidateResponse.candidate:type_name -> n0x.control.v1.OwnerCandidate
+	7,   // 46: n0x.control.v1.ChangeOwnerRequest.scope:type_name -> n0x.control.v1.Scope
+	12,  // 47: n0x.control.v1.ChangeOwnerRequest.candidate:type_name -> n0x.control.v1.OwnerCandidate
+	1,   // 48: n0x.control.v1.ChangeOwnerResponse.state:type_name -> n0x.control.v1.ScopeState
+	7,   // 49: n0x.control.v1.ReadProjectionRequest.scope:type_name -> n0x.control.v1.Scope
+	9,   // 50: n0x.control.v1.ReadProjectionResponse.snapshot:type_name -> n0x.control.v1.ProjectionSnapshot
+	7,   // 51: n0x.control.v1.ClaimOwnerRequest.scope:type_name -> n0x.control.v1.Scope
+	1,   // 52: n0x.control.v1.ClaimOwnerResponse.state:type_name -> n0x.control.v1.ScopeState
+	10,  // 53: n0x.control.v1.ClaimableScopesResponse.snapshot:type_name -> n0x.control.v1.ClaimableSnapshot
+	7,   // 54: n0x.control.v1.HandoffRequest.scope:type_name -> n0x.control.v1.Scope
+	1,   // 55: n0x.control.v1.HandoffResponse.state:type_name -> n0x.control.v1.ScopeState
+	11,  // 56: n0x.control.v1.DrainResponse.result:type_name -> n0x.control.v1.DrainResult
+	7,   // 57: n0x.control.v1.GetRouteCandidateRequest.scope:type_name -> n0x.control.v1.Scope
+	7,   // 58: n0x.control.v1.GetRouteCandidateResponse.scope:type_name -> n0x.control.v1.Scope
+	7,   // 59: n0x.control.v1.ReadRouteRequest.scope:type_name -> n0x.control.v1.Scope
+	8,   // 60: n0x.control.v1.ReadRouteResponse.route:type_name -> n0x.control.v1.Route
+	21,  // 61: n0x.control.v1.AdmitRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
+	98,  // 62: n0x.control.v1.AdmitResponse.result:type_name -> n0x.connectivity.v1.AdmitResult
+	7,   // 63: n0x.control.v1.LocateScopeRequest.scope:type_name -> n0x.control.v1.Scope
+	7,   // 64: n0x.control.v1.ListAlertRulesRequest.scope:type_name -> n0x.control.v1.Scope
+	99,  // 65: n0x.control.v1.ListAlertRulesResponse.rules:type_name -> n0x.alerts.v1.Rule
+	100, // 66: n0x.control.v1.ListAlertRulesResponse.firing:type_name -> n0x.alerts.v1.Alert
+	7,   // 67: n0x.control.v1.RecordAlertTransitionsRequest.scope:type_name -> n0x.control.v1.Scope
+	84,  // 68: n0x.control.v1.RecordAlertTransitionsRequest.transitions:type_name -> n0x.control.v1.AlertTransition
+	21,  // 69: n0x.control.v1.AdmitWorkloadOfferRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
+	101, // 70: n0x.control.v1.AdmitWorkloadOfferRequest.request:type_name -> n0x.connectivity.v1.AdmitWorkloadOfferRequest
+	21,  // 71: n0x.control.v1.RenewWorkloadOfferRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
+	102, // 72: n0x.control.v1.RenewWorkloadOfferRequest.request:type_name -> n0x.connectivity.v1.RenewWorkloadOfferRequest
+	21,  // 73: n0x.control.v1.RegisterWorkloadFromHostRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
+	103, // 74: n0x.control.v1.RegisterWorkloadFromHostRequest.request:type_name -> n0x.workloads.v1.RegisterWorkloadFromHostRequest
+	7,   // 75: n0x.control.v1.ReadFlowEventsRequest.scope:type_name -> n0x.control.v1.Scope
+	26,  // 76: n0x.control.v1.FlowEventEntry.event:type_name -> n0x.control.v1.FlowEvent
+	91,  // 77: n0x.control.v1.ReadFlowEventsResponse.entries:type_name -> n0x.control.v1.FlowEventEntry
+	104, // 78: n0x.control.v1.AdmitWorkloadOfferResponse.response:type_name -> n0x.connectivity.v1.AdmitWorkloadOfferResponse
+	105, // 79: n0x.control.v1.RenewWorkloadOfferResponse.response:type_name -> n0x.connectivity.v1.RenewWorkloadOfferResponse
+	106, // 80: n0x.control.v1.RegisterWorkloadFromHostResponse.response:type_name -> n0x.workloads.v1.RegisterWorkloadFromHostResponse
+	13,  // 81: n0x.control.v1.NodeControlService.BeginActivation:input_type -> n0x.control.v1.BeginActivationRequest
+	15,  // 82: n0x.control.v1.NodeControlService.ActivateNode:input_type -> n0x.control.v1.ActivateNodeRequest
+	17,  // 83: n0x.control.v1.NodeControlService.RecoverSession:input_type -> n0x.control.v1.RecoverSessionRequest
+	19,  // 84: n0x.control.v1.NodeControlService.GetSnapshot:input_type -> n0x.control.v1.GetSnapshotRequest
+	21,  // 85: n0x.control.v1.NodeControlService.RenewLease:input_type -> n0x.control.v1.RenewLeaseRequest
+	23,  // 86: n0x.control.v1.NodeControlService.ReportState:input_type -> n0x.control.v1.ReportStateRequest
+	30,  // 87: n0x.control.v1.NodeControlService.ReportFlows:input_type -> n0x.control.v1.ReportFlowsRequest
+	89,  // 88: n0x.control.v1.NodeControlService.RegisterWorkloadFromHost:input_type -> n0x.control.v1.RegisterWorkloadFromHostRequest
+	32,  // 89: n0x.control.v1.AuthorityControlService.PublishConfiguration:input_type -> n0x.control.v1.PublishConfigurationRequest
+	34,  // 90: n0x.control.v1.AuthorityControlService.AcquireAuthorityGrant:input_type -> n0x.control.v1.AcquireAuthorityGrantRequest
+	36,  // 91: n0x.control.v1.AuthorityStoreService.CommitRecovery:input_type -> n0x.control.v1.CommitRecoveryRequest
+	38,  // 92: n0x.control.v1.AuthorityStoreService.MarkEmissionDelivered:input_type -> n0x.control.v1.MarkEmissionDeliveredRequest
+	40,  // 93: n0x.control.v1.AuthorityStoreService.ReadEmission:input_type -> n0x.control.v1.ReadEmissionRequest
+	42,  // 94: n0x.control.v1.AuthorityStoreService.CommitEmission:input_type -> n0x.control.v1.CommitEmissionRequest
+	44,  // 95: n0x.control.v1.AuthorityStoreService.CommitAck:input_type -> n0x.control.v1.CommitAckRequest
+	46,  // 96: n0x.control.v1.AuthorityStoreService.ReadScope:input_type -> n0x.control.v1.ReadScopeRequest
+	48,  // 97: n0x.control.v1.AuthorityStoreService.ReadConfiguration:input_type -> n0x.control.v1.ReadConfigurationRequest
+	50,  // 98: n0x.control.v1.AuthorityStoreService.ReadActivation:input_type -> n0x.control.v1.ReadActivationRequest
+	52,  // 99: n0x.control.v1.AuthorityStoreService.CommitActivation:input_type -> n0x.control.v1.CommitActivationRequest
+	54,  // 100: n0x.control.v1.BrokerStoreService.ReadBrokerConfiguration:input_type -> n0x.control.v1.ReadBrokerConfigurationRequest
+	56,  // 101: n0x.control.v1.BrokerStoreService.ReadBrokerScope:input_type -> n0x.control.v1.ReadBrokerScopeRequest
+	58,  // 102: n0x.control.v1.BrokerStoreService.ReadBrokerActivation:input_type -> n0x.control.v1.ReadBrokerActivationRequest
+	60,  // 103: n0x.control.v1.OwnershipCandidateService.GetCandidate:input_type -> n0x.control.v1.GetCandidateRequest
+	62,  // 104: n0x.control.v1.OwnershipAdminService.ChangeOwner:input_type -> n0x.control.v1.ChangeOwnerRequest
+	64,  // 105: n0x.control.v1.ControlObservationsService.ReadProjection:input_type -> n0x.control.v1.ReadProjectionRequest
+	90,  // 106: n0x.control.v1.ControlObservationsService.ReadFlowEvents:input_type -> n0x.control.v1.ReadFlowEventsRequest
+	66,  // 107: n0x.control.v1.OwnershipAutomaticService.ClaimOwner:input_type -> n0x.control.v1.ClaimOwnerRequest
+	68,  // 108: n0x.control.v1.OwnershipAutomaticService.ClaimableScopes:input_type -> n0x.control.v1.ClaimableScopesRequest
+	70,  // 109: n0x.control.v1.OwnershipAutomaticService.Handoff:input_type -> n0x.control.v1.HandoffRequest
+	72,  // 110: n0x.control.v1.ControllerDrainService.Drain:input_type -> n0x.control.v1.DrainRequest
+	74,  // 111: n0x.control.v1.OwnerRouteCandidateService.GetRouteCandidate:input_type -> n0x.control.v1.GetRouteCandidateRequest
+	76,  // 112: n0x.control.v1.OwnerRoutesService.ReadRoute:input_type -> n0x.control.v1.ReadRouteRequest
+	78,  // 113: n0x.control.v1.ConnectivityControlService.Admit:input_type -> n0x.control.v1.AdmitRequest
+	87,  // 114: n0x.control.v1.ConnectivityControlService.AdmitWorkloadOffer:input_type -> n0x.control.v1.AdmitWorkloadOfferRequest
+	88,  // 115: n0x.control.v1.ConnectivityControlService.RenewWorkloadOffer:input_type -> n0x.control.v1.RenewWorkloadOfferRequest
+	80,  // 116: n0x.control.v1.NodeDiscoveryService.LocateScope:input_type -> n0x.control.v1.LocateScopeRequest
+	82,  // 117: n0x.control.v1.AlertEvaluationService.ListAlertRules:input_type -> n0x.control.v1.ListAlertRulesRequest
+	85,  // 118: n0x.control.v1.AlertEvaluationService.RecordAlertTransitions:input_type -> n0x.control.v1.RecordAlertTransitionsRequest
+	14,  // 119: n0x.control.v1.NodeControlService.BeginActivation:output_type -> n0x.control.v1.BeginActivationResponse
+	16,  // 120: n0x.control.v1.NodeControlService.ActivateNode:output_type -> n0x.control.v1.ActivateNodeResponse
+	18,  // 121: n0x.control.v1.NodeControlService.RecoverSession:output_type -> n0x.control.v1.RecoverSessionResponse
+	20,  // 122: n0x.control.v1.NodeControlService.GetSnapshot:output_type -> n0x.control.v1.GetSnapshotResponse
+	22,  // 123: n0x.control.v1.NodeControlService.RenewLease:output_type -> n0x.control.v1.RenewLeaseResponse
+	24,  // 124: n0x.control.v1.NodeControlService.ReportState:output_type -> n0x.control.v1.ReportStateResponse
+	31,  // 125: n0x.control.v1.NodeControlService.ReportFlows:output_type -> n0x.control.v1.ReportFlowsResponse
+	95,  // 126: n0x.control.v1.NodeControlService.RegisterWorkloadFromHost:output_type -> n0x.control.v1.RegisterWorkloadFromHostResponse
+	33,  // 127: n0x.control.v1.AuthorityControlService.PublishConfiguration:output_type -> n0x.control.v1.PublishConfigurationResponse
+	35,  // 128: n0x.control.v1.AuthorityControlService.AcquireAuthorityGrant:output_type -> n0x.control.v1.AcquireAuthorityGrantResponse
+	37,  // 129: n0x.control.v1.AuthorityStoreService.CommitRecovery:output_type -> n0x.control.v1.CommitRecoveryResponse
+	39,  // 130: n0x.control.v1.AuthorityStoreService.MarkEmissionDelivered:output_type -> n0x.control.v1.MarkEmissionDeliveredResponse
+	41,  // 131: n0x.control.v1.AuthorityStoreService.ReadEmission:output_type -> n0x.control.v1.ReadEmissionResponse
+	43,  // 132: n0x.control.v1.AuthorityStoreService.CommitEmission:output_type -> n0x.control.v1.CommitEmissionResponse
+	45,  // 133: n0x.control.v1.AuthorityStoreService.CommitAck:output_type -> n0x.control.v1.CommitAckResponse
+	47,  // 134: n0x.control.v1.AuthorityStoreService.ReadScope:output_type -> n0x.control.v1.ReadScopeResponse
+	49,  // 135: n0x.control.v1.AuthorityStoreService.ReadConfiguration:output_type -> n0x.control.v1.ReadConfigurationResponse
+	51,  // 136: n0x.control.v1.AuthorityStoreService.ReadActivation:output_type -> n0x.control.v1.ReadActivationResponse
+	53,  // 137: n0x.control.v1.AuthorityStoreService.CommitActivation:output_type -> n0x.control.v1.CommitActivationResponse
+	55,  // 138: n0x.control.v1.BrokerStoreService.ReadBrokerConfiguration:output_type -> n0x.control.v1.ReadBrokerConfigurationResponse
+	57,  // 139: n0x.control.v1.BrokerStoreService.ReadBrokerScope:output_type -> n0x.control.v1.ReadBrokerScopeResponse
+	59,  // 140: n0x.control.v1.BrokerStoreService.ReadBrokerActivation:output_type -> n0x.control.v1.ReadBrokerActivationResponse
+	61,  // 141: n0x.control.v1.OwnershipCandidateService.GetCandidate:output_type -> n0x.control.v1.GetCandidateResponse
+	63,  // 142: n0x.control.v1.OwnershipAdminService.ChangeOwner:output_type -> n0x.control.v1.ChangeOwnerResponse
+	65,  // 143: n0x.control.v1.ControlObservationsService.ReadProjection:output_type -> n0x.control.v1.ReadProjectionResponse
+	92,  // 144: n0x.control.v1.ControlObservationsService.ReadFlowEvents:output_type -> n0x.control.v1.ReadFlowEventsResponse
+	67,  // 145: n0x.control.v1.OwnershipAutomaticService.ClaimOwner:output_type -> n0x.control.v1.ClaimOwnerResponse
+	69,  // 146: n0x.control.v1.OwnershipAutomaticService.ClaimableScopes:output_type -> n0x.control.v1.ClaimableScopesResponse
+	71,  // 147: n0x.control.v1.OwnershipAutomaticService.Handoff:output_type -> n0x.control.v1.HandoffResponse
+	73,  // 148: n0x.control.v1.ControllerDrainService.Drain:output_type -> n0x.control.v1.DrainResponse
+	75,  // 149: n0x.control.v1.OwnerRouteCandidateService.GetRouteCandidate:output_type -> n0x.control.v1.GetRouteCandidateResponse
+	77,  // 150: n0x.control.v1.OwnerRoutesService.ReadRoute:output_type -> n0x.control.v1.ReadRouteResponse
+	79,  // 151: n0x.control.v1.ConnectivityControlService.Admit:output_type -> n0x.control.v1.AdmitResponse
+	93,  // 152: n0x.control.v1.ConnectivityControlService.AdmitWorkloadOffer:output_type -> n0x.control.v1.AdmitWorkloadOfferResponse
+	94,  // 153: n0x.control.v1.ConnectivityControlService.RenewWorkloadOffer:output_type -> n0x.control.v1.RenewWorkloadOfferResponse
+	81,  // 154: n0x.control.v1.NodeDiscoveryService.LocateScope:output_type -> n0x.control.v1.LocateScopeResponse
+	83,  // 155: n0x.control.v1.AlertEvaluationService.ListAlertRules:output_type -> n0x.control.v1.ListAlertRulesResponse
+	86,  // 156: n0x.control.v1.AlertEvaluationService.RecordAlertTransitions:output_type -> n0x.control.v1.RecordAlertTransitionsResponse
+	119, // [119:157] is the sub-list for method output_type
+	81,  // [81:119] is the sub-list for method input_type
+	81,  // [81:81] is the sub-list for extension type_name
+	81,  // [81:81] is the sub-list for extension extendee
+	0,   // [0:81] is the sub-list for field type_name
 }
 
 func init() { file_n0x_control_v1_control_proto_init() }
@@ -6224,13 +6857,16 @@ func file_n0x_control_v1_control_proto_init() {
 	if File_n0x_control_v1_control_proto != nil {
 		return
 	}
+	file_n0x_control_v1_control_proto_msgTypes[90].OneofWrappers = []any{}
+	file_n0x_control_v1_control_proto_msgTypes[91].OneofWrappers = []any{}
+	file_n0x_control_v1_control_proto_msgTypes[92].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_control_v1_control_proto_rawDesc), len(file_n0x_control_v1_control_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   86,
+			NumMessages:   96,
 			NumExtensions: 0,
 			NumServices:   14,
 		},
