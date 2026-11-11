@@ -1027,6 +1027,7 @@ type ForwardRequest struct {
 	//	*ForwardRequest_ReportFlows
 	//	*ForwardRequest_AdmitWorkloadOffer
 	//	*ForwardRequest_RenewWorkloadOffer
+	//	*ForwardRequest_RegisterWorkloadFromHost
 	Request       isForwardRequest_Request `protobuf_oneof:"request"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1205,6 +1206,15 @@ func (x *ForwardRequest) GetRenewWorkloadOffer() *v11.RenewWorkloadOfferRequest 
 	return nil
 }
 
+func (x *ForwardRequest) GetRegisterWorkloadFromHost() *v11.RegisterWorkloadFromHostRequest {
+	if x != nil {
+		if x, ok := x.Request.(*ForwardRequest_RegisterWorkloadFromHost); ok {
+			return x.RegisterWorkloadFromHost
+		}
+	}
+	return nil
+}
+
 type isForwardRequest_Request interface {
 	isForwardRequest_Request()
 }
@@ -1260,6 +1270,14 @@ type ForwardRequest_RenewWorkloadOffer struct {
 	RenewWorkloadOffer *v11.RenewWorkloadOfferRequest `protobuf:"bytes,21,opt,name=renew_workload_offer,json=renewWorkloadOffer,proto3,oneof"`
 }
 
+type ForwardRequest_RegisterWorkloadFromHost struct {
+	// Forward entre controladores hacia el owner; lleva la Session completa
+	// porque solo el owner puede validarla. La identidad del nodo viaja en
+	// node_chain; la respuesta va en ForwardResponse.response como bytes de
+	// n0x.control.v1.RegisterWorkloadFromHostResponse.
+	RegisterWorkloadFromHost *v11.RegisterWorkloadFromHostRequest `protobuf:"bytes,22,opt,name=register_workload_from_host,json=registerWorkloadFromHost,proto3,oneof"`
+}
+
 func (*ForwardRequest_BeginActivation) isForwardRequest_Request() {}
 
 func (*ForwardRequest_ActivateNode) isForwardRequest_Request() {}
@@ -1283,6 +1301,8 @@ func (*ForwardRequest_ReportFlows) isForwardRequest_Request() {}
 func (*ForwardRequest_AdmitWorkloadOffer) isForwardRequest_Request() {}
 
 func (*ForwardRequest_RenewWorkloadOffer) isForwardRequest_Request() {}
+
+func (*ForwardRequest_RegisterWorkloadFromHost) isForwardRequest_Request() {}
 
 type ForwardResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -2060,7 +2080,7 @@ const file_n0x_mesh_v1_mesh_proto_rawDesc = "" +
 	"\n" +
 	"MqttReport\x12\x14\n" +
 	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x18\n" +
-	"\apayload\x18\x02 \x01(\fR\apayload\"\xb9\b\n" +
+	"\apayload\x18\x02 \x01(\fR\apayload\"\xab\t\n" +
 	"\x0eForwardRequest\x12\x1d\n" +
 	"\n" +
 	"forward_id\x18\x01 \x01(\tR\tforwardId\x12*\n" +
@@ -2083,7 +2103,8 @@ const file_n0x_mesh_v1_mesh_proto_rawDesc = "" +
 	"mqttReport\x12G\n" +
 	"\freport_flows\x18\x13 \x01(\v2\".n0x.control.v1.ReportFlowsRequestH\x00R\vreportFlows\x12]\n" +
 	"\x14admit_workload_offer\x18\x14 \x01(\v2).n0x.control.v1.AdmitWorkloadOfferRequestH\x00R\x12admitWorkloadOffer\x12]\n" +
-	"\x14renew_workload_offer\x18\x15 \x01(\v2).n0x.control.v1.RenewWorkloadOfferRequestH\x00R\x12renewWorkloadOfferB\t\n" +
+	"\x14renew_workload_offer\x18\x15 \x01(\v2).n0x.control.v1.RenewWorkloadOfferRequestH\x00R\x12renewWorkloadOffer\x12p\n" +
+	"\x1bregister_workload_from_host\x18\x16 \x01(\v2/.n0x.control.v1.RegisterWorkloadFromHostRequestH\x00R\x18registerWorkloadFromHostB\t\n" +
 	"\arequest\"n\n" +
 	"\x0fForwardResponse\x12%\n" +
 	"\x04code\x18\x01 \x01(\x0e2\x11.n0x.mesh.v1.CodeR\x04code\x12\x18\n" +
@@ -2179,43 +2200,44 @@ func file_n0x_mesh_v1_mesh_proto_rawDescGZIP() []byte {
 var file_n0x_mesh_v1_mesh_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_n0x_mesh_v1_mesh_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_n0x_mesh_v1_mesh_proto_goTypes = []any{
-	(Code)(0),                             // 0: n0x.mesh.v1.Code
-	(*Version)(nil),                       // 1: n0x.mesh.v1.Version
-	(*ScopeEntry)(nil),                    // 2: n0x.mesh.v1.ScopeEntry
-	(*SummaryItem)(nil),                   // 3: n0x.mesh.v1.SummaryItem
-	(*Summary)(nil),                       // 4: n0x.mesh.v1.Summary
-	(*Presence)(nil),                      // 5: n0x.mesh.v1.Presence
-	(*Presences)(nil),                     // 6: n0x.mesh.v1.Presences
-	(*Load)(nil),                          // 7: n0x.mesh.v1.Load
-	(*Entries)(nil),                       // 8: n0x.mesh.v1.Entries
-	(*Want)(nil),                          // 9: n0x.mesh.v1.Want
-	(*Delta)(nil),                         // 10: n0x.mesh.v1.Delta
-	(*Done)(nil),                          // 11: n0x.mesh.v1.Done
-	(*Ack)(nil),                           // 12: n0x.mesh.v1.Ack
-	(*Emission)(nil),                      // 13: n0x.mesh.v1.Emission
-	(*MqttActivation)(nil),                // 14: n0x.mesh.v1.MqttActivation
-	(*MqttLease)(nil),                     // 15: n0x.mesh.v1.MqttLease
-	(*MqttReport)(nil),                    // 16: n0x.mesh.v1.MqttReport
-	(*ForwardRequest)(nil),                // 17: n0x.mesh.v1.ForwardRequest
-	(*ForwardResponse)(nil),               // 18: n0x.mesh.v1.ForwardResponse
-	(*Frame)(nil),                         // 19: n0x.mesh.v1.Frame
-	(*Attestation)(nil),                   // 20: n0x.mesh.v1.Attestation
-	(*PeerStatus)(nil),                    // 21: n0x.mesh.v1.PeerStatus
-	(*TableStatus)(nil),                   // 22: n0x.mesh.v1.TableStatus
-	(*ForwardStats)(nil),                  // 23: n0x.mesh.v1.ForwardStats
-	(*GetStatusRequest)(nil),              // 24: n0x.mesh.v1.GetStatusRequest
-	(*GetStatusResponse)(nil),             // 25: n0x.mesh.v1.GetStatusResponse
-	(*v1.Scope)(nil),                      // 26: n0x.signed.v1.Scope
-	(*timestamppb.Timestamp)(nil),         // 27: google.protobuf.Timestamp
-	(*v11.BeginActivationRequest)(nil),    // 28: n0x.control.v1.BeginActivationRequest
-	(*v11.ActivateNodeRequest)(nil),       // 29: n0x.control.v1.ActivateNodeRequest
-	(*v11.RecoverSessionRequest)(nil),     // 30: n0x.control.v1.RecoverSessionRequest
-	(*v11.RenewLeaseRequest)(nil),         // 31: n0x.control.v1.RenewLeaseRequest
-	(*v11.ReportStateRequest)(nil),        // 32: n0x.control.v1.ReportStateRequest
-	(*v11.AdmitRequest)(nil),              // 33: n0x.control.v1.AdmitRequest
-	(*v11.ReportFlowsRequest)(nil),        // 34: n0x.control.v1.ReportFlowsRequest
-	(*v11.AdmitWorkloadOfferRequest)(nil), // 35: n0x.control.v1.AdmitWorkloadOfferRequest
-	(*v11.RenewWorkloadOfferRequest)(nil), // 36: n0x.control.v1.RenewWorkloadOfferRequest
+	(Code)(0),                                   // 0: n0x.mesh.v1.Code
+	(*Version)(nil),                             // 1: n0x.mesh.v1.Version
+	(*ScopeEntry)(nil),                          // 2: n0x.mesh.v1.ScopeEntry
+	(*SummaryItem)(nil),                         // 3: n0x.mesh.v1.SummaryItem
+	(*Summary)(nil),                             // 4: n0x.mesh.v1.Summary
+	(*Presence)(nil),                            // 5: n0x.mesh.v1.Presence
+	(*Presences)(nil),                           // 6: n0x.mesh.v1.Presences
+	(*Load)(nil),                                // 7: n0x.mesh.v1.Load
+	(*Entries)(nil),                             // 8: n0x.mesh.v1.Entries
+	(*Want)(nil),                                // 9: n0x.mesh.v1.Want
+	(*Delta)(nil),                               // 10: n0x.mesh.v1.Delta
+	(*Done)(nil),                                // 11: n0x.mesh.v1.Done
+	(*Ack)(nil),                                 // 12: n0x.mesh.v1.Ack
+	(*Emission)(nil),                            // 13: n0x.mesh.v1.Emission
+	(*MqttActivation)(nil),                      // 14: n0x.mesh.v1.MqttActivation
+	(*MqttLease)(nil),                           // 15: n0x.mesh.v1.MqttLease
+	(*MqttReport)(nil),                          // 16: n0x.mesh.v1.MqttReport
+	(*ForwardRequest)(nil),                      // 17: n0x.mesh.v1.ForwardRequest
+	(*ForwardResponse)(nil),                     // 18: n0x.mesh.v1.ForwardResponse
+	(*Frame)(nil),                               // 19: n0x.mesh.v1.Frame
+	(*Attestation)(nil),                         // 20: n0x.mesh.v1.Attestation
+	(*PeerStatus)(nil),                          // 21: n0x.mesh.v1.PeerStatus
+	(*TableStatus)(nil),                         // 22: n0x.mesh.v1.TableStatus
+	(*ForwardStats)(nil),                        // 23: n0x.mesh.v1.ForwardStats
+	(*GetStatusRequest)(nil),                    // 24: n0x.mesh.v1.GetStatusRequest
+	(*GetStatusResponse)(nil),                   // 25: n0x.mesh.v1.GetStatusResponse
+	(*v1.Scope)(nil),                            // 26: n0x.signed.v1.Scope
+	(*timestamppb.Timestamp)(nil),               // 27: google.protobuf.Timestamp
+	(*v11.BeginActivationRequest)(nil),          // 28: n0x.control.v1.BeginActivationRequest
+	(*v11.ActivateNodeRequest)(nil),             // 29: n0x.control.v1.ActivateNodeRequest
+	(*v11.RecoverSessionRequest)(nil),           // 30: n0x.control.v1.RecoverSessionRequest
+	(*v11.RenewLeaseRequest)(nil),               // 31: n0x.control.v1.RenewLeaseRequest
+	(*v11.ReportStateRequest)(nil),              // 32: n0x.control.v1.ReportStateRequest
+	(*v11.AdmitRequest)(nil),                    // 33: n0x.control.v1.AdmitRequest
+	(*v11.ReportFlowsRequest)(nil),              // 34: n0x.control.v1.ReportFlowsRequest
+	(*v11.AdmitWorkloadOfferRequest)(nil),       // 35: n0x.control.v1.AdmitWorkloadOfferRequest
+	(*v11.RenewWorkloadOfferRequest)(nil),       // 36: n0x.control.v1.RenewWorkloadOfferRequest
+	(*v11.RegisterWorkloadFromHostRequest)(nil), // 37: n0x.control.v1.RegisterWorkloadFromHostRequest
 }
 var file_n0x_mesh_v1_mesh_proto_depIdxs = []int32{
 	26, // 0: n0x.mesh.v1.ScopeEntry.scope:type_name -> n0x.signed.v1.Scope
@@ -2247,29 +2269,30 @@ var file_n0x_mesh_v1_mesh_proto_depIdxs = []int32{
 	34, // 26: n0x.mesh.v1.ForwardRequest.report_flows:type_name -> n0x.control.v1.ReportFlowsRequest
 	35, // 27: n0x.mesh.v1.ForwardRequest.admit_workload_offer:type_name -> n0x.control.v1.AdmitWorkloadOfferRequest
 	36, // 28: n0x.mesh.v1.ForwardRequest.renew_workload_offer:type_name -> n0x.control.v1.RenewWorkloadOfferRequest
-	0,  // 29: n0x.mesh.v1.ForwardResponse.code:type_name -> n0x.mesh.v1.Code
-	4,  // 30: n0x.mesh.v1.Frame.summary:type_name -> n0x.mesh.v1.Summary
-	8,  // 31: n0x.mesh.v1.Frame.entries:type_name -> n0x.mesh.v1.Entries
-	9,  // 32: n0x.mesh.v1.Frame.want:type_name -> n0x.mesh.v1.Want
-	10, // 33: n0x.mesh.v1.Frame.delta:type_name -> n0x.mesh.v1.Delta
-	5,  // 34: n0x.mesh.v1.Frame.presence:type_name -> n0x.mesh.v1.Presence
-	7,  // 35: n0x.mesh.v1.Frame.load:type_name -> n0x.mesh.v1.Load
-	11, // 36: n0x.mesh.v1.Frame.done:type_name -> n0x.mesh.v1.Done
-	12, // 37: n0x.mesh.v1.Frame.ack:type_name -> n0x.mesh.v1.Ack
-	17, // 38: n0x.mesh.v1.Frame.forward:type_name -> n0x.mesh.v1.ForwardRequest
-	18, // 39: n0x.mesh.v1.Frame.response:type_name -> n0x.mesh.v1.ForwardResponse
-	13, // 40: n0x.mesh.v1.Frame.emission:type_name -> n0x.mesh.v1.Emission
-	27, // 41: n0x.mesh.v1.PeerStatus.attested_until:type_name -> google.protobuf.Timestamp
-	21, // 42: n0x.mesh.v1.GetStatusResponse.peers:type_name -> n0x.mesh.v1.PeerStatus
-	22, // 43: n0x.mesh.v1.GetStatusResponse.table:type_name -> n0x.mesh.v1.TableStatus
-	23, // 44: n0x.mesh.v1.GetStatusResponse.forwards:type_name -> n0x.mesh.v1.ForwardStats
-	24, // 45: n0x.mesh.v1.MeshStatusService.GetStatus:input_type -> n0x.mesh.v1.GetStatusRequest
-	25, // 46: n0x.mesh.v1.MeshStatusService.GetStatus:output_type -> n0x.mesh.v1.GetStatusResponse
-	46, // [46:47] is the sub-list for method output_type
-	45, // [45:46] is the sub-list for method input_type
-	45, // [45:45] is the sub-list for extension type_name
-	45, // [45:45] is the sub-list for extension extendee
-	0,  // [0:45] is the sub-list for field type_name
+	37, // 29: n0x.mesh.v1.ForwardRequest.register_workload_from_host:type_name -> n0x.control.v1.RegisterWorkloadFromHostRequest
+	0,  // 30: n0x.mesh.v1.ForwardResponse.code:type_name -> n0x.mesh.v1.Code
+	4,  // 31: n0x.mesh.v1.Frame.summary:type_name -> n0x.mesh.v1.Summary
+	8,  // 32: n0x.mesh.v1.Frame.entries:type_name -> n0x.mesh.v1.Entries
+	9,  // 33: n0x.mesh.v1.Frame.want:type_name -> n0x.mesh.v1.Want
+	10, // 34: n0x.mesh.v1.Frame.delta:type_name -> n0x.mesh.v1.Delta
+	5,  // 35: n0x.mesh.v1.Frame.presence:type_name -> n0x.mesh.v1.Presence
+	7,  // 36: n0x.mesh.v1.Frame.load:type_name -> n0x.mesh.v1.Load
+	11, // 37: n0x.mesh.v1.Frame.done:type_name -> n0x.mesh.v1.Done
+	12, // 38: n0x.mesh.v1.Frame.ack:type_name -> n0x.mesh.v1.Ack
+	17, // 39: n0x.mesh.v1.Frame.forward:type_name -> n0x.mesh.v1.ForwardRequest
+	18, // 40: n0x.mesh.v1.Frame.response:type_name -> n0x.mesh.v1.ForwardResponse
+	13, // 41: n0x.mesh.v1.Frame.emission:type_name -> n0x.mesh.v1.Emission
+	27, // 42: n0x.mesh.v1.PeerStatus.attested_until:type_name -> google.protobuf.Timestamp
+	21, // 43: n0x.mesh.v1.GetStatusResponse.peers:type_name -> n0x.mesh.v1.PeerStatus
+	22, // 44: n0x.mesh.v1.GetStatusResponse.table:type_name -> n0x.mesh.v1.TableStatus
+	23, // 45: n0x.mesh.v1.GetStatusResponse.forwards:type_name -> n0x.mesh.v1.ForwardStats
+	24, // 46: n0x.mesh.v1.MeshStatusService.GetStatus:input_type -> n0x.mesh.v1.GetStatusRequest
+	25, // 47: n0x.mesh.v1.MeshStatusService.GetStatus:output_type -> n0x.mesh.v1.GetStatusResponse
+	47, // [47:48] is the sub-list for method output_type
+	46, // [46:47] is the sub-list for method input_type
+	46, // [46:46] is the sub-list for extension type_name
+	46, // [46:46] is the sub-list for extension extendee
+	0,  // [0:46] is the sub-list for field type_name
 }
 
 func init() { file_n0x_mesh_v1_mesh_proto_init() }
@@ -2290,6 +2313,7 @@ func file_n0x_mesh_v1_mesh_proto_init() {
 		(*ForwardRequest_ReportFlows)(nil),
 		(*ForwardRequest_AdmitWorkloadOffer)(nil),
 		(*ForwardRequest_RenewWorkloadOffer)(nil),
+		(*ForwardRequest_RegisterWorkloadFromHost)(nil),
 	}
 	file_n0x_mesh_v1_mesh_proto_msgTypes[18].OneofWrappers = []any{
 		(*Frame_Summary)(nil),
