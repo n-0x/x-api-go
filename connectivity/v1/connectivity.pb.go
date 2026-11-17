@@ -4217,6 +4217,201 @@ func (x *GetWorkloadNodeStatusResponse) GetNodes() []*WorkloadNodeStatus {
 	return nil
 }
 
+type GetWorkloadCountersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AccountId     *string                `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3,oneof" json:"account_id,omitempty"`
+	TenantId      *string                `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetWorkloadCountersRequest) Reset() {
+	*x = GetWorkloadCountersRequest{}
+	mi := &file_n0x_connectivity_v1_connectivity_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWorkloadCountersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWorkloadCountersRequest) ProtoMessage() {}
+
+func (x *GetWorkloadCountersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_connectivity_v1_connectivity_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWorkloadCountersRequest.ProtoReflect.Descriptor instead.
+func (*GetWorkloadCountersRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_connectivity_v1_connectivity_proto_rawDescGZIP(), []int{53}
+}
+
+func (x *GetWorkloadCountersRequest) GetAccountId() string {
+	if x != nil && x.AccountId != nil {
+		return *x.AccountId
+	}
+	return ""
+}
+
+func (x *GetWorkloadCountersRequest) GetTenantId() string {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return ""
+}
+
+type GetWorkloadCountersResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identifica el boot del proceso proxy y cambia en cada reinicio. El lector
+	// reinicia la referencia para calcular deltas sin pico cuando cambia.
+	BootId        *string                `protobuf:"bytes,1,opt,name=boot_id,json=bootId,proto3,oneof" json:"boot_id,omitempty"`
+	ObservedAt    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=observed_at,json=observedAt,proto3" json:"observed_at,omitempty"`
+	Workloads     []*WorkloadCounters    `protobuf:"bytes,3,rep,name=workloads,proto3" json:"workloads,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetWorkloadCountersResponse) Reset() {
+	*x = GetWorkloadCountersResponse{}
+	mi := &file_n0x_connectivity_v1_connectivity_proto_msgTypes[54]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWorkloadCountersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWorkloadCountersResponse) ProtoMessage() {}
+
+func (x *GetWorkloadCountersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_connectivity_v1_connectivity_proto_msgTypes[54]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWorkloadCountersResponse.ProtoReflect.Descriptor instead.
+func (*GetWorkloadCountersResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_connectivity_v1_connectivity_proto_rawDescGZIP(), []int{54}
+}
+
+func (x *GetWorkloadCountersResponse) GetBootId() string {
+	if x != nil && x.BootId != nil {
+		return *x.BootId
+	}
+	return ""
+}
+
+func (x *GetWorkloadCountersResponse) GetObservedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ObservedAt
+	}
+	return nil
+}
+
+func (x *GetWorkloadCountersResponse) GetWorkloads() []*WorkloadCounters {
+	if x != nil {
+		return x.Workloads
+	}
+	return nil
+}
+
+// Contadores en memoria del proxy; resources los lee cada minuto y agrega.
+// Ausencia de un contador o de una carga significa sin dato, nunca cero.
+type WorkloadCounters struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	AccountId  *string                `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3,oneof" json:"account_id,omitempty"`
+	TenantId   *string                `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
+	WorkloadId *string                `protobuf:"bytes,3,opt,name=workload_id,json=workloadId,proto3,oneof" json:"workload_id,omitempty"`
+	// Conexiones abiertas acumuladas, monotonas desde el boot_id del proxy.
+	ConnectionsTotal *uint64 `protobuf:"varint,4,opt,name=connections_total,json=connectionsTotal,proto3,oneof" json:"connections_total,omitempty"`
+	// Peticiones HTTP acumuladas, monotonas desde el mismo boot_id.
+	// Ausente si la carga no es HTTP o no se mide.
+	HttpRequestsTotal *uint64 `protobuf:"varint,5,opt,name=http_requests_total,json=httpRequestsTotal,proto3,oneof" json:"http_requests_total,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *WorkloadCounters) Reset() {
+	*x = WorkloadCounters{}
+	mi := &file_n0x_connectivity_v1_connectivity_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WorkloadCounters) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WorkloadCounters) ProtoMessage() {}
+
+func (x *WorkloadCounters) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_connectivity_v1_connectivity_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WorkloadCounters.ProtoReflect.Descriptor instead.
+func (*WorkloadCounters) Descriptor() ([]byte, []int) {
+	return file_n0x_connectivity_v1_connectivity_proto_rawDescGZIP(), []int{55}
+}
+
+func (x *WorkloadCounters) GetAccountId() string {
+	if x != nil && x.AccountId != nil {
+		return *x.AccountId
+	}
+	return ""
+}
+
+func (x *WorkloadCounters) GetTenantId() string {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return ""
+}
+
+func (x *WorkloadCounters) GetWorkloadId() string {
+	if x != nil && x.WorkloadId != nil {
+		return *x.WorkloadId
+	}
+	return ""
+}
+
+func (x *WorkloadCounters) GetConnectionsTotal() uint64 {
+	if x != nil && x.ConnectionsTotal != nil {
+		return *x.ConnectionsTotal
+	}
+	return 0
+}
+
+func (x *WorkloadCounters) GetHttpRequestsTotal() uint64 {
+	if x != nil && x.HttpRequestsTotal != nil {
+		return *x.HttpRequestsTotal
+	}
+	return 0
+}
+
 // Vincula el login del aserto humano con la identidad estable de los grants.
 type ProxyPersonIdentity struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -4228,7 +4423,7 @@ type ProxyPersonIdentity struct {
 
 func (x *ProxyPersonIdentity) Reset() {
 	*x = ProxyPersonIdentity{}
-	mi := &file_n0x_connectivity_v1_connectivity_proto_msgTypes[53]
+	mi := &file_n0x_connectivity_v1_connectivity_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4240,7 +4435,7 @@ func (x *ProxyPersonIdentity) String() string {
 func (*ProxyPersonIdentity) ProtoMessage() {}
 
 func (x *ProxyPersonIdentity) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_connectivity_v1_connectivity_proto_msgTypes[53]
+	mi := &file_n0x_connectivity_v1_connectivity_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4253,7 +4448,7 @@ func (x *ProxyPersonIdentity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProxyPersonIdentity.ProtoReflect.Descriptor instead.
 func (*ProxyPersonIdentity) Descriptor() ([]byte, []int) {
-	return file_n0x_connectivity_v1_connectivity_proto_rawDescGZIP(), []int{53}
+	return file_n0x_connectivity_v1_connectivity_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *ProxyPersonIdentity) GetLogin() string {
@@ -4280,7 +4475,7 @@ type IdentitySessionFloor struct {
 
 func (x *IdentitySessionFloor) Reset() {
 	*x = IdentitySessionFloor{}
-	mi := &file_n0x_connectivity_v1_connectivity_proto_msgTypes[54]
+	mi := &file_n0x_connectivity_v1_connectivity_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4292,7 +4487,7 @@ func (x *IdentitySessionFloor) String() string {
 func (*IdentitySessionFloor) ProtoMessage() {}
 
 func (x *IdentitySessionFloor) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_connectivity_v1_connectivity_proto_msgTypes[54]
+	mi := &file_n0x_connectivity_v1_connectivity_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4305,7 +4500,7 @@ func (x *IdentitySessionFloor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IdentitySessionFloor.ProtoReflect.Descriptor instead.
 func (*IdentitySessionFloor) Descriptor() ([]byte, []int) {
-	return file_n0x_connectivity_v1_connectivity_proto_rawDescGZIP(), []int{54}
+	return file_n0x_connectivity_v1_connectivity_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *IdentitySessionFloor) GetIdentityId() string {
@@ -4744,7 +4939,35 @@ const file_n0x_connectivity_v1_connectivity_proto_rawDesc = "" +
 	"\n" +
 	"_connected\"^\n" +
 	"\x1dGetWorkloadNodeStatusResponse\x12=\n" +
-	"\x05nodes\x18\x01 \x03(\v2'.n0x.connectivity.v1.WorkloadNodeStatusR\x05nodes\"p\n" +
+	"\x05nodes\x18\x01 \x03(\v2'.n0x.connectivity.v1.WorkloadNodeStatusR\x05nodes\"\x7f\n" +
+	"\x1aGetWorkloadCountersRequest\x12\"\n" +
+	"\n" +
+	"account_id\x18\x01 \x01(\tH\x00R\taccountId\x88\x01\x01\x12 \n" +
+	"\ttenant_id\x18\x02 \x01(\tH\x01R\btenantId\x88\x01\x01B\r\n" +
+	"\v_account_idB\f\n" +
+	"\n" +
+	"_tenant_id\"\xc9\x01\n" +
+	"\x1bGetWorkloadCountersResponse\x12\x1c\n" +
+	"\aboot_id\x18\x01 \x01(\tH\x00R\x06bootId\x88\x01\x01\x12;\n" +
+	"\vobserved_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"observedAt\x12C\n" +
+	"\tworkloads\x18\x03 \x03(\v2%.n0x.connectivity.v1.WorkloadCountersR\tworkloadsB\n" +
+	"\n" +
+	"\b_boot_id\"\xc0\x02\n" +
+	"\x10WorkloadCounters\x12\"\n" +
+	"\n" +
+	"account_id\x18\x01 \x01(\tH\x00R\taccountId\x88\x01\x01\x12 \n" +
+	"\ttenant_id\x18\x02 \x01(\tH\x01R\btenantId\x88\x01\x01\x12$\n" +
+	"\vworkload_id\x18\x03 \x01(\tH\x02R\n" +
+	"workloadId\x88\x01\x01\x120\n" +
+	"\x11connections_total\x18\x04 \x01(\x04H\x03R\x10connectionsTotal\x88\x01\x01\x123\n" +
+	"\x13http_requests_total\x18\x05 \x01(\x04H\x04R\x11httpRequestsTotal\x88\x01\x01B\r\n" +
+	"\v_account_idB\f\n" +
+	"\n" +
+	"_tenant_idB\x0e\n" +
+	"\f_workload_idB\x14\n" +
+	"\x12_connections_totalB\x16\n" +
+	"\x14_http_requests_total\"p\n" +
 	"\x13ProxyPersonIdentity\x12\x19\n" +
 	"\x05login\x18\x01 \x01(\tH\x00R\x05login\x88\x01\x01\x12$\n" +
 	"\videntity_id\x18\x02 \x01(\tH\x01R\n" +
@@ -4770,12 +4993,13 @@ const file_n0x_connectivity_v1_connectivity_proto_rawDesc = "" +
 	"\"PROXY_ACCESS_MECHANISM_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cPROXY_ACCESS_MECHANISM_LOGIN\x10\x01\x12*\n" +
 	"&PROXY_ACCESS_MECHANISM_SSH_CERTIFICATE\x10\x02\x121\n" +
-	"-PROXY_ACCESS_MECHANISM_SHORT_LIVED_CREDENTIAL\x10\x032\xd1\x02\n" +
+	"-PROXY_ACCESS_MECHANISM_SHORT_LIVED_CREDENTIAL\x10\x032\xcb\x03\n" +
 	"\x14ForwardStatusService\x12Z\n" +
 	"\tGetStatus\x12%.n0x.connectivity.v1.GetStatusRequest\x1a&.n0x.connectivity.v1.GetStatusResponse\x12]\n" +
 	"\n" +
 	"GetMetrics\x12&.n0x.connectivity.v1.GetMetricsRequest\x1a'.n0x.connectivity.v1.GetMetricsResponse\x12~\n" +
-	"\x15GetWorkloadNodeStatus\x121.n0x.connectivity.v1.GetWorkloadNodeStatusRequest\x1a2.n0x.connectivity.v1.GetWorkloadNodeStatusResponse2\xa8\a\n" +
+	"\x15GetWorkloadNodeStatus\x121.n0x.connectivity.v1.GetWorkloadNodeStatusRequest\x1a2.n0x.connectivity.v1.GetWorkloadNodeStatusResponse\x12x\n" +
+	"\x13GetWorkloadCounters\x12/.n0x.connectivity.v1.GetWorkloadCountersRequest\x1a0.n0x.connectivity.v1.GetWorkloadCountersResponse2\xa8\a\n" +
 	"\x10AdmissionService\x12N\n" +
 	"\x05Admit\x12!.n0x.connectivity.v1.AdmitRequest\x1a\".n0x.connectivity.v1.AdmitResponse\x12Q\n" +
 	"\x06Refill\x12\".n0x.connectivity.v1.RefillRequest\x1a#.n0x.connectivity.v1.RefillResponse\x12N\n" +
@@ -4802,7 +5026,7 @@ func file_n0x_connectivity_v1_connectivity_proto_rawDescGZIP() []byte {
 }
 
 var file_n0x_connectivity_v1_connectivity_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_n0x_connectivity_v1_connectivity_proto_msgTypes = make([]protoimpl.MessageInfo, 55)
+var file_n0x_connectivity_v1_connectivity_proto_msgTypes = make([]protoimpl.MessageInfo, 58)
 var file_n0x_connectivity_v1_connectivity_proto_goTypes = []any{
 	(OriginScheme)(0),                     // 0: n0x.connectivity.v1.OriginScheme
 	(ProxyWorkloadType)(0),                // 1: n0x.connectivity.v1.ProxyWorkloadType
@@ -4860,15 +5084,18 @@ var file_n0x_connectivity_v1_connectivity_proto_goTypes = []any{
 	(*GetWorkloadNodeStatusRequest)(nil),  // 53: n0x.connectivity.v1.GetWorkloadNodeStatusRequest
 	(*WorkloadNodeStatus)(nil),            // 54: n0x.connectivity.v1.WorkloadNodeStatus
 	(*GetWorkloadNodeStatusResponse)(nil), // 55: n0x.connectivity.v1.GetWorkloadNodeStatusResponse
-	(*ProxyPersonIdentity)(nil),           // 56: n0x.connectivity.v1.ProxyPersonIdentity
-	(*IdentitySessionFloor)(nil),          // 57: n0x.connectivity.v1.IdentitySessionFloor
-	(*v1.Scope)(nil),                      // 58: n0x.signed.v1.Scope
-	(*timestamppb.Timestamp)(nil),         // 59: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),           // 60: google.protobuf.Duration
+	(*GetWorkloadCountersRequest)(nil),    // 56: n0x.connectivity.v1.GetWorkloadCountersRequest
+	(*GetWorkloadCountersResponse)(nil),   // 57: n0x.connectivity.v1.GetWorkloadCountersResponse
+	(*WorkloadCounters)(nil),              // 58: n0x.connectivity.v1.WorkloadCounters
+	(*ProxyPersonIdentity)(nil),           // 59: n0x.connectivity.v1.ProxyPersonIdentity
+	(*IdentitySessionFloor)(nil),          // 60: n0x.connectivity.v1.IdentitySessionFloor
+	(*v1.Scope)(nil),                      // 61: n0x.signed.v1.Scope
+	(*timestamppb.Timestamp)(nil),         // 62: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),           // 63: google.protobuf.Duration
 }
 var file_n0x_connectivity_v1_connectivity_proto_depIdxs = []int32{
 	3,  // 0: n0x.connectivity.v1.Ticket.binding:type_name -> n0x.connectivity.v1.Binding
-	58, // 1: n0x.connectivity.v1.Ticket.scope:type_name -> n0x.signed.v1.Scope
+	61, // 1: n0x.connectivity.v1.Ticket.scope:type_name -> n0x.signed.v1.Scope
 	5,  // 2: n0x.connectivity.v1.RelayHello.ticket:type_name -> n0x.connectivity.v1.SignedTicket
 	14, // 3: n0x.connectivity.v1.GetStatusResponse.service:type_name -> n0x.connectivity.v1.ConnectivityServiceInfo
 	13, // 4: n0x.connectivity.v1.AdmitResult.allocation:type_name -> n0x.connectivity.v1.Allocation
@@ -4876,84 +5103,88 @@ var file_n0x_connectivity_v1_connectivity_proto_depIdxs = []int32{
 	5,  // 6: n0x.connectivity.v1.AdmitResult.ticket:type_name -> n0x.connectivity.v1.SignedTicket
 	3,  // 7: n0x.connectivity.v1.Allocation.binding:type_name -> n0x.connectivity.v1.Binding
 	3,  // 8: n0x.connectivity.v1.Admission.binding:type_name -> n0x.connectivity.v1.Binding
-	58, // 9: n0x.connectivity.v1.Admission.scope:type_name -> n0x.signed.v1.Scope
+	61, // 9: n0x.connectivity.v1.Admission.scope:type_name -> n0x.signed.v1.Scope
 	15, // 10: n0x.connectivity.v1.AdmitRequest.admission:type_name -> n0x.connectivity.v1.Admission
 	12, // 11: n0x.connectivity.v1.AdmitResponse.result:type_name -> n0x.connectivity.v1.AdmitResult
 	13, // 12: n0x.connectivity.v1.RefillResponse.allocation:type_name -> n0x.connectivity.v1.Allocation
 	13, // 13: n0x.connectivity.v1.JoinResponse.allocation:type_name -> n0x.connectivity.v1.Allocation
 	33, // 14: n0x.connectivity.v1.ProxyNodeTarget.budget:type_name -> n0x.connectivity.v1.WorkloadOfferBudget
 	24, // 15: n0x.connectivity.v1.ProxyNodeTargets.nodes:type_name -> n0x.connectivity.v1.ProxyNodeTarget
-	59, // 16: n0x.connectivity.v1.ProxyDirectTarget.resolution_expires_at:type_name -> google.protobuf.Timestamp
+	62, // 16: n0x.connectivity.v1.ProxyDirectTarget.resolution_expires_at:type_name -> google.protobuf.Timestamp
 	33, // 17: n0x.connectivity.v1.ProxyDirectTarget.budget:type_name -> n0x.connectivity.v1.WorkloadOfferBudget
 	1,  // 18: n0x.connectivity.v1.ProxyWorkloadTarget.type:type_name -> n0x.connectivity.v1.ProxyWorkloadType
 	25, // 19: n0x.connectivity.v1.ProxyWorkloadTarget.serving_nodes:type_name -> n0x.connectivity.v1.ProxyNodeTargets
 	26, // 20: n0x.connectivity.v1.ProxyWorkloadTarget.direct_destination:type_name -> n0x.connectivity.v1.ProxyDirectTarget
 	0,  // 21: n0x.connectivity.v1.ProxyWorkloadTarget.origin_scheme:type_name -> n0x.connectivity.v1.OriginScheme
 	2,  // 22: n0x.connectivity.v1.ProxyApplicationGrant.mechanism:type_name -> n0x.connectivity.v1.ProxyAccessMechanism
-	59, // 23: n0x.connectivity.v1.ProxyApplicationGrant.expires_at:type_name -> google.protobuf.Timestamp
+	62, // 23: n0x.connectivity.v1.ProxyApplicationGrant.expires_at:type_name -> google.protobuf.Timestamp
 	27, // 24: n0x.connectivity.v1.ProxyTable.workloads:type_name -> n0x.connectivity.v1.ProxyWorkloadTarget
 	28, // 25: n0x.connectivity.v1.ProxyTable.application_grants:type_name -> n0x.connectivity.v1.ProxyApplicationGrant
-	59, // 26: n0x.connectivity.v1.ProxyTable.generated_at:type_name -> google.protobuf.Timestamp
+	62, // 26: n0x.connectivity.v1.ProxyTable.generated_at:type_name -> google.protobuf.Timestamp
 	30, // 27: n0x.connectivity.v1.ProxyTable.node_identities:type_name -> n0x.connectivity.v1.ProxyNodeIdentity
-	56, // 28: n0x.connectivity.v1.ProxyTable.person_identities:type_name -> n0x.connectivity.v1.ProxyPersonIdentity
-	57, // 29: n0x.connectivity.v1.ProxyTable.identity_session_floors:type_name -> n0x.connectivity.v1.IdentitySessionFloor
+	59, // 28: n0x.connectivity.v1.ProxyTable.person_identities:type_name -> n0x.connectivity.v1.ProxyPersonIdentity
+	60, // 29: n0x.connectivity.v1.ProxyTable.identity_session_floors:type_name -> n0x.connectivity.v1.IdentitySessionFloor
 	29, // 30: n0x.connectivity.v1.PublishProxyTableRequest.table:type_name -> n0x.connectivity.v1.ProxyTable
-	59, // 31: n0x.connectivity.v1.PublishProxyTableResponse.applied_at:type_name -> google.protobuf.Timestamp
-	60, // 32: n0x.connectivity.v1.WorkloadOfferBudget.window:type_name -> google.protobuf.Duration
+	62, // 31: n0x.connectivity.v1.PublishProxyTableResponse.applied_at:type_name -> google.protobuf.Timestamp
+	63, // 32: n0x.connectivity.v1.WorkloadOfferBudget.window:type_name -> google.protobuf.Duration
 	33, // 33: n0x.connectivity.v1.WorkloadOfferLease.budget:type_name -> n0x.connectivity.v1.WorkloadOfferBudget
-	59, // 34: n0x.connectivity.v1.WorkloadOfferLease.window_start:type_name -> google.protobuf.Timestamp
-	59, // 35: n0x.connectivity.v1.WorkloadOfferLease.expires_at:type_name -> google.protobuf.Timestamp
-	59, // 36: n0x.connectivity.v1.WorkloadOfferTicket.issued_at:type_name -> google.protobuf.Timestamp
-	59, // 37: n0x.connectivity.v1.WorkloadOfferTicket.not_before:type_name -> google.protobuf.Timestamp
-	59, // 38: n0x.connectivity.v1.WorkloadOfferTicket.expires_at:type_name -> google.protobuf.Timestamp
+	62, // 34: n0x.connectivity.v1.WorkloadOfferLease.window_start:type_name -> google.protobuf.Timestamp
+	62, // 35: n0x.connectivity.v1.WorkloadOfferLease.expires_at:type_name -> google.protobuf.Timestamp
+	62, // 36: n0x.connectivity.v1.WorkloadOfferTicket.issued_at:type_name -> google.protobuf.Timestamp
+	62, // 37: n0x.connectivity.v1.WorkloadOfferTicket.not_before:type_name -> google.protobuf.Timestamp
+	62, // 38: n0x.connectivity.v1.WorkloadOfferTicket.expires_at:type_name -> google.protobuf.Timestamp
 	34, // 39: n0x.connectivity.v1.WorkloadOfferAdmission.lease:type_name -> n0x.connectivity.v1.WorkloadOfferLease
 	36, // 40: n0x.connectivity.v1.WorkloadOfferAdmission.ticket:type_name -> n0x.connectivity.v1.SignedWorkloadOfferTicket
 	14, // 41: n0x.connectivity.v1.WorkloadOfferAdmission.service:type_name -> n0x.connectivity.v1.ConnectivityServiceInfo
-	59, // 42: n0x.connectivity.v1.WorkloadOfferAdmission.renew_after:type_name -> google.protobuf.Timestamp
+	62, // 42: n0x.connectivity.v1.WorkloadOfferAdmission.renew_after:type_name -> google.protobuf.Timestamp
 	1,  // 43: n0x.connectivity.v1.WorkloadOfferAdmission.workload_type:type_name -> n0x.connectivity.v1.ProxyWorkloadType
 	37, // 44: n0x.connectivity.v1.AdmitWorkloadOfferResponse.admission:type_name -> n0x.connectivity.v1.WorkloadOfferAdmission
 	36, // 45: n0x.connectivity.v1.ClaimWorkloadOfferRequest.ticket:type_name -> n0x.connectivity.v1.SignedWorkloadOfferTicket
 	34, // 46: n0x.connectivity.v1.ClaimWorkloadOfferResponse.lease:type_name -> n0x.connectivity.v1.WorkloadOfferLease
 	37, // 47: n0x.connectivity.v1.RenewWorkloadOfferResponse.admission:type_name -> n0x.connectivity.v1.WorkloadOfferAdmission
-	59, // 48: n0x.connectivity.v1.RefillWorkloadOfferRequest.window_start:type_name -> google.protobuf.Timestamp
+	62, // 48: n0x.connectivity.v1.RefillWorkloadOfferRequest.window_start:type_name -> google.protobuf.Timestamp
 	34, // 49: n0x.connectivity.v1.RefillWorkloadOfferResponse.lease:type_name -> n0x.connectivity.v1.WorkloadOfferLease
 	36, // 50: n0x.connectivity.v1.WorkloadOfferHello.ticket:type_name -> n0x.connectivity.v1.SignedWorkloadOfferTicket
 	36, // 51: n0x.connectivity.v1.WorkloadOfferRenewal.ticket:type_name -> n0x.connectivity.v1.SignedWorkloadOfferTicket
-	59, // 52: n0x.connectivity.v1.WorkloadOfferRenewed.expires_at:type_name -> google.protobuf.Timestamp
-	59, // 53: n0x.connectivity.v1.WorkloadNodeStatus.changed_at:type_name -> google.protobuf.Timestamp
+	62, // 52: n0x.connectivity.v1.WorkloadOfferRenewed.expires_at:type_name -> google.protobuf.Timestamp
+	62, // 53: n0x.connectivity.v1.WorkloadNodeStatus.changed_at:type_name -> google.protobuf.Timestamp
 	54, // 54: n0x.connectivity.v1.GetWorkloadNodeStatusResponse.nodes:type_name -> n0x.connectivity.v1.WorkloadNodeStatus
-	59, // 55: n0x.connectivity.v1.IdentitySessionFloor.not_before:type_name -> google.protobuf.Timestamp
-	8,  // 56: n0x.connectivity.v1.ForwardStatusService.GetStatus:input_type -> n0x.connectivity.v1.GetStatusRequest
-	10, // 57: n0x.connectivity.v1.ForwardStatusService.GetMetrics:input_type -> n0x.connectivity.v1.GetMetricsRequest
-	53, // 58: n0x.connectivity.v1.ForwardStatusService.GetWorkloadNodeStatus:input_type -> n0x.connectivity.v1.GetWorkloadNodeStatusRequest
-	16, // 59: n0x.connectivity.v1.AdmissionService.Admit:input_type -> n0x.connectivity.v1.AdmitRequest
-	18, // 60: n0x.connectivity.v1.AdmissionService.Refill:input_type -> n0x.connectivity.v1.RefillRequest
-	20, // 61: n0x.connectivity.v1.AdmissionService.Close:input_type -> n0x.connectivity.v1.CloseRequest
-	22, // 62: n0x.connectivity.v1.AdmissionService.Join:input_type -> n0x.connectivity.v1.JoinRequest
-	38, // 63: n0x.connectivity.v1.AdmissionService.AdmitWorkloadOffer:input_type -> n0x.connectivity.v1.AdmitWorkloadOfferRequest
-	40, // 64: n0x.connectivity.v1.AdmissionService.ClaimWorkloadOffer:input_type -> n0x.connectivity.v1.ClaimWorkloadOfferRequest
-	42, // 65: n0x.connectivity.v1.AdmissionService.RenewWorkloadOffer:input_type -> n0x.connectivity.v1.RenewWorkloadOfferRequest
-	44, // 66: n0x.connectivity.v1.AdmissionService.RefillWorkloadOffer:input_type -> n0x.connectivity.v1.RefillWorkloadOfferRequest
-	46, // 67: n0x.connectivity.v1.AdmissionService.CloseWorkloadOffer:input_type -> n0x.connectivity.v1.CloseWorkloadOfferRequest
-	31, // 68: n0x.connectivity.v1.ProxyControlService.PublishProxyTable:input_type -> n0x.connectivity.v1.PublishProxyTableRequest
-	9,  // 69: n0x.connectivity.v1.ForwardStatusService.GetStatus:output_type -> n0x.connectivity.v1.GetStatusResponse
-	11, // 70: n0x.connectivity.v1.ForwardStatusService.GetMetrics:output_type -> n0x.connectivity.v1.GetMetricsResponse
-	55, // 71: n0x.connectivity.v1.ForwardStatusService.GetWorkloadNodeStatus:output_type -> n0x.connectivity.v1.GetWorkloadNodeStatusResponse
-	17, // 72: n0x.connectivity.v1.AdmissionService.Admit:output_type -> n0x.connectivity.v1.AdmitResponse
-	19, // 73: n0x.connectivity.v1.AdmissionService.Refill:output_type -> n0x.connectivity.v1.RefillResponse
-	21, // 74: n0x.connectivity.v1.AdmissionService.Close:output_type -> n0x.connectivity.v1.CloseResponse
-	23, // 75: n0x.connectivity.v1.AdmissionService.Join:output_type -> n0x.connectivity.v1.JoinResponse
-	39, // 76: n0x.connectivity.v1.AdmissionService.AdmitWorkloadOffer:output_type -> n0x.connectivity.v1.AdmitWorkloadOfferResponse
-	41, // 77: n0x.connectivity.v1.AdmissionService.ClaimWorkloadOffer:output_type -> n0x.connectivity.v1.ClaimWorkloadOfferResponse
-	43, // 78: n0x.connectivity.v1.AdmissionService.RenewWorkloadOffer:output_type -> n0x.connectivity.v1.RenewWorkloadOfferResponse
-	45, // 79: n0x.connectivity.v1.AdmissionService.RefillWorkloadOffer:output_type -> n0x.connectivity.v1.RefillWorkloadOfferResponse
-	47, // 80: n0x.connectivity.v1.AdmissionService.CloseWorkloadOffer:output_type -> n0x.connectivity.v1.CloseWorkloadOfferResponse
-	32, // 81: n0x.connectivity.v1.ProxyControlService.PublishProxyTable:output_type -> n0x.connectivity.v1.PublishProxyTableResponse
-	69, // [69:82] is the sub-list for method output_type
-	56, // [56:69] is the sub-list for method input_type
-	56, // [56:56] is the sub-list for extension type_name
-	56, // [56:56] is the sub-list for extension extendee
-	0,  // [0:56] is the sub-list for field type_name
+	62, // 55: n0x.connectivity.v1.GetWorkloadCountersResponse.observed_at:type_name -> google.protobuf.Timestamp
+	58, // 56: n0x.connectivity.v1.GetWorkloadCountersResponse.workloads:type_name -> n0x.connectivity.v1.WorkloadCounters
+	62, // 57: n0x.connectivity.v1.IdentitySessionFloor.not_before:type_name -> google.protobuf.Timestamp
+	8,  // 58: n0x.connectivity.v1.ForwardStatusService.GetStatus:input_type -> n0x.connectivity.v1.GetStatusRequest
+	10, // 59: n0x.connectivity.v1.ForwardStatusService.GetMetrics:input_type -> n0x.connectivity.v1.GetMetricsRequest
+	53, // 60: n0x.connectivity.v1.ForwardStatusService.GetWorkloadNodeStatus:input_type -> n0x.connectivity.v1.GetWorkloadNodeStatusRequest
+	56, // 61: n0x.connectivity.v1.ForwardStatusService.GetWorkloadCounters:input_type -> n0x.connectivity.v1.GetWorkloadCountersRequest
+	16, // 62: n0x.connectivity.v1.AdmissionService.Admit:input_type -> n0x.connectivity.v1.AdmitRequest
+	18, // 63: n0x.connectivity.v1.AdmissionService.Refill:input_type -> n0x.connectivity.v1.RefillRequest
+	20, // 64: n0x.connectivity.v1.AdmissionService.Close:input_type -> n0x.connectivity.v1.CloseRequest
+	22, // 65: n0x.connectivity.v1.AdmissionService.Join:input_type -> n0x.connectivity.v1.JoinRequest
+	38, // 66: n0x.connectivity.v1.AdmissionService.AdmitWorkloadOffer:input_type -> n0x.connectivity.v1.AdmitWorkloadOfferRequest
+	40, // 67: n0x.connectivity.v1.AdmissionService.ClaimWorkloadOffer:input_type -> n0x.connectivity.v1.ClaimWorkloadOfferRequest
+	42, // 68: n0x.connectivity.v1.AdmissionService.RenewWorkloadOffer:input_type -> n0x.connectivity.v1.RenewWorkloadOfferRequest
+	44, // 69: n0x.connectivity.v1.AdmissionService.RefillWorkloadOffer:input_type -> n0x.connectivity.v1.RefillWorkloadOfferRequest
+	46, // 70: n0x.connectivity.v1.AdmissionService.CloseWorkloadOffer:input_type -> n0x.connectivity.v1.CloseWorkloadOfferRequest
+	31, // 71: n0x.connectivity.v1.ProxyControlService.PublishProxyTable:input_type -> n0x.connectivity.v1.PublishProxyTableRequest
+	9,  // 72: n0x.connectivity.v1.ForwardStatusService.GetStatus:output_type -> n0x.connectivity.v1.GetStatusResponse
+	11, // 73: n0x.connectivity.v1.ForwardStatusService.GetMetrics:output_type -> n0x.connectivity.v1.GetMetricsResponse
+	55, // 74: n0x.connectivity.v1.ForwardStatusService.GetWorkloadNodeStatus:output_type -> n0x.connectivity.v1.GetWorkloadNodeStatusResponse
+	57, // 75: n0x.connectivity.v1.ForwardStatusService.GetWorkloadCounters:output_type -> n0x.connectivity.v1.GetWorkloadCountersResponse
+	17, // 76: n0x.connectivity.v1.AdmissionService.Admit:output_type -> n0x.connectivity.v1.AdmitResponse
+	19, // 77: n0x.connectivity.v1.AdmissionService.Refill:output_type -> n0x.connectivity.v1.RefillResponse
+	21, // 78: n0x.connectivity.v1.AdmissionService.Close:output_type -> n0x.connectivity.v1.CloseResponse
+	23, // 79: n0x.connectivity.v1.AdmissionService.Join:output_type -> n0x.connectivity.v1.JoinResponse
+	39, // 80: n0x.connectivity.v1.AdmissionService.AdmitWorkloadOffer:output_type -> n0x.connectivity.v1.AdmitWorkloadOfferResponse
+	41, // 81: n0x.connectivity.v1.AdmissionService.ClaimWorkloadOffer:output_type -> n0x.connectivity.v1.ClaimWorkloadOfferResponse
+	43, // 82: n0x.connectivity.v1.AdmissionService.RenewWorkloadOffer:output_type -> n0x.connectivity.v1.RenewWorkloadOfferResponse
+	45, // 83: n0x.connectivity.v1.AdmissionService.RefillWorkloadOffer:output_type -> n0x.connectivity.v1.RefillWorkloadOfferResponse
+	47, // 84: n0x.connectivity.v1.AdmissionService.CloseWorkloadOffer:output_type -> n0x.connectivity.v1.CloseWorkloadOfferResponse
+	32, // 85: n0x.connectivity.v1.ProxyControlService.PublishProxyTable:output_type -> n0x.connectivity.v1.PublishProxyTableResponse
+	72, // [72:86] is the sub-list for method output_type
+	58, // [58:72] is the sub-list for method input_type
+	58, // [58:58] is the sub-list for extension type_name
+	58, // [58:58] is the sub-list for extension extendee
+	0,  // [0:58] is the sub-list for field type_name
 }
 
 func init() { file_n0x_connectivity_v1_connectivity_proto_init() }
@@ -4976,13 +5207,16 @@ func file_n0x_connectivity_v1_connectivity_proto_init() {
 	file_n0x_connectivity_v1_connectivity_proto_msgTypes[51].OneofWrappers = []any{}
 	file_n0x_connectivity_v1_connectivity_proto_msgTypes[53].OneofWrappers = []any{}
 	file_n0x_connectivity_v1_connectivity_proto_msgTypes[54].OneofWrappers = []any{}
+	file_n0x_connectivity_v1_connectivity_proto_msgTypes[55].OneofWrappers = []any{}
+	file_n0x_connectivity_v1_connectivity_proto_msgTypes[56].OneofWrappers = []any{}
+	file_n0x_connectivity_v1_connectivity_proto_msgTypes[57].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_connectivity_v1_connectivity_proto_rawDesc), len(file_n0x_connectivity_v1_connectivity_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   55,
+			NumMessages:   58,
 			NumExtensions: 0,
 			NumServices:   3,
 		},

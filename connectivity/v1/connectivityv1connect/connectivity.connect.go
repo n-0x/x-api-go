@@ -37,6 +37,9 @@ const (
 	// ForwardStatusServiceGetWorkloadNodeStatusProcedure is the procedure name of the
 	// ForwardStatusService's GetWorkloadNodeStatus RPC.
 	ForwardStatusServiceGetWorkloadNodeStatusProcedure = "/n0x.connectivity.v1.ForwardStatusService/GetWorkloadNodeStatus"
+	// ForwardStatusServiceGetWorkloadCountersProcedure is the procedure name of the
+	// ForwardStatusService's GetWorkloadCounters RPC.
+	ForwardStatusServiceGetWorkloadCountersProcedure = "/n0x.connectivity.v1.ForwardStatusService/GetWorkloadCounters"
 	// AdmissionServiceAdmitProcedure is the procedure name of the AdmissionService's Admit RPC.
 	AdmissionServiceAdmitProcedure = "/n0x.connectivity.v1.AdmissionService/Admit"
 	// AdmissionServiceRefillProcedure is the procedure name of the AdmissionService's Refill RPC.
@@ -87,6 +90,13 @@ var (
 			Procedure:  ForwardStatusServiceGetWorkloadNodeStatusProcedure,
 		}
 	})
+	forwardStatusServiceGetWorkloadCountersSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_connectivity_v1_connectivity_proto.Services().ByName("ForwardStatusService").Methods().ByName("GetWorkloadCounters"),
+			Procedure:  ForwardStatusServiceGetWorkloadCountersProcedure,
+		}
+	})
 )
 
 // ForwardStatusServiceClient is a client for the n0x.connectivity.v1.ForwardStatusService service.
@@ -104,6 +114,14 @@ type ForwardStatusServiceClient interface {
 	// Solo devuelve el ambito account/tenant pedido; una pareja carga-nodo ausente
 	// no certifica conectividad.
 	GetWorkloadNodeStatus(context.Context, *v1.GetWorkloadNodeStatusRequest) (*v1.GetWorkloadNodeStatusResponse, error)
+	// Lectura privada para resources cada minuto (ADR 0026, punto 4).
+	// Se reutiliza este servicio porque el proxy ya lo registra en control_listen
+	// con el lector resources, junto a GetWorkloadNodeStatus (workload_status.go).
+	// Mismo modelo mTLS: solo la allowlist control_plane_ids, nunca issuer_ids
+	// ni cualquier SVID del trust domain. Deniega sin peer autenticado, sin
+	// allowlist o con ella vacia, o sin account_id o tenant_id; solo devuelve
+	// contadores del ambito account/tenant solicitado.
+	GetWorkloadCounters(context.Context, *v1.GetWorkloadCountersRequest) (*v1.GetWorkloadCountersResponse, error)
 }
 
 // NewForwardStatusServiceClient constructs a client for the
@@ -129,6 +147,14 @@ type ForwardStatusServiceHandler interface {
 	// Solo devuelve el ambito account/tenant pedido; una pareja carga-nodo ausente
 	// no certifica conectividad.
 	GetWorkloadNodeStatus(context.Context, *v1.GetWorkloadNodeStatusRequest) (*v1.GetWorkloadNodeStatusResponse, error)
+	// Lectura privada para resources cada minuto (ADR 0026, punto 4).
+	// Se reutiliza este servicio porque el proxy ya lo registra en control_listen
+	// con el lector resources, junto a GetWorkloadNodeStatus (workload_status.go).
+	// Mismo modelo mTLS: solo la allowlist control_plane_ids, nunca issuer_ids
+	// ni cualquier SVID del trust domain. Deniega sin peer autenticado, sin
+	// allowlist o con ella vacia, o sin account_id o tenant_id; solo devuelve
+	// contadores del ambito account/tenant solicitado.
+	GetWorkloadCounters(context.Context, *v1.GetWorkloadCountersRequest) (*v1.GetWorkloadCountersResponse, error)
 }
 
 // RegisterForwardStatusServiceHandler registers svc as the n0x.connectivity.v1.ForwardStatusService
@@ -139,6 +165,7 @@ func RegisterForwardStatusServiceHandler(server *connect.Server, svc ForwardStat
 		connect.Method{Spec: forwardStatusServiceGetStatusSpec(), Handler: adapter.getStatus},
 		connect.Method{Spec: forwardStatusServiceGetMetricsSpec(), Handler: adapter.getMetrics},
 		connect.Method{Spec: forwardStatusServiceGetWorkloadNodeStatusSpec(), Handler: adapter.getWorkloadNodeStatus},
+		connect.Method{Spec: forwardStatusServiceGetWorkloadCountersSpec(), Handler: adapter.getWorkloadCounters},
 	)
 }
 
@@ -155,6 +182,10 @@ func (UnimplementedForwardStatusServiceHandler) GetMetrics(context.Context, *v1.
 
 func (UnimplementedForwardStatusServiceHandler) GetWorkloadNodeStatus(context.Context, *v1.GetWorkloadNodeStatusRequest) (*v1.GetWorkloadNodeStatusResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.connectivity.v1.ForwardStatusService.GetWorkloadNodeStatus is not implemented")
+}
+
+func (UnimplementedForwardStatusServiceHandler) GetWorkloadCounters(context.Context, *v1.GetWorkloadCountersRequest) (*v1.GetWorkloadCountersResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.connectivity.v1.ForwardStatusService.GetWorkloadCounters is not implemented")
 }
 
 type forwardStatusServiceClient struct {
@@ -180,6 +211,14 @@ func (c *forwardStatusServiceClient) GetMetrics(ctx context.Context, req *v1.Get
 func (c *forwardStatusServiceClient) GetWorkloadNodeStatus(ctx context.Context, req *v1.GetWorkloadNodeStatusRequest) (*v1.GetWorkloadNodeStatusResponse, error) {
 	var res v1.GetWorkloadNodeStatusResponse
 	if err := c.client.CallUnary(ctx, forwardStatusServiceGetWorkloadNodeStatusSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *forwardStatusServiceClient) GetWorkloadCounters(ctx context.Context, req *v1.GetWorkloadCountersRequest) (*v1.GetWorkloadCountersResponse, error) {
+	var res v1.GetWorkloadCountersResponse
+	if err := c.client.CallUnary(ctx, forwardStatusServiceGetWorkloadCountersSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -217,6 +256,18 @@ func (h forwardStatusServiceHandler) getWorkloadNodeStatus(ctx context.Context, 
 		return err
 	}
 	res, err := h.svc.GetWorkloadNodeStatus(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h forwardStatusServiceHandler) getWorkloadCounters(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetWorkloadCountersRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetWorkloadCounters(ctx, &req)
 	if err != nil {
 		return err
 	}

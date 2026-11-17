@@ -22,6 +22,7 @@ const (
 	ForwardStatusService_GetStatus_FullMethodName             = "/n0x.connectivity.v1.ForwardStatusService/GetStatus"
 	ForwardStatusService_GetMetrics_FullMethodName            = "/n0x.connectivity.v1.ForwardStatusService/GetMetrics"
 	ForwardStatusService_GetWorkloadNodeStatus_FullMethodName = "/n0x.connectivity.v1.ForwardStatusService/GetWorkloadNodeStatus"
+	ForwardStatusService_GetWorkloadCounters_FullMethodName   = "/n0x.connectivity.v1.ForwardStatusService/GetWorkloadCounters"
 )
 
 // ForwardStatusServiceClient is the client API for ForwardStatusService service.
@@ -41,6 +42,14 @@ type ForwardStatusServiceClient interface {
 	// Solo devuelve el ambito account/tenant pedido; una pareja carga-nodo ausente
 	// no certifica conectividad.
 	GetWorkloadNodeStatus(ctx context.Context, in *GetWorkloadNodeStatusRequest, opts ...grpc.CallOption) (*GetWorkloadNodeStatusResponse, error)
+	// Lectura privada para resources cada minuto (ADR 0026, punto 4).
+	// Se reutiliza este servicio porque el proxy ya lo registra en control_listen
+	// con el lector resources, junto a GetWorkloadNodeStatus (workload_status.go).
+	// Mismo modelo mTLS: solo la allowlist control_plane_ids, nunca issuer_ids
+	// ni cualquier SVID del trust domain. Deniega sin peer autenticado, sin
+	// allowlist o con ella vacia, o sin account_id o tenant_id; solo devuelve
+	// contadores del ambito account/tenant solicitado.
+	GetWorkloadCounters(ctx context.Context, in *GetWorkloadCountersRequest, opts ...grpc.CallOption) (*GetWorkloadCountersResponse, error)
 }
 
 type forwardStatusServiceClient struct {
@@ -81,6 +90,16 @@ func (c *forwardStatusServiceClient) GetWorkloadNodeStatus(ctx context.Context, 
 	return out, nil
 }
 
+func (c *forwardStatusServiceClient) GetWorkloadCounters(ctx context.Context, in *GetWorkloadCountersRequest, opts ...grpc.CallOption) (*GetWorkloadCountersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetWorkloadCountersResponse)
+	err := c.cc.Invoke(ctx, ForwardStatusService_GetWorkloadCounters_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ForwardStatusServiceServer is the server API for ForwardStatusService service.
 // All implementations must embed UnimplementedForwardStatusServiceServer
 // for forward compatibility.
@@ -98,6 +117,14 @@ type ForwardStatusServiceServer interface {
 	// Solo devuelve el ambito account/tenant pedido; una pareja carga-nodo ausente
 	// no certifica conectividad.
 	GetWorkloadNodeStatus(context.Context, *GetWorkloadNodeStatusRequest) (*GetWorkloadNodeStatusResponse, error)
+	// Lectura privada para resources cada minuto (ADR 0026, punto 4).
+	// Se reutiliza este servicio porque el proxy ya lo registra en control_listen
+	// con el lector resources, junto a GetWorkloadNodeStatus (workload_status.go).
+	// Mismo modelo mTLS: solo la allowlist control_plane_ids, nunca issuer_ids
+	// ni cualquier SVID del trust domain. Deniega sin peer autenticado, sin
+	// allowlist o con ella vacia, o sin account_id o tenant_id; solo devuelve
+	// contadores del ambito account/tenant solicitado.
+	GetWorkloadCounters(context.Context, *GetWorkloadCountersRequest) (*GetWorkloadCountersResponse, error)
 	mustEmbedUnimplementedForwardStatusServiceServer()
 }
 
@@ -116,6 +143,9 @@ func (UnimplementedForwardStatusServiceServer) GetMetrics(context.Context, *GetM
 }
 func (UnimplementedForwardStatusServiceServer) GetWorkloadNodeStatus(context.Context, *GetWorkloadNodeStatusRequest) (*GetWorkloadNodeStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWorkloadNodeStatus not implemented")
+}
+func (UnimplementedForwardStatusServiceServer) GetWorkloadCounters(context.Context, *GetWorkloadCountersRequest) (*GetWorkloadCountersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWorkloadCounters not implemented")
 }
 func (UnimplementedForwardStatusServiceServer) mustEmbedUnimplementedForwardStatusServiceServer() {}
 func (UnimplementedForwardStatusServiceServer) testEmbeddedByValue()                              {}
@@ -192,6 +222,24 @@ func _ForwardStatusService_GetWorkloadNodeStatus_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ForwardStatusService_GetWorkloadCounters_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetWorkloadCountersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForwardStatusServiceServer).GetWorkloadCounters(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ForwardStatusService_GetWorkloadCounters_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForwardStatusServiceServer).GetWorkloadCounters(ctx, req.(*GetWorkloadCountersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ForwardStatusService_ServiceDesc is the grpc.ServiceDesc for ForwardStatusService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -210,6 +258,10 @@ var ForwardStatusService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetWorkloadNodeStatus",
 			Handler:    _ForwardStatusService_GetWorkloadNodeStatus_Handler,
+		},
+		{
+			MethodName: "GetWorkloadCounters",
+			Handler:    _ForwardStatusService_GetWorkloadCounters_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
