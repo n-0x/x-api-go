@@ -193,6 +193,12 @@ const (
 	AssignmentRunResult_ASSIGNMENT_RUN_RESULT_COMPLETED            AssignmentRunResult = 1
 	AssignmentRunResult_ASSIGNMENT_RUN_RESULT_CHANGE_LIMIT_REACHED AssignmentRunResult = 2
 	AssignmentRunResult_ASSIGNMENT_RUN_RESULT_FAILED               AssignmentRunResult = 3
+	// El disparo por cron se omitio porque el charter ya estaba en curso o el
+	// tenant supero su tope de tasks abiertas. error lleva el motivo. El run es
+	// FINISHED con started_at = finished_at = trigger.triggered_at.
+	AssignmentRunResult_ASSIGNMENT_RUN_RESULT_SKIPPED AssignmentRunResult = 4
+	// Cancelada: la instancia se desactivo o entro en cuarentena.
+	AssignmentRunResult_ASSIGNMENT_RUN_RESULT_CANCELLED AssignmentRunResult = 5
 )
 
 // Enum value maps for AssignmentRunResult.
@@ -202,12 +208,16 @@ var (
 		1: "ASSIGNMENT_RUN_RESULT_COMPLETED",
 		2: "ASSIGNMENT_RUN_RESULT_CHANGE_LIMIT_REACHED",
 		3: "ASSIGNMENT_RUN_RESULT_FAILED",
+		4: "ASSIGNMENT_RUN_RESULT_SKIPPED",
+		5: "ASSIGNMENT_RUN_RESULT_CANCELLED",
 	}
 	AssignmentRunResult_value = map[string]int32{
 		"ASSIGNMENT_RUN_RESULT_UNSPECIFIED":          0,
 		"ASSIGNMENT_RUN_RESULT_COMPLETED":            1,
 		"ASSIGNMENT_RUN_RESULT_CHANGE_LIMIT_REACHED": 2,
 		"ASSIGNMENT_RUN_RESULT_FAILED":               3,
+		"ASSIGNMENT_RUN_RESULT_SKIPPED":              4,
+		"ASSIGNMENT_RUN_RESULT_CANCELLED":            5,
 	}
 )
 
@@ -238,6 +248,153 @@ func (AssignmentRunResult) EnumDescriptor() ([]byte, []int) {
 	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{3}
 }
 
+type AssignmentCharterStep struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ProgramId      string                 `protobuf:"bytes,1,opt,name=program_id,json=programId,proto3" json:"program_id,omitempty"`
+	ProgramVersion string                 `protobuf:"bytes,2,opt,name=program_version,json=programVersion,proto3" json:"program_version,omitempty"`
+	// Techo de permisos IAM de este step; ver n0x.tasks.v1.Step.permissions.
+	Permissions   []string `protobuf:"bytes,3,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AssignmentCharterStep) Reset() {
+	*x = AssignmentCharterStep{}
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AssignmentCharterStep) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AssignmentCharterStep) ProtoMessage() {}
+
+func (x *AssignmentCharterStep) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AssignmentCharterStep.ProtoReflect.Descriptor instead.
+func (*AssignmentCharterStep) Descriptor() ([]byte, []int) {
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *AssignmentCharterStep) GetProgramId() string {
+	if x != nil {
+		return x.ProgramId
+	}
+	return ""
+}
+
+func (x *AssignmentCharterStep) GetProgramVersion() string {
+	if x != nil {
+		return x.ProgramVersion
+	}
+	return ""
+}
+
+func (x *AssignmentCharterStep) GetPermissions() []string {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
+// Una forma de trabajar del assignment, declarada y versionada por n-0x.
+type AssignmentCharter struct {
+	state             protoimpl.MessageState  `protogen:"open.v1"`
+	CharterId         string                  `protobuf:"bytes,1,opt,name=charter_id,json=charterId,proto3" json:"charter_id,omitempty"`
+	CharterVersion    string                  `protobuf:"bytes,2,opt,name=charter_version,json=charterVersion,proto3" json:"charter_version,omitempty"`
+	Title             string                  `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	SupportedTriggers []AssignmentTriggerType `protobuf:"varint,4,rep,packed,name=supported_triggers,json=supportedTriggers,proto3,enum=n0x.assignments.v1.AssignmentTriggerType" json:"supported_triggers,omitempty"`
+	// Techo de acciones de plataforma de este charter.
+	PlatformActions []string                 `protobuf:"bytes,5,rep,name=platform_actions,json=platformActions,proto3" json:"platform_actions,omitempty"`
+	Steps           []*AssignmentCharterStep `protobuf:"bytes,6,rep,name=steps,proto3" json:"steps,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *AssignmentCharter) Reset() {
+	*x = AssignmentCharter{}
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AssignmentCharter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AssignmentCharter) ProtoMessage() {}
+
+func (x *AssignmentCharter) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AssignmentCharter.ProtoReflect.Descriptor instead.
+func (*AssignmentCharter) Descriptor() ([]byte, []int) {
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *AssignmentCharter) GetCharterId() string {
+	if x != nil {
+		return x.CharterId
+	}
+	return ""
+}
+
+func (x *AssignmentCharter) GetCharterVersion() string {
+	if x != nil {
+		return x.CharterVersion
+	}
+	return ""
+}
+
+func (x *AssignmentCharter) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *AssignmentCharter) GetSupportedTriggers() []AssignmentTriggerType {
+	if x != nil {
+		return x.SupportedTriggers
+	}
+	return nil
+}
+
+func (x *AssignmentCharter) GetPlatformActions() []string {
+	if x != nil {
+		return x.PlatformActions
+	}
+	return nil
+}
+
+func (x *AssignmentCharter) GetSteps() []*AssignmentCharterStep {
+	if x != nil {
+		return x.Steps
+	}
+	return nil
+}
+
 // Platform-owned catalog metadata is a capability ceiling, never an IAM grant.
 type AssignmentCatalogEntry struct {
 	state             protoimpl.MessageState  `protogen:"open.v1"`
@@ -249,13 +406,16 @@ type AssignmentCatalogEntry struct {
 	// Stable IAM action IDs: proxy.block_ip, identities.quarantine,
 	// permissions.write, workloads.publish. proxy.block_ip has no execution RPC.
 	PlatformActions []string `protobuf:"bytes,6,rep,name=platform_actions,json=platformActions,proto3" json:"platform_actions,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// catalog_version fija esta lista. supported_triggers y platform_actions
+	// son la union de los charters.
+	Charters      []*AssignmentCharter `protobuf:"bytes,7,rep,name=charters,proto3" json:"charters,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AssignmentCatalogEntry) Reset() {
 	*x = AssignmentCatalogEntry{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[0]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -267,7 +427,7 @@ func (x *AssignmentCatalogEntry) String() string {
 func (*AssignmentCatalogEntry) ProtoMessage() {}
 
 func (x *AssignmentCatalogEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[0]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -280,7 +440,7 @@ func (x *AssignmentCatalogEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentCatalogEntry.ProtoReflect.Descriptor instead.
 func (*AssignmentCatalogEntry) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{0}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *AssignmentCatalogEntry) GetCatalogId() string {
@@ -325,19 +485,33 @@ func (x *AssignmentCatalogEntry) GetPlatformActions() []string {
 	return nil
 }
 
+func (x *AssignmentCatalogEntry) GetCharters() []*AssignmentCharter {
+	if x != nil {
+		return x.Charters
+	}
+	return nil
+}
+
 type AssignmentTriggerConfiguration struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Type  AssignmentTriggerType  `protobuf:"varint,1,opt,name=type,proto3,enum=n0x.assignments.v1.AssignmentTriggerType" json:"type,omitempty"`
 	// Required only for CRON; five-field cron expression and IANA time zone.
 	CronExpression string `protobuf:"bytes,2,opt,name=cron_expression,json=cronExpression,proto3" json:"cron_expression,omitempty"`
 	TimeZone       string `protobuf:"bytes,3,opt,name=time_zone,json=timeZone,proto3" json:"time_zone,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Charter al que pertenece este trigger. Vacio se aplica al unico charter
+	// de la entrada; con mas de uno, InvalidArgument. Un charter desconocido o
+	// un tipo de trigger que ese charter no admite: InvalidArgument. El
+	// servidor siempre lo devuelve relleno. Un charter sin triggers activos
+	// esta apagado. Un cliente que reenvie triggers sin este campo solo
+	// funciona mientras la entrada tenga un unico charter.
+	CharterId     string `protobuf:"bytes,4,opt,name=charter_id,json=charterId,proto3" json:"charter_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AssignmentTriggerConfiguration) Reset() {
 	*x = AssignmentTriggerConfiguration{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[1]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -349,7 +523,7 @@ func (x *AssignmentTriggerConfiguration) String() string {
 func (*AssignmentTriggerConfiguration) ProtoMessage() {}
 
 func (x *AssignmentTriggerConfiguration) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[1]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -362,7 +536,7 @@ func (x *AssignmentTriggerConfiguration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentTriggerConfiguration.ProtoReflect.Descriptor instead.
 func (*AssignmentTriggerConfiguration) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{1}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AssignmentTriggerConfiguration) GetType() AssignmentTriggerType {
@@ -386,6 +560,13 @@ func (x *AssignmentTriggerConfiguration) GetTimeZone() string {
 	return ""
 }
 
+func (x *AssignmentTriggerConfiguration) GetCharterId() string {
+	if x != nil {
+		return x.CharterId
+	}
+	return ""
+}
+
 // At least one limit must be present when configured. A period limit requires
 // period; zero is a real limit (observe only), not an unlimited sentinel.
 // Enforcement belongs to x-api, as do IAM and protected-resource checks.
@@ -401,7 +582,7 @@ type AssignmentChangeLimit struct {
 
 func (x *AssignmentChangeLimit) Reset() {
 	*x = AssignmentChangeLimit{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[2]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -413,7 +594,7 @@ func (x *AssignmentChangeLimit) String() string {
 func (*AssignmentChangeLimit) ProtoMessage() {}
 
 func (x *AssignmentChangeLimit) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[2]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -426,7 +607,7 @@ func (x *AssignmentChangeLimit) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentChangeLimit.ProtoReflect.Descriptor instead.
 func (*AssignmentChangeLimit) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{2}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *AssignmentChangeLimit) GetMaxChangesPerRun() uint32 {
@@ -474,7 +655,7 @@ type AssignmentInstance struct {
 
 func (x *AssignmentInstance) Reset() {
 	*x = AssignmentInstance{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[3]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -486,7 +667,7 @@ func (x *AssignmentInstance) String() string {
 func (*AssignmentInstance) ProtoMessage() {}
 
 func (x *AssignmentInstance) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[3]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -499,7 +680,7 @@ func (x *AssignmentInstance) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentInstance.ProtoReflect.Descriptor instead.
 func (*AssignmentInstance) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{3}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *AssignmentInstance) GetInstanceId() string {
@@ -608,7 +789,7 @@ type AssignmentRunTrigger struct {
 
 func (x *AssignmentRunTrigger) Reset() {
 	*x = AssignmentRunTrigger{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[4]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -620,7 +801,7 @@ func (x *AssignmentRunTrigger) String() string {
 func (*AssignmentRunTrigger) ProtoMessage() {}
 
 func (x *AssignmentRunTrigger) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[4]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -633,7 +814,7 @@ func (x *AssignmentRunTrigger) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentRunTrigger.ProtoReflect.Descriptor instead.
 func (*AssignmentRunTrigger) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{4}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *AssignmentRunTrigger) GetType() AssignmentTriggerType {
@@ -687,7 +868,7 @@ type AssignmentResourceReference struct {
 
 func (x *AssignmentResourceReference) Reset() {
 	*x = AssignmentResourceReference{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[5]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -699,7 +880,7 @@ func (x *AssignmentResourceReference) String() string {
 func (*AssignmentResourceReference) ProtoMessage() {}
 
 func (x *AssignmentResourceReference) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[5]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -712,7 +893,7 @@ func (x *AssignmentResourceReference) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentResourceReference.ProtoReflect.Descriptor instead.
 func (*AssignmentResourceReference) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{5}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *AssignmentResourceReference) GetResourceType() string {
@@ -771,7 +952,7 @@ type AssignmentStep struct {
 
 func (x *AssignmentStep) Reset() {
 	*x = AssignmentStep{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[6]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -783,7 +964,7 @@ func (x *AssignmentStep) String() string {
 func (*AssignmentStep) ProtoMessage() {}
 
 func (x *AssignmentStep) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[6]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -796,7 +977,7 @@ func (x *AssignmentStep) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentStep.ProtoReflect.Descriptor instead.
 func (*AssignmentStep) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{6}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *AssignmentStep) GetStepId() string {
@@ -845,7 +1026,7 @@ type AssignmentFindingEvidence struct {
 
 func (x *AssignmentFindingEvidence) Reset() {
 	*x = AssignmentFindingEvidence{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[7]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -857,7 +1038,7 @@ func (x *AssignmentFindingEvidence) String() string {
 func (*AssignmentFindingEvidence) ProtoMessage() {}
 
 func (x *AssignmentFindingEvidence) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[7]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -870,7 +1051,7 @@ func (x *AssignmentFindingEvidence) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentFindingEvidence.ProtoReflect.Descriptor instead.
 func (*AssignmentFindingEvidence) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{7}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *AssignmentFindingEvidence) GetResource() *AssignmentResourceReference {
@@ -887,7 +1068,8 @@ func (x *AssignmentFindingEvidence) GetDetail() string {
 	return ""
 }
 
-// Deduplicated by account, tenant, instance, kind, and fingerprint. Accepting or
+// Deduplicated by account, tenant, instance, kind, and fingerprint. charter_id
+// is an attribute, not part of the key. Accepting or
 // ignoring a recommendation does not resolve a finding: only a later run that
 // no longer observes it can do so. Findings have no TTL; runs retain 180 days.
 type AssignmentFinding struct {
@@ -904,14 +1086,17 @@ type AssignmentFinding struct {
 	FirstSeenAt *timestamppb.Timestamp       `protobuf:"bytes,9,opt,name=first_seen_at,json=firstSeenAt,proto3" json:"first_seen_at,omitempty"`
 	LastSeenAt  *timestamppb.Timestamp       `protobuf:"bytes,10,opt,name=last_seen_at,json=lastSeenAt,proto3" json:"last_seen_at,omitempty"`
 	// Server-derived after a later completed observation, never a model decision.
-	ResolvedAt    *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=resolved_at,json=resolvedAt,proto3" json:"resolved_at,omitempty"`
+	ResolvedAt *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=resolved_at,json=resolvedAt,proto3" json:"resolved_at,omitempty"`
+	// Charter que lo detecto. Atributo: no entra en finding_id. Solo una
+	// ejecucion del mismo charter resuelve el hallazgo.
+	CharterId     string `protobuf:"bytes,12,opt,name=charter_id,json=charterId,proto3" json:"charter_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AssignmentFinding) Reset() {
 	*x = AssignmentFinding{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[8]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -923,7 +1108,7 @@ func (x *AssignmentFinding) String() string {
 func (*AssignmentFinding) ProtoMessage() {}
 
 func (x *AssignmentFinding) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[8]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -936,7 +1121,7 @@ func (x *AssignmentFinding) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentFinding.ProtoReflect.Descriptor instead.
 func (*AssignmentFinding) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{8}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *AssignmentFinding) GetFindingId() string {
@@ -1016,6 +1201,13 @@ func (x *AssignmentFinding) GetResolvedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *AssignmentFinding) GetCharterId() string {
+	if x != nil {
+		return x.CharterId
+	}
+	return ""
+}
+
 // A ready-to-prefill API action, independent of imports from other new packages.
 // This is a proposal, never executable authority. x-api validates an allowlisted
 // rpc_method and its strict request schema, IAM, tenant scope and protections.
@@ -1035,7 +1227,7 @@ type AssignmentAction struct {
 
 func (x *AssignmentAction) Reset() {
 	*x = AssignmentAction{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[9]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1047,7 +1239,7 @@ func (x *AssignmentAction) String() string {
 func (*AssignmentAction) ProtoMessage() {}
 
 func (x *AssignmentAction) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[9]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1060,7 +1252,7 @@ func (x *AssignmentAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentAction.ProtoReflect.Descriptor instead.
 func (*AssignmentAction) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{9}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *AssignmentAction) GetPlatformAction() string {
@@ -1106,13 +1298,15 @@ type AssignmentRecommendation struct {
 	// Set by the platform only after human acceptance; this does not publish it.
 	DraftRevisionNumber  *uint64 `protobuf:"varint,9,opt,name=draft_revision_number,json=draftRevisionNumber,proto3,oneof" json:"draft_revision_number,omitempty"`
 	AcceptedByIdentityId string  `protobuf:"bytes,10,opt,name=accepted_by_identity_id,json=acceptedByIdentityId,proto3" json:"accepted_by_identity_id,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// Charter de la ejecucion que la produjo.
+	CharterId     string `protobuf:"bytes,11,opt,name=charter_id,json=charterId,proto3" json:"charter_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AssignmentRecommendation) Reset() {
 	*x = AssignmentRecommendation{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[10]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1124,7 +1318,7 @@ func (x *AssignmentRecommendation) String() string {
 func (*AssignmentRecommendation) ProtoMessage() {}
 
 func (x *AssignmentRecommendation) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[10]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1137,7 +1331,7 @@ func (x *AssignmentRecommendation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentRecommendation.ProtoReflect.Descriptor instead.
 func (*AssignmentRecommendation) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{10}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *AssignmentRecommendation) GetRecommendationId() string {
@@ -1210,6 +1404,13 @@ func (x *AssignmentRecommendation) GetAcceptedByIdentityId() string {
 	return ""
 }
 
+func (x *AssignmentRecommendation) GetCharterId() string {
+	if x != nil {
+		return x.CharterId
+	}
+	return ""
+}
+
 type AssignmentEffect struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// For example identity_quarantine; proxy_ip_block is future-only.
@@ -1224,7 +1425,7 @@ type AssignmentEffect struct {
 
 func (x *AssignmentEffect) Reset() {
 	*x = AssignmentEffect{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[11]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1236,7 +1437,7 @@ func (x *AssignmentEffect) String() string {
 func (*AssignmentEffect) ProtoMessage() {}
 
 func (x *AssignmentEffect) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[11]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1249,7 +1450,7 @@ func (x *AssignmentEffect) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentEffect.ProtoReflect.Descriptor instead.
 func (*AssignmentEffect) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{11}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *AssignmentEffect) GetEffectType() string {
@@ -1315,7 +1516,7 @@ type AssignmentChange struct {
 
 func (x *AssignmentChange) Reset() {
 	*x = AssignmentChange{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[12]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1327,7 +1528,7 @@ func (x *AssignmentChange) String() string {
 func (*AssignmentChange) ProtoMessage() {}
 
 func (x *AssignmentChange) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[12]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1340,7 +1541,7 @@ func (x *AssignmentChange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentChange.ProtoReflect.Descriptor instead.
 func (*AssignmentChange) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{12}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *AssignmentChange) GetChangeId() string {
@@ -1483,13 +1684,19 @@ type AssignmentRun struct {
 	Error                  string                      `protobuf:"bytes,17,opt,name=error,proto3" json:"error,omitempty"`
 	ChangeLimit            *AssignmentChangeLimit      `protobuf:"bytes,18,opt,name=change_limit,json=changeLimit,proto3" json:"change_limit,omitempty"`
 	ObservedRevisionNumber uint64                      `protobuf:"varint,19,opt,name=observed_revision_number,json=observedRevisionNumber,proto3" json:"observed_revision_number,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	// Congelados al disparar, igual que catalog_version.
+	CharterId      string `protobuf:"bytes,20,opt,name=charter_id,json=charterId,proto3" json:"charter_id,omitempty"`
+	CharterVersion string `protobuf:"bytes,21,opt,name=charter_version,json=charterVersion,proto3" json:"charter_version,omitempty"`
+	// Enlaza con n0x.tasks.v1.Task: steps, intentos y traza. Vacio solo en
+	// ejecuciones anteriores al motor de tasks.
+	TaskId        string `protobuf:"bytes,22,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AssignmentRun) Reset() {
 	*x = AssignmentRun{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[13]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1501,7 +1708,7 @@ func (x *AssignmentRun) String() string {
 func (*AssignmentRun) ProtoMessage() {}
 
 func (x *AssignmentRun) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[13]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1514,7 +1721,7 @@ func (x *AssignmentRun) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentRun.ProtoReflect.Descriptor instead.
 func (*AssignmentRun) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{13}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *AssignmentRun) GetRunId() string {
@@ -1650,6 +1857,27 @@ func (x *AssignmentRun) GetObservedRevisionNumber() uint64 {
 	return 0
 }
 
+func (x *AssignmentRun) GetCharterId() string {
+	if x != nil {
+		return x.CharterId
+	}
+	return ""
+}
+
+func (x *AssignmentRun) GetCharterVersion() string {
+	if x != nil {
+		return x.CharterVersion
+	}
+	return ""
+}
+
+func (x *AssignmentRun) GetTaskId() string {
+	if x != nil {
+		return x.TaskId
+	}
+	return ""
+}
+
 // D7: sample_count = applied_changes; reverted_changes are errors and all other
 // applied changes are successes. Ignored recommendations are excluded. Human
 // applications of accepted recommendations count with their run lineage too.
@@ -1666,7 +1894,7 @@ type AssignmentAccuracyMetrics struct {
 
 func (x *AssignmentAccuracyMetrics) Reset() {
 	*x = AssignmentAccuracyMetrics{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[14]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1678,7 +1906,7 @@ func (x *AssignmentAccuracyMetrics) String() string {
 func (*AssignmentAccuracyMetrics) ProtoMessage() {}
 
 func (x *AssignmentAccuracyMetrics) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[14]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1691,7 +1919,7 @@ func (x *AssignmentAccuracyMetrics) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentAccuracyMetrics.ProtoReflect.Descriptor instead.
 func (*AssignmentAccuracyMetrics) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{14}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *AssignmentAccuracyMetrics) GetSampleCount() uint64 {
@@ -1732,7 +1960,7 @@ type AssignmentTrafficMetrics struct {
 
 func (x *AssignmentTrafficMetrics) Reset() {
 	*x = AssignmentTrafficMetrics{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[15]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1744,7 +1972,7 @@ func (x *AssignmentTrafficMetrics) String() string {
 func (*AssignmentTrafficMetrics) ProtoMessage() {}
 
 func (x *AssignmentTrafficMetrics) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[15]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1757,7 +1985,7 @@ func (x *AssignmentTrafficMetrics) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignmentTrafficMetrics.ProtoReflect.Descriptor instead.
 func (*AssignmentTrafficMetrics) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{15}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *AssignmentTrafficMetrics) GetTrafficType() string {
@@ -1786,7 +2014,7 @@ type ListCatalogEntriesRequest struct {
 
 func (x *ListCatalogEntriesRequest) Reset() {
 	*x = ListCatalogEntriesRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[16]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1798,7 +2026,7 @@ func (x *ListCatalogEntriesRequest) String() string {
 func (*ListCatalogEntriesRequest) ProtoMessage() {}
 
 func (x *ListCatalogEntriesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[16]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1811,7 +2039,7 @@ func (x *ListCatalogEntriesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCatalogEntriesRequest.ProtoReflect.Descriptor instead.
 func (*ListCatalogEntriesRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{16}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListCatalogEntriesRequest) GetAccountId() string {
@@ -1852,7 +2080,7 @@ type ListCatalogEntriesResponse struct {
 
 func (x *ListCatalogEntriesResponse) Reset() {
 	*x = ListCatalogEntriesResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[17]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1864,7 +2092,7 @@ func (x *ListCatalogEntriesResponse) String() string {
 func (*ListCatalogEntriesResponse) ProtoMessage() {}
 
 func (x *ListCatalogEntriesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[17]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1877,7 +2105,7 @@ func (x *ListCatalogEntriesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCatalogEntriesResponse.ProtoReflect.Descriptor instead.
 func (*ListCatalogEntriesResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{17}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListCatalogEntriesResponse) GetEntries() []*AssignmentCatalogEntry {
@@ -1906,7 +2134,7 @@ type GetCatalogEntryRequest struct {
 
 func (x *GetCatalogEntryRequest) Reset() {
 	*x = GetCatalogEntryRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[18]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1918,7 +2146,7 @@ func (x *GetCatalogEntryRequest) String() string {
 func (*GetCatalogEntryRequest) ProtoMessage() {}
 
 func (x *GetCatalogEntryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[18]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1931,7 +2159,7 @@ func (x *GetCatalogEntryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCatalogEntryRequest.ProtoReflect.Descriptor instead.
 func (*GetCatalogEntryRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{18}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetCatalogEntryRequest) GetAccountId() string {
@@ -1971,7 +2199,7 @@ type GetCatalogEntryResponse struct {
 
 func (x *GetCatalogEntryResponse) Reset() {
 	*x = GetCatalogEntryResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[19]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1983,7 +2211,7 @@ func (x *GetCatalogEntryResponse) String() string {
 func (*GetCatalogEntryResponse) ProtoMessage() {}
 
 func (x *GetCatalogEntryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[19]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1996,7 +2224,7 @@ func (x *GetCatalogEntryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCatalogEntryResponse.ProtoReflect.Descriptor instead.
 func (*GetCatalogEntryResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{19}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetCatalogEntryResponse) GetEntry() *AssignmentCatalogEntry {
@@ -2025,7 +2253,7 @@ type ActivateAssignmentRequest struct {
 
 func (x *ActivateAssignmentRequest) Reset() {
 	*x = ActivateAssignmentRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[20]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2037,7 +2265,7 @@ func (x *ActivateAssignmentRequest) String() string {
 func (*ActivateAssignmentRequest) ProtoMessage() {}
 
 func (x *ActivateAssignmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[20]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2050,7 +2278,7 @@ func (x *ActivateAssignmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ActivateAssignmentRequest.ProtoReflect.Descriptor instead.
 func (*ActivateAssignmentRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{20}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ActivateAssignmentRequest) GetAccountId() string {
@@ -2126,7 +2354,7 @@ type ActivateAssignmentResponse struct {
 
 func (x *ActivateAssignmentResponse) Reset() {
 	*x = ActivateAssignmentResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[21]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2138,7 +2366,7 @@ func (x *ActivateAssignmentResponse) String() string {
 func (*ActivateAssignmentResponse) ProtoMessage() {}
 
 func (x *ActivateAssignmentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[21]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2151,7 +2379,7 @@ func (x *ActivateAssignmentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ActivateAssignmentResponse.ProtoReflect.Descriptor instead.
 func (*ActivateAssignmentResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{21}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ActivateAssignmentResponse) GetInstance() *AssignmentInstance {
@@ -2182,7 +2410,7 @@ type ListAssignmentInstancesRequest struct {
 
 func (x *ListAssignmentInstancesRequest) Reset() {
 	*x = ListAssignmentInstancesRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[22]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2194,7 +2422,7 @@ func (x *ListAssignmentInstancesRequest) String() string {
 func (*ListAssignmentInstancesRequest) ProtoMessage() {}
 
 func (x *ListAssignmentInstancesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[22]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2207,7 +2435,7 @@ func (x *ListAssignmentInstancesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAssignmentInstancesRequest.ProtoReflect.Descriptor instead.
 func (*ListAssignmentInstancesRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{22}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ListAssignmentInstancesRequest) GetAccountId() string {
@@ -2262,7 +2490,7 @@ type ListAssignmentInstancesResponse struct {
 
 func (x *ListAssignmentInstancesResponse) Reset() {
 	*x = ListAssignmentInstancesResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[23]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2274,7 +2502,7 @@ func (x *ListAssignmentInstancesResponse) String() string {
 func (*ListAssignmentInstancesResponse) ProtoMessage() {}
 
 func (x *ListAssignmentInstancesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[23]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2287,7 +2515,7 @@ func (x *ListAssignmentInstancesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAssignmentInstancesResponse.ProtoReflect.Descriptor instead.
 func (*ListAssignmentInstancesResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{23}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ListAssignmentInstancesResponse) GetInstances() []*AssignmentInstance {
@@ -2315,7 +2543,7 @@ type GetAssignmentInstanceRequest struct {
 
 func (x *GetAssignmentInstanceRequest) Reset() {
 	*x = GetAssignmentInstanceRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[24]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2327,7 +2555,7 @@ func (x *GetAssignmentInstanceRequest) String() string {
 func (*GetAssignmentInstanceRequest) ProtoMessage() {}
 
 func (x *GetAssignmentInstanceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[24]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2340,7 +2568,7 @@ func (x *GetAssignmentInstanceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAssignmentInstanceRequest.ProtoReflect.Descriptor instead.
 func (*GetAssignmentInstanceRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{24}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *GetAssignmentInstanceRequest) GetAccountId() string {
@@ -2373,7 +2601,7 @@ type GetAssignmentInstanceResponse struct {
 
 func (x *GetAssignmentInstanceResponse) Reset() {
 	*x = GetAssignmentInstanceResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[25]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2385,7 +2613,7 @@ func (x *GetAssignmentInstanceResponse) String() string {
 func (*GetAssignmentInstanceResponse) ProtoMessage() {}
 
 func (x *GetAssignmentInstanceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[25]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2398,7 +2626,7 @@ func (x *GetAssignmentInstanceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAssignmentInstanceResponse.ProtoReflect.Descriptor instead.
 func (*GetAssignmentInstanceResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{25}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *GetAssignmentInstanceResponse) GetInstance() *AssignmentInstance {
@@ -2427,7 +2655,7 @@ type ConfigureAssignmentInstanceRequest struct {
 
 func (x *ConfigureAssignmentInstanceRequest) Reset() {
 	*x = ConfigureAssignmentInstanceRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[26]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2439,7 +2667,7 @@ func (x *ConfigureAssignmentInstanceRequest) String() string {
 func (*ConfigureAssignmentInstanceRequest) ProtoMessage() {}
 
 func (x *ConfigureAssignmentInstanceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[26]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2452,7 +2680,7 @@ func (x *ConfigureAssignmentInstanceRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ConfigureAssignmentInstanceRequest.ProtoReflect.Descriptor instead.
 func (*ConfigureAssignmentInstanceRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{26}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ConfigureAssignmentInstanceRequest) GetAccountId() string {
@@ -2528,7 +2756,7 @@ type ConfigureAssignmentInstanceResponse struct {
 
 func (x *ConfigureAssignmentInstanceResponse) Reset() {
 	*x = ConfigureAssignmentInstanceResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[27]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2540,7 +2768,7 @@ func (x *ConfigureAssignmentInstanceResponse) String() string {
 func (*ConfigureAssignmentInstanceResponse) ProtoMessage() {}
 
 func (x *ConfigureAssignmentInstanceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[27]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2553,7 +2781,7 @@ func (x *ConfigureAssignmentInstanceResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ConfigureAssignmentInstanceResponse.ProtoReflect.Descriptor instead.
 func (*ConfigureAssignmentInstanceResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{27}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ConfigureAssignmentInstanceResponse) GetInstance() *AssignmentInstance {
@@ -2584,7 +2812,7 @@ type DeactivateAssignmentInstanceRequest struct {
 
 func (x *DeactivateAssignmentInstanceRequest) Reset() {
 	*x = DeactivateAssignmentInstanceRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[28]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2596,7 +2824,7 @@ func (x *DeactivateAssignmentInstanceRequest) String() string {
 func (*DeactivateAssignmentInstanceRequest) ProtoMessage() {}
 
 func (x *DeactivateAssignmentInstanceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[28]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2609,7 +2837,7 @@ func (x *DeactivateAssignmentInstanceRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use DeactivateAssignmentInstanceRequest.ProtoReflect.Descriptor instead.
 func (*DeactivateAssignmentInstanceRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{28}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *DeactivateAssignmentInstanceRequest) GetAccountId() string {
@@ -2664,7 +2892,7 @@ type DeactivateAssignmentInstanceResponse struct {
 
 func (x *DeactivateAssignmentInstanceResponse) Reset() {
 	*x = DeactivateAssignmentInstanceResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[29]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2676,7 +2904,7 @@ func (x *DeactivateAssignmentInstanceResponse) String() string {
 func (*DeactivateAssignmentInstanceResponse) ProtoMessage() {}
 
 func (x *DeactivateAssignmentInstanceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[29]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2689,7 +2917,7 @@ func (x *DeactivateAssignmentInstanceResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use DeactivateAssignmentInstanceResponse.ProtoReflect.Descriptor instead.
 func (*DeactivateAssignmentInstanceResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{29}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *DeactivateAssignmentInstanceResponse) GetInstance() *AssignmentInstance {
@@ -2707,18 +2935,23 @@ func (x *DeactivateAssignmentInstanceResponse) GetRevisionNumber() uint64 {
 }
 
 type TriggerAssignmentRunRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AccountId     string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
-	TenantId      string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	InstanceId    string                 `protobuf:"bytes,3,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
-	RequestId     string                 `protobuf:"bytes,4,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	AccountId  string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	TenantId   string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	InstanceId string                 `protobuf:"bytes,3,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	RequestId  string                 `protobuf:"bytes,4,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	// Vacio se aplica al unico charter de la entrada; con mas de uno,
+	// InvalidArgument. Si ese charter ya esta en curso, FailedPrecondition; si
+	// el tenant supero su tope de tasks abiertas, ResourceExhausted. En los dos
+	// casos no crea ejecucion: solo el cron deja ejecuciones SKIPPED.
+	CharterId     string `protobuf:"bytes,5,opt,name=charter_id,json=charterId,proto3" json:"charter_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *TriggerAssignmentRunRequest) Reset() {
 	*x = TriggerAssignmentRunRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[30]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2730,7 +2963,7 @@ func (x *TriggerAssignmentRunRequest) String() string {
 func (*TriggerAssignmentRunRequest) ProtoMessage() {}
 
 func (x *TriggerAssignmentRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[30]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2743,7 +2976,7 @@ func (x *TriggerAssignmentRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TriggerAssignmentRunRequest.ProtoReflect.Descriptor instead.
 func (*TriggerAssignmentRunRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{30}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *TriggerAssignmentRunRequest) GetAccountId() string {
@@ -2774,6 +3007,13 @@ func (x *TriggerAssignmentRunRequest) GetRequestId() string {
 	return ""
 }
 
+func (x *TriggerAssignmentRunRequest) GetCharterId() string {
+	if x != nil {
+		return x.CharterId
+	}
+	return ""
+}
+
 type TriggerAssignmentRunResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Run           *AssignmentRun         `protobuf:"bytes,1,opt,name=run,proto3" json:"run,omitempty"`
@@ -2783,7 +3023,7 @@ type TriggerAssignmentRunResponse struct {
 
 func (x *TriggerAssignmentRunResponse) Reset() {
 	*x = TriggerAssignmentRunResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[31]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2795,7 +3035,7 @@ func (x *TriggerAssignmentRunResponse) String() string {
 func (*TriggerAssignmentRunResponse) ProtoMessage() {}
 
 func (x *TriggerAssignmentRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[31]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2808,7 +3048,7 @@ func (x *TriggerAssignmentRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TriggerAssignmentRunResponse.ProtoReflect.Descriptor instead.
 func (*TriggerAssignmentRunResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{31}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *TriggerAssignmentRunResponse) GetRun() *AssignmentRun {
@@ -2828,13 +3068,18 @@ type ListAssignmentRunsRequest struct {
 	StartedBefore *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=started_before,json=startedBefore,proto3" json:"started_before,omitempty"`
 	PageToken     string                 `protobuf:"bytes,7,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	PageSize      int32                  `protobuf:"varint,8,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Por defecto no se devuelven ejecuciones SKIPPED. Filtrar por
+	// result = SKIPPED las devuelve aunque este campo sea false.
+	IncludeSkipped bool `protobuf:"varint,9,opt,name=include_skipped,json=includeSkipped,proto3" json:"include_skipped,omitempty"`
+	// Vacio no filtra.
+	CharterId     string `protobuf:"bytes,10,opt,name=charter_id,json=charterId,proto3" json:"charter_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListAssignmentRunsRequest) Reset() {
 	*x = ListAssignmentRunsRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[32]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2846,7 +3091,7 @@ func (x *ListAssignmentRunsRequest) String() string {
 func (*ListAssignmentRunsRequest) ProtoMessage() {}
 
 func (x *ListAssignmentRunsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[32]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2859,7 +3104,7 @@ func (x *ListAssignmentRunsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAssignmentRunsRequest.ProtoReflect.Descriptor instead.
 func (*ListAssignmentRunsRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{32}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ListAssignmentRunsRequest) GetAccountId() string {
@@ -2918,6 +3163,20 @@ func (x *ListAssignmentRunsRequest) GetPageSize() int32 {
 	return 0
 }
 
+func (x *ListAssignmentRunsRequest) GetIncludeSkipped() bool {
+	if x != nil {
+		return x.IncludeSkipped
+	}
+	return false
+}
+
+func (x *ListAssignmentRunsRequest) GetCharterId() string {
+	if x != nil {
+		return x.CharterId
+	}
+	return ""
+}
+
 type ListAssignmentRunsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Runs          []*AssignmentRun       `protobuf:"bytes,1,rep,name=runs,proto3" json:"runs,omitempty"`
@@ -2928,7 +3187,7 @@ type ListAssignmentRunsResponse struct {
 
 func (x *ListAssignmentRunsResponse) Reset() {
 	*x = ListAssignmentRunsResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[33]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2940,7 +3199,7 @@ func (x *ListAssignmentRunsResponse) String() string {
 func (*ListAssignmentRunsResponse) ProtoMessage() {}
 
 func (x *ListAssignmentRunsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[33]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2953,7 +3212,7 @@ func (x *ListAssignmentRunsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAssignmentRunsResponse.ProtoReflect.Descriptor instead.
 func (*ListAssignmentRunsResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{33}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *ListAssignmentRunsResponse) GetRuns() []*AssignmentRun {
@@ -2981,7 +3240,7 @@ type GetAssignmentRunRequest struct {
 
 func (x *GetAssignmentRunRequest) Reset() {
 	*x = GetAssignmentRunRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[34]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2993,7 +3252,7 @@ func (x *GetAssignmentRunRequest) String() string {
 func (*GetAssignmentRunRequest) ProtoMessage() {}
 
 func (x *GetAssignmentRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[34]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3006,7 +3265,7 @@ func (x *GetAssignmentRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAssignmentRunRequest.ProtoReflect.Descriptor instead.
 func (*GetAssignmentRunRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{34}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *GetAssignmentRunRequest) GetAccountId() string {
@@ -3039,7 +3298,7 @@ type GetAssignmentRunResponse struct {
 
 func (x *GetAssignmentRunResponse) Reset() {
 	*x = GetAssignmentRunResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[35]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3051,7 +3310,7 @@ func (x *GetAssignmentRunResponse) String() string {
 func (*GetAssignmentRunResponse) ProtoMessage() {}
 
 func (x *GetAssignmentRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[35]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3064,7 +3323,7 @@ func (x *GetAssignmentRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAssignmentRunResponse.ProtoReflect.Descriptor instead.
 func (*GetAssignmentRunResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{35}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *GetAssignmentRunResponse) GetRun() *AssignmentRun {
@@ -3089,7 +3348,7 @@ type GetAssignmentMetricsRequest struct {
 
 func (x *GetAssignmentMetricsRequest) Reset() {
 	*x = GetAssignmentMetricsRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[36]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3101,7 +3360,7 @@ func (x *GetAssignmentMetricsRequest) String() string {
 func (*GetAssignmentMetricsRequest) ProtoMessage() {}
 
 func (x *GetAssignmentMetricsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[36]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3114,7 +3373,7 @@ func (x *GetAssignmentMetricsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAssignmentMetricsRequest.ProtoReflect.Descriptor instead.
 func (*GetAssignmentMetricsRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{36}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *GetAssignmentMetricsRequest) GetAccountId() string {
@@ -3163,7 +3422,7 @@ type GetAssignmentMetricsResponse struct {
 
 func (x *GetAssignmentMetricsResponse) Reset() {
 	*x = GetAssignmentMetricsResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[37]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3175,7 +3434,7 @@ func (x *GetAssignmentMetricsResponse) String() string {
 func (*GetAssignmentMetricsResponse) ProtoMessage() {}
 
 func (x *GetAssignmentMetricsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[37]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3188,7 +3447,7 @@ func (x *GetAssignmentMetricsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAssignmentMetricsResponse.ProtoReflect.Descriptor instead.
 func (*GetAssignmentMetricsResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{37}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *GetAssignmentMetricsResponse) GetGlobal() *AssignmentAccuracyMetrics {
@@ -3232,7 +3491,7 @@ type RevertAssignmentChangeRequest struct {
 
 func (x *RevertAssignmentChangeRequest) Reset() {
 	*x = RevertAssignmentChangeRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[38]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3244,7 +3503,7 @@ func (x *RevertAssignmentChangeRequest) String() string {
 func (*RevertAssignmentChangeRequest) ProtoMessage() {}
 
 func (x *RevertAssignmentChangeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[38]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3257,7 +3516,7 @@ func (x *RevertAssignmentChangeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevertAssignmentChangeRequest.ProtoReflect.Descriptor instead.
 func (*RevertAssignmentChangeRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{38}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *RevertAssignmentChangeRequest) GetAccountId() string {
@@ -3322,7 +3581,7 @@ type RevertAssignmentChangeResponse struct {
 
 func (x *RevertAssignmentChangeResponse) Reset() {
 	*x = RevertAssignmentChangeResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[39]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3334,7 +3593,7 @@ func (x *RevertAssignmentChangeResponse) String() string {
 func (*RevertAssignmentChangeResponse) ProtoMessage() {}
 
 func (x *RevertAssignmentChangeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[39]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3347,7 +3606,7 @@ func (x *RevertAssignmentChangeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevertAssignmentChangeResponse.ProtoReflect.Descriptor instead.
 func (*RevertAssignmentChangeResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{39}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *RevertAssignmentChangeResponse) GetChange() *AssignmentChange {
@@ -3397,7 +3656,7 @@ type AcceptRecommendationRequest struct {
 
 func (x *AcceptRecommendationRequest) Reset() {
 	*x = AcceptRecommendationRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[40]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3409,7 +3668,7 @@ func (x *AcceptRecommendationRequest) String() string {
 func (*AcceptRecommendationRequest) ProtoMessage() {}
 
 func (x *AcceptRecommendationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[40]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3422,7 +3681,7 @@ func (x *AcceptRecommendationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AcceptRecommendationRequest.ProtoReflect.Descriptor instead.
 func (*AcceptRecommendationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{40}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *AcceptRecommendationRequest) GetAccountId() string {
@@ -3489,7 +3748,7 @@ type AcceptRecommendationResponse struct {
 
 func (x *AcceptRecommendationResponse) Reset() {
 	*x = AcceptRecommendationResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[41]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3501,7 +3760,7 @@ func (x *AcceptRecommendationResponse) String() string {
 func (*AcceptRecommendationResponse) ProtoMessage() {}
 
 func (x *AcceptRecommendationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[41]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3514,7 +3773,7 @@ func (x *AcceptRecommendationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AcceptRecommendationResponse.ProtoReflect.Descriptor instead.
 func (*AcceptRecommendationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{41}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *AcceptRecommendationResponse) GetDraftRevisionNumber() uint64 {
@@ -3574,7 +3833,7 @@ type StartAssignmentRunRequest struct {
 
 func (x *StartAssignmentRunRequest) Reset() {
 	*x = StartAssignmentRunRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[42]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3586,7 +3845,7 @@ func (x *StartAssignmentRunRequest) String() string {
 func (*StartAssignmentRunRequest) ProtoMessage() {}
 
 func (x *StartAssignmentRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[42]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3599,7 +3858,7 @@ func (x *StartAssignmentRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartAssignmentRunRequest.ProtoReflect.Descriptor instead.
 func (*StartAssignmentRunRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{42}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *StartAssignmentRunRequest) GetAccountId() string {
@@ -3639,7 +3898,7 @@ type StartAssignmentRunResponse struct {
 
 func (x *StartAssignmentRunResponse) Reset() {
 	*x = StartAssignmentRunResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[43]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3651,7 +3910,7 @@ func (x *StartAssignmentRunResponse) String() string {
 func (*StartAssignmentRunResponse) ProtoMessage() {}
 
 func (x *StartAssignmentRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[43]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3664,7 +3923,7 @@ func (x *StartAssignmentRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartAssignmentRunResponse.ProtoReflect.Descriptor instead.
 func (*StartAssignmentRunResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{43}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *StartAssignmentRunResponse) GetRun() *AssignmentRun {
@@ -3687,7 +3946,7 @@ type AppendAssignmentStepRequest struct {
 
 func (x *AppendAssignmentStepRequest) Reset() {
 	*x = AppendAssignmentStepRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[44]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3699,7 +3958,7 @@ func (x *AppendAssignmentStepRequest) String() string {
 func (*AppendAssignmentStepRequest) ProtoMessage() {}
 
 func (x *AppendAssignmentStepRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[44]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3712,7 +3971,7 @@ func (x *AppendAssignmentStepRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppendAssignmentStepRequest.ProtoReflect.Descriptor instead.
 func (*AppendAssignmentStepRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{44}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *AppendAssignmentStepRequest) GetAccountId() string {
@@ -3759,7 +4018,7 @@ type AppendAssignmentStepResponse struct {
 
 func (x *AppendAssignmentStepResponse) Reset() {
 	*x = AppendAssignmentStepResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[45]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3771,7 +4030,7 @@ func (x *AppendAssignmentStepResponse) String() string {
 func (*AppendAssignmentStepResponse) ProtoMessage() {}
 
 func (x *AppendAssignmentStepResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[45]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3784,7 +4043,7 @@ func (x *AppendAssignmentStepResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppendAssignmentStepResponse.ProtoReflect.Descriptor instead.
 func (*AppendAssignmentStepResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{45}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *AppendAssignmentStepResponse) GetStep() *AssignmentStep {
@@ -3808,7 +4067,7 @@ type RecordAssignmentFindingRequest struct {
 
 func (x *RecordAssignmentFindingRequest) Reset() {
 	*x = RecordAssignmentFindingRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[46]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3820,7 +4079,7 @@ func (x *RecordAssignmentFindingRequest) String() string {
 func (*RecordAssignmentFindingRequest) ProtoMessage() {}
 
 func (x *RecordAssignmentFindingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[46]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3833,7 +4092,7 @@ func (x *RecordAssignmentFindingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecordAssignmentFindingRequest.ProtoReflect.Descriptor instead.
 func (*RecordAssignmentFindingRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{46}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *RecordAssignmentFindingRequest) GetAccountId() string {
@@ -3880,7 +4139,7 @@ type RecordAssignmentFindingResponse struct {
 
 func (x *RecordAssignmentFindingResponse) Reset() {
 	*x = RecordAssignmentFindingResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[47]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3892,7 +4151,7 @@ func (x *RecordAssignmentFindingResponse) String() string {
 func (*RecordAssignmentFindingResponse) ProtoMessage() {}
 
 func (x *RecordAssignmentFindingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[47]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3905,7 +4164,7 @@ func (x *RecordAssignmentFindingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecordAssignmentFindingResponse.ProtoReflect.Descriptor instead.
 func (*RecordAssignmentFindingResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{47}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *RecordAssignmentFindingResponse) GetFinding() *AssignmentFinding {
@@ -3929,7 +4188,7 @@ type RecordAssignmentRecommendationRequest struct {
 
 func (x *RecordAssignmentRecommendationRequest) Reset() {
 	*x = RecordAssignmentRecommendationRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[48]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3941,7 +4200,7 @@ func (x *RecordAssignmentRecommendationRequest) String() string {
 func (*RecordAssignmentRecommendationRequest) ProtoMessage() {}
 
 func (x *RecordAssignmentRecommendationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[48]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3954,7 +4213,7 @@ func (x *RecordAssignmentRecommendationRequest) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use RecordAssignmentRecommendationRequest.ProtoReflect.Descriptor instead.
 func (*RecordAssignmentRecommendationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{48}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *RecordAssignmentRecommendationRequest) GetAccountId() string {
@@ -4001,7 +4260,7 @@ type RecordAssignmentRecommendationResponse struct {
 
 func (x *RecordAssignmentRecommendationResponse) Reset() {
 	*x = RecordAssignmentRecommendationResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[49]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4013,7 +4272,7 @@ func (x *RecordAssignmentRecommendationResponse) String() string {
 func (*RecordAssignmentRecommendationResponse) ProtoMessage() {}
 
 func (x *RecordAssignmentRecommendationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[49]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4026,7 +4285,7 @@ func (x *RecordAssignmentRecommendationResponse) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use RecordAssignmentRecommendationResponse.ProtoReflect.Descriptor instead.
 func (*RecordAssignmentRecommendationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{49}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *RecordAssignmentRecommendationResponse) GetRecommendation() *AssignmentRecommendation {
@@ -4051,7 +4310,7 @@ type RecordAssignmentChangeRequest struct {
 
 func (x *RecordAssignmentChangeRequest) Reset() {
 	*x = RecordAssignmentChangeRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[50]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4063,7 +4322,7 @@ func (x *RecordAssignmentChangeRequest) String() string {
 func (*RecordAssignmentChangeRequest) ProtoMessage() {}
 
 func (x *RecordAssignmentChangeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[50]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4076,7 +4335,7 @@ func (x *RecordAssignmentChangeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecordAssignmentChangeRequest.ProtoReflect.Descriptor instead.
 func (*RecordAssignmentChangeRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{50}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *RecordAssignmentChangeRequest) GetAccountId() string {
@@ -4123,7 +4382,7 @@ type RecordAssignmentChangeResponse struct {
 
 func (x *RecordAssignmentChangeResponse) Reset() {
 	*x = RecordAssignmentChangeResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[51]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4135,7 +4394,7 @@ func (x *RecordAssignmentChangeResponse) String() string {
 func (*RecordAssignmentChangeResponse) ProtoMessage() {}
 
 func (x *RecordAssignmentChangeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[51]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4148,7 +4407,7 @@ func (x *RecordAssignmentChangeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecordAssignmentChangeResponse.ProtoReflect.Descriptor instead.
 func (*RecordAssignmentChangeResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{51}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *RecordAssignmentChangeResponse) GetChange() *AssignmentChange {
@@ -4172,7 +4431,7 @@ type FinishAssignmentRunRequest struct {
 
 func (x *FinishAssignmentRunRequest) Reset() {
 	*x = FinishAssignmentRunRequest{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[52]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4184,7 +4443,7 @@ func (x *FinishAssignmentRunRequest) String() string {
 func (*FinishAssignmentRunRequest) ProtoMessage() {}
 
 func (x *FinishAssignmentRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[52]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4197,7 +4456,7 @@ func (x *FinishAssignmentRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FinishAssignmentRunRequest.ProtoReflect.Descriptor instead.
 func (*FinishAssignmentRunRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{52}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *FinishAssignmentRunRequest) GetAccountId() string {
@@ -4251,7 +4510,7 @@ type FinishAssignmentRunResponse struct {
 
 func (x *FinishAssignmentRunResponse) Reset() {
 	*x = FinishAssignmentRunResponse{}
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[53]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4263,7 +4522,7 @@ func (x *FinishAssignmentRunResponse) String() string {
 func (*FinishAssignmentRunResponse) ProtoMessage() {}
 
 func (x *FinishAssignmentRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[53]
+	mi := &file_n0x_assignments_v1_assignments_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4276,7 +4535,7 @@ func (x *FinishAssignmentRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FinishAssignmentRunResponse.ProtoReflect.Descriptor instead.
 func (*FinishAssignmentRunResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{53}
+	return file_n0x_assignments_v1_assignments_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *FinishAssignmentRunResponse) GetRun() *AssignmentRun {
@@ -4290,7 +4549,20 @@ var File_n0x_assignments_v1_assignments_proto protoreflect.FileDescriptor
 
 const file_n0x_assignments_v1_assignments_proto_rawDesc = "" +
 	"\n" +
-	"$n0x/assignments/v1/assignments.proto\x12\x12n0x.assignments.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x95\x02\n" +
+	"$n0x/assignments/v1/assignments.proto\x12\x12n0x.assignments.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x81\x01\n" +
+	"\x15AssignmentCharterStep\x12\x1d\n" +
+	"\n" +
+	"program_id\x18\x01 \x01(\tR\tprogramId\x12'\n" +
+	"\x0fprogram_version\x18\x02 \x01(\tR\x0eprogramVersion\x12 \n" +
+	"\vpermissions\x18\x03 \x03(\tR\vpermissions\"\xb7\x02\n" +
+	"\x11AssignmentCharter\x12\x1d\n" +
+	"\n" +
+	"charter_id\x18\x01 \x01(\tR\tcharterId\x12'\n" +
+	"\x0fcharter_version\x18\x02 \x01(\tR\x0echarterVersion\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12X\n" +
+	"\x12supported_triggers\x18\x04 \x03(\x0e2).n0x.assignments.v1.AssignmentTriggerTypeR\x11supportedTriggers\x12)\n" +
+	"\x10platform_actions\x18\x05 \x03(\tR\x0fplatformActions\x12?\n" +
+	"\x05steps\x18\x06 \x03(\v2).n0x.assignments.v1.AssignmentCharterStepR\x05steps\"\xd8\x02\n" +
 	"\x16AssignmentCatalogEntry\x12\x1d\n" +
 	"\n" +
 	"catalog_id\x18\x01 \x01(\tR\tcatalogId\x12'\n" +
@@ -4298,11 +4570,14 @@ const file_n0x_assignments_v1_assignments_proto_rawDesc = "" +
 	"\x05title\x18\x03 \x01(\tR\x05title\x12\x18\n" +
 	"\amission\x18\x04 \x01(\tR\amission\x12X\n" +
 	"\x12supported_triggers\x18\x05 \x03(\x0e2).n0x.assignments.v1.AssignmentTriggerTypeR\x11supportedTriggers\x12)\n" +
-	"\x10platform_actions\x18\x06 \x03(\tR\x0fplatformActions\"\xa5\x01\n" +
+	"\x10platform_actions\x18\x06 \x03(\tR\x0fplatformActions\x12A\n" +
+	"\bcharters\x18\a \x03(\v2%.n0x.assignments.v1.AssignmentCharterR\bcharters\"\xc4\x01\n" +
 	"\x1eAssignmentTriggerConfiguration\x12=\n" +
 	"\x04type\x18\x01 \x01(\x0e2).n0x.assignments.v1.AssignmentTriggerTypeR\x04type\x12'\n" +
 	"\x0fcron_expression\x18\x02 \x01(\tR\x0ecronExpression\x12\x1b\n" +
-	"\ttime_zone\x18\x03 \x01(\tR\btimeZone\"\xeb\x01\n" +
+	"\ttime_zone\x18\x03 \x01(\tR\btimeZone\x12\x1d\n" +
+	"\n" +
+	"charter_id\x18\x04 \x01(\tR\tcharterId\"\xeb\x01\n" +
 	"\x15AssignmentChangeLimit\x122\n" +
 	"\x13max_changes_per_run\x18\x01 \x01(\rH\x00R\x10maxChangesPerRun\x88\x01\x01\x128\n" +
 	"\x16max_changes_per_period\x18\x02 \x01(\rH\x01R\x13maxChangesPerPeriod\x88\x01\x01\x121\n" +
@@ -4355,7 +4630,7 @@ const file_n0x_assignments_v1_assignments_proto_rawDesc = "" +
 	"\bdecision\x18\x05 \x01(\tR\bdecision\"\x80\x01\n" +
 	"\x19AssignmentFindingEvidence\x12K\n" +
 	"\bresource\x18\x01 \x01(\v2/.n0x.assignments.v1.AssignmentResourceReferenceR\bresource\x12\x16\n" +
-	"\x06detail\x18\x02 \x01(\tR\x06detail\"\xce\x03\n" +
+	"\x06detail\x18\x02 \x01(\tR\x06detail\"\xed\x03\n" +
 	"\x11AssignmentFinding\x12\x1d\n" +
 	"\n" +
 	"finding_id\x18\x01 \x01(\tR\tfindingId\x12\x15\n" +
@@ -4371,13 +4646,15 @@ const file_n0x_assignments_v1_assignments_proto_rawDesc = "" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"lastSeenAt\x12;\n" +
 	"\vresolved_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"resolvedAt\"\xc6\x01\n" +
+	"resolvedAt\x12\x1d\n" +
+	"\n" +
+	"charter_id\x18\f \x01(\tR\tcharterId\"\xc6\x01\n" +
 	"\x10AssignmentAction\x12'\n" +
 	"\x0fplatform_action\x18\x01 \x01(\tR\x0eplatformAction\x12\x1d\n" +
 	"\n" +
 	"rpc_method\x18\x02 \x01(\tR\trpcMethod\x12!\n" +
 	"\frequest_json\x18\x03 \x01(\tR\vrequestJson\x12G\n" +
-	"\x06target\x18\x04 \x01(\v2/.n0x.assignments.v1.AssignmentResourceReferenceR\x06target\"\xcd\x03\n" +
+	"\x06target\x18\x04 \x01(\v2/.n0x.assignments.v1.AssignmentResourceReferenceR\x06target\"\xec\x03\n" +
 	"\x18AssignmentRecommendation\x12+\n" +
 	"\x11recommendation_id\x18\x01 \x01(\tR\x10recommendationId\x12\x15\n" +
 	"\x06run_id\x18\x02 \x01(\tR\x05runId\x12\x17\n" +
@@ -4391,7 +4668,9 @@ const file_n0x_assignments_v1_assignments_proto_rawDesc = "" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x127\n" +
 	"\x15draft_revision_number\x18\t \x01(\x04H\x00R\x13draftRevisionNumber\x88\x01\x01\x125\n" +
 	"\x17accepted_by_identity_id\x18\n" +
-	" \x01(\tR\x14acceptedByIdentityIdB\x18\n" +
+	" \x01(\tR\x14acceptedByIdentityId\x12\x1d\n" +
+	"\n" +
+	"charter_id\x18\v \x01(\tR\tcharterIdB\x18\n" +
 	"\x16_draft_revision_number\"\xf3\x01\n" +
 	"\x10AssignmentEffect\x12\x1f\n" +
 	"\veffect_type\x18\x01 \x01(\tR\n" +
@@ -4419,7 +4698,7 @@ const file_n0x_assignments_v1_assignments_proto_rawDesc = "" +
 	"\x16revert_revision_number\x18\f \x01(\x04H\x01R\x14revertRevisionNumber\x88\x01\x01\x12&\n" +
 	"\x0frevert_event_id\x18\r \x01(\tR\rrevertEventIdB\t\n" +
 	"\aoutcomeB\x19\n" +
-	"\x17_revert_revision_number\"\xda\a\n" +
+	"\x17_revert_revision_number\"\xbb\b\n" +
 	"\rAssignmentRun\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12\x1d\n" +
 	"\n" +
@@ -4446,7 +4725,11 @@ const file_n0x_assignments_v1_assignments_proto_rawDesc = "" +
 	"finishedAt\x12\x14\n" +
 	"\x05error\x18\x11 \x01(\tR\x05error\x12L\n" +
 	"\fchange_limit\x18\x12 \x01(\v2).n0x.assignments.v1.AssignmentChangeLimitR\vchangeLimit\x128\n" +
-	"\x18observed_revision_number\x18\x13 \x01(\x04R\x16observedRevisionNumber\"\xd1\x01\n" +
+	"\x18observed_revision_number\x18\x13 \x01(\x04R\x16observedRevisionNumber\x12\x1d\n" +
+	"\n" +
+	"charter_id\x18\x14 \x01(\tR\tcharterId\x12'\n" +
+	"\x0fcharter_version\x18\x15 \x01(\tR\x0echarterVersion\x12\x17\n" +
+	"\atask_id\x18\x16 \x01(\tR\x06taskId\"\xd1\x01\n" +
 	"\x19AssignmentAccuracyMetrics\x12!\n" +
 	"\fsample_count\x18\x01 \x01(\x04R\vsampleCount\x12'\n" +
 	"\x0fapplied_changes\x18\x02 \x01(\x04R\x0eappliedChanges\x12)\n" +
@@ -4543,7 +4826,7 @@ const file_n0x_assignments_v1_assignments_proto_rawDesc = "" +
 	"\x16_draft_revision_number\"\x93\x01\n" +
 	"$DeactivateAssignmentInstanceResponse\x12B\n" +
 	"\binstance\x18\x01 \x01(\v2&.n0x.assignments.v1.AssignmentInstanceR\binstance\x12'\n" +
-	"\x0frevision_number\x18\x02 \x01(\x04R\x0erevisionNumber\"\x99\x01\n" +
+	"\x0frevision_number\x18\x02 \x01(\x04R\x0erevisionNumber\"\xb8\x01\n" +
 	"\x1bTriggerAssignmentRunRequest\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
@@ -4551,9 +4834,11 @@ const file_n0x_assignments_v1_assignments_proto_rawDesc = "" +
 	"\vinstance_id\x18\x03 \x01(\tR\n" +
 	"instanceId\x12\x1d\n" +
 	"\n" +
-	"request_id\x18\x04 \x01(\tR\trequestId\"S\n" +
+	"request_id\x18\x04 \x01(\tR\trequestId\x12\x1d\n" +
+	"\n" +
+	"charter_id\x18\x05 \x01(\tR\tcharterId\"S\n" +
 	"\x1cTriggerAssignmentRunResponse\x123\n" +
-	"\x03run\x18\x01 \x01(\v2!.n0x.assignments.v1.AssignmentRunR\x03run\"\xf7\x02\n" +
+	"\x03run\x18\x01 \x01(\v2!.n0x.assignments.v1.AssignmentRunR\x03run\"\xbf\x03\n" +
 	"\x19ListAssignmentRunsRequest\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
@@ -4565,7 +4850,11 @@ const file_n0x_assignments_v1_assignments_proto_rawDesc = "" +
 	"\x0estarted_before\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\rstartedBefore\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\a \x01(\tR\tpageToken\x12\x1b\n" +
-	"\tpage_size\x18\b \x01(\x05R\bpageSize\"{\n" +
+	"\tpage_size\x18\b \x01(\x05R\bpageSize\x12'\n" +
+	"\x0finclude_skipped\x18\t \x01(\bR\x0eincludeSkipped\x12\x1d\n" +
+	"\n" +
+	"charter_id\x18\n" +
+	" \x01(\tR\tcharterId\"{\n" +
 	"\x1aListAssignmentRunsResponse\x125\n" +
 	"\x04runs\x18\x01 \x03(\v2!.n0x.assignments.v1.AssignmentRunR\x04runs\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"l\n" +
@@ -4699,12 +4988,14 @@ const file_n0x_assignments_v1_assignments_proto_rawDesc = "" +
 	" ASSIGNMENT_RUN_STATE_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cASSIGNMENT_RUN_STATE_PENDING\x10\x01\x12 \n" +
 	"\x1cASSIGNMENT_RUN_STATE_RUNNING\x10\x02\x12!\n" +
-	"\x1dASSIGNMENT_RUN_STATE_FINISHED\x10\x03*\xb3\x01\n" +
+	"\x1dASSIGNMENT_RUN_STATE_FINISHED\x10\x03*\xfb\x01\n" +
 	"\x13AssignmentRunResult\x12%\n" +
 	"!ASSIGNMENT_RUN_RESULT_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fASSIGNMENT_RUN_RESULT_COMPLETED\x10\x01\x12.\n" +
 	"*ASSIGNMENT_RUN_RESULT_CHANGE_LIMIT_REACHED\x10\x02\x12 \n" +
-	"\x1cASSIGNMENT_RUN_RESULT_FAILED\x10\x032\xf0\x12\n" +
+	"\x1cASSIGNMENT_RUN_RESULT_FAILED\x10\x03\x12!\n" +
+	"\x1dASSIGNMENT_RUN_RESULT_SKIPPED\x10\x04\x12#\n" +
+	"\x1fASSIGNMENT_RUN_RESULT_CANCELLED\x10\x052\xf0\x12\n" +
 	"\x12AssignmentsService\x12s\n" +
 	"\x12ListCatalogEntries\x12-.n0x.assignments.v1.ListCatalogEntriesRequest\x1a..n0x.assignments.v1.ListCatalogEntriesResponse\x12j\n" +
 	"\x0fGetCatalogEntry\x12*.n0x.assignments.v1.GetCatalogEntryRequest\x1a+.n0x.assignments.v1.GetCatalogEntryResponse\x12s\n" +
@@ -4739,185 +5030,190 @@ func file_n0x_assignments_v1_assignments_proto_rawDescGZIP() []byte {
 }
 
 var file_n0x_assignments_v1_assignments_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_n0x_assignments_v1_assignments_proto_msgTypes = make([]protoimpl.MessageInfo, 54)
+var file_n0x_assignments_v1_assignments_proto_msgTypes = make([]protoimpl.MessageInfo, 56)
 var file_n0x_assignments_v1_assignments_proto_goTypes = []any{
 	(AssignmentTriggerType)(0),                     // 0: n0x.assignments.v1.AssignmentTriggerType
 	(AssignmentInstanceState)(0),                   // 1: n0x.assignments.v1.AssignmentInstanceState
 	(AssignmentRunState)(0),                        // 2: n0x.assignments.v1.AssignmentRunState
 	(AssignmentRunResult)(0),                       // 3: n0x.assignments.v1.AssignmentRunResult
-	(*AssignmentCatalogEntry)(nil),                 // 4: n0x.assignments.v1.AssignmentCatalogEntry
-	(*AssignmentTriggerConfiguration)(nil),         // 5: n0x.assignments.v1.AssignmentTriggerConfiguration
-	(*AssignmentChangeLimit)(nil),                  // 6: n0x.assignments.v1.AssignmentChangeLimit
-	(*AssignmentInstance)(nil),                     // 7: n0x.assignments.v1.AssignmentInstance
-	(*AssignmentRunTrigger)(nil),                   // 8: n0x.assignments.v1.AssignmentRunTrigger
-	(*AssignmentResourceReference)(nil),            // 9: n0x.assignments.v1.AssignmentResourceReference
-	(*AssignmentStep)(nil),                         // 10: n0x.assignments.v1.AssignmentStep
-	(*AssignmentFindingEvidence)(nil),              // 11: n0x.assignments.v1.AssignmentFindingEvidence
-	(*AssignmentFinding)(nil),                      // 12: n0x.assignments.v1.AssignmentFinding
-	(*AssignmentAction)(nil),                       // 13: n0x.assignments.v1.AssignmentAction
-	(*AssignmentRecommendation)(nil),               // 14: n0x.assignments.v1.AssignmentRecommendation
-	(*AssignmentEffect)(nil),                       // 15: n0x.assignments.v1.AssignmentEffect
-	(*AssignmentChange)(nil),                       // 16: n0x.assignments.v1.AssignmentChange
-	(*AssignmentRun)(nil),                          // 17: n0x.assignments.v1.AssignmentRun
-	(*AssignmentAccuracyMetrics)(nil),              // 18: n0x.assignments.v1.AssignmentAccuracyMetrics
-	(*AssignmentTrafficMetrics)(nil),               // 19: n0x.assignments.v1.AssignmentTrafficMetrics
-	(*ListCatalogEntriesRequest)(nil),              // 20: n0x.assignments.v1.ListCatalogEntriesRequest
-	(*ListCatalogEntriesResponse)(nil),             // 21: n0x.assignments.v1.ListCatalogEntriesResponse
-	(*GetCatalogEntryRequest)(nil),                 // 22: n0x.assignments.v1.GetCatalogEntryRequest
-	(*GetCatalogEntryResponse)(nil),                // 23: n0x.assignments.v1.GetCatalogEntryResponse
-	(*ActivateAssignmentRequest)(nil),              // 24: n0x.assignments.v1.ActivateAssignmentRequest
-	(*ActivateAssignmentResponse)(nil),             // 25: n0x.assignments.v1.ActivateAssignmentResponse
-	(*ListAssignmentInstancesRequest)(nil),         // 26: n0x.assignments.v1.ListAssignmentInstancesRequest
-	(*ListAssignmentInstancesResponse)(nil),        // 27: n0x.assignments.v1.ListAssignmentInstancesResponse
-	(*GetAssignmentInstanceRequest)(nil),           // 28: n0x.assignments.v1.GetAssignmentInstanceRequest
-	(*GetAssignmentInstanceResponse)(nil),          // 29: n0x.assignments.v1.GetAssignmentInstanceResponse
-	(*ConfigureAssignmentInstanceRequest)(nil),     // 30: n0x.assignments.v1.ConfigureAssignmentInstanceRequest
-	(*ConfigureAssignmentInstanceResponse)(nil),    // 31: n0x.assignments.v1.ConfigureAssignmentInstanceResponse
-	(*DeactivateAssignmentInstanceRequest)(nil),    // 32: n0x.assignments.v1.DeactivateAssignmentInstanceRequest
-	(*DeactivateAssignmentInstanceResponse)(nil),   // 33: n0x.assignments.v1.DeactivateAssignmentInstanceResponse
-	(*TriggerAssignmentRunRequest)(nil),            // 34: n0x.assignments.v1.TriggerAssignmentRunRequest
-	(*TriggerAssignmentRunResponse)(nil),           // 35: n0x.assignments.v1.TriggerAssignmentRunResponse
-	(*ListAssignmentRunsRequest)(nil),              // 36: n0x.assignments.v1.ListAssignmentRunsRequest
-	(*ListAssignmentRunsResponse)(nil),             // 37: n0x.assignments.v1.ListAssignmentRunsResponse
-	(*GetAssignmentRunRequest)(nil),                // 38: n0x.assignments.v1.GetAssignmentRunRequest
-	(*GetAssignmentRunResponse)(nil),               // 39: n0x.assignments.v1.GetAssignmentRunResponse
-	(*GetAssignmentMetricsRequest)(nil),            // 40: n0x.assignments.v1.GetAssignmentMetricsRequest
-	(*GetAssignmentMetricsResponse)(nil),           // 41: n0x.assignments.v1.GetAssignmentMetricsResponse
-	(*RevertAssignmentChangeRequest)(nil),          // 42: n0x.assignments.v1.RevertAssignmentChangeRequest
-	(*RevertAssignmentChangeResponse)(nil),         // 43: n0x.assignments.v1.RevertAssignmentChangeResponse
-	(*AcceptRecommendationRequest)(nil),            // 44: n0x.assignments.v1.AcceptRecommendationRequest
-	(*AcceptRecommendationResponse)(nil),           // 45: n0x.assignments.v1.AcceptRecommendationResponse
-	(*StartAssignmentRunRequest)(nil),              // 46: n0x.assignments.v1.StartAssignmentRunRequest
-	(*StartAssignmentRunResponse)(nil),             // 47: n0x.assignments.v1.StartAssignmentRunResponse
-	(*AppendAssignmentStepRequest)(nil),            // 48: n0x.assignments.v1.AppendAssignmentStepRequest
-	(*AppendAssignmentStepResponse)(nil),           // 49: n0x.assignments.v1.AppendAssignmentStepResponse
-	(*RecordAssignmentFindingRequest)(nil),         // 50: n0x.assignments.v1.RecordAssignmentFindingRequest
-	(*RecordAssignmentFindingResponse)(nil),        // 51: n0x.assignments.v1.RecordAssignmentFindingResponse
-	(*RecordAssignmentRecommendationRequest)(nil),  // 52: n0x.assignments.v1.RecordAssignmentRecommendationRequest
-	(*RecordAssignmentRecommendationResponse)(nil), // 53: n0x.assignments.v1.RecordAssignmentRecommendationResponse
-	(*RecordAssignmentChangeRequest)(nil),          // 54: n0x.assignments.v1.RecordAssignmentChangeRequest
-	(*RecordAssignmentChangeResponse)(nil),         // 55: n0x.assignments.v1.RecordAssignmentChangeResponse
-	(*FinishAssignmentRunRequest)(nil),             // 56: n0x.assignments.v1.FinishAssignmentRunRequest
-	(*FinishAssignmentRunResponse)(nil),            // 57: n0x.assignments.v1.FinishAssignmentRunResponse
-	(*durationpb.Duration)(nil),                    // 58: google.protobuf.Duration
-	(*timestamppb.Timestamp)(nil),                  // 59: google.protobuf.Timestamp
+	(*AssignmentCharterStep)(nil),                  // 4: n0x.assignments.v1.AssignmentCharterStep
+	(*AssignmentCharter)(nil),                      // 5: n0x.assignments.v1.AssignmentCharter
+	(*AssignmentCatalogEntry)(nil),                 // 6: n0x.assignments.v1.AssignmentCatalogEntry
+	(*AssignmentTriggerConfiguration)(nil),         // 7: n0x.assignments.v1.AssignmentTriggerConfiguration
+	(*AssignmentChangeLimit)(nil),                  // 8: n0x.assignments.v1.AssignmentChangeLimit
+	(*AssignmentInstance)(nil),                     // 9: n0x.assignments.v1.AssignmentInstance
+	(*AssignmentRunTrigger)(nil),                   // 10: n0x.assignments.v1.AssignmentRunTrigger
+	(*AssignmentResourceReference)(nil),            // 11: n0x.assignments.v1.AssignmentResourceReference
+	(*AssignmentStep)(nil),                         // 12: n0x.assignments.v1.AssignmentStep
+	(*AssignmentFindingEvidence)(nil),              // 13: n0x.assignments.v1.AssignmentFindingEvidence
+	(*AssignmentFinding)(nil),                      // 14: n0x.assignments.v1.AssignmentFinding
+	(*AssignmentAction)(nil),                       // 15: n0x.assignments.v1.AssignmentAction
+	(*AssignmentRecommendation)(nil),               // 16: n0x.assignments.v1.AssignmentRecommendation
+	(*AssignmentEffect)(nil),                       // 17: n0x.assignments.v1.AssignmentEffect
+	(*AssignmentChange)(nil),                       // 18: n0x.assignments.v1.AssignmentChange
+	(*AssignmentRun)(nil),                          // 19: n0x.assignments.v1.AssignmentRun
+	(*AssignmentAccuracyMetrics)(nil),              // 20: n0x.assignments.v1.AssignmentAccuracyMetrics
+	(*AssignmentTrafficMetrics)(nil),               // 21: n0x.assignments.v1.AssignmentTrafficMetrics
+	(*ListCatalogEntriesRequest)(nil),              // 22: n0x.assignments.v1.ListCatalogEntriesRequest
+	(*ListCatalogEntriesResponse)(nil),             // 23: n0x.assignments.v1.ListCatalogEntriesResponse
+	(*GetCatalogEntryRequest)(nil),                 // 24: n0x.assignments.v1.GetCatalogEntryRequest
+	(*GetCatalogEntryResponse)(nil),                // 25: n0x.assignments.v1.GetCatalogEntryResponse
+	(*ActivateAssignmentRequest)(nil),              // 26: n0x.assignments.v1.ActivateAssignmentRequest
+	(*ActivateAssignmentResponse)(nil),             // 27: n0x.assignments.v1.ActivateAssignmentResponse
+	(*ListAssignmentInstancesRequest)(nil),         // 28: n0x.assignments.v1.ListAssignmentInstancesRequest
+	(*ListAssignmentInstancesResponse)(nil),        // 29: n0x.assignments.v1.ListAssignmentInstancesResponse
+	(*GetAssignmentInstanceRequest)(nil),           // 30: n0x.assignments.v1.GetAssignmentInstanceRequest
+	(*GetAssignmentInstanceResponse)(nil),          // 31: n0x.assignments.v1.GetAssignmentInstanceResponse
+	(*ConfigureAssignmentInstanceRequest)(nil),     // 32: n0x.assignments.v1.ConfigureAssignmentInstanceRequest
+	(*ConfigureAssignmentInstanceResponse)(nil),    // 33: n0x.assignments.v1.ConfigureAssignmentInstanceResponse
+	(*DeactivateAssignmentInstanceRequest)(nil),    // 34: n0x.assignments.v1.DeactivateAssignmentInstanceRequest
+	(*DeactivateAssignmentInstanceResponse)(nil),   // 35: n0x.assignments.v1.DeactivateAssignmentInstanceResponse
+	(*TriggerAssignmentRunRequest)(nil),            // 36: n0x.assignments.v1.TriggerAssignmentRunRequest
+	(*TriggerAssignmentRunResponse)(nil),           // 37: n0x.assignments.v1.TriggerAssignmentRunResponse
+	(*ListAssignmentRunsRequest)(nil),              // 38: n0x.assignments.v1.ListAssignmentRunsRequest
+	(*ListAssignmentRunsResponse)(nil),             // 39: n0x.assignments.v1.ListAssignmentRunsResponse
+	(*GetAssignmentRunRequest)(nil),                // 40: n0x.assignments.v1.GetAssignmentRunRequest
+	(*GetAssignmentRunResponse)(nil),               // 41: n0x.assignments.v1.GetAssignmentRunResponse
+	(*GetAssignmentMetricsRequest)(nil),            // 42: n0x.assignments.v1.GetAssignmentMetricsRequest
+	(*GetAssignmentMetricsResponse)(nil),           // 43: n0x.assignments.v1.GetAssignmentMetricsResponse
+	(*RevertAssignmentChangeRequest)(nil),          // 44: n0x.assignments.v1.RevertAssignmentChangeRequest
+	(*RevertAssignmentChangeResponse)(nil),         // 45: n0x.assignments.v1.RevertAssignmentChangeResponse
+	(*AcceptRecommendationRequest)(nil),            // 46: n0x.assignments.v1.AcceptRecommendationRequest
+	(*AcceptRecommendationResponse)(nil),           // 47: n0x.assignments.v1.AcceptRecommendationResponse
+	(*StartAssignmentRunRequest)(nil),              // 48: n0x.assignments.v1.StartAssignmentRunRequest
+	(*StartAssignmentRunResponse)(nil),             // 49: n0x.assignments.v1.StartAssignmentRunResponse
+	(*AppendAssignmentStepRequest)(nil),            // 50: n0x.assignments.v1.AppendAssignmentStepRequest
+	(*AppendAssignmentStepResponse)(nil),           // 51: n0x.assignments.v1.AppendAssignmentStepResponse
+	(*RecordAssignmentFindingRequest)(nil),         // 52: n0x.assignments.v1.RecordAssignmentFindingRequest
+	(*RecordAssignmentFindingResponse)(nil),        // 53: n0x.assignments.v1.RecordAssignmentFindingResponse
+	(*RecordAssignmentRecommendationRequest)(nil),  // 54: n0x.assignments.v1.RecordAssignmentRecommendationRequest
+	(*RecordAssignmentRecommendationResponse)(nil), // 55: n0x.assignments.v1.RecordAssignmentRecommendationResponse
+	(*RecordAssignmentChangeRequest)(nil),          // 56: n0x.assignments.v1.RecordAssignmentChangeRequest
+	(*RecordAssignmentChangeResponse)(nil),         // 57: n0x.assignments.v1.RecordAssignmentChangeResponse
+	(*FinishAssignmentRunRequest)(nil),             // 58: n0x.assignments.v1.FinishAssignmentRunRequest
+	(*FinishAssignmentRunResponse)(nil),            // 59: n0x.assignments.v1.FinishAssignmentRunResponse
+	(*durationpb.Duration)(nil),                    // 60: google.protobuf.Duration
+	(*timestamppb.Timestamp)(nil),                  // 61: google.protobuf.Timestamp
 }
 var file_n0x_assignments_v1_assignments_proto_depIdxs = []int32{
-	0,  // 0: n0x.assignments.v1.AssignmentCatalogEntry.supported_triggers:type_name -> n0x.assignments.v1.AssignmentTriggerType
-	0,  // 1: n0x.assignments.v1.AssignmentTriggerConfiguration.type:type_name -> n0x.assignments.v1.AssignmentTriggerType
-	58, // 2: n0x.assignments.v1.AssignmentChangeLimit.period:type_name -> google.protobuf.Duration
-	5,  // 3: n0x.assignments.v1.AssignmentInstance.active_triggers:type_name -> n0x.assignments.v1.AssignmentTriggerConfiguration
-	6,  // 4: n0x.assignments.v1.AssignmentInstance.change_limit:type_name -> n0x.assignments.v1.AssignmentChangeLimit
-	1,  // 5: n0x.assignments.v1.AssignmentInstance.state:type_name -> n0x.assignments.v1.AssignmentInstanceState
-	59, // 6: n0x.assignments.v1.AssignmentInstance.created_at:type_name -> google.protobuf.Timestamp
-	59, // 7: n0x.assignments.v1.AssignmentInstance.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 8: n0x.assignments.v1.AssignmentRunTrigger.type:type_name -> n0x.assignments.v1.AssignmentTriggerType
-	59, // 9: n0x.assignments.v1.AssignmentRunTrigger.triggered_at:type_name -> google.protobuf.Timestamp
-	59, // 10: n0x.assignments.v1.AssignmentStep.occurred_at:type_name -> google.protobuf.Timestamp
-	9,  // 11: n0x.assignments.v1.AssignmentStep.observed_resources:type_name -> n0x.assignments.v1.AssignmentResourceReference
-	9,  // 12: n0x.assignments.v1.AssignmentFindingEvidence.resource:type_name -> n0x.assignments.v1.AssignmentResourceReference
-	11, // 13: n0x.assignments.v1.AssignmentFinding.evidence:type_name -> n0x.assignments.v1.AssignmentFindingEvidence
-	59, // 14: n0x.assignments.v1.AssignmentFinding.first_seen_at:type_name -> google.protobuf.Timestamp
-	59, // 15: n0x.assignments.v1.AssignmentFinding.last_seen_at:type_name -> google.protobuf.Timestamp
-	59, // 16: n0x.assignments.v1.AssignmentFinding.resolved_at:type_name -> google.protobuf.Timestamp
-	9,  // 17: n0x.assignments.v1.AssignmentAction.target:type_name -> n0x.assignments.v1.AssignmentResourceReference
-	13, // 18: n0x.assignments.v1.AssignmentRecommendation.action:type_name -> n0x.assignments.v1.AssignmentAction
-	59, // 19: n0x.assignments.v1.AssignmentRecommendation.created_at:type_name -> google.protobuf.Timestamp
-	9,  // 20: n0x.assignments.v1.AssignmentEffect.resource:type_name -> n0x.assignments.v1.AssignmentResourceReference
-	59, // 21: n0x.assignments.v1.AssignmentEffect.expires_at:type_name -> google.protobuf.Timestamp
-	13, // 22: n0x.assignments.v1.AssignmentChange.action:type_name -> n0x.assignments.v1.AssignmentAction
-	59, // 23: n0x.assignments.v1.AssignmentChange.applied_at:type_name -> google.protobuf.Timestamp
-	15, // 24: n0x.assignments.v1.AssignmentChange.effect:type_name -> n0x.assignments.v1.AssignmentEffect
-	59, // 25: n0x.assignments.v1.AssignmentChange.reverted_at:type_name -> google.protobuf.Timestamp
-	8,  // 26: n0x.assignments.v1.AssignmentRun.trigger:type_name -> n0x.assignments.v1.AssignmentRunTrigger
-	2,  // 27: n0x.assignments.v1.AssignmentRun.state:type_name -> n0x.assignments.v1.AssignmentRunState
-	3,  // 28: n0x.assignments.v1.AssignmentRun.result:type_name -> n0x.assignments.v1.AssignmentRunResult
-	10, // 29: n0x.assignments.v1.AssignmentRun.steps:type_name -> n0x.assignments.v1.AssignmentStep
-	12, // 30: n0x.assignments.v1.AssignmentRun.findings:type_name -> n0x.assignments.v1.AssignmentFinding
-	14, // 31: n0x.assignments.v1.AssignmentRun.recommendations:type_name -> n0x.assignments.v1.AssignmentRecommendation
-	16, // 32: n0x.assignments.v1.AssignmentRun.changes:type_name -> n0x.assignments.v1.AssignmentChange
-	59, // 33: n0x.assignments.v1.AssignmentRun.started_at:type_name -> google.protobuf.Timestamp
-	59, // 34: n0x.assignments.v1.AssignmentRun.finished_at:type_name -> google.protobuf.Timestamp
-	6,  // 35: n0x.assignments.v1.AssignmentRun.change_limit:type_name -> n0x.assignments.v1.AssignmentChangeLimit
-	18, // 36: n0x.assignments.v1.AssignmentTrafficMetrics.accuracy:type_name -> n0x.assignments.v1.AssignmentAccuracyMetrics
-	4,  // 37: n0x.assignments.v1.ListCatalogEntriesResponse.entries:type_name -> n0x.assignments.v1.AssignmentCatalogEntry
-	4,  // 38: n0x.assignments.v1.GetCatalogEntryResponse.entry:type_name -> n0x.assignments.v1.AssignmentCatalogEntry
-	5,  // 39: n0x.assignments.v1.ActivateAssignmentRequest.active_triggers:type_name -> n0x.assignments.v1.AssignmentTriggerConfiguration
-	6,  // 40: n0x.assignments.v1.ActivateAssignmentRequest.change_limit:type_name -> n0x.assignments.v1.AssignmentChangeLimit
-	7,  // 41: n0x.assignments.v1.ActivateAssignmentResponse.instance:type_name -> n0x.assignments.v1.AssignmentInstance
-	1,  // 42: n0x.assignments.v1.ListAssignmentInstancesRequest.state:type_name -> n0x.assignments.v1.AssignmentInstanceState
-	7,  // 43: n0x.assignments.v1.ListAssignmentInstancesResponse.instances:type_name -> n0x.assignments.v1.AssignmentInstance
-	7,  // 44: n0x.assignments.v1.GetAssignmentInstanceResponse.instance:type_name -> n0x.assignments.v1.AssignmentInstance
-	5,  // 45: n0x.assignments.v1.ConfigureAssignmentInstanceRequest.active_triggers:type_name -> n0x.assignments.v1.AssignmentTriggerConfiguration
-	6,  // 46: n0x.assignments.v1.ConfigureAssignmentInstanceRequest.change_limit:type_name -> n0x.assignments.v1.AssignmentChangeLimit
-	7,  // 47: n0x.assignments.v1.ConfigureAssignmentInstanceResponse.instance:type_name -> n0x.assignments.v1.AssignmentInstance
-	7,  // 48: n0x.assignments.v1.DeactivateAssignmentInstanceResponse.instance:type_name -> n0x.assignments.v1.AssignmentInstance
-	17, // 49: n0x.assignments.v1.TriggerAssignmentRunResponse.run:type_name -> n0x.assignments.v1.AssignmentRun
-	3,  // 50: n0x.assignments.v1.ListAssignmentRunsRequest.result:type_name -> n0x.assignments.v1.AssignmentRunResult
-	59, // 51: n0x.assignments.v1.ListAssignmentRunsRequest.started_from:type_name -> google.protobuf.Timestamp
-	59, // 52: n0x.assignments.v1.ListAssignmentRunsRequest.started_before:type_name -> google.protobuf.Timestamp
-	17, // 53: n0x.assignments.v1.ListAssignmentRunsResponse.runs:type_name -> n0x.assignments.v1.AssignmentRun
-	17, // 54: n0x.assignments.v1.GetAssignmentRunResponse.run:type_name -> n0x.assignments.v1.AssignmentRun
-	59, // 55: n0x.assignments.v1.GetAssignmentMetricsRequest.applied_from:type_name -> google.protobuf.Timestamp
-	59, // 56: n0x.assignments.v1.GetAssignmentMetricsRequest.applied_before:type_name -> google.protobuf.Timestamp
-	18, // 57: n0x.assignments.v1.GetAssignmentMetricsResponse.global:type_name -> n0x.assignments.v1.AssignmentAccuracyMetrics
-	19, // 58: n0x.assignments.v1.GetAssignmentMetricsResponse.by_traffic_type:type_name -> n0x.assignments.v1.AssignmentTrafficMetrics
-	59, // 59: n0x.assignments.v1.GetAssignmentMetricsResponse.calculated_at:type_name -> google.protobuf.Timestamp
-	16, // 60: n0x.assignments.v1.RevertAssignmentChangeResponse.change:type_name -> n0x.assignments.v1.AssignmentChange
-	17, // 61: n0x.assignments.v1.StartAssignmentRunResponse.run:type_name -> n0x.assignments.v1.AssignmentRun
-	10, // 62: n0x.assignments.v1.AppendAssignmentStepRequest.step:type_name -> n0x.assignments.v1.AssignmentStep
-	10, // 63: n0x.assignments.v1.AppendAssignmentStepResponse.step:type_name -> n0x.assignments.v1.AssignmentStep
-	12, // 64: n0x.assignments.v1.RecordAssignmentFindingRequest.finding:type_name -> n0x.assignments.v1.AssignmentFinding
-	12, // 65: n0x.assignments.v1.RecordAssignmentFindingResponse.finding:type_name -> n0x.assignments.v1.AssignmentFinding
-	14, // 66: n0x.assignments.v1.RecordAssignmentRecommendationRequest.recommendation:type_name -> n0x.assignments.v1.AssignmentRecommendation
-	14, // 67: n0x.assignments.v1.RecordAssignmentRecommendationResponse.recommendation:type_name -> n0x.assignments.v1.AssignmentRecommendation
-	16, // 68: n0x.assignments.v1.RecordAssignmentChangeRequest.change:type_name -> n0x.assignments.v1.AssignmentChange
-	16, // 69: n0x.assignments.v1.RecordAssignmentChangeResponse.change:type_name -> n0x.assignments.v1.AssignmentChange
-	3,  // 70: n0x.assignments.v1.FinishAssignmentRunRequest.result:type_name -> n0x.assignments.v1.AssignmentRunResult
-	17, // 71: n0x.assignments.v1.FinishAssignmentRunResponse.run:type_name -> n0x.assignments.v1.AssignmentRun
-	20, // 72: n0x.assignments.v1.AssignmentsService.ListCatalogEntries:input_type -> n0x.assignments.v1.ListCatalogEntriesRequest
-	22, // 73: n0x.assignments.v1.AssignmentsService.GetCatalogEntry:input_type -> n0x.assignments.v1.GetCatalogEntryRequest
-	24, // 74: n0x.assignments.v1.AssignmentsService.ActivateAssignment:input_type -> n0x.assignments.v1.ActivateAssignmentRequest
-	26, // 75: n0x.assignments.v1.AssignmentsService.ListAssignmentInstances:input_type -> n0x.assignments.v1.ListAssignmentInstancesRequest
-	28, // 76: n0x.assignments.v1.AssignmentsService.GetAssignmentInstance:input_type -> n0x.assignments.v1.GetAssignmentInstanceRequest
-	30, // 77: n0x.assignments.v1.AssignmentsService.ConfigureAssignmentInstance:input_type -> n0x.assignments.v1.ConfigureAssignmentInstanceRequest
-	32, // 78: n0x.assignments.v1.AssignmentsService.DeactivateAssignmentInstance:input_type -> n0x.assignments.v1.DeactivateAssignmentInstanceRequest
-	34, // 79: n0x.assignments.v1.AssignmentsService.TriggerAssignmentRun:input_type -> n0x.assignments.v1.TriggerAssignmentRunRequest
-	36, // 80: n0x.assignments.v1.AssignmentsService.ListAssignmentRuns:input_type -> n0x.assignments.v1.ListAssignmentRunsRequest
-	38, // 81: n0x.assignments.v1.AssignmentsService.GetAssignmentRun:input_type -> n0x.assignments.v1.GetAssignmentRunRequest
-	40, // 82: n0x.assignments.v1.AssignmentsService.GetAssignmentMetrics:input_type -> n0x.assignments.v1.GetAssignmentMetricsRequest
-	42, // 83: n0x.assignments.v1.AssignmentsService.RevertAssignmentChange:input_type -> n0x.assignments.v1.RevertAssignmentChangeRequest
-	44, // 84: n0x.assignments.v1.AssignmentsService.AcceptRecommendation:input_type -> n0x.assignments.v1.AcceptRecommendationRequest
-	46, // 85: n0x.assignments.v1.AssignmentsService.StartAssignmentRun:input_type -> n0x.assignments.v1.StartAssignmentRunRequest
-	48, // 86: n0x.assignments.v1.AssignmentsService.AppendAssignmentStep:input_type -> n0x.assignments.v1.AppendAssignmentStepRequest
-	50, // 87: n0x.assignments.v1.AssignmentsService.RecordAssignmentFinding:input_type -> n0x.assignments.v1.RecordAssignmentFindingRequest
-	52, // 88: n0x.assignments.v1.AssignmentsService.RecordAssignmentRecommendation:input_type -> n0x.assignments.v1.RecordAssignmentRecommendationRequest
-	54, // 89: n0x.assignments.v1.AssignmentsService.RecordAssignmentChange:input_type -> n0x.assignments.v1.RecordAssignmentChangeRequest
-	56, // 90: n0x.assignments.v1.AssignmentsService.FinishAssignmentRun:input_type -> n0x.assignments.v1.FinishAssignmentRunRequest
-	21, // 91: n0x.assignments.v1.AssignmentsService.ListCatalogEntries:output_type -> n0x.assignments.v1.ListCatalogEntriesResponse
-	23, // 92: n0x.assignments.v1.AssignmentsService.GetCatalogEntry:output_type -> n0x.assignments.v1.GetCatalogEntryResponse
-	25, // 93: n0x.assignments.v1.AssignmentsService.ActivateAssignment:output_type -> n0x.assignments.v1.ActivateAssignmentResponse
-	27, // 94: n0x.assignments.v1.AssignmentsService.ListAssignmentInstances:output_type -> n0x.assignments.v1.ListAssignmentInstancesResponse
-	29, // 95: n0x.assignments.v1.AssignmentsService.GetAssignmentInstance:output_type -> n0x.assignments.v1.GetAssignmentInstanceResponse
-	31, // 96: n0x.assignments.v1.AssignmentsService.ConfigureAssignmentInstance:output_type -> n0x.assignments.v1.ConfigureAssignmentInstanceResponse
-	33, // 97: n0x.assignments.v1.AssignmentsService.DeactivateAssignmentInstance:output_type -> n0x.assignments.v1.DeactivateAssignmentInstanceResponse
-	35, // 98: n0x.assignments.v1.AssignmentsService.TriggerAssignmentRun:output_type -> n0x.assignments.v1.TriggerAssignmentRunResponse
-	37, // 99: n0x.assignments.v1.AssignmentsService.ListAssignmentRuns:output_type -> n0x.assignments.v1.ListAssignmentRunsResponse
-	39, // 100: n0x.assignments.v1.AssignmentsService.GetAssignmentRun:output_type -> n0x.assignments.v1.GetAssignmentRunResponse
-	41, // 101: n0x.assignments.v1.AssignmentsService.GetAssignmentMetrics:output_type -> n0x.assignments.v1.GetAssignmentMetricsResponse
-	43, // 102: n0x.assignments.v1.AssignmentsService.RevertAssignmentChange:output_type -> n0x.assignments.v1.RevertAssignmentChangeResponse
-	45, // 103: n0x.assignments.v1.AssignmentsService.AcceptRecommendation:output_type -> n0x.assignments.v1.AcceptRecommendationResponse
-	47, // 104: n0x.assignments.v1.AssignmentsService.StartAssignmentRun:output_type -> n0x.assignments.v1.StartAssignmentRunResponse
-	49, // 105: n0x.assignments.v1.AssignmentsService.AppendAssignmentStep:output_type -> n0x.assignments.v1.AppendAssignmentStepResponse
-	51, // 106: n0x.assignments.v1.AssignmentsService.RecordAssignmentFinding:output_type -> n0x.assignments.v1.RecordAssignmentFindingResponse
-	53, // 107: n0x.assignments.v1.AssignmentsService.RecordAssignmentRecommendation:output_type -> n0x.assignments.v1.RecordAssignmentRecommendationResponse
-	55, // 108: n0x.assignments.v1.AssignmentsService.RecordAssignmentChange:output_type -> n0x.assignments.v1.RecordAssignmentChangeResponse
-	57, // 109: n0x.assignments.v1.AssignmentsService.FinishAssignmentRun:output_type -> n0x.assignments.v1.FinishAssignmentRunResponse
-	91, // [91:110] is the sub-list for method output_type
-	72, // [72:91] is the sub-list for method input_type
-	72, // [72:72] is the sub-list for extension type_name
-	72, // [72:72] is the sub-list for extension extendee
-	0,  // [0:72] is the sub-list for field type_name
+	0,  // 0: n0x.assignments.v1.AssignmentCharter.supported_triggers:type_name -> n0x.assignments.v1.AssignmentTriggerType
+	4,  // 1: n0x.assignments.v1.AssignmentCharter.steps:type_name -> n0x.assignments.v1.AssignmentCharterStep
+	0,  // 2: n0x.assignments.v1.AssignmentCatalogEntry.supported_triggers:type_name -> n0x.assignments.v1.AssignmentTriggerType
+	5,  // 3: n0x.assignments.v1.AssignmentCatalogEntry.charters:type_name -> n0x.assignments.v1.AssignmentCharter
+	0,  // 4: n0x.assignments.v1.AssignmentTriggerConfiguration.type:type_name -> n0x.assignments.v1.AssignmentTriggerType
+	60, // 5: n0x.assignments.v1.AssignmentChangeLimit.period:type_name -> google.protobuf.Duration
+	7,  // 6: n0x.assignments.v1.AssignmentInstance.active_triggers:type_name -> n0x.assignments.v1.AssignmentTriggerConfiguration
+	8,  // 7: n0x.assignments.v1.AssignmentInstance.change_limit:type_name -> n0x.assignments.v1.AssignmentChangeLimit
+	1,  // 8: n0x.assignments.v1.AssignmentInstance.state:type_name -> n0x.assignments.v1.AssignmentInstanceState
+	61, // 9: n0x.assignments.v1.AssignmentInstance.created_at:type_name -> google.protobuf.Timestamp
+	61, // 10: n0x.assignments.v1.AssignmentInstance.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 11: n0x.assignments.v1.AssignmentRunTrigger.type:type_name -> n0x.assignments.v1.AssignmentTriggerType
+	61, // 12: n0x.assignments.v1.AssignmentRunTrigger.triggered_at:type_name -> google.protobuf.Timestamp
+	61, // 13: n0x.assignments.v1.AssignmentStep.occurred_at:type_name -> google.protobuf.Timestamp
+	11, // 14: n0x.assignments.v1.AssignmentStep.observed_resources:type_name -> n0x.assignments.v1.AssignmentResourceReference
+	11, // 15: n0x.assignments.v1.AssignmentFindingEvidence.resource:type_name -> n0x.assignments.v1.AssignmentResourceReference
+	13, // 16: n0x.assignments.v1.AssignmentFinding.evidence:type_name -> n0x.assignments.v1.AssignmentFindingEvidence
+	61, // 17: n0x.assignments.v1.AssignmentFinding.first_seen_at:type_name -> google.protobuf.Timestamp
+	61, // 18: n0x.assignments.v1.AssignmentFinding.last_seen_at:type_name -> google.protobuf.Timestamp
+	61, // 19: n0x.assignments.v1.AssignmentFinding.resolved_at:type_name -> google.protobuf.Timestamp
+	11, // 20: n0x.assignments.v1.AssignmentAction.target:type_name -> n0x.assignments.v1.AssignmentResourceReference
+	15, // 21: n0x.assignments.v1.AssignmentRecommendation.action:type_name -> n0x.assignments.v1.AssignmentAction
+	61, // 22: n0x.assignments.v1.AssignmentRecommendation.created_at:type_name -> google.protobuf.Timestamp
+	11, // 23: n0x.assignments.v1.AssignmentEffect.resource:type_name -> n0x.assignments.v1.AssignmentResourceReference
+	61, // 24: n0x.assignments.v1.AssignmentEffect.expires_at:type_name -> google.protobuf.Timestamp
+	15, // 25: n0x.assignments.v1.AssignmentChange.action:type_name -> n0x.assignments.v1.AssignmentAction
+	61, // 26: n0x.assignments.v1.AssignmentChange.applied_at:type_name -> google.protobuf.Timestamp
+	17, // 27: n0x.assignments.v1.AssignmentChange.effect:type_name -> n0x.assignments.v1.AssignmentEffect
+	61, // 28: n0x.assignments.v1.AssignmentChange.reverted_at:type_name -> google.protobuf.Timestamp
+	10, // 29: n0x.assignments.v1.AssignmentRun.trigger:type_name -> n0x.assignments.v1.AssignmentRunTrigger
+	2,  // 30: n0x.assignments.v1.AssignmentRun.state:type_name -> n0x.assignments.v1.AssignmentRunState
+	3,  // 31: n0x.assignments.v1.AssignmentRun.result:type_name -> n0x.assignments.v1.AssignmentRunResult
+	12, // 32: n0x.assignments.v1.AssignmentRun.steps:type_name -> n0x.assignments.v1.AssignmentStep
+	14, // 33: n0x.assignments.v1.AssignmentRun.findings:type_name -> n0x.assignments.v1.AssignmentFinding
+	16, // 34: n0x.assignments.v1.AssignmentRun.recommendations:type_name -> n0x.assignments.v1.AssignmentRecommendation
+	18, // 35: n0x.assignments.v1.AssignmentRun.changes:type_name -> n0x.assignments.v1.AssignmentChange
+	61, // 36: n0x.assignments.v1.AssignmentRun.started_at:type_name -> google.protobuf.Timestamp
+	61, // 37: n0x.assignments.v1.AssignmentRun.finished_at:type_name -> google.protobuf.Timestamp
+	8,  // 38: n0x.assignments.v1.AssignmentRun.change_limit:type_name -> n0x.assignments.v1.AssignmentChangeLimit
+	20, // 39: n0x.assignments.v1.AssignmentTrafficMetrics.accuracy:type_name -> n0x.assignments.v1.AssignmentAccuracyMetrics
+	6,  // 40: n0x.assignments.v1.ListCatalogEntriesResponse.entries:type_name -> n0x.assignments.v1.AssignmentCatalogEntry
+	6,  // 41: n0x.assignments.v1.GetCatalogEntryResponse.entry:type_name -> n0x.assignments.v1.AssignmentCatalogEntry
+	7,  // 42: n0x.assignments.v1.ActivateAssignmentRequest.active_triggers:type_name -> n0x.assignments.v1.AssignmentTriggerConfiguration
+	8,  // 43: n0x.assignments.v1.ActivateAssignmentRequest.change_limit:type_name -> n0x.assignments.v1.AssignmentChangeLimit
+	9,  // 44: n0x.assignments.v1.ActivateAssignmentResponse.instance:type_name -> n0x.assignments.v1.AssignmentInstance
+	1,  // 45: n0x.assignments.v1.ListAssignmentInstancesRequest.state:type_name -> n0x.assignments.v1.AssignmentInstanceState
+	9,  // 46: n0x.assignments.v1.ListAssignmentInstancesResponse.instances:type_name -> n0x.assignments.v1.AssignmentInstance
+	9,  // 47: n0x.assignments.v1.GetAssignmentInstanceResponse.instance:type_name -> n0x.assignments.v1.AssignmentInstance
+	7,  // 48: n0x.assignments.v1.ConfigureAssignmentInstanceRequest.active_triggers:type_name -> n0x.assignments.v1.AssignmentTriggerConfiguration
+	8,  // 49: n0x.assignments.v1.ConfigureAssignmentInstanceRequest.change_limit:type_name -> n0x.assignments.v1.AssignmentChangeLimit
+	9,  // 50: n0x.assignments.v1.ConfigureAssignmentInstanceResponse.instance:type_name -> n0x.assignments.v1.AssignmentInstance
+	9,  // 51: n0x.assignments.v1.DeactivateAssignmentInstanceResponse.instance:type_name -> n0x.assignments.v1.AssignmentInstance
+	19, // 52: n0x.assignments.v1.TriggerAssignmentRunResponse.run:type_name -> n0x.assignments.v1.AssignmentRun
+	3,  // 53: n0x.assignments.v1.ListAssignmentRunsRequest.result:type_name -> n0x.assignments.v1.AssignmentRunResult
+	61, // 54: n0x.assignments.v1.ListAssignmentRunsRequest.started_from:type_name -> google.protobuf.Timestamp
+	61, // 55: n0x.assignments.v1.ListAssignmentRunsRequest.started_before:type_name -> google.protobuf.Timestamp
+	19, // 56: n0x.assignments.v1.ListAssignmentRunsResponse.runs:type_name -> n0x.assignments.v1.AssignmentRun
+	19, // 57: n0x.assignments.v1.GetAssignmentRunResponse.run:type_name -> n0x.assignments.v1.AssignmentRun
+	61, // 58: n0x.assignments.v1.GetAssignmentMetricsRequest.applied_from:type_name -> google.protobuf.Timestamp
+	61, // 59: n0x.assignments.v1.GetAssignmentMetricsRequest.applied_before:type_name -> google.protobuf.Timestamp
+	20, // 60: n0x.assignments.v1.GetAssignmentMetricsResponse.global:type_name -> n0x.assignments.v1.AssignmentAccuracyMetrics
+	21, // 61: n0x.assignments.v1.GetAssignmentMetricsResponse.by_traffic_type:type_name -> n0x.assignments.v1.AssignmentTrafficMetrics
+	61, // 62: n0x.assignments.v1.GetAssignmentMetricsResponse.calculated_at:type_name -> google.protobuf.Timestamp
+	18, // 63: n0x.assignments.v1.RevertAssignmentChangeResponse.change:type_name -> n0x.assignments.v1.AssignmentChange
+	19, // 64: n0x.assignments.v1.StartAssignmentRunResponse.run:type_name -> n0x.assignments.v1.AssignmentRun
+	12, // 65: n0x.assignments.v1.AppendAssignmentStepRequest.step:type_name -> n0x.assignments.v1.AssignmentStep
+	12, // 66: n0x.assignments.v1.AppendAssignmentStepResponse.step:type_name -> n0x.assignments.v1.AssignmentStep
+	14, // 67: n0x.assignments.v1.RecordAssignmentFindingRequest.finding:type_name -> n0x.assignments.v1.AssignmentFinding
+	14, // 68: n0x.assignments.v1.RecordAssignmentFindingResponse.finding:type_name -> n0x.assignments.v1.AssignmentFinding
+	16, // 69: n0x.assignments.v1.RecordAssignmentRecommendationRequest.recommendation:type_name -> n0x.assignments.v1.AssignmentRecommendation
+	16, // 70: n0x.assignments.v1.RecordAssignmentRecommendationResponse.recommendation:type_name -> n0x.assignments.v1.AssignmentRecommendation
+	18, // 71: n0x.assignments.v1.RecordAssignmentChangeRequest.change:type_name -> n0x.assignments.v1.AssignmentChange
+	18, // 72: n0x.assignments.v1.RecordAssignmentChangeResponse.change:type_name -> n0x.assignments.v1.AssignmentChange
+	3,  // 73: n0x.assignments.v1.FinishAssignmentRunRequest.result:type_name -> n0x.assignments.v1.AssignmentRunResult
+	19, // 74: n0x.assignments.v1.FinishAssignmentRunResponse.run:type_name -> n0x.assignments.v1.AssignmentRun
+	22, // 75: n0x.assignments.v1.AssignmentsService.ListCatalogEntries:input_type -> n0x.assignments.v1.ListCatalogEntriesRequest
+	24, // 76: n0x.assignments.v1.AssignmentsService.GetCatalogEntry:input_type -> n0x.assignments.v1.GetCatalogEntryRequest
+	26, // 77: n0x.assignments.v1.AssignmentsService.ActivateAssignment:input_type -> n0x.assignments.v1.ActivateAssignmentRequest
+	28, // 78: n0x.assignments.v1.AssignmentsService.ListAssignmentInstances:input_type -> n0x.assignments.v1.ListAssignmentInstancesRequest
+	30, // 79: n0x.assignments.v1.AssignmentsService.GetAssignmentInstance:input_type -> n0x.assignments.v1.GetAssignmentInstanceRequest
+	32, // 80: n0x.assignments.v1.AssignmentsService.ConfigureAssignmentInstance:input_type -> n0x.assignments.v1.ConfigureAssignmentInstanceRequest
+	34, // 81: n0x.assignments.v1.AssignmentsService.DeactivateAssignmentInstance:input_type -> n0x.assignments.v1.DeactivateAssignmentInstanceRequest
+	36, // 82: n0x.assignments.v1.AssignmentsService.TriggerAssignmentRun:input_type -> n0x.assignments.v1.TriggerAssignmentRunRequest
+	38, // 83: n0x.assignments.v1.AssignmentsService.ListAssignmentRuns:input_type -> n0x.assignments.v1.ListAssignmentRunsRequest
+	40, // 84: n0x.assignments.v1.AssignmentsService.GetAssignmentRun:input_type -> n0x.assignments.v1.GetAssignmentRunRequest
+	42, // 85: n0x.assignments.v1.AssignmentsService.GetAssignmentMetrics:input_type -> n0x.assignments.v1.GetAssignmentMetricsRequest
+	44, // 86: n0x.assignments.v1.AssignmentsService.RevertAssignmentChange:input_type -> n0x.assignments.v1.RevertAssignmentChangeRequest
+	46, // 87: n0x.assignments.v1.AssignmentsService.AcceptRecommendation:input_type -> n0x.assignments.v1.AcceptRecommendationRequest
+	48, // 88: n0x.assignments.v1.AssignmentsService.StartAssignmentRun:input_type -> n0x.assignments.v1.StartAssignmentRunRequest
+	50, // 89: n0x.assignments.v1.AssignmentsService.AppendAssignmentStep:input_type -> n0x.assignments.v1.AppendAssignmentStepRequest
+	52, // 90: n0x.assignments.v1.AssignmentsService.RecordAssignmentFinding:input_type -> n0x.assignments.v1.RecordAssignmentFindingRequest
+	54, // 91: n0x.assignments.v1.AssignmentsService.RecordAssignmentRecommendation:input_type -> n0x.assignments.v1.RecordAssignmentRecommendationRequest
+	56, // 92: n0x.assignments.v1.AssignmentsService.RecordAssignmentChange:input_type -> n0x.assignments.v1.RecordAssignmentChangeRequest
+	58, // 93: n0x.assignments.v1.AssignmentsService.FinishAssignmentRun:input_type -> n0x.assignments.v1.FinishAssignmentRunRequest
+	23, // 94: n0x.assignments.v1.AssignmentsService.ListCatalogEntries:output_type -> n0x.assignments.v1.ListCatalogEntriesResponse
+	25, // 95: n0x.assignments.v1.AssignmentsService.GetCatalogEntry:output_type -> n0x.assignments.v1.GetCatalogEntryResponse
+	27, // 96: n0x.assignments.v1.AssignmentsService.ActivateAssignment:output_type -> n0x.assignments.v1.ActivateAssignmentResponse
+	29, // 97: n0x.assignments.v1.AssignmentsService.ListAssignmentInstances:output_type -> n0x.assignments.v1.ListAssignmentInstancesResponse
+	31, // 98: n0x.assignments.v1.AssignmentsService.GetAssignmentInstance:output_type -> n0x.assignments.v1.GetAssignmentInstanceResponse
+	33, // 99: n0x.assignments.v1.AssignmentsService.ConfigureAssignmentInstance:output_type -> n0x.assignments.v1.ConfigureAssignmentInstanceResponse
+	35, // 100: n0x.assignments.v1.AssignmentsService.DeactivateAssignmentInstance:output_type -> n0x.assignments.v1.DeactivateAssignmentInstanceResponse
+	37, // 101: n0x.assignments.v1.AssignmentsService.TriggerAssignmentRun:output_type -> n0x.assignments.v1.TriggerAssignmentRunResponse
+	39, // 102: n0x.assignments.v1.AssignmentsService.ListAssignmentRuns:output_type -> n0x.assignments.v1.ListAssignmentRunsResponse
+	41, // 103: n0x.assignments.v1.AssignmentsService.GetAssignmentRun:output_type -> n0x.assignments.v1.GetAssignmentRunResponse
+	43, // 104: n0x.assignments.v1.AssignmentsService.GetAssignmentMetrics:output_type -> n0x.assignments.v1.GetAssignmentMetricsResponse
+	45, // 105: n0x.assignments.v1.AssignmentsService.RevertAssignmentChange:output_type -> n0x.assignments.v1.RevertAssignmentChangeResponse
+	47, // 106: n0x.assignments.v1.AssignmentsService.AcceptRecommendation:output_type -> n0x.assignments.v1.AcceptRecommendationResponse
+	49, // 107: n0x.assignments.v1.AssignmentsService.StartAssignmentRun:output_type -> n0x.assignments.v1.StartAssignmentRunResponse
+	51, // 108: n0x.assignments.v1.AssignmentsService.AppendAssignmentStep:output_type -> n0x.assignments.v1.AppendAssignmentStepResponse
+	53, // 109: n0x.assignments.v1.AssignmentsService.RecordAssignmentFinding:output_type -> n0x.assignments.v1.RecordAssignmentFindingResponse
+	55, // 110: n0x.assignments.v1.AssignmentsService.RecordAssignmentRecommendation:output_type -> n0x.assignments.v1.RecordAssignmentRecommendationResponse
+	57, // 111: n0x.assignments.v1.AssignmentsService.RecordAssignmentChange:output_type -> n0x.assignments.v1.RecordAssignmentChangeResponse
+	59, // 112: n0x.assignments.v1.AssignmentsService.FinishAssignmentRun:output_type -> n0x.assignments.v1.FinishAssignmentRunResponse
+	94, // [94:113] is the sub-list for method output_type
+	75, // [75:94] is the sub-list for method input_type
+	75, // [75:75] is the sub-list for extension type_name
+	75, // [75:75] is the sub-list for extension extendee
+	0,  // [0:75] is the sub-list for field type_name
 }
 
 func init() { file_n0x_assignments_v1_assignments_proto_init() }
@@ -4925,27 +5221,27 @@ func file_n0x_assignments_v1_assignments_proto_init() {
 	if File_n0x_assignments_v1_assignments_proto != nil {
 		return
 	}
-	file_n0x_assignments_v1_assignments_proto_msgTypes[2].OneofWrappers = []any{}
-	file_n0x_assignments_v1_assignments_proto_msgTypes[5].OneofWrappers = []any{}
-	file_n0x_assignments_v1_assignments_proto_msgTypes[10].OneofWrappers = []any{}
-	file_n0x_assignments_v1_assignments_proto_msgTypes[12].OneofWrappers = []any{
+	file_n0x_assignments_v1_assignments_proto_msgTypes[4].OneofWrappers = []any{}
+	file_n0x_assignments_v1_assignments_proto_msgTypes[7].OneofWrappers = []any{}
+	file_n0x_assignments_v1_assignments_proto_msgTypes[12].OneofWrappers = []any{}
+	file_n0x_assignments_v1_assignments_proto_msgTypes[14].OneofWrappers = []any{
 		(*AssignmentChange_RevisionNumber)(nil),
 		(*AssignmentChange_Effect)(nil),
 	}
-	file_n0x_assignments_v1_assignments_proto_msgTypes[14].OneofWrappers = []any{}
-	file_n0x_assignments_v1_assignments_proto_msgTypes[20].OneofWrappers = []any{}
-	file_n0x_assignments_v1_assignments_proto_msgTypes[26].OneofWrappers = []any{}
+	file_n0x_assignments_v1_assignments_proto_msgTypes[16].OneofWrappers = []any{}
+	file_n0x_assignments_v1_assignments_proto_msgTypes[22].OneofWrappers = []any{}
 	file_n0x_assignments_v1_assignments_proto_msgTypes[28].OneofWrappers = []any{}
-	file_n0x_assignments_v1_assignments_proto_msgTypes[38].OneofWrappers = []any{}
-	file_n0x_assignments_v1_assignments_proto_msgTypes[39].OneofWrappers = []any{}
+	file_n0x_assignments_v1_assignments_proto_msgTypes[30].OneofWrappers = []any{}
 	file_n0x_assignments_v1_assignments_proto_msgTypes[40].OneofWrappers = []any{}
+	file_n0x_assignments_v1_assignments_proto_msgTypes[41].OneofWrappers = []any{}
+	file_n0x_assignments_v1_assignments_proto_msgTypes[42].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_assignments_v1_assignments_proto_rawDesc), len(file_n0x_assignments_v1_assignments_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   54,
+			NumMessages:   56,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
