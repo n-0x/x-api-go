@@ -7,6 +7,7 @@
 package eventsv1
 
 import (
+	_ "github.com/n-0x/x-api-go/catalog/v1"
 	v1 "github.com/n-0x/x-api-go/identities/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1298,7 +1299,7 @@ var File_n0x_events_v1_events_proto protoreflect.FileDescriptor
 
 const file_n0x_events_v1_events_proto_rawDesc = "" +
 	"\n" +
-	"\x1an0x/events/v1/events.proto\x12\rn0x.events.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\"n0x/identities/v1/identities.proto\"\x81\x01\n" +
+	"\x1an0x/events/v1/events.proto\x12\rn0x.events.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cn0x/catalog/v1/catalog.proto\x1a\"n0x/identities/v1/identities.proto\"\x81\x01\n" +
 	"\n" +
 	"EventActor\x121\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x1d.n0x.events.v1.EventActorTypeR\x04type\x12\x1f\n" +
@@ -1423,12 +1424,12 @@ const file_n0x_events_v1_events_proto_rawDesc = "" +
 	"\x1cNODE_OBSERVATION_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18NODE_OBSERVATION_UNKNOWN\x10\x01\x12\x1c\n" +
 	"\x18NODE_OBSERVATION_OFFLINE\x10\x02\x12\x1c\n" +
-	"\x18NODE_OBSERVATION_CURRENT\x10\x032\x81\x02\n" +
-	"\rEventsService\x12Q\n" +
+	"\x18NODE_OBSERVATION_CURRENT\x10\x032\xe1\x03\n" +
+	"\rEventsService\x12\xdb\x01\n" +
 	"\n" +
-	"ListEvents\x12 .n0x.events.v1.ListEventsRequest\x1a!.n0x.events.v1.ListEventsResponse\x12K\n" +
-	"\bGetEvent\x12\x1e.n0x.events.v1.GetEventRequest\x1a\x1f.n0x.events.v1.GetEventResponse\x12P\n" +
-	"\tSubscribe\x12\x1f.n0x.events.v1.SubscribeRequest\x1a .n0x.events.v1.SubscribeResponse0\x01B-Z+github.com/n-0x/x-api-go/events/v1;eventsv1b\x06proto3"
+	"ListEvents\x12 .n0x.events.v1.ListEventsRequest\x1a!.n0x.events.v1.ListEventsResponse\"\x87\x01\xb2\xe1\x18\x82\x01\b\x01\x12\vevents.read\x1aqList tenant activity events, such as connections, denials, changes and alerts, filtered by type, actor or object.\x12\x8a\x01\n" +
+	"\bGetEvent\x12\x1e.n0x.events.v1.GetEventRequest\x1a\x1f.n0x.events.v1.GetEventResponse\"=\xb2\xe1\x189\b\x01\x12\vevents.read\x1a(Get one activity event with its details.\x12e\n" +
+	"\tSubscribe\x12\x1f.n0x.events.v1.SubscribeRequest\x1a .n0x.events.v1.SubscribeResponse\"\x13\xb2\xe1\x18\x0f\b\x05\x12\vevents.read0\x01B-Z+github.com/n-0x/x-api-go/events/v1;eventsv1b\x06proto3"
 
 var (
 	file_n0x_events_v1_events_proto_rawDescOnce sync.Once

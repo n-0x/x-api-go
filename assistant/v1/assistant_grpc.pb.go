@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AssistantService_CreateConversation_FullMethodName = "/n0x.assistant.v1.AssistantService/CreateConversation"
-	AssistantService_ListConversations_FullMethodName  = "/n0x.assistant.v1.AssistantService/ListConversations"
-	AssistantService_GetConversation_FullMethodName    = "/n0x.assistant.v1.AssistantService/GetConversation"
-	AssistantService_SendMessage_FullMethodName        = "/n0x.assistant.v1.AssistantService/SendMessage"
-	AssistantService_DismissProposal_FullMethodName    = "/n0x.assistant.v1.AssistantService/DismissProposal"
-	AssistantService_DeleteConversation_FullMethodName = "/n0x.assistant.v1.AssistantService/DeleteConversation"
+	AssistantService_CreateConversation_FullMethodName    = "/n0x.assistant.v1.AssistantService/CreateConversation"
+	AssistantService_ListConversations_FullMethodName     = "/n0x.assistant.v1.AssistantService/ListConversations"
+	AssistantService_GetConversation_FullMethodName       = "/n0x.assistant.v1.AssistantService/GetConversation"
+	AssistantService_SendMessage_FullMethodName           = "/n0x.assistant.v1.AssistantService/SendMessage"
+	AssistantService_DismissProposal_FullMethodName       = "/n0x.assistant.v1.AssistantService/DismissProposal"
+	AssistantService_DeleteConversation_FullMethodName    = "/n0x.assistant.v1.AssistantService/DeleteConversation"
+	AssistantService_ReportProposalOutcome_FullMethodName = "/n0x.assistant.v1.AssistantService/ReportProposalOutcome"
 )
 
 // AssistantServiceClient is the client API for AssistantService service.
@@ -35,8 +36,21 @@ type AssistantServiceClient interface {
 	ListConversations(ctx context.Context, in *ListConversationsRequest, opts ...grpc.CallOption) (*ListConversationsResponse, error)
 	GetConversation(ctx context.Context, in *GetConversationRequest, opts ...grpc.CallOption) (*GetConversationResponse, error)
 	SendMessage(ctx context.Context, in *SendMessageRequest, opts ...grpc.CallOption) (*SendMessageResponse, error)
+	// Obsoleto: tarjetas de comando anteriores al catalogo. Se conserva para
+	// clientes en v0.6.0; ver Conversation.changes.
 	DismissProposal(ctx context.Context, in *DismissProposalRequest, opts ...grpc.CallOption) (*DismissProposalResponse, error)
 	DeleteConversation(ctx context.Context, in *DeleteConversationRequest, opts ...grpc.CallOption) (*DeleteConversationResponse, error)
+	// El navegador avisa de lo que paso con cambios propuestos despues de que
+	// la persona actuara. Solo con la sesion del navegador del usuario de la
+	// conversacion (otra conversacion: NotFound); un token delegado no puede
+	// llamarla. Es lo que el hilo y el asistente ven, no una prueba de que
+	// x-api cambiara. Atomica: un change_id desconocido da NotFound y no
+	// aplica nada; un change_id repetido en la peticion, InvalidArgument.
+	// Transiciones: PROPOSED o FAILED a APPLIED, FAILED o DISCARDED. APPLIED y
+	// DISCARDED son finales: repetir el mismo estado no cambia nada (salvo
+	// APPLIED con otro revision_number, FailedPrecondition); otro estado,
+	// FailedPrecondition. FAILED a FAILED reemplaza error.
+	ReportProposalOutcome(ctx context.Context, in *ReportProposalOutcomeRequest, opts ...grpc.CallOption) (*ReportProposalOutcomeResponse, error)
 }
 
 type assistantServiceClient struct {
@@ -107,6 +121,16 @@ func (c *assistantServiceClient) DeleteConversation(ctx context.Context, in *Del
 	return out, nil
 }
 
+func (c *assistantServiceClient) ReportProposalOutcome(ctx context.Context, in *ReportProposalOutcomeRequest, opts ...grpc.CallOption) (*ReportProposalOutcomeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReportProposalOutcomeResponse)
+	err := c.cc.Invoke(ctx, AssistantService_ReportProposalOutcome_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AssistantServiceServer is the server API for AssistantService service.
 // All implementations must embed UnimplementedAssistantServiceServer
 // for forward compatibility.
@@ -115,8 +139,21 @@ type AssistantServiceServer interface {
 	ListConversations(context.Context, *ListConversationsRequest) (*ListConversationsResponse, error)
 	GetConversation(context.Context, *GetConversationRequest) (*GetConversationResponse, error)
 	SendMessage(context.Context, *SendMessageRequest) (*SendMessageResponse, error)
+	// Obsoleto: tarjetas de comando anteriores al catalogo. Se conserva para
+	// clientes en v0.6.0; ver Conversation.changes.
 	DismissProposal(context.Context, *DismissProposalRequest) (*DismissProposalResponse, error)
 	DeleteConversation(context.Context, *DeleteConversationRequest) (*DeleteConversationResponse, error)
+	// El navegador avisa de lo que paso con cambios propuestos despues de que
+	// la persona actuara. Solo con la sesion del navegador del usuario de la
+	// conversacion (otra conversacion: NotFound); un token delegado no puede
+	// llamarla. Es lo que el hilo y el asistente ven, no una prueba de que
+	// x-api cambiara. Atomica: un change_id desconocido da NotFound y no
+	// aplica nada; un change_id repetido en la peticion, InvalidArgument.
+	// Transiciones: PROPOSED o FAILED a APPLIED, FAILED o DISCARDED. APPLIED y
+	// DISCARDED son finales: repetir el mismo estado no cambia nada (salvo
+	// APPLIED con otro revision_number, FailedPrecondition); otro estado,
+	// FailedPrecondition. FAILED a FAILED reemplaza error.
+	ReportProposalOutcome(context.Context, *ReportProposalOutcomeRequest) (*ReportProposalOutcomeResponse, error)
 	mustEmbedUnimplementedAssistantServiceServer()
 }
 
@@ -144,6 +181,9 @@ func (UnimplementedAssistantServiceServer) DismissProposal(context.Context, *Dis
 }
 func (UnimplementedAssistantServiceServer) DeleteConversation(context.Context, *DeleteConversationRequest) (*DeleteConversationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteConversation not implemented")
+}
+func (UnimplementedAssistantServiceServer) ReportProposalOutcome(context.Context, *ReportProposalOutcomeRequest) (*ReportProposalOutcomeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReportProposalOutcome not implemented")
 }
 func (UnimplementedAssistantServiceServer) mustEmbedUnimplementedAssistantServiceServer() {}
 func (UnimplementedAssistantServiceServer) testEmbeddedByValue()                          {}
@@ -274,6 +314,24 @@ func _AssistantService_DeleteConversation_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AssistantService_ReportProposalOutcome_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReportProposalOutcomeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).ReportProposalOutcome(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_ReportProposalOutcome_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).ReportProposalOutcome(ctx, req.(*ReportProposalOutcomeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AssistantService_ServiceDesc is the grpc.ServiceDesc for AssistantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +362,10 @@ var AssistantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteConversation",
 			Handler:    _AssistantService_DeleteConversation_Handler,
+		},
+		{
+			MethodName: "ReportProposalOutcome",
+			Handler:    _AssistantService_ReportProposalOutcome_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

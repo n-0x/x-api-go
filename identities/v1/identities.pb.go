@@ -7,6 +7,7 @@
 package identitiesv1
 
 import (
+	_ "github.com/n-0x/x-api-go/catalog/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -3454,7 +3455,7 @@ var File_n0x_identities_v1_identities_proto protoreflect.FileDescriptor
 
 const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\n" +
-	"\"n0x/identities/v1/identities.proto\x12\x11n0x.identities.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"j\n" +
+	"\"n0x/identities/v1/identities.proto\x12\x11n0x.identities.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cn0x/catalog/v1/catalog.proto\"j\n" +
 	"\x12IdentityProtection\x12)\n" +
 	"\x10against_blocking\x18\x01 \x01(\bR\x0fagainstBlocking\x12)\n" +
 	"\x10against_deletion\x18\x02 \x01(\bR\x0fagainstDeletion\"\x9d\x01\n" +
@@ -3794,28 +3795,28 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\x15IDENTITY_STATE_ACTIVE\x10\x01\x12\x1a\n" +
 	"\x16IDENTITY_STATE_EXPIRED\x10\x02\x12\x1e\n" +
 	"\x1aIDENTITY_STATE_QUARANTINED\x10\x03\x12\x1e\n" +
-	"\x1aIDENTITY_STATE_DEACTIVATED\x10\x042\xce\x10\n" +
-	"\x11IdentitiesService\x12e\n" +
-	"\x0eListIdentities\x12(.n0x.identities.v1.ListIdentitiesRequest\x1a).n0x.identities.v1.ListIdentitiesResponse\x12\\\n" +
-	"\vGetIdentity\x12%.n0x.identities.v1.GetIdentityRequest\x1a&.n0x.identities.v1.GetIdentityResponse\x12_\n" +
-	"\fCreatePerson\x12&.n0x.identities.v1.CreatePersonRequest\x1a'.n0x.identities.v1.CreatePersonResponse\x12w\n" +
-	"\x14CreateServiceAccount\x12..n0x.identities.v1.CreateServiceAccountRequest\x1a/.n0x.identities.v1.CreateServiceAccountResponse\x12w\n" +
-	"\x14CreateNodeEnrollment\x12..n0x.identities.v1.CreateNodeEnrollmentRequest\x1a/.n0x.identities.v1.CreateNodeEnrollmentResponse\x12\x80\x01\n" +
-	"\x17ExchangeBootstrapSecret\x121.n0x.identities.v1.ExchangeBootstrapSecretRequest\x1a2.n0x.identities.v1.ExchangeBootstrapSecretResponse\x12\x83\x01\n" +
-	"\x18RenewIdentityCredentials\x122.n0x.identities.v1.RenewIdentityCredentialsRequest\x1a3.n0x.identities.v1.RenewIdentityCredentialsResponse\x12}\n" +
-	"\x16ReissueBootstrapSecret\x120.n0x.identities.v1.ReissueBootstrapSecretRequest\x1a1.n0x.identities.v1.ReissueBootstrapSecretResponse\x12e\n" +
-	"\x0eUpdateIdentity\x12(.n0x.identities.v1.UpdateIdentityRequest\x1a).n0x.identities.v1.UpdateIdentityResponse\x12z\n" +
-	"\x15SetIdentityProtection\x12/.n0x.identities.v1.SetIdentityProtectionRequest\x1a0.n0x.identities.v1.SetIdentityProtectionResponse\x12q\n" +
-	"\x12QuarantineIdentity\x12,.n0x.identities.v1.QuarantineIdentityRequest\x1a-.n0x.identities.v1.QuarantineIdentityResponse\x12\x86\x01\n" +
-	"\x19ReleaseIdentityQuarantine\x123.n0x.identities.v1.ReleaseIdentityQuarantineRequest\x1a4.n0x.identities.v1.ReleaseIdentityQuarantineResponse\x12q\n" +
-	"\x12DeactivateIdentity\x12,.n0x.identities.v1.DeactivateIdentityRequest\x1a-.n0x.identities.v1.DeactivateIdentityResponse\x12Y\n" +
+	"\x1aIDENTITY_STATE_DEACTIVATED\x10\x042\xc8\x19\n" +
+	"\x11IdentitiesService\x12\xe1\x01\n" +
+	"\x0eListIdentities\x12(.n0x.identities.v1.ListIdentitiesRequest\x1a).n0x.identities.v1.ListIdentitiesResponse\"z\xb2\xe1\x18v\b\x01\x12\biam.read\x1ahList the people, nodes, service accounts and groups of the tenant, optionally filtered by type or state.\x12\xd2\x01\n" +
+	"\vGetIdentity\x12%.n0x.identities.v1.GetIdentityRequest\x1a&.n0x.identities.v1.GetIdentityResponse\"t\xb2\xe1\x18p\b\x01\x12\biam.read\x1abGet the details of one identity: a person, node or service account, with its state and expiration.\x12\xa1\x01\n" +
+	"\fCreatePerson\x12&.n0x.identities.v1.CreatePersonRequest\x1a'.n0x.identities.v1.CreatePersonResponse\"@\xb2\xe1\x18<\b\x02\x12\tiam.write\x1a-Add a person to the tenant by name and login.\x12\x8a\x01\n" +
+	"\x14CreateServiceAccount\x12..n0x.identities.v1.CreateServiceAccountRequest\x1a/.n0x.identities.v1.CreateServiceAccountResponse\"\x11\xb2\xe1\x18\r\b\x04\x12\tiam.write\x12\x8d\x01\n" +
+	"\x14CreateNodeEnrollment\x12..n0x.identities.v1.CreateNodeEnrollmentRequest\x1a/.n0x.identities.v1.CreateNodeEnrollmentResponse\"\x14\xb2\xe1\x18\x10\b\x04\x12\fnodes.enroll\x12\x88\x01\n" +
+	"\x17ExchangeBootstrapSecret\x121.n0x.identities.v1.ExchangeBootstrapSecretRequest\x1a2.n0x.identities.v1.ExchangeBootstrapSecretResponse\"\x06\xb2\xe1\x18\x02\b\x05\x12\x8b\x01\n" +
+	"\x18RenewIdentityCredentials\x122.n0x.identities.v1.RenewIdentityCredentialsRequest\x1a3.n0x.identities.v1.RenewIdentityCredentialsResponse\"\x06\xb2\xe1\x18\x02\b\x05\x12\x90\x01\n" +
+	"\x16ReissueBootstrapSecret\x120.n0x.identities.v1.ReissueBootstrapSecretRequest\x1a1.n0x.identities.v1.ReissueBootstrapSecretResponse\"\x11\xb2\xe1\x18\r\b\x04\x12\tiam.write\x12\xc7\x01\n" +
+	"\x0eUpdateIdentity\x12(.n0x.identities.v1.UpdateIdentityRequest\x1a).n0x.identities.v1.UpdateIdentityResponse\"`\xb2\xe1\x18\\\b\x02\x12\tiam.write\x1aMChange the name, description, responsible owner or expiration of an identity.\x12\x8d\x01\n" +
+	"\x15SetIdentityProtection\x12/.n0x.identities.v1.SetIdentityProtectionRequest\x1a0.n0x.identities.v1.SetIdentityProtectionResponse\"\x11\xb2\xe1\x18\r\b\x04\x12\tiam.write\x12\xe4\x01\n" +
+	"\x12QuarantineIdentity\x12,.n0x.identities.v1.QuarantineIdentityRequest\x1a-.n0x.identities.v1.QuarantineIdentityResponse\"q\xb2\xe1\x18m\b\x03\x12\x15identities.quarantine\x1aRQuarantine an identity: cut all its access immediately until a person releases it.\x12\xa5\x01\n" +
+	"\x19ReleaseIdentityQuarantine\x123.n0x.identities.v1.ReleaseIdentityQuarantineRequest\x1a4.n0x.identities.v1.ReleaseIdentityQuarantineResponse\"\x1d\xb2\xe1\x18\x19\b\x04\x12\x15identities.quarantine\x12\xdd\x01\n" +
+	"\x12DeactivateIdentity\x12,.n0x.identities.v1.DeactivateIdentityRequest\x1a-.n0x.identities.v1.DeactivateIdentityResponse\"j\xb2\xe1\x18f\b\x02\x12\tiam.write\x1aWDeactivate an identity permanently; it can no longer connect and this cannot be undone.\x12\x99\x01\n" +
 	"\n" +
-	"ListGroups\x12$.n0x.identities.v1.ListGroupsRequest\x1a%.n0x.identities.v1.ListGroupsResponse\x12S\n" +
-	"\bGetGroup\x12\".n0x.identities.v1.GetGroupRequest\x1a#.n0x.identities.v1.GetGroupResponse\x12\\\n" +
-	"\vCreateGroup\x12%.n0x.identities.v1.CreateGroupRequest\x1a&.n0x.identities.v1.CreateGroupResponse\x12h\n" +
-	"\x0fAddGroupMembers\x12).n0x.identities.v1.AddGroupMembersRequest\x1a*.n0x.identities.v1.AddGroupMembersResponse\x12q\n" +
-	"\x12RemoveGroupMembers\x12,.n0x.identities.v1.RemoveGroupMembersRequest\x1a-.n0x.identities.v1.RemoveGroupMembersResponse\x12\\\n" +
-	"\vDeleteGroup\x12%.n0x.identities.v1.DeleteGroupRequest\x1a&.n0x.identities.v1.DeleteGroupResponseB5Z3github.com/n-0x/x-api-go/identities/v1;identitiesv1b\x06proto3"
+	"ListGroups\x12$.n0x.identities.v1.ListGroupsRequest\x1a%.n0x.identities.v1.ListGroupsResponse\">\xb2\xe1\x18:\b\x01\x12\biam.read\x1a,List the groups of identities in the tenant.\x12\x84\x01\n" +
+	"\bGetGroup\x12\".n0x.identities.v1.GetGroupRequest\x1a#.n0x.identities.v1.GetGroupResponse\"/\xb2\xe1\x18+\b\x01\x12\biam.read\x1a\x1dGet a group with its members.\x12\xb1\x01\n" +
+	"\vCreateGroup\x12%.n0x.identities.v1.CreateGroupRequest\x1a&.n0x.identities.v1.CreateGroupResponse\"S\xb2\xe1\x18O\b\x02\x12\tiam.write\x1a@Create a group of identities, optionally with its first members.\x12\x97\x01\n" +
+	"\x0fAddGroupMembers\x12).n0x.identities.v1.AddGroupMembersRequest\x1a*.n0x.identities.v1.AddGroupMembersResponse\"-\xb2\xe1\x18)\b\x02\x12\tiam.write\x1a\x1aAdd identities to a group.\x12\xa5\x01\n" +
+	"\x12RemoveGroupMembers\x12,.n0x.identities.v1.RemoveGroupMembersRequest\x1a-.n0x.identities.v1.RemoveGroupMembersResponse\"2\xb2\xe1\x18.\b\x02\x12\tiam.write\x1a\x1fRemove identities from a group.\x12\xaa\x01\n" +
+	"\vDeleteGroup\x12%.n0x.identities.v1.DeleteGroupRequest\x1a&.n0x.identities.v1.DeleteGroupResponse\"L\xb2\xe1\x18H\b\x02\x12\tiam.write\x1a9Delete a group; its history and past membership are kept.B5Z3github.com/n-0x/x-api-go/identities/v1;identitiesv1b\x06proto3"
 
 var (
 	file_n0x_identities_v1_identities_proto_rawDescOnce sync.Once

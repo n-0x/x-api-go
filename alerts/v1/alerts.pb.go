@@ -7,6 +7,7 @@
 package alertsv1
 
 import (
+	_ "github.com/n-0x/x-api-go/catalog/v1"
 	v1 "github.com/n-0x/x-api-go/playbook/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -812,7 +813,7 @@ var File_n0x_alerts_v1_alerts_proto protoreflect.FileDescriptor
 
 const file_n0x_alerts_v1_alerts_proto_rawDesc = "" +
 	"\n" +
-	"\x1an0x/alerts/v1/alerts.proto\x12\rn0x.alerts.v1\x1a\x1en0x/playbook/v1/playbook.proto\"\xa0\x02\n" +
+	"\x1an0x/alerts/v1/alerts.proto\x12\rn0x.alerts.v1\x1a\x1cn0x/catalog/v1/catalog.proto\x1a\x1en0x/playbook/v1/playbook.proto\"\xa0\x02\n" +
 	"\x04Rule\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\ttenant_id\x18\x02 \x01(\tR\btenantId\x12\x12\n" +
@@ -880,17 +881,17 @@ const file_n0x_alerts_v1_alerts_proto_rawDesc = "" +
 	"\tpage_size\x18\x05 \x01(\x05R\bpageSize\"j\n" +
 	"\x12ListAlertsResponse\x12,\n" +
 	"\x06alerts\x18\x01 \x03(\v2\x14.n0x.alerts.v1.AlertR\x06alerts\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xaa\x03\n" +
-	"\fAlertService\x12N\n" +
-	"\tListRules\x12\x1f.n0x.alerts.v1.ListRulesRequest\x1a .n0x.alerts.v1.ListRulesResponse\x12Q\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xc4\a\n" +
+	"\fAlertService\x12\xd6\x01\n" +
+	"\tListRules\x12\x1f.n0x.alerts.v1.ListRulesRequest\x1a .n0x.alerts.v1.ListRulesResponse\"\x85\x01\xb2\xe1\x18\x80\x01\b\x01\x12\valerts.read\x1aoList alert rules: what they watch (offline, restarts, high CPU or memory), on which nodes, and whether enabled.\x12\xcc\x01\n" +
 	"\n" +
-	"CreateRule\x12 .n0x.alerts.v1.CreateRuleRequest\x1a!.n0x.alerts.v1.CreateRuleResponse\x12Q\n" +
+	"CreateRule\x12 .n0x.alerts.v1.CreateRuleRequest\x1a!.n0x.alerts.v1.CreateRuleResponse\"y\xb2\xe1\x18u\b\x03\x12\falerts.write\x1acCreate an alert rule that fires when nodes go offline, restart or exceed a CPU or memory threshold.\x12\xc1\x01\n" +
 	"\n" +
-	"UpdateRule\x12 .n0x.alerts.v1.UpdateRuleRequest\x1a!.n0x.alerts.v1.UpdateRuleResponse\x12Q\n" +
+	"UpdateRule\x12 .n0x.alerts.v1.UpdateRuleRequest\x1a!.n0x.alerts.v1.UpdateRuleResponse\"n\xb2\xe1\x18j\b\x03\x12\falerts.write\x1aXChange an alert rule, including its threshold, scope, severity or whether it is enabled.\x12\xa3\x01\n" +
 	"\n" +
-	"DeleteRule\x12 .n0x.alerts.v1.DeleteRuleRequest\x1a!.n0x.alerts.v1.DeleteRuleResponse\x12Q\n" +
+	"DeleteRule\x12 .n0x.alerts.v1.DeleteRuleRequest\x1a!.n0x.alerts.v1.DeleteRuleResponse\"P\xb2\xe1\x18L\b\x03\x12\falerts.write\x1a:Delete an alert rule; it stops detecting from that moment.\x12\xa1\x01\n" +
 	"\n" +
-	"ListAlerts\x12 .n0x.alerts.v1.ListAlertsRequest\x1a!.n0x.alerts.v1.ListAlertsResponseB-Z+github.com/n-0x/x-api-go/alerts/v1;alertsv1b\x06proto3"
+	"ListAlerts\x12 .n0x.alerts.v1.ListAlertsRequest\x1a!.n0x.alerts.v1.ListAlertsResponse\"N\xb2\xe1\x18J\b\x01\x12\valerts.read\x1a9List firing and resolved alerts, optionally for one node.B-Z+github.com/n-0x/x-api-go/alerts/v1;alertsv1b\x06proto3"
 
 var (
 	file_n0x_alerts_v1_alerts_proto_rawDescOnce sync.Once

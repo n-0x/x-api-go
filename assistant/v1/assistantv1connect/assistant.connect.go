@@ -42,6 +42,9 @@ const (
 	// AssistantServiceDeleteConversationProcedure is the procedure name of the AssistantService's
 	// DeleteConversation RPC.
 	AssistantServiceDeleteConversationProcedure = "/n0x.assistant.v1.AssistantService/DeleteConversation"
+	// AssistantServiceReportProposalOutcomeProcedure is the procedure name of the AssistantService's
+	// ReportProposalOutcome RPC.
+	AssistantServiceReportProposalOutcomeProcedure = "/n0x.assistant.v1.AssistantService/ReportProposalOutcome"
 )
 
 var (
@@ -87,6 +90,13 @@ var (
 			Procedure:  AssistantServiceDeleteConversationProcedure,
 		}
 	})
+	assistantServiceReportProposalOutcomeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_assistant_v1_assistant_proto.Services().ByName("AssistantService").Methods().ByName("ReportProposalOutcome"),
+			Procedure:  AssistantServiceReportProposalOutcomeProcedure,
+		}
+	})
 )
 
 // AssistantServiceClient is a client for the n0x.assistant.v1.AssistantService service.
@@ -95,8 +105,21 @@ type AssistantServiceClient interface {
 	ListConversations(context.Context, *v1.ListConversationsRequest) (*v1.ListConversationsResponse, error)
 	GetConversation(context.Context, *v1.GetConversationRequest) (*v1.GetConversationResponse, error)
 	SendMessage(context.Context, *v1.SendMessageRequest) (*v1.SendMessageResponse, error)
+	// Obsoleto: tarjetas de comando anteriores al catalogo. Se conserva para
+	// clientes en v0.6.0; ver Conversation.changes.
 	DismissProposal(context.Context, *v1.DismissProposalRequest) (*v1.DismissProposalResponse, error)
 	DeleteConversation(context.Context, *v1.DeleteConversationRequest) (*v1.DeleteConversationResponse, error)
+	// El navegador avisa de lo que paso con cambios propuestos despues de que
+	// la persona actuara. Solo con la sesion del navegador del usuario de la
+	// conversacion (otra conversacion: NotFound); un token delegado no puede
+	// llamarla. Es lo que el hilo y el asistente ven, no una prueba de que
+	// x-api cambiara. Atomica: un change_id desconocido da NotFound y no
+	// aplica nada; un change_id repetido en la peticion, InvalidArgument.
+	// Transiciones: PROPOSED o FAILED a APPLIED, FAILED o DISCARDED. APPLIED y
+	// DISCARDED son finales: repetir el mismo estado no cambia nada (salvo
+	// APPLIED con otro revision_number, FailedPrecondition); otro estado,
+	// FailedPrecondition. FAILED a FAILED reemplaza error.
+	ReportProposalOutcome(context.Context, *v1.ReportProposalOutcomeRequest) (*v1.ReportProposalOutcomeResponse, error)
 }
 
 // NewAssistantServiceClient constructs a client for the n0x.assistant.v1.AssistantService service.
@@ -111,8 +134,21 @@ type AssistantServiceHandler interface {
 	ListConversations(context.Context, *v1.ListConversationsRequest) (*v1.ListConversationsResponse, error)
 	GetConversation(context.Context, *v1.GetConversationRequest) (*v1.GetConversationResponse, error)
 	SendMessage(context.Context, *v1.SendMessageRequest) (*v1.SendMessageResponse, error)
+	// Obsoleto: tarjetas de comando anteriores al catalogo. Se conserva para
+	// clientes en v0.6.0; ver Conversation.changes.
 	DismissProposal(context.Context, *v1.DismissProposalRequest) (*v1.DismissProposalResponse, error)
 	DeleteConversation(context.Context, *v1.DeleteConversationRequest) (*v1.DeleteConversationResponse, error)
+	// El navegador avisa de lo que paso con cambios propuestos despues de que
+	// la persona actuara. Solo con la sesion del navegador del usuario de la
+	// conversacion (otra conversacion: NotFound); un token delegado no puede
+	// llamarla. Es lo que el hilo y el asistente ven, no una prueba de que
+	// x-api cambiara. Atomica: un change_id desconocido da NotFound y no
+	// aplica nada; un change_id repetido en la peticion, InvalidArgument.
+	// Transiciones: PROPOSED o FAILED a APPLIED, FAILED o DISCARDED. APPLIED y
+	// DISCARDED son finales: repetir el mismo estado no cambia nada (salvo
+	// APPLIED con otro revision_number, FailedPrecondition); otro estado,
+	// FailedPrecondition. FAILED a FAILED reemplaza error.
+	ReportProposalOutcome(context.Context, *v1.ReportProposalOutcomeRequest) (*v1.ReportProposalOutcomeResponse, error)
 }
 
 // RegisterAssistantServiceHandler registers svc as the n0x.assistant.v1.AssistantService
@@ -126,6 +162,7 @@ func RegisterAssistantServiceHandler(server *connect.Server, svc AssistantServic
 		connect.Method{Spec: assistantServiceSendMessageSpec(), Handler: adapter.sendMessage},
 		connect.Method{Spec: assistantServiceDismissProposalSpec(), Handler: adapter.dismissProposal},
 		connect.Method{Spec: assistantServiceDeleteConversationSpec(), Handler: adapter.deleteConversation},
+		connect.Method{Spec: assistantServiceReportProposalOutcomeSpec(), Handler: adapter.reportProposalOutcome},
 	)
 }
 
@@ -154,6 +191,10 @@ func (UnimplementedAssistantServiceHandler) DismissProposal(context.Context, *v1
 
 func (UnimplementedAssistantServiceHandler) DeleteConversation(context.Context, *v1.DeleteConversationRequest) (*v1.DeleteConversationResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.assistant.v1.AssistantService.DeleteConversation is not implemented")
+}
+
+func (UnimplementedAssistantServiceHandler) ReportProposalOutcome(context.Context, *v1.ReportProposalOutcomeRequest) (*v1.ReportProposalOutcomeResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.assistant.v1.AssistantService.ReportProposalOutcome is not implemented")
 }
 
 type assistantServiceClient struct {
@@ -203,6 +244,14 @@ func (c *assistantServiceClient) DismissProposal(ctx context.Context, req *v1.Di
 func (c *assistantServiceClient) DeleteConversation(ctx context.Context, req *v1.DeleteConversationRequest) (*v1.DeleteConversationResponse, error) {
 	var res v1.DeleteConversationResponse
 	if err := c.client.CallUnary(ctx, assistantServiceDeleteConversationSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *assistantServiceClient) ReportProposalOutcome(ctx context.Context, req *v1.ReportProposalOutcomeRequest) (*v1.ReportProposalOutcomeResponse, error) {
+	var res v1.ReportProposalOutcomeResponse
+	if err := c.client.CallUnary(ctx, assistantServiceReportProposalOutcomeSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -276,6 +325,18 @@ func (h assistantServiceHandler) deleteConversation(ctx context.Context, _ conne
 		return err
 	}
 	res, err := h.svc.DeleteConversation(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h assistantServiceHandler) reportProposalOutcome(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ReportProposalOutcomeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ReportProposalOutcome(ctx, &req)
 	if err != nil {
 		return err
 	}

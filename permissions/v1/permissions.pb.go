@@ -7,6 +7,7 @@
 package permissionsv1
 
 import (
+	_ "github.com/n-0x/x-api-go/catalog/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -4377,7 +4378,7 @@ var File_n0x_permissions_v1_permissions_proto protoreflect.FileDescriptor
 
 const file_n0x_permissions_v1_permissions_proto_rawDesc = "" +
 	"\n" +
-	"$n0x/permissions/v1/permissions.proto\x12\x12n0x.permissions.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"^\n" +
+	"$n0x/permissions/v1/permissions.proto\x12\x12n0x.permissions.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cn0x/catalog/v1/catalog.proto\"^\n" +
 	"\x11PermissionSubject\x12!\n" +
 	"\videntity_id\x18\x01 \x01(\tH\x00R\n" +
 	"identityId\x12\x1b\n" +
@@ -4799,23 +4800,23 @@ const file_n0x_permissions_v1_permissions_proto_rawDesc = "" +
 	"\x1aPlatformActionAvailability\x12,\n" +
 	"(PLATFORM_ACTION_AVAILABILITY_UNSPECIFIED\x10\x00\x12*\n" +
 	"&PLATFORM_ACTION_AVAILABILITY_AVAILABLE\x10\x01\x12)\n" +
-	"%PLATFORM_ACTION_AVAILABILITY_RESERVED\x10\x022\xa1\f\n" +
-	"\x12PermissionsService\x12j\n" +
-	"\x0fListPermissions\x12*.n0x.permissions.v1.ListPermissionsRequest\x1a+.n0x.permissions.v1.ListPermissionsResponse\x12d\n" +
-	"\rGetPermission\x12(.n0x.permissions.v1.GetPermissionRequest\x1a).n0x.permissions.v1.GetPermissionResponse\x12m\n" +
-	"\x10CreatePermission\x12+.n0x.permissions.v1.CreatePermissionRequest\x1a,.n0x.permissions.v1.CreatePermissionResponse\x12m\n" +
-	"\x10UpdatePermission\x12+.n0x.permissions.v1.UpdatePermissionRequest\x1a,.n0x.permissions.v1.UpdatePermissionResponse\x12m\n" +
-	"\x10RemovePermission\x12+.n0x.permissions.v1.RemovePermissionRequest\x1a,.n0x.permissions.v1.RemovePermissionResponse\x12d\n" +
-	"\rListRevisions\x12(.n0x.permissions.v1.ListRevisionsRequest\x1a).n0x.permissions.v1.ListRevisionsResponse\x12^\n" +
-	"\vGetRevision\x12&.n0x.permissions.v1.GetRevisionRequest\x1a'.n0x.permissions.v1.GetRevisionResponse\x12^\n" +
-	"\vCreateDraft\x12&.n0x.permissions.v1.CreateDraftRequest\x1a'.n0x.permissions.v1.CreateDraftResponse\x12a\n" +
-	"\fPublishDraft\x12'.n0x.permissions.v1.PublishDraftRequest\x1a(.n0x.permissions.v1.PublishDraftResponse\x12a\n" +
-	"\fDiscardDraft\x12'.n0x.permissions.v1.DiscardDraftRequest\x1a(.n0x.permissions.v1.DiscardDraftResponse\x12O\n" +
-	"\x06Revert\x12!.n0x.permissions.v1.RevertRequest\x1a\".n0x.permissions.v1.RevertResponse\x12R\n" +
-	"\aCompare\x12\".n0x.permissions.v1.CompareRequest\x1a#.n0x.permissions.v1.CompareResponse\x12^\n" +
-	"\vCheckAccess\x12&.n0x.permissions.v1.CheckAccessRequest\x1a'.n0x.permissions.v1.CheckAccessResponse\x12v\n" +
-	"\x13ListPlatformActions\x12..n0x.permissions.v1.ListPlatformActionsRequest\x1a/.n0x.permissions.v1.ListPlatformActionsResponse\x12\x82\x01\n" +
-	"\x17SetPermissionProtection\x122.n0x.permissions.v1.SetPermissionProtectionRequest\x1a3.n0x.permissions.v1.SetPermissionProtectionResponseB7Z5github.com/n-0x/x-api-go/permissions/v1;permissionsv1b\x06proto3"
+	"%PLATFORM_ACTION_AVAILABILITY_RESERVED\x10\x022\xf9\x15\n" +
+	"\x12PermissionsService\x12\xf6\x01\n" +
+	"\x0fListPermissions\x12*.n0x.permissions.v1.ListPermissionsRequest\x1a+.n0x.permissions.v1.ListPermissionsResponse\"\x89\x01\xb2\xe1\x18\x84\x01\b\x01\x12\rpolicies.read\x1aqList access permissions, filtered by who has access or what they reach; can include the changes of an open draft.\x12\xbf\x01\n" +
+	"\rGetPermission\x12(.n0x.permissions.v1.GetPermissionRequest\x1a).n0x.permissions.v1.GetPermissionResponse\"Y\xb2\xe1\x18U\b\x01\x12\rpolicies.read\x1aBGet one access permission with its subject, target and conditions.\x12\xe0\x01\n" +
+	"\x10CreatePermission\x12+.n0x.permissions.v1.CreatePermissionRequest\x1a,.n0x.permissions.v1.CreatePermissionResponse\"q\xb2\xe1\x18m\b\x02\x12\x0epolicies.write\x1aYGrant access: allow a person, group, node or service account to reach a workload or node.\x12\xd5\x01\n" +
+	"\x10UpdatePermission\x12+.n0x.permissions.v1.UpdatePermissionRequest\x1a,.n0x.permissions.v1.UpdatePermissionResponse\"f\xb2\xe1\x18b\b\x02\x12\x0epolicies.write\x1aNChange an existing access permission, such as its target, ports or expiration.\x12\xc4\x01\n" +
+	"\x10RemovePermission\x12+.n0x.permissions.v1.RemovePermissionRequest\x1a,.n0x.permissions.v1.RemovePermissionResponse\"U\xb2\xe1\x18Q\b\x02\x12\x0epolicies.write\x1a=Remove an access permission so its subject loses that access.\x12\xec\x01\n" +
+	"\rListRevisions\x12(.n0x.permissions.v1.ListRevisionsRequest\x1a).n0x.permissions.v1.ListRevisionsResponse\"\x85\x01\xb2\xe1\x18\x80\x01\b\x01\x12\rpolicies.read\x1amList configuration revisions, drafts and published changes, with author and state, optionally for one object.\x12\xb7\x01\n" +
+	"\vGetRevision\x12&.n0x.permissions.v1.GetRevisionRequest\x1a'.n0x.permissions.v1.GetRevisionResponse\"W\xb2\xe1\x18S\b\x01\x12\rpolicies.read\x1a@Get one revision with its changes and where it has been applied.\x12v\n" +
+	"\vCreateDraft\x12&.n0x.permissions.v1.CreateDraftRequest\x1a'.n0x.permissions.v1.CreateDraftResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.write\x12y\n" +
+	"\fPublishDraft\x12'.n0x.permissions.v1.PublishDraftRequest\x1a(.n0x.permissions.v1.PublishDraftResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.write\x12y\n" +
+	"\fDiscardDraft\x12'.n0x.permissions.v1.DiscardDraftRequest\x1a(.n0x.permissions.v1.DiscardDraftResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.write\x12g\n" +
+	"\x06Revert\x12!.n0x.permissions.v1.RevertRequest\x1a\".n0x.permissions.v1.RevertResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.write\x12\xba\x01\n" +
+	"\aCompare\x12\".n0x.permissions.v1.CompareRequest\x1a#.n0x.permissions.v1.CompareResponse\"f\xb2\xe1\x18b\b\x01\x12\rpolicies.read\x1aOCompare two revisions and list what was added, changed or removed between them.\x12\xe2\x01\n" +
+	"\vCheckAccess\x12&.n0x.permissions.v1.CheckAccessRequest\x1a'.n0x.permissions.v1.CheckAccessResponse\"\x81\x01\xb2\xe1\x18}\b\x01\x12\rpolicies.read\x1ajCheck whether an identity can reach a workload or node, and why not; it only simulates and grants nothing.\x12\xe6\x01\n" +
+	"\x13ListPlatformActions\x12..n0x.permissions.v1.ListPlatformActionsRequest\x1a/.n0x.permissions.v1.ListPlatformActionsResponse\"n\xb2\xe1\x18j\b\x01\x12\rpolicies.read\x1aWList the platform actions that permissions can authorize, such as publishing workloads.\x12\x9a\x01\n" +
+	"\x17SetPermissionProtection\x122.n0x.permissions.v1.SetPermissionProtectionRequest\x1a3.n0x.permissions.v1.SetPermissionProtectionResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.writeB7Z5github.com/n-0x/x-api-go/permissions/v1;permissionsv1b\x06proto3"
 
 var (
 	file_n0x_permissions_v1_permissions_proto_rawDescOnce sync.Once

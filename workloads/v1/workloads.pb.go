@@ -7,6 +7,7 @@
 package workloadsv1
 
 import (
+	_ "github.com/n-0x/x-api-go/catalog/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -3127,7 +3128,7 @@ var File_n0x_workloads_v1_workloads_proto protoreflect.FileDescriptor
 
 const file_n0x_workloads_v1_workloads_proto_rawDesc = "" +
 	"\n" +
-	" n0x/workloads/v1/workloads.proto\x12\x10n0x.workloads.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc0\x02\n" +
+	" n0x/workloads/v1/workloads.proto\x12\x10n0x.workloads.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cn0x/catalog/v1/catalog.proto\"\xc0\x02\n" +
 	"\fWorkloadNode\x12\x1f\n" +
 	"\videntity_id\x18\x01 \x01(\tR\n" +
 	"identityId\x12\x1d\n" +
@@ -3441,19 +3442,22 @@ const file_n0x_workloads_v1_workloads_proto_rawDesc = "" +
 	"\x1eSESSION_EVENT_TYPE_UNSPECIFIED\x10\x00\x12$\n" +
 	" SESSION_EVENT_TYPE_AUTHENTICATED\x10\x01\x12\x1e\n" +
 	"\x1aSESSION_EVENT_TYPE_RENEWED\x10\x02\x12\x1d\n" +
-	"\x19SESSION_EVENT_TYPE_CLOSED\x10\x032\xb2\b\n" +
-	"\x10WorkloadsService\x12`\n" +
-	"\rListWorkloads\x12&.n0x.workloads.v1.ListWorkloadsRequest\x1a'.n0x.workloads.v1.ListWorkloadsResponse\x12Z\n" +
-	"\vGetWorkload\x12$.n0x.workloads.v1.GetWorkloadRequest\x1a%.n0x.workloads.v1.GetWorkloadResponse\x12c\n" +
-	"\x0eCreateWorkload\x12'.n0x.workloads.v1.CreateWorkloadRequest\x1a(.n0x.workloads.v1.CreateWorkloadResponse\x12\x81\x01\n" +
-	"\x18RegisterWorkloadFromHost\x121.n0x.workloads.v1.RegisterWorkloadFromHostRequest\x1a2.n0x.workloads.v1.RegisterWorkloadFromHostResponse\x12o\n" +
-	"\x12RemoveWorkloadNode\x12+.n0x.workloads.v1.RemoveWorkloadNodeRequest\x1a,.n0x.workloads.v1.RemoveWorkloadNodeResponse\x12c\n" +
-	"\x0eRetireWorkload\x12'.n0x.workloads.v1.RetireWorkloadRequest\x1a(.n0x.workloads.v1.RetireWorkloadResponse\x12x\n" +
-	"\x15SetWorkloadProtection\x12..n0x.workloads.v1.SetWorkloadProtectionRequest\x1a/.n0x.workloads.v1.SetWorkloadProtectionResponse\x12o\n" +
-	"\x12ListListeningPorts\x12+.n0x.workloads.v1.ListListeningPortsRequest\x1a,.n0x.workloads.v1.ListListeningPortsResponse\x12]\n" +
-	"\fListSessions\x12%.n0x.workloads.v1.ListSessionsRequest\x1a&.n0x.workloads.v1.ListSessionsResponse\x12W\n" +
+	"\x19SESSION_EVENT_TYPE_CLOSED\x10\x032\xbb\x0f\n" +
+	"\x10WorkloadsService\x12\xd5\x01\n" +
+	"\rListWorkloads\x12&.n0x.workloads.v1.ListWorkloadsRequest\x1a'.n0x.workloads.v1.ListWorkloadsResponse\"s\xb2\xe1\x18o\b\x01\x12\n" +
+	"nodes.read\x1a_List published workloads (HTTPS, SSH or TCP services), filtered by state, type or serving node.\x12\xbd\x01\n" +
+	"\vGetWorkload\x12$.n0x.workloads.v1.GetWorkloadRequest\x1a%.n0x.workloads.v1.GetWorkloadResponse\"a\xb2\xe1\x18]\b\x01\x12\n" +
+	"nodes.read\x1aMGet one workload with its public address, serving nodes and connection state.\x12\xdf\x01\n" +
+	"\x0eCreateWorkload\x12'.n0x.workloads.v1.CreateWorkloadRequest\x1a(.n0x.workloads.v1.CreateWorkloadResponse\"z\xb2\xe1\x18v\b\x02\x12\vnodes.write\x1aePublish a new workload: expose an HTTPS, SSH or TCP service of one or more nodes at a public address.\x12\x89\x01\n" +
+	"\x18RegisterWorkloadFromHost\x121.n0x.workloads.v1.RegisterWorkloadFromHostRequest\x1a2.n0x.workloads.v1.RegisterWorkloadFromHostResponse\"\x06\xb2\xe1\x18\x02\b\x05\x12\xdd\x01\n" +
+	"\x12RemoveWorkloadNode\x12+.n0x.workloads.v1.RemoveWorkloadNodeRequest\x1a,.n0x.workloads.v1.RemoveWorkloadNodeResponse\"l\xb2\xe1\x18h\b\x02\x12\vnodes.write\x1aWStop serving a workload from one node; the workload stays published on its other nodes.\x12\xaf\x01\n" +
+	"\x0eRetireWorkload\x12'.n0x.workloads.v1.RetireWorkloadRequest\x1a(.n0x.workloads.v1.RetireWorkloadResponse\"J\xb2\xe1\x18F\b\x02\x12\vnodes.write\x1a5Retire a workload: unpublish it and keep its history.\x12\x8d\x01\n" +
+	"\x15SetWorkloadProtection\x12..n0x.workloads.v1.SetWorkloadProtectionRequest\x1a/.n0x.workloads.v1.SetWorkloadProtectionResponse\"\x13\xb2\xe1\x18\x0f\b\x04\x12\vnodes.write\x12\xe5\x01\n" +
+	"\x12ListListeningPorts\x12+.n0x.workloads.v1.ListListeningPortsRequest\x1a,.n0x.workloads.v1.ListListeningPortsResponse\"t\xb2\xe1\x18p\b\x01\x12\n" +
+	"nodes.read\x1a`List the ports a node is listening on, as detected by its agent, to help choose what to publish.\x12\xdb\x01\n" +
+	"\fListSessions\x12%.n0x.workloads.v1.ListSessionsRequest\x1a&.n0x.workloads.v1.ListSessionsResponse\"|\xb2\xe1\x18x\b\x01\x12\vevents.read\x1agList access sessions to workloads and nodes: who connected, from where, when, and whether still active.\x12\xb8\x01\n" +
 	"\n" +
-	"GetSession\x12#.n0x.workloads.v1.GetSessionRequest\x1a$.n0x.workloads.v1.GetSessionResponseB3Z1github.com/n-0x/x-api-go/workloads/v1;workloadsv1b\x06proto3"
+	"GetSession\x12#.n0x.workloads.v1.GetSessionRequest\x1a$.n0x.workloads.v1.GetSessionResponse\"_\xb2\xe1\x18[\b\x01\x12\vevents.read\x1aJGet one access session with its events and the permission that allowed it.B3Z1github.com/n-0x/x-api-go/workloads/v1;workloadsv1b\x06proto3"
 
 var (
 	file_n0x_workloads_v1_workloads_proto_rawDescOnce sync.Once

@@ -7,6 +7,7 @@
 package metricsv1
 
 import (
+	_ "github.com/n-0x/x-api-go/catalog/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -607,7 +608,7 @@ var File_n0x_metrics_v1_metrics_proto protoreflect.FileDescriptor
 
 const file_n0x_metrics_v1_metrics_proto_rawDesc = "" +
 	"\n" +
-	"\x1cn0x/metrics/v1/metrics.proto\x12\x0en0x.metrics.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe2\x02\n" +
+	"\x1cn0x/metrics/v1/metrics.proto\x12\x0en0x.metrics.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cn0x/catalog/v1/catalog.proto\"\xe2\x02\n" +
 	"\x10GetSeriesRequest\x12\"\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tH\x01R\taccountId\x88\x01\x01\x12 \n" +
@@ -674,9 +675,10 @@ const file_n0x_metrics_v1_metrics_proto_rawDesc = "" +
 	"\n" +
 	"UNIT_RATIO\x10\x04\x12\x15\n" +
 	"\x11UNIT_MILLISECONDS\x10\x05\x12\r\n" +
-	"\tUNIT_LOAD\x10\x062b\n" +
-	"\x0eMetricsService\x12P\n" +
-	"\tGetSeries\x12 .n0x.metrics.v1.GetSeriesRequest\x1a!.n0x.metrics.v1.GetSeriesResponseB/Z-github.com/n-0x/x-api-go/metrics/v1;metricsv1b\x06proto3"
+	"\tUNIT_LOAD\x10\x062\xf7\x01\n" +
+	"\x0eMetricsService\x12\xe4\x01\n" +
+	"\tGetSeries\x12 .n0x.metrics.v1.GetSeriesRequest\x1a!.n0x.metrics.v1.GetSeriesResponse\"\x91\x01\xb2\xe1\x18\x8c\x01\b\x01\x12\n" +
+	"nodes.read\x1a|Get usage history for a node, workload or the tenant: CPU, memory, traffic, flows and latency over the last hour to 30 days.B/Z-github.com/n-0x/x-api-go/metrics/v1;metricsv1b\x06proto3"
 
 var (
 	file_n0x_metrics_v1_metrics_proto_rawDescOnce sync.Once

@@ -7,6 +7,7 @@
 package assistantv1
 
 import (
+	v1 "github.com/n-0x/x-api-go/catalog/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -23,19 +24,192 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type AssistantTool int32
+
+const (
+	AssistantTool_ASSISTANT_TOOL_UNSPECIFIED AssistantTool = 0
+	AssistantTool_ASSISTANT_TOOL_SEARCH      AssistantTool = 1
+	AssistantTool_ASSISTANT_TOOL_CALL        AssistantTool = 2
+)
+
+// Enum value maps for AssistantTool.
+var (
+	AssistantTool_name = map[int32]string{
+		0: "ASSISTANT_TOOL_UNSPECIFIED",
+		1: "ASSISTANT_TOOL_SEARCH",
+		2: "ASSISTANT_TOOL_CALL",
+	}
+	AssistantTool_value = map[string]int32{
+		"ASSISTANT_TOOL_UNSPECIFIED": 0,
+		"ASSISTANT_TOOL_SEARCH":      1,
+		"ASSISTANT_TOOL_CALL":        2,
+	}
+)
+
+func (x AssistantTool) Enum() *AssistantTool {
+	p := new(AssistantTool)
+	*p = x
+	return p
+}
+
+func (x AssistantTool) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AssistantTool) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_assistant_v1_assistant_proto_enumTypes[0].Descriptor()
+}
+
+func (AssistantTool) Type() protoreflect.EnumType {
+	return &file_n0x_assistant_v1_assistant_proto_enumTypes[0]
+}
+
+func (x AssistantTool) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AssistantTool.Descriptor instead.
+func (AssistantTool) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{0}
+}
+
+type ToolOutcome int32
+
+const (
+	ToolOutcome_TOOL_OUTCOME_UNSPECIFIED ToolOutcome = 0
+	// search respondio, o call ejecuto una lectura como el usuario.
+	ToolOutcome_TOOL_OUTCOME_EXECUTED ToolOutcome = 1
+	// call anoto un cambio GOVERNED en la propuesta; no se ejecuto.
+	ToolOutcome_TOOL_OUTCOME_PROPOSED ToolOutcome = 2
+	// call anoto un EFFECT como tarjeta pendiente; no se ejecuto.
+	ToolOutcome_TOOL_OUTCOME_PENDING_CONFIRMATION ToolOutcome = 3
+	// call no hizo nada; error dice por que.
+	ToolOutcome_TOOL_OUTCOME_REJECTED ToolOutcome = 4
+)
+
+// Enum value maps for ToolOutcome.
+var (
+	ToolOutcome_name = map[int32]string{
+		0: "TOOL_OUTCOME_UNSPECIFIED",
+		1: "TOOL_OUTCOME_EXECUTED",
+		2: "TOOL_OUTCOME_PROPOSED",
+		3: "TOOL_OUTCOME_PENDING_CONFIRMATION",
+		4: "TOOL_OUTCOME_REJECTED",
+	}
+	ToolOutcome_value = map[string]int32{
+		"TOOL_OUTCOME_UNSPECIFIED":          0,
+		"TOOL_OUTCOME_EXECUTED":             1,
+		"TOOL_OUTCOME_PROPOSED":             2,
+		"TOOL_OUTCOME_PENDING_CONFIRMATION": 3,
+		"TOOL_OUTCOME_REJECTED":             4,
+	}
+)
+
+func (x ToolOutcome) Enum() *ToolOutcome {
+	p := new(ToolOutcome)
+	*p = x
+	return p
+}
+
+func (x ToolOutcome) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ToolOutcome) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_assistant_v1_assistant_proto_enumTypes[1].Descriptor()
+}
+
+func (ToolOutcome) Type() protoreflect.EnumType {
+	return &file_n0x_assistant_v1_assistant_proto_enumTypes[1]
+}
+
+func (x ToolOutcome) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ToolOutcome.Descriptor instead.
+func (ToolOutcome) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{1}
+}
+
+type ProposedChangeStatus int32
+
+const (
+	ProposedChangeStatus_PROPOSED_CHANGE_STATUS_UNSPECIFIED ProposedChangeStatus = 0
+	// Anotado por el asistente; la persona aun no ha actuado.
+	ProposedChangeStatus_PROPOSED_CHANGE_STATUS_PROPOSED ProposedChangeStatus = 1
+	// GOVERNED: publicado en una revision. EFFECT: confirmado y aplicado.
+	ProposedChangeStatus_PROPOSED_CHANGE_STATUS_APPLIED ProposedChangeStatus = 2
+	// x-api rechazo la peticion al aplicarla; se puede reintentar.
+	ProposedChangeStatus_PROPOSED_CHANGE_STATUS_FAILED ProposedChangeStatus = 3
+	// La persona lo descarto, o descarto el borrador que lo contenia.
+	ProposedChangeStatus_PROPOSED_CHANGE_STATUS_DISCARDED ProposedChangeStatus = 4
+)
+
+// Enum value maps for ProposedChangeStatus.
+var (
+	ProposedChangeStatus_name = map[int32]string{
+		0: "PROPOSED_CHANGE_STATUS_UNSPECIFIED",
+		1: "PROPOSED_CHANGE_STATUS_PROPOSED",
+		2: "PROPOSED_CHANGE_STATUS_APPLIED",
+		3: "PROPOSED_CHANGE_STATUS_FAILED",
+		4: "PROPOSED_CHANGE_STATUS_DISCARDED",
+	}
+	ProposedChangeStatus_value = map[string]int32{
+		"PROPOSED_CHANGE_STATUS_UNSPECIFIED": 0,
+		"PROPOSED_CHANGE_STATUS_PROPOSED":    1,
+		"PROPOSED_CHANGE_STATUS_APPLIED":     2,
+		"PROPOSED_CHANGE_STATUS_FAILED":      3,
+		"PROPOSED_CHANGE_STATUS_DISCARDED":   4,
+	}
+)
+
+func (x ProposedChangeStatus) Enum() *ProposedChangeStatus {
+	p := new(ProposedChangeStatus)
+	*p = x
+	return p
+}
+
+func (x ProposedChangeStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ProposedChangeStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_assistant_v1_assistant_proto_enumTypes[2].Descriptor()
+}
+
+func (ProposedChangeStatus) Type() protoreflect.EnumType {
+	return &file_n0x_assistant_v1_assistant_proto_enumTypes[2]
+}
+
+func (x ProposedChangeStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ProposedChangeStatus.Descriptor instead.
+func (ProposedChangeStatus) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{2}
+}
+
 type Conversation struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	AccountId     string                 `protobuf:"bytes,2,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
-	TenantId      string                 `protobuf:"bytes,3,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	UserId        string                 `protobuf:"bytes,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Title         string                 `protobuf:"bytes,5,opt,name=title,proto3" json:"title,omitempty"`
-	Messages      []*Message             `protobuf:"bytes,6,rep,name=messages,proto3" json:"messages,omitempty"`
-	Turn          *Turn                  `protobuf:"bytes,7,opt,name=turn,proto3" json:"turn,omitempty"`
-	Proposal      *Proposal              `protobuf:"bytes,8,opt,name=proposal,proto3" json:"proposal,omitempty"`
-	Version       string                 `protobuf:"bytes,9,opt,name=version,proto3" json:"version,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Id        string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	AccountId string                 `protobuf:"bytes,2,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	TenantId  string                 `protobuf:"bytes,3,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	UserId    string                 `protobuf:"bytes,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Title     string                 `protobuf:"bytes,5,opt,name=title,proto3" json:"title,omitempty"`
+	Messages  []*Message             `protobuf:"bytes,6,rep,name=messages,proto3" json:"messages,omitempty"`
+	Turn      *Turn                  `protobuf:"bytes,7,opt,name=turn,proto3" json:"turn,omitempty"`
+	Proposal  *Proposal              `protobuf:"bytes,8,opt,name=proposal,proto3" json:"proposal,omitempty"`
+	Version   string                 `protobuf:"bytes,9,opt,name=version,proto3" json:"version,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	// En orden de anotacion; incluye los resueltos. Como mucho 50 GOVERNED y 10
+	// EFFECT con estado PROPOSED a la vez; call rechaza el siguiente con
+	// proposal_full o effects_full. Los cambios nuevos nunca se copian al
+	// Proposal antiguo: una consola en v0.6.0 no debe ver una tarjeta que no
+	// sabe aplicar.
+	Changes       []*ProposedChange `protobuf:"bytes,12,rep,name=changes,proto3" json:"changes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -147,14 +321,25 @@ func (x *Conversation) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Conversation) GetChanges() []*ProposedChange {
+	if x != nil {
+		return x.Changes
+	}
+	return nil
+}
+
 type Message struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Role          string                 `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"`
-	Text          string                 `protobuf:"bytes,3,opt,name=text,proto3" json:"text,omitempty"`
-	Kind          string                 `protobuf:"bytes,4,opt,name=kind,proto3" json:"kind,omitempty"`
-	RequestId     string                 `protobuf:"bytes,5,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	At            *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=at,proto3" json:"at,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Id        string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Role      string                 `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"`
+	Text      string                 `protobuf:"bytes,3,opt,name=text,proto3" json:"text,omitempty"`
+	Kind      string                 `protobuf:"bytes,4,opt,name=kind,proto3" json:"kind,omitempty"`
+	RequestId string                 `protobuf:"bytes,5,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	At        *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=at,proto3" json:"at,omitempty"`
+	// Solo en el mensaje del asistente que cierra un turno completado, en
+	// orden. El servidor nunca escribe un mensaje del asistente con text vacio,
+	// tenga o no actividad (una consola en v0.6.0 lo mostraria vacio).
+	Activity      []*ToolActivity `protobuf:"bytes,7,rep,name=activity,proto3" json:"activity,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -231,11 +416,21 @@ func (x *Message) GetAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Message) GetActivity() []*ToolActivity {
+	if x != nil {
+		return x.Activity
+	}
+	return nil
+}
+
 type Turn struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	Error         string                 `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Id     string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Status string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	Error  string                 `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
+	// La del turno en curso o fallido; vacia cuando el turno se completo (esta
+	// en el mensaje).
+	Activity      []*ToolActivity `protobuf:"bytes,4,rep,name=activity,proto3" json:"activity,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -291,6 +486,15 @@ func (x *Turn) GetError() string {
 	return ""
 }
 
+func (x *Turn) GetActivity() []*ToolActivity {
+	if x != nil {
+		return x.Activity
+	}
+	return nil
+}
+
+// Obsoleto: tarjetas de comando anteriores al catalogo. Se conserva para
+// clientes en v0.6.0; ver Conversation.changes.
 type Proposal struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -369,6 +573,9 @@ func (x *Proposal) GetMissing() []string {
 
 // ProposalCommand describes a suggested action for the browser to confirm and
 // execute with the user's existing permissions.
+//
+// Obsoleto: tarjetas de comando anteriores al catalogo. Se conserva para
+// clientes en v0.6.0; ver Conversation.changes.
 type ProposalCommand struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Kind          string                 `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
@@ -429,11 +636,20 @@ func (x *ProposalCommand) GetSummary() string {
 	return ""
 }
 
+// Lo unico que manda el navegador: donde esta el usuario, nunca el contenido
+// de la pantalla. El asistente lee los datos con call. selected_ids sigue
+// siendo la seleccion multiple de la vista.
 type ConversationContext struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TenantId      string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	SelectedIds   []string               `protobuf:"bytes,2,rep,name=selected_ids,json=selectedIds,proto3" json:"selected_ids,omitempty"`
-	View          string                 `protobuf:"bytes,3,opt,name=view,proto3" json:"view,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	TenantId    string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	SelectedIds []string               `protobuf:"bytes,2,rep,name=selected_ids,json=selectedIds,proto3" json:"selected_ids,omitempty"`
+	View        string                 `protobuf:"bytes,3,opt,name=view,proto3" json:"view,omitempty"`
+	// Objeto abierto en la vista, si hay uno. Tipo estable en minusculas: node,
+	// workload, identity, group, permission, revision, assignment_instance,
+	// assignment_run, task, alert_rule, event, session. Ambos vacios o ambos
+	// presentes.
+	ObjectType    string `protobuf:"bytes,4,opt,name=object_type,json=objectType,proto3" json:"object_type,omitempty"`
+	ObjectId      string `protobuf:"bytes,5,opt,name=object_id,json=objectId,proto3" json:"object_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -489,6 +705,340 @@ func (x *ConversationContext) GetView() string {
 	return ""
 }
 
+func (x *ConversationContext) GetObjectType() string {
+	if x != nil {
+		return x.ObjectType
+	}
+	return ""
+}
+
+func (x *ConversationContext) GetObjectId() string {
+	if x != nil {
+		return x.ObjectId
+	}
+	return ""
+}
+
+// Una llamada a herramienta, tal como la muestra el hilo. Nunca lleva el
+// resultado de una lectura ni la peticion completa.
+type ToolActivity struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Tool  AssistantTool          `protobuf:"varint,1,opt,name=tool,proto3,enum=n0x.assistant.v1.AssistantTool" json:"tool,omitempty"`
+	// Una linea de texto plano, hasta 200 caracteres, que compone el manager,
+	// p. ej. "Leyo 12 cargas". Puede citar nombres leidos de la plataforma: el
+	// navegador la muestra como texto, nunca como HTML ni enlace.
+	Summary string `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`
+	// Con call, el metodo pedido. Vacio con search. Nombre completo protobuf
+	// del metodo, p. ej. n0x.permissions.v1.PermissionsService.CreatePermission.
+	Operation string `protobuf:"bytes,3,opt,name=operation,proto3" json:"operation,omitempty"`
+	// Tipo del catalogo para operation, tambien PERSON_ONLY o EXCLUDED cuando
+	// la llamada se rechaza; un metodo sin la opcion se informa como EXCLUDED.
+	// UNSPECIFIED solo con search o si operation no existe.
+	Kind       v1.OperationKind       `protobuf:"varint,4,opt,name=kind,proto3,enum=n0x.catalog.v1.OperationKind" json:"kind,omitempty"`
+	Outcome    ToolOutcome            `protobuf:"varint,5,opt,name=outcome,proto3,enum=n0x.assistant.v1.ToolOutcome" json:"outcome,omitempty"`
+	OccurredAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
+	// Con PROPOSED o PENDING_CONFIRMATION, el ProposedChange creado.
+	ChangeId string `protobuf:"bytes,7,opt,name=change_id,json=changeId,proto3" json:"change_id,omitempty"`
+	// Solo con REJECTED. Codigo fijo: operation_unknown, operation_excluded,
+	// person_only, invalid_request, server_field, permission_denied,
+	// read_failed, proposal_full, effects_full, call_limit.
+	Error         string `protobuf:"bytes,8,opt,name=error,proto3" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ToolActivity) Reset() {
+	*x = ToolActivity{}
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ToolActivity) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ToolActivity) ProtoMessage() {}
+
+func (x *ToolActivity) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ToolActivity.ProtoReflect.Descriptor instead.
+func (*ToolActivity) Descriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ToolActivity) GetTool() AssistantTool {
+	if x != nil {
+		return x.Tool
+	}
+	return AssistantTool_ASSISTANT_TOOL_UNSPECIFIED
+}
+
+func (x *ToolActivity) GetSummary() string {
+	if x != nil {
+		return x.Summary
+	}
+	return ""
+}
+
+func (x *ToolActivity) GetOperation() string {
+	if x != nil {
+		return x.Operation
+	}
+	return ""
+}
+
+func (x *ToolActivity) GetKind() v1.OperationKind {
+	if x != nil {
+		return x.Kind
+	}
+	return v1.OperationKind(0)
+}
+
+func (x *ToolActivity) GetOutcome() ToolOutcome {
+	if x != nil {
+		return x.Outcome
+	}
+	return ToolOutcome_TOOL_OUTCOME_UNSPECIFIED
+}
+
+func (x *ToolActivity) GetOccurredAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.OccurredAt
+	}
+	return nil
+}
+
+func (x *ToolActivity) GetChangeId() string {
+	if x != nil {
+		return x.ChangeId
+	}
+	return ""
+}
+
+func (x *ToolActivity) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+type ProposedChange struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Lo asigna el manager; unico en la conversacion.
+	ChangeId string `protobuf:"bytes,1,opt,name=change_id,json=changeId,proto3" json:"change_id,omitempty"`
+	// Nombre completo protobuf del metodo, p. ej.
+	// n0x.permissions.v1.PermissionsService.CreatePermission.
+	Operation string `protobuf:"bytes,2,opt,name=operation,proto3" json:"operation,omitempty"`
+	// GOVERNED o EFFECT, copiado del catalogo al anotar.
+	Kind v1.OperationKind `protobuf:"varint,3,opt,name=kind,proto3,enum=n0x.catalog.v1.OperationKind" json:"kind,omitempty"`
+	// Peticion en protojson con nombres proto, validada contra el esquema de
+	// operation al anotar. Nunca lleva los campos que pone quien aplica:
+	// account_id, tenant_id, request_id, draft_revision_number ni origin;
+	// call rechaza con server_field una peticion que los traiga, y el
+	// navegador los rellena con la conversacion al aplicar. Nunca lleva
+	// secretos: una operacion cuya peticion los tiene no es GOVERNED ni EFFECT.
+	RequestJson string `protobuf:"bytes,4,opt,name=request_json,json=requestJson,proto3" json:"request_json,omitempty"`
+	// Explicacion del modelo, texto plano hasta 200 caracteres. No confiable:
+	// la tarjeta la muestra junto a operation y request_json, nunca en su lugar.
+	Summary string               `protobuf:"bytes,5,opt,name=summary,proto3" json:"summary,omitempty"`
+	Status  ProposedChangeStatus `protobuf:"varint,6,opt,name=status,proto3,enum=n0x.assistant.v1.ProposedChangeStatus" json:"status,omitempty"`
+	// Solo con FAILED: codigo Connect en snake_case que devolvio x-api, p. ej.
+	// permission_denied o failed_precondition. Nunca el mensaje del servidor
+	// ni texto del modelo.
+	Error      string                 `protobuf:"bytes,7,opt,name=error,proto3" json:"error,omitempty"`
+	ProposedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=proposed_at,json=proposedAt,proto3" json:"proposed_at,omitempty"`
+	// Con APPLIED: cuando el manager recibio el aviso del navegador.
+	AppliedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=applied_at,json=appliedAt,proto3" json:"applied_at,omitempty"`
+	// Con APPLIED, si x-api devolvio revision_number: la revision que contiene
+	// el cambio. Enlaza la conversacion con la revision.
+	RevisionNumber *uint64 `protobuf:"varint,10,opt,name=revision_number,json=revisionNumber,proto3,oneof" json:"revision_number,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ProposedChange) Reset() {
+	*x = ProposedChange{}
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProposedChange) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProposedChange) ProtoMessage() {}
+
+func (x *ProposedChange) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProposedChange.ProtoReflect.Descriptor instead.
+func (*ProposedChange) Descriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ProposedChange) GetChangeId() string {
+	if x != nil {
+		return x.ChangeId
+	}
+	return ""
+}
+
+func (x *ProposedChange) GetOperation() string {
+	if x != nil {
+		return x.Operation
+	}
+	return ""
+}
+
+func (x *ProposedChange) GetKind() v1.OperationKind {
+	if x != nil {
+		return x.Kind
+	}
+	return v1.OperationKind(0)
+}
+
+func (x *ProposedChange) GetRequestJson() string {
+	if x != nil {
+		return x.RequestJson
+	}
+	return ""
+}
+
+func (x *ProposedChange) GetSummary() string {
+	if x != nil {
+		return x.Summary
+	}
+	return ""
+}
+
+func (x *ProposedChange) GetStatus() ProposedChangeStatus {
+	if x != nil {
+		return x.Status
+	}
+	return ProposedChangeStatus_PROPOSED_CHANGE_STATUS_UNSPECIFIED
+}
+
+func (x *ProposedChange) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+func (x *ProposedChange) GetProposedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ProposedAt
+	}
+	return nil
+}
+
+func (x *ProposedChange) GetAppliedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.AppliedAt
+	}
+	return nil
+}
+
+func (x *ProposedChange) GetRevisionNumber() uint64 {
+	if x != nil && x.RevisionNumber != nil {
+		return *x.RevisionNumber
+	}
+	return 0
+}
+
+type ProposedChangeOutcome struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	ChangeId string                 `protobuf:"bytes,1,opt,name=change_id,json=changeId,proto3" json:"change_id,omitempty"`
+	// APPLIED, FAILED o DISCARDED; otro valor, InvalidArgument.
+	Status ProposedChangeStatus `protobuf:"varint,2,opt,name=status,proto3,enum=n0x.assistant.v1.ProposedChangeStatus" json:"status,omitempty"`
+	// Obligatorio con FAILED y vacio en otro caso; formato de ProposedChange.error.
+	Error string `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
+	// Solo con APPLIED; con otro estado, InvalidArgument. Repetir APPLIED con
+	// otro revision_number, FailedPrecondition.
+	RevisionNumber *uint64 `protobuf:"varint,4,opt,name=revision_number,json=revisionNumber,proto3,oneof" json:"revision_number,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ProposedChangeOutcome) Reset() {
+	*x = ProposedChangeOutcome{}
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProposedChangeOutcome) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProposedChangeOutcome) ProtoMessage() {}
+
+func (x *ProposedChangeOutcome) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProposedChangeOutcome.ProtoReflect.Descriptor instead.
+func (*ProposedChangeOutcome) Descriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ProposedChangeOutcome) GetChangeId() string {
+	if x != nil {
+		return x.ChangeId
+	}
+	return ""
+}
+
+func (x *ProposedChangeOutcome) GetStatus() ProposedChangeStatus {
+	if x != nil {
+		return x.Status
+	}
+	return ProposedChangeStatus_PROPOSED_CHANGE_STATUS_UNSPECIFIED
+}
+
+func (x *ProposedChangeOutcome) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+func (x *ProposedChangeOutcome) GetRevisionNumber() uint64 {
+	if x != nil && x.RevisionNumber != nil {
+		return *x.RevisionNumber
+	}
+	return 0
+}
+
 type CreateConversationRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AccountId     string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
@@ -501,7 +1051,7 @@ type CreateConversationRequest struct {
 
 func (x *CreateConversationRequest) Reset() {
 	*x = CreateConversationRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[6]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -513,7 +1063,7 @@ func (x *CreateConversationRequest) String() string {
 func (*CreateConversationRequest) ProtoMessage() {}
 
 func (x *CreateConversationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[6]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -526,7 +1076,7 @@ func (x *CreateConversationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateConversationRequest.ProtoReflect.Descriptor instead.
 func (*CreateConversationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{6}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *CreateConversationRequest) GetAccountId() string {
@@ -566,7 +1116,7 @@ type CreateConversationResponse struct {
 
 func (x *CreateConversationResponse) Reset() {
 	*x = CreateConversationResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[7]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -578,7 +1128,7 @@ func (x *CreateConversationResponse) String() string {
 func (*CreateConversationResponse) ProtoMessage() {}
 
 func (x *CreateConversationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[7]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -591,7 +1141,7 @@ func (x *CreateConversationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateConversationResponse.ProtoReflect.Descriptor instead.
 func (*CreateConversationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{7}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *CreateConversationResponse) GetConversation() *Conversation {
@@ -611,7 +1161,7 @@ type ListConversationsRequest struct {
 
 func (x *ListConversationsRequest) Reset() {
 	*x = ListConversationsRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[8]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -623,7 +1173,7 @@ func (x *ListConversationsRequest) String() string {
 func (*ListConversationsRequest) ProtoMessage() {}
 
 func (x *ListConversationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[8]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -636,7 +1186,7 @@ func (x *ListConversationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListConversationsRequest.ProtoReflect.Descriptor instead.
 func (*ListConversationsRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{8}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListConversationsRequest) GetAccountId() string {
@@ -662,7 +1212,7 @@ type ListConversationsResponse struct {
 
 func (x *ListConversationsResponse) Reset() {
 	*x = ListConversationsResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[9]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -674,7 +1224,7 @@ func (x *ListConversationsResponse) String() string {
 func (*ListConversationsResponse) ProtoMessage() {}
 
 func (x *ListConversationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[9]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -687,7 +1237,7 @@ func (x *ListConversationsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListConversationsResponse.ProtoReflect.Descriptor instead.
 func (*ListConversationsResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{9}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListConversationsResponse) GetConversations() []*Conversation {
@@ -706,7 +1256,7 @@ type GetConversationRequest struct {
 
 func (x *GetConversationRequest) Reset() {
 	*x = GetConversationRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[10]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -718,7 +1268,7 @@ func (x *GetConversationRequest) String() string {
 func (*GetConversationRequest) ProtoMessage() {}
 
 func (x *GetConversationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[10]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -731,7 +1281,7 @@ func (x *GetConversationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetConversationRequest.ProtoReflect.Descriptor instead.
 func (*GetConversationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{10}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetConversationRequest) GetConversationId() string {
@@ -750,7 +1300,7 @@ type GetConversationResponse struct {
 
 func (x *GetConversationResponse) Reset() {
 	*x = GetConversationResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[11]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -762,7 +1312,7 @@ func (x *GetConversationResponse) String() string {
 func (*GetConversationResponse) ProtoMessage() {}
 
 func (x *GetConversationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[11]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -775,7 +1325,7 @@ func (x *GetConversationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetConversationResponse.ProtoReflect.Descriptor instead.
 func (*GetConversationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{11}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetConversationResponse) GetConversation() *Conversation {
@@ -799,7 +1349,7 @@ type SendMessageRequest struct {
 
 func (x *SendMessageRequest) Reset() {
 	*x = SendMessageRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[12]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -811,7 +1361,7 @@ func (x *SendMessageRequest) String() string {
 func (*SendMessageRequest) ProtoMessage() {}
 
 func (x *SendMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[12]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -824,7 +1374,7 @@ func (x *SendMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendMessageRequest.ProtoReflect.Descriptor instead.
 func (*SendMessageRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{12}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *SendMessageRequest) GetConversationId() string {
@@ -871,7 +1421,7 @@ type SendMessageResponse struct {
 
 func (x *SendMessageResponse) Reset() {
 	*x = SendMessageResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[13]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -883,7 +1433,7 @@ func (x *SendMessageResponse) String() string {
 func (*SendMessageResponse) ProtoMessage() {}
 
 func (x *SendMessageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[13]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -896,7 +1446,7 @@ func (x *SendMessageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendMessageResponse.ProtoReflect.Descriptor instead.
 func (*SendMessageResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{13}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *SendMessageResponse) GetConversation() *Conversation {
@@ -916,7 +1466,7 @@ type DeleteConversationRequest struct {
 
 func (x *DeleteConversationRequest) Reset() {
 	*x = DeleteConversationRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[14]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -928,7 +1478,7 @@ func (x *DeleteConversationRequest) String() string {
 func (*DeleteConversationRequest) ProtoMessage() {}
 
 func (x *DeleteConversationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[14]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -941,7 +1491,7 @@ func (x *DeleteConversationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteConversationRequest.ProtoReflect.Descriptor instead.
 func (*DeleteConversationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{14}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *DeleteConversationRequest) GetConversationId() string {
@@ -966,7 +1516,7 @@ type DeleteConversationResponse struct {
 
 func (x *DeleteConversationResponse) Reset() {
 	*x = DeleteConversationResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[15]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -978,7 +1528,7 @@ func (x *DeleteConversationResponse) String() string {
 func (*DeleteConversationResponse) ProtoMessage() {}
 
 func (x *DeleteConversationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[15]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -991,7 +1541,7 @@ func (x *DeleteConversationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteConversationResponse.ProtoReflect.Descriptor instead.
 func (*DeleteConversationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{15}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{18}
 }
 
 type DismissProposalRequest struct {
@@ -1006,7 +1556,7 @@ type DismissProposalRequest struct {
 
 func (x *DismissProposalRequest) Reset() {
 	*x = DismissProposalRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[16]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1018,7 +1568,7 @@ func (x *DismissProposalRequest) String() string {
 func (*DismissProposalRequest) ProtoMessage() {}
 
 func (x *DismissProposalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[16]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1031,7 +1581,7 @@ func (x *DismissProposalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DismissProposalRequest.ProtoReflect.Descriptor instead.
 func (*DismissProposalRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{16}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *DismissProposalRequest) GetConversationId() string {
@@ -1071,7 +1621,7 @@ type DismissProposalResponse struct {
 
 func (x *DismissProposalResponse) Reset() {
 	*x = DismissProposalResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[17]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1083,7 +1633,7 @@ func (x *DismissProposalResponse) String() string {
 func (*DismissProposalResponse) ProtoMessage() {}
 
 func (x *DismissProposalResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[17]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1096,10 +1646,119 @@ func (x *DismissProposalResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DismissProposalResponse.ProtoReflect.Descriptor instead.
 func (*DismissProposalResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{17}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *DismissProposalResponse) GetConversation() *Conversation {
+	if x != nil {
+		return x.Conversation
+	}
+	return nil
+}
+
+type ReportProposalOutcomeRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ConversationId string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	// Idempotencia: repetir request_id con el mismo contenido devuelve la
+	// conversacion sin cambios; con otro contenido, Aborted, el mismo conflicto
+	// que SendMessage. Sin expected_version: se admite con un turno en curso y
+	// sube Conversation.version; el turno siguiente ve el resultado.
+	RequestId string `protobuf:"bytes,2,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	// De 1 a 60 elementos.
+	Outcomes      []*ProposedChangeOutcome `protobuf:"bytes,3,rep,name=outcomes,proto3" json:"outcomes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReportProposalOutcomeRequest) Reset() {
+	*x = ReportProposalOutcomeRequest{}
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReportProposalOutcomeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReportProposalOutcomeRequest) ProtoMessage() {}
+
+func (x *ReportProposalOutcomeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReportProposalOutcomeRequest.ProtoReflect.Descriptor instead.
+func (*ReportProposalOutcomeRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ReportProposalOutcomeRequest) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
+}
+
+func (x *ReportProposalOutcomeRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *ReportProposalOutcomeRequest) GetOutcomes() []*ProposedChangeOutcome {
+	if x != nil {
+		return x.Outcomes
+	}
+	return nil
+}
+
+type ReportProposalOutcomeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Conversation  *Conversation          `protobuf:"bytes,1,opt,name=conversation,proto3" json:"conversation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReportProposalOutcomeResponse) Reset() {
+	*x = ReportProposalOutcomeResponse{}
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReportProposalOutcomeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReportProposalOutcomeResponse) ProtoMessage() {}
+
+func (x *ReportProposalOutcomeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReportProposalOutcomeResponse.ProtoReflect.Descriptor instead.
+func (*ReportProposalOutcomeResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *ReportProposalOutcomeResponse) GetConversation() *Conversation {
 	if x != nil {
 		return x.Conversation
 	}
@@ -1110,7 +1769,7 @@ var File_n0x_assistant_v1_assistant_proto protoreflect.FileDescriptor
 
 const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"\n" +
-	" n0x/assistant/v1/assistant.proto\x12\x10n0x.assistant.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb4\x03\n" +
+	" n0x/assistant/v1/assistant.proto\x12\x10n0x.assistant.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cn0x/catalog/v1/catalog.proto\"\xf0\x03\n" +
 	"\fConversation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -1126,7 +1785,8 @@ const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"created_at\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xa0\x01\n" +
+	"updated_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12:\n" +
+	"\achanges\x18\f \x03(\v2 .n0x.assistant.v1.ProposedChangeR\achanges\"\xdc\x01\n" +
 	"\aMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04role\x18\x02 \x01(\tR\x04role\x12\x12\n" +
@@ -1134,11 +1794,13 @@ const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"\x04kind\x18\x04 \x01(\tR\x04kind\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x05 \x01(\tR\trequestId\x12*\n" +
-	"\x02at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\"D\n" +
+	"\x02at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12:\n" +
+	"\bactivity\x18\a \x03(\v2\x1e.n0x.assistant.v1.ToolActivityR\bactivity\"\x80\x01\n" +
 	"\x04Turn\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12\x14\n" +
-	"\x05error\x18\x03 \x01(\tR\x05error\"\xa7\x01\n" +
+	"\x05error\x18\x03 \x01(\tR\x05error\x12:\n" +
+	"\bactivity\x18\x04 \x03(\v2\x1e.n0x.assistant.v1.ToolActivityR\bactivity\"\xa7\x01\n" +
 	"\bProposal\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\brevision\x18\x02 \x01(\tR\brevision\x12\x16\n" +
@@ -1148,11 +1810,45 @@ const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"\x0fProposalCommand\x12\x12\n" +
 	"\x04kind\x18\x01 \x01(\tR\x04kind\x12/\n" +
 	"\x06fields\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x06fields\x12\x18\n" +
-	"\asummary\x18\x03 \x01(\tR\asummary\"i\n" +
+	"\asummary\x18\x03 \x01(\tR\asummary\"\xa7\x01\n" +
 	"\x13ConversationContext\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12!\n" +
 	"\fselected_ids\x18\x02 \x03(\tR\vselectedIds\x12\x12\n" +
-	"\x04view\x18\x03 \x01(\tR\x04view\"\x8c\x01\n" +
+	"\x04view\x18\x03 \x01(\tR\x04view\x12\x1f\n" +
+	"\vobject_type\x18\x04 \x01(\tR\n" +
+	"objectType\x12\x1b\n" +
+	"\tobject_id\x18\x05 \x01(\tR\bobjectId\"\xd7\x02\n" +
+	"\fToolActivity\x123\n" +
+	"\x04tool\x18\x01 \x01(\x0e2\x1f.n0x.assistant.v1.AssistantToolR\x04tool\x12\x18\n" +
+	"\asummary\x18\x02 \x01(\tR\asummary\x12\x1c\n" +
+	"\toperation\x18\x03 \x01(\tR\toperation\x121\n" +
+	"\x04kind\x18\x04 \x01(\x0e2\x1d.n0x.catalog.v1.OperationKindR\x04kind\x127\n" +
+	"\aoutcome\x18\x05 \x01(\x0e2\x1d.n0x.assistant.v1.ToolOutcomeR\aoutcome\x12;\n" +
+	"\voccurred_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"occurredAt\x12\x1b\n" +
+	"\tchange_id\x18\a \x01(\tR\bchangeId\x12\x14\n" +
+	"\x05error\x18\b \x01(\tR\x05error\"\xcb\x03\n" +
+	"\x0eProposedChange\x12\x1b\n" +
+	"\tchange_id\x18\x01 \x01(\tR\bchangeId\x12\x1c\n" +
+	"\toperation\x18\x02 \x01(\tR\toperation\x121\n" +
+	"\x04kind\x18\x03 \x01(\x0e2\x1d.n0x.catalog.v1.OperationKindR\x04kind\x12!\n" +
+	"\frequest_json\x18\x04 \x01(\tR\vrequestJson\x12\x18\n" +
+	"\asummary\x18\x05 \x01(\tR\asummary\x12>\n" +
+	"\x06status\x18\x06 \x01(\x0e2&.n0x.assistant.v1.ProposedChangeStatusR\x06status\x12\x14\n" +
+	"\x05error\x18\a \x01(\tR\x05error\x12;\n" +
+	"\vproposed_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"proposedAt\x129\n" +
+	"\n" +
+	"applied_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tappliedAt\x12,\n" +
+	"\x0frevision_number\x18\n" +
+	" \x01(\x04H\x00R\x0erevisionNumber\x88\x01\x01B\x12\n" +
+	"\x10_revision_number\"\xcc\x01\n" +
+	"\x15ProposedChangeOutcome\x12\x1b\n" +
+	"\tchange_id\x18\x01 \x01(\tR\bchangeId\x12>\n" +
+	"\x06status\x18\x02 \x01(\x0e2&.n0x.assistant.v1.ProposedChangeStatusR\x06status\x12\x14\n" +
+	"\x05error\x18\x03 \x01(\tR\x05error\x12,\n" +
+	"\x0frevision_number\x18\x04 \x01(\x04H\x00R\x0erevisionNumber\x88\x01\x01B\x12\n" +
+	"\x10_revision_number\"\x8c\x01\n" +
 	"\x19CreateConversationRequest\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
@@ -1193,14 +1889,38 @@ const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"\n" +
 	"request_id\x18\x04 \x01(\tR\trequestId\"]\n" +
 	"\x17DismissProposalResponse\x12B\n" +
-	"\fconversation\x18\x01 \x01(\v2\x1e.n0x.assistant.v1.ConversationR\fconversation2\x8e\x05\n" +
+	"\fconversation\x18\x01 \x01(\v2\x1e.n0x.assistant.v1.ConversationR\fconversation\"\xab\x01\n" +
+	"\x1cReportProposalOutcomeRequest\x12'\n" +
+	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x02 \x01(\tR\trequestId\x12C\n" +
+	"\boutcomes\x18\x03 \x03(\v2'.n0x.assistant.v1.ProposedChangeOutcomeR\boutcomes\"c\n" +
+	"\x1dReportProposalOutcomeResponse\x12B\n" +
+	"\fconversation\x18\x01 \x01(\v2\x1e.n0x.assistant.v1.ConversationR\fconversation*c\n" +
+	"\rAssistantTool\x12\x1e\n" +
+	"\x1aASSISTANT_TOOL_UNSPECIFIED\x10\x00\x12\x19\n" +
+	"\x15ASSISTANT_TOOL_SEARCH\x10\x01\x12\x17\n" +
+	"\x13ASSISTANT_TOOL_CALL\x10\x02*\xa3\x01\n" +
+	"\vToolOutcome\x12\x1c\n" +
+	"\x18TOOL_OUTCOME_UNSPECIFIED\x10\x00\x12\x19\n" +
+	"\x15TOOL_OUTCOME_EXECUTED\x10\x01\x12\x19\n" +
+	"\x15TOOL_OUTCOME_PROPOSED\x10\x02\x12%\n" +
+	"!TOOL_OUTCOME_PENDING_CONFIRMATION\x10\x03\x12\x19\n" +
+	"\x15TOOL_OUTCOME_REJECTED\x10\x04*\xd0\x01\n" +
+	"\x14ProposedChangeStatus\x12&\n" +
+	"\"PROPOSED_CHANGE_STATUS_UNSPECIFIED\x10\x00\x12#\n" +
+	"\x1fPROPOSED_CHANGE_STATUS_PROPOSED\x10\x01\x12\"\n" +
+	"\x1ePROPOSED_CHANGE_STATUS_APPLIED\x10\x02\x12!\n" +
+	"\x1dPROPOSED_CHANGE_STATUS_FAILED\x10\x03\x12$\n" +
+	" PROPOSED_CHANGE_STATUS_DISCARDED\x10\x042\x88\x06\n" +
 	"\x10AssistantService\x12o\n" +
 	"\x12CreateConversation\x12+.n0x.assistant.v1.CreateConversationRequest\x1a,.n0x.assistant.v1.CreateConversationResponse\x12l\n" +
 	"\x11ListConversations\x12*.n0x.assistant.v1.ListConversationsRequest\x1a+.n0x.assistant.v1.ListConversationsResponse\x12f\n" +
 	"\x0fGetConversation\x12(.n0x.assistant.v1.GetConversationRequest\x1a).n0x.assistant.v1.GetConversationResponse\x12Z\n" +
 	"\vSendMessage\x12$.n0x.assistant.v1.SendMessageRequest\x1a%.n0x.assistant.v1.SendMessageResponse\x12f\n" +
 	"\x0fDismissProposal\x12(.n0x.assistant.v1.DismissProposalRequest\x1a).n0x.assistant.v1.DismissProposalResponse\x12o\n" +
-	"\x12DeleteConversation\x12+.n0x.assistant.v1.DeleteConversationRequest\x1a,.n0x.assistant.v1.DeleteConversationResponseB3Z1github.com/n-0x/x-api-go/assistant/v1;assistantv1b\x06proto3"
+	"\x12DeleteConversation\x12+.n0x.assistant.v1.DeleteConversationRequest\x1a,.n0x.assistant.v1.DeleteConversationResponse\x12x\n" +
+	"\x15ReportProposalOutcome\x12..n0x.assistant.v1.ReportProposalOutcomeRequest\x1a/.n0x.assistant.v1.ReportProposalOutcomeResponseB3Z1github.com/n-0x/x-api-go/assistant/v1;assistantv1b\x06proto3"
 
 var (
 	file_n0x_assistant_v1_assistant_proto_rawDescOnce sync.Once
@@ -1214,61 +1934,87 @@ func file_n0x_assistant_v1_assistant_proto_rawDescGZIP() []byte {
 	return file_n0x_assistant_v1_assistant_proto_rawDescData
 }
 
-var file_n0x_assistant_v1_assistant_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_n0x_assistant_v1_assistant_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_n0x_assistant_v1_assistant_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_n0x_assistant_v1_assistant_proto_goTypes = []any{
-	(*Conversation)(nil),               // 0: n0x.assistant.v1.Conversation
-	(*Message)(nil),                    // 1: n0x.assistant.v1.Message
-	(*Turn)(nil),                       // 2: n0x.assistant.v1.Turn
-	(*Proposal)(nil),                   // 3: n0x.assistant.v1.Proposal
-	(*ProposalCommand)(nil),            // 4: n0x.assistant.v1.ProposalCommand
-	(*ConversationContext)(nil),        // 5: n0x.assistant.v1.ConversationContext
-	(*CreateConversationRequest)(nil),  // 6: n0x.assistant.v1.CreateConversationRequest
-	(*CreateConversationResponse)(nil), // 7: n0x.assistant.v1.CreateConversationResponse
-	(*ListConversationsRequest)(nil),   // 8: n0x.assistant.v1.ListConversationsRequest
-	(*ListConversationsResponse)(nil),  // 9: n0x.assistant.v1.ListConversationsResponse
-	(*GetConversationRequest)(nil),     // 10: n0x.assistant.v1.GetConversationRequest
-	(*GetConversationResponse)(nil),    // 11: n0x.assistant.v1.GetConversationResponse
-	(*SendMessageRequest)(nil),         // 12: n0x.assistant.v1.SendMessageRequest
-	(*SendMessageResponse)(nil),        // 13: n0x.assistant.v1.SendMessageResponse
-	(*DeleteConversationRequest)(nil),  // 14: n0x.assistant.v1.DeleteConversationRequest
-	(*DeleteConversationResponse)(nil), // 15: n0x.assistant.v1.DeleteConversationResponse
-	(*DismissProposalRequest)(nil),     // 16: n0x.assistant.v1.DismissProposalRequest
-	(*DismissProposalResponse)(nil),    // 17: n0x.assistant.v1.DismissProposalResponse
-	(*timestamppb.Timestamp)(nil),      // 18: google.protobuf.Timestamp
-	(*structpb.Struct)(nil),            // 19: google.protobuf.Struct
+	(AssistantTool)(0),                    // 0: n0x.assistant.v1.AssistantTool
+	(ToolOutcome)(0),                      // 1: n0x.assistant.v1.ToolOutcome
+	(ProposedChangeStatus)(0),             // 2: n0x.assistant.v1.ProposedChangeStatus
+	(*Conversation)(nil),                  // 3: n0x.assistant.v1.Conversation
+	(*Message)(nil),                       // 4: n0x.assistant.v1.Message
+	(*Turn)(nil),                          // 5: n0x.assistant.v1.Turn
+	(*Proposal)(nil),                      // 6: n0x.assistant.v1.Proposal
+	(*ProposalCommand)(nil),               // 7: n0x.assistant.v1.ProposalCommand
+	(*ConversationContext)(nil),           // 8: n0x.assistant.v1.ConversationContext
+	(*ToolActivity)(nil),                  // 9: n0x.assistant.v1.ToolActivity
+	(*ProposedChange)(nil),                // 10: n0x.assistant.v1.ProposedChange
+	(*ProposedChangeOutcome)(nil),         // 11: n0x.assistant.v1.ProposedChangeOutcome
+	(*CreateConversationRequest)(nil),     // 12: n0x.assistant.v1.CreateConversationRequest
+	(*CreateConversationResponse)(nil),    // 13: n0x.assistant.v1.CreateConversationResponse
+	(*ListConversationsRequest)(nil),      // 14: n0x.assistant.v1.ListConversationsRequest
+	(*ListConversationsResponse)(nil),     // 15: n0x.assistant.v1.ListConversationsResponse
+	(*GetConversationRequest)(nil),        // 16: n0x.assistant.v1.GetConversationRequest
+	(*GetConversationResponse)(nil),       // 17: n0x.assistant.v1.GetConversationResponse
+	(*SendMessageRequest)(nil),            // 18: n0x.assistant.v1.SendMessageRequest
+	(*SendMessageResponse)(nil),           // 19: n0x.assistant.v1.SendMessageResponse
+	(*DeleteConversationRequest)(nil),     // 20: n0x.assistant.v1.DeleteConversationRequest
+	(*DeleteConversationResponse)(nil),    // 21: n0x.assistant.v1.DeleteConversationResponse
+	(*DismissProposalRequest)(nil),        // 22: n0x.assistant.v1.DismissProposalRequest
+	(*DismissProposalResponse)(nil),       // 23: n0x.assistant.v1.DismissProposalResponse
+	(*ReportProposalOutcomeRequest)(nil),  // 24: n0x.assistant.v1.ReportProposalOutcomeRequest
+	(*ReportProposalOutcomeResponse)(nil), // 25: n0x.assistant.v1.ReportProposalOutcomeResponse
+	(*timestamppb.Timestamp)(nil),         // 26: google.protobuf.Timestamp
+	(*structpb.Struct)(nil),               // 27: google.protobuf.Struct
+	(v1.OperationKind)(0),                 // 28: n0x.catalog.v1.OperationKind
 }
 var file_n0x_assistant_v1_assistant_proto_depIdxs = []int32{
-	1,  // 0: n0x.assistant.v1.Conversation.messages:type_name -> n0x.assistant.v1.Message
-	2,  // 1: n0x.assistant.v1.Conversation.turn:type_name -> n0x.assistant.v1.Turn
-	3,  // 2: n0x.assistant.v1.Conversation.proposal:type_name -> n0x.assistant.v1.Proposal
-	18, // 3: n0x.assistant.v1.Conversation.created_at:type_name -> google.protobuf.Timestamp
-	18, // 4: n0x.assistant.v1.Conversation.updated_at:type_name -> google.protobuf.Timestamp
-	18, // 5: n0x.assistant.v1.Message.at:type_name -> google.protobuf.Timestamp
-	4,  // 6: n0x.assistant.v1.Proposal.commands:type_name -> n0x.assistant.v1.ProposalCommand
-	19, // 7: n0x.assistant.v1.ProposalCommand.fields:type_name -> google.protobuf.Struct
-	0,  // 8: n0x.assistant.v1.CreateConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	0,  // 9: n0x.assistant.v1.ListConversationsResponse.conversations:type_name -> n0x.assistant.v1.Conversation
-	0,  // 10: n0x.assistant.v1.GetConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	5,  // 11: n0x.assistant.v1.SendMessageRequest.context:type_name -> n0x.assistant.v1.ConversationContext
-	0,  // 12: n0x.assistant.v1.SendMessageResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	0,  // 13: n0x.assistant.v1.DismissProposalResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	6,  // 14: n0x.assistant.v1.AssistantService.CreateConversation:input_type -> n0x.assistant.v1.CreateConversationRequest
-	8,  // 15: n0x.assistant.v1.AssistantService.ListConversations:input_type -> n0x.assistant.v1.ListConversationsRequest
-	10, // 16: n0x.assistant.v1.AssistantService.GetConversation:input_type -> n0x.assistant.v1.GetConversationRequest
-	12, // 17: n0x.assistant.v1.AssistantService.SendMessage:input_type -> n0x.assistant.v1.SendMessageRequest
-	16, // 18: n0x.assistant.v1.AssistantService.DismissProposal:input_type -> n0x.assistant.v1.DismissProposalRequest
-	14, // 19: n0x.assistant.v1.AssistantService.DeleteConversation:input_type -> n0x.assistant.v1.DeleteConversationRequest
-	7,  // 20: n0x.assistant.v1.AssistantService.CreateConversation:output_type -> n0x.assistant.v1.CreateConversationResponse
-	9,  // 21: n0x.assistant.v1.AssistantService.ListConversations:output_type -> n0x.assistant.v1.ListConversationsResponse
-	11, // 22: n0x.assistant.v1.AssistantService.GetConversation:output_type -> n0x.assistant.v1.GetConversationResponse
-	13, // 23: n0x.assistant.v1.AssistantService.SendMessage:output_type -> n0x.assistant.v1.SendMessageResponse
-	17, // 24: n0x.assistant.v1.AssistantService.DismissProposal:output_type -> n0x.assistant.v1.DismissProposalResponse
-	15, // 25: n0x.assistant.v1.AssistantService.DeleteConversation:output_type -> n0x.assistant.v1.DeleteConversationResponse
-	20, // [20:26] is the sub-list for method output_type
-	14, // [14:20] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	4,  // 0: n0x.assistant.v1.Conversation.messages:type_name -> n0x.assistant.v1.Message
+	5,  // 1: n0x.assistant.v1.Conversation.turn:type_name -> n0x.assistant.v1.Turn
+	6,  // 2: n0x.assistant.v1.Conversation.proposal:type_name -> n0x.assistant.v1.Proposal
+	26, // 3: n0x.assistant.v1.Conversation.created_at:type_name -> google.protobuf.Timestamp
+	26, // 4: n0x.assistant.v1.Conversation.updated_at:type_name -> google.protobuf.Timestamp
+	10, // 5: n0x.assistant.v1.Conversation.changes:type_name -> n0x.assistant.v1.ProposedChange
+	26, // 6: n0x.assistant.v1.Message.at:type_name -> google.protobuf.Timestamp
+	9,  // 7: n0x.assistant.v1.Message.activity:type_name -> n0x.assistant.v1.ToolActivity
+	9,  // 8: n0x.assistant.v1.Turn.activity:type_name -> n0x.assistant.v1.ToolActivity
+	7,  // 9: n0x.assistant.v1.Proposal.commands:type_name -> n0x.assistant.v1.ProposalCommand
+	27, // 10: n0x.assistant.v1.ProposalCommand.fields:type_name -> google.protobuf.Struct
+	0,  // 11: n0x.assistant.v1.ToolActivity.tool:type_name -> n0x.assistant.v1.AssistantTool
+	28, // 12: n0x.assistant.v1.ToolActivity.kind:type_name -> n0x.catalog.v1.OperationKind
+	1,  // 13: n0x.assistant.v1.ToolActivity.outcome:type_name -> n0x.assistant.v1.ToolOutcome
+	26, // 14: n0x.assistant.v1.ToolActivity.occurred_at:type_name -> google.protobuf.Timestamp
+	28, // 15: n0x.assistant.v1.ProposedChange.kind:type_name -> n0x.catalog.v1.OperationKind
+	2,  // 16: n0x.assistant.v1.ProposedChange.status:type_name -> n0x.assistant.v1.ProposedChangeStatus
+	26, // 17: n0x.assistant.v1.ProposedChange.proposed_at:type_name -> google.protobuf.Timestamp
+	26, // 18: n0x.assistant.v1.ProposedChange.applied_at:type_name -> google.protobuf.Timestamp
+	2,  // 19: n0x.assistant.v1.ProposedChangeOutcome.status:type_name -> n0x.assistant.v1.ProposedChangeStatus
+	3,  // 20: n0x.assistant.v1.CreateConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	3,  // 21: n0x.assistant.v1.ListConversationsResponse.conversations:type_name -> n0x.assistant.v1.Conversation
+	3,  // 22: n0x.assistant.v1.GetConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	8,  // 23: n0x.assistant.v1.SendMessageRequest.context:type_name -> n0x.assistant.v1.ConversationContext
+	3,  // 24: n0x.assistant.v1.SendMessageResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	3,  // 25: n0x.assistant.v1.DismissProposalResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	11, // 26: n0x.assistant.v1.ReportProposalOutcomeRequest.outcomes:type_name -> n0x.assistant.v1.ProposedChangeOutcome
+	3,  // 27: n0x.assistant.v1.ReportProposalOutcomeResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	12, // 28: n0x.assistant.v1.AssistantService.CreateConversation:input_type -> n0x.assistant.v1.CreateConversationRequest
+	14, // 29: n0x.assistant.v1.AssistantService.ListConversations:input_type -> n0x.assistant.v1.ListConversationsRequest
+	16, // 30: n0x.assistant.v1.AssistantService.GetConversation:input_type -> n0x.assistant.v1.GetConversationRequest
+	18, // 31: n0x.assistant.v1.AssistantService.SendMessage:input_type -> n0x.assistant.v1.SendMessageRequest
+	22, // 32: n0x.assistant.v1.AssistantService.DismissProposal:input_type -> n0x.assistant.v1.DismissProposalRequest
+	20, // 33: n0x.assistant.v1.AssistantService.DeleteConversation:input_type -> n0x.assistant.v1.DeleteConversationRequest
+	24, // 34: n0x.assistant.v1.AssistantService.ReportProposalOutcome:input_type -> n0x.assistant.v1.ReportProposalOutcomeRequest
+	13, // 35: n0x.assistant.v1.AssistantService.CreateConversation:output_type -> n0x.assistant.v1.CreateConversationResponse
+	15, // 36: n0x.assistant.v1.AssistantService.ListConversations:output_type -> n0x.assistant.v1.ListConversationsResponse
+	17, // 37: n0x.assistant.v1.AssistantService.GetConversation:output_type -> n0x.assistant.v1.GetConversationResponse
+	19, // 38: n0x.assistant.v1.AssistantService.SendMessage:output_type -> n0x.assistant.v1.SendMessageResponse
+	23, // 39: n0x.assistant.v1.AssistantService.DismissProposal:output_type -> n0x.assistant.v1.DismissProposalResponse
+	21, // 40: n0x.assistant.v1.AssistantService.DeleteConversation:output_type -> n0x.assistant.v1.DeleteConversationResponse
+	25, // 41: n0x.assistant.v1.AssistantService.ReportProposalOutcome:output_type -> n0x.assistant.v1.ReportProposalOutcomeResponse
+	35, // [35:42] is the sub-list for method output_type
+	28, // [28:35] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_n0x_assistant_v1_assistant_proto_init() }
@@ -1276,18 +2022,21 @@ func file_n0x_assistant_v1_assistant_proto_init() {
 	if File_n0x_assistant_v1_assistant_proto != nil {
 		return
 	}
+	file_n0x_assistant_v1_assistant_proto_msgTypes[7].OneofWrappers = []any{}
+	file_n0x_assistant_v1_assistant_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_assistant_v1_assistant_proto_rawDesc), len(file_n0x_assistant_v1_assistant_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   18,
+			NumEnums:      3,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_n0x_assistant_v1_assistant_proto_goTypes,
 		DependencyIndexes: file_n0x_assistant_v1_assistant_proto_depIdxs,
+		EnumInfos:         file_n0x_assistant_v1_assistant_proto_enumTypes,
 		MessageInfos:      file_n0x_assistant_v1_assistant_proto_msgTypes,
 	}.Build()
 	File_n0x_assistant_v1_assistant_proto = out.File

@@ -7,6 +7,7 @@
 package tasksv1
 
 import (
+	_ "github.com/n-0x/x-api-go/catalog/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -2358,7 +2359,7 @@ var File_n0x_tasks_v1_tasks_proto protoreflect.FileDescriptor
 
 const file_n0x_tasks_v1_tasks_proto_rawDesc = "" +
 	"\n" +
-	"\x18n0x/tasks/v1/tasks.proto\x12\fn0x.tasks.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb1\x01\n" +
+	"\x18n0x/tasks/v1/tasks.proto\x12\fn0x.tasks.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cn0x/catalog/v1/catalog.proto\"\xb1\x01\n" +
 	"\n" +
 	"TaskOrigin\x12\x18\n" +
 	"\aadapter\x18\x01 \x01(\tR\aadapter\x12\x10\n" +
@@ -2597,12 +2598,16 @@ const file_n0x_tasks_v1_tasks_proto_rawDesc = "" +
 	"\tClaimStep\x12\x1e.n0x.tasks.v1.ClaimStepRequest\x1a\x1f.n0x.tasks.v1.ClaimStepResponse\x12L\n" +
 	"\tRenewStep\x12\x1e.n0x.tasks.v1.RenewStepRequest\x1a\x1f.n0x.tasks.v1.RenewStepResponse\x12U\n" +
 	"\fAppendRecord\x12!.n0x.tasks.v1.AppendRecordRequest\x1a\".n0x.tasks.v1.AppendRecordResponse\x12U\n" +
-	"\fCompleteStep\x12!.n0x.tasks.v1.CompleteStepRequest\x1a\".n0x.tasks.v1.CompleteStepResponse2\xd5\x02\n" +
-	"\fTasksService\x12L\n" +
-	"\tListTasks\x12\x1e.n0x.tasks.v1.ListTasksRequest\x1a\x1f.n0x.tasks.v1.ListTasksResponse\x12F\n" +
-	"\aGetTask\x12\x1c.n0x.tasks.v1.GetTaskRequest\x1a\x1d.n0x.tasks.v1.GetTaskResponse\x12R\n" +
-	"\vListRecords\x12 .n0x.tasks.v1.ListRecordsRequest\x1a!.n0x.tasks.v1.ListRecordsResponse\x12[\n" +
-	"\x0eGetTaskMetrics\x12#.n0x.tasks.v1.GetTaskMetricsRequest\x1a$.n0x.tasks.v1.GetTaskMetricsResponseB+Z)github.com/n-0x/x-api-go/tasks/v1;tasksv1b\x06proto3"
+	"\fCompleteStep\x12!.n0x.tasks.v1.CompleteStepRequest\x1a\".n0x.tasks.v1.CompleteStepResponse2\xd7\x05\n" +
+	"\fTasksService\x12\xae\x01\n" +
+	"\tListTasks\x12\x1e.n0x.tasks.v1.ListTasksRequest\x1a\x1f.n0x.tasks.v1.ListTasksResponse\"`\xb2\xe1\x18\\\b\x01\x12\n" +
+	"tasks.read\x1aLList background tasks, such as assignment runs, with their state and result.\x12\x98\x01\n" +
+	"\aGetTask\x12\x1c.n0x.tasks.v1.GetTaskRequest\x1a\x1d.n0x.tasks.v1.GetTaskResponse\"P\xb2\xe1\x18L\b\x01\x12\n" +
+	"tasks.read\x1a<Get one background task with its steps, attempts and output.\x12\x9d\x01\n" +
+	"\vListRecords\x12 .n0x.tasks.v1.ListRecordsRequest\x1a!.n0x.tasks.v1.ListRecordsResponse\"I\xb2\xe1\x18E\b\x01\x12\n" +
+	"tasks.read\x1a5List the trace records written by one step of a task.\x12\xda\x01\n" +
+	"\x0eGetTaskMetrics\x12#.n0x.tasks.v1.GetTaskMetricsRequest\x1a$.n0x.tasks.v1.GetTaskMetricsResponse\"}\xb2\xe1\x18y\b\x01\x12\n" +
+	"tasks.read\x1aiGet counts, durations and model usage of background tasks over up to 30 days, grouped by source or label.B+Z)github.com/n-0x/x-api-go/tasks/v1;tasksv1b\x06proto3"
 
 var (
 	file_n0x_tasks_v1_tasks_proto_rawDescOnce sync.Once

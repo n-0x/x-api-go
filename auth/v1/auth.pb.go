@@ -694,12 +694,21 @@ func (x *DelegatedAccess) GetParentJti() string {
 }
 
 type DelegatedActor struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Kind          string                 `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
-	RoutineId     string                 `protobuf:"bytes,2,opt,name=routine_id,json=routineId,proto3" json:"routine_id,omitempty"`
-	RunId         string                 `protobuf:"bytes,3,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Kind      string                 `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
+	RoutineId string                 `protobuf:"bytes,2,opt,name=routine_id,json=routineId,proto3" json:"routine_id,omitempty"`
+	RunId     string                 `protobuf:"bytes,3,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	// Actor de conversacion del asistente (kind "assistant", el mismo que usan
+	// las rutinas): la conversacion y el turno que pidieron el token. Van
+	// juntos y excluyen routine_id y run_id; un actor lleva una pareja o la
+	// otra, nunca las dos ni ninguna. Con conversation_id, resources solo
+	// admite metodos con (n0x.catalog.v1.operation).kind = OPERATION_KIND_READ
+	// en servicios expuestos; cualquier otro, incluido uno sin la opcion,
+	// devuelve PermissionDenied aunque el techo de permisos lo cubra.
+	ConversationId string `protobuf:"bytes,4,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	TurnId         string `protobuf:"bytes,5,opt,name=turn_id,json=turnId,proto3" json:"turn_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *DelegatedActor) Reset() {
@@ -749,6 +758,20 @@ func (x *DelegatedActor) GetRoutineId() string {
 func (x *DelegatedActor) GetRunId() string {
 	if x != nil {
 		return x.RunId
+	}
+	return ""
+}
+
+func (x *DelegatedActor) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
+}
+
+func (x *DelegatedActor) GetTurnId() string {
+	if x != nil {
+		return x.TurnId
 	}
 	return ""
 }
@@ -2614,12 +2637,14 @@ const file_n0x_auth_v1_auth_proto_rawDesc = "" +
 	"\vpermissions\x18\x0f \x03(\tR\vpermissions\x121\n" +
 	"\x05scope\x18\x10 \x01(\v2\x1b.n0x.auth.v1.DelegatedScopeR\x05scope\x12\x1d\n" +
 	"\n" +
-	"parent_jti\x18\x11 \x01(\tR\tparentJti\"Z\n" +
+	"parent_jti\x18\x11 \x01(\tR\tparentJti\"\x9c\x01\n" +
 	"\x0eDelegatedActor\x12\x12\n" +
 	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x1d\n" +
 	"\n" +
 	"routine_id\x18\x02 \x01(\tR\troutineId\x12\x15\n" +
-	"\x06run_id\x18\x03 \x01(\tR\x05runId\"V\n" +
+	"\x06run_id\x18\x03 \x01(\tR\x05runId\x12'\n" +
+	"\x0fconversation_id\x18\x04 \x01(\tR\x0econversationId\x12\x17\n" +
+	"\aturn_id\x18\x05 \x01(\tR\x06turnId\"V\n" +
 	"\x0eDelegatedScope\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12'\n" +
 	"\x0fincarnation_ids\x18\x02 \x03(\tR\x0eincarnationIds\"n\n" +

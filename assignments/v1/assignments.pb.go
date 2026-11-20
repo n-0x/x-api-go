@@ -7,6 +7,7 @@
 package assignmentsv1
 
 import (
+	_ "github.com/n-0x/x-api-go/catalog/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -4549,7 +4550,7 @@ var File_n0x_assignments_v1_assignments_proto protoreflect.FileDescriptor
 
 const file_n0x_assignments_v1_assignments_proto_rawDesc = "" +
 	"\n" +
-	"$n0x/assignments/v1/assignments.proto\x12\x12n0x.assignments.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x81\x01\n" +
+	"$n0x/assignments/v1/assignments.proto\x12\x12n0x.assignments.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cn0x/catalog/v1/catalog.proto\"\x81\x01\n" +
 	"\x15AssignmentCharterStep\x12\x1d\n" +
 	"\n" +
 	"program_id\x18\x01 \x01(\tR\tprogramId\x12'\n" +
@@ -4995,27 +4996,27 @@ const file_n0x_assignments_v1_assignments_proto_rawDesc = "" +
 	"*ASSIGNMENT_RUN_RESULT_CHANGE_LIMIT_REACHED\x10\x02\x12 \n" +
 	"\x1cASSIGNMENT_RUN_RESULT_FAILED\x10\x03\x12!\n" +
 	"\x1dASSIGNMENT_RUN_RESULT_SKIPPED\x10\x04\x12#\n" +
-	"\x1fASSIGNMENT_RUN_RESULT_CANCELLED\x10\x052\xf0\x12\n" +
-	"\x12AssignmentsService\x12s\n" +
-	"\x12ListCatalogEntries\x12-.n0x.assignments.v1.ListCatalogEntriesRequest\x1a..n0x.assignments.v1.ListCatalogEntriesResponse\x12j\n" +
-	"\x0fGetCatalogEntry\x12*.n0x.assignments.v1.GetCatalogEntryRequest\x1a+.n0x.assignments.v1.GetCatalogEntryResponse\x12s\n" +
-	"\x12ActivateAssignment\x12-.n0x.assignments.v1.ActivateAssignmentRequest\x1a..n0x.assignments.v1.ActivateAssignmentResponse\x12\x82\x01\n" +
-	"\x17ListAssignmentInstances\x122.n0x.assignments.v1.ListAssignmentInstancesRequest\x1a3.n0x.assignments.v1.ListAssignmentInstancesResponse\x12|\n" +
-	"\x15GetAssignmentInstance\x120.n0x.assignments.v1.GetAssignmentInstanceRequest\x1a1.n0x.assignments.v1.GetAssignmentInstanceResponse\x12\x8e\x01\n" +
-	"\x1bConfigureAssignmentInstance\x126.n0x.assignments.v1.ConfigureAssignmentInstanceRequest\x1a7.n0x.assignments.v1.ConfigureAssignmentInstanceResponse\x12\x91\x01\n" +
-	"\x1cDeactivateAssignmentInstance\x127.n0x.assignments.v1.DeactivateAssignmentInstanceRequest\x1a8.n0x.assignments.v1.DeactivateAssignmentInstanceResponse\x12y\n" +
-	"\x14TriggerAssignmentRun\x12/.n0x.assignments.v1.TriggerAssignmentRunRequest\x1a0.n0x.assignments.v1.TriggerAssignmentRunResponse\x12s\n" +
-	"\x12ListAssignmentRuns\x12-.n0x.assignments.v1.ListAssignmentRunsRequest\x1a..n0x.assignments.v1.ListAssignmentRunsResponse\x12m\n" +
-	"\x10GetAssignmentRun\x12+.n0x.assignments.v1.GetAssignmentRunRequest\x1a,.n0x.assignments.v1.GetAssignmentRunResponse\x12y\n" +
-	"\x14GetAssignmentMetrics\x12/.n0x.assignments.v1.GetAssignmentMetricsRequest\x1a0.n0x.assignments.v1.GetAssignmentMetricsResponse\x12\x7f\n" +
-	"\x16RevertAssignmentChange\x121.n0x.assignments.v1.RevertAssignmentChangeRequest\x1a2.n0x.assignments.v1.RevertAssignmentChangeResponse\x12y\n" +
-	"\x14AcceptRecommendation\x12/.n0x.assignments.v1.AcceptRecommendationRequest\x1a0.n0x.assignments.v1.AcceptRecommendationResponse\x12s\n" +
-	"\x12StartAssignmentRun\x12-.n0x.assignments.v1.StartAssignmentRunRequest\x1a..n0x.assignments.v1.StartAssignmentRunResponse\x12y\n" +
-	"\x14AppendAssignmentStep\x12/.n0x.assignments.v1.AppendAssignmentStepRequest\x1a0.n0x.assignments.v1.AppendAssignmentStepResponse\x12\x82\x01\n" +
-	"\x17RecordAssignmentFinding\x122.n0x.assignments.v1.RecordAssignmentFindingRequest\x1a3.n0x.assignments.v1.RecordAssignmentFindingResponse\x12\x97\x01\n" +
-	"\x1eRecordAssignmentRecommendation\x129.n0x.assignments.v1.RecordAssignmentRecommendationRequest\x1a:.n0x.assignments.v1.RecordAssignmentRecommendationResponse\x12\x7f\n" +
-	"\x16RecordAssignmentChange\x121.n0x.assignments.v1.RecordAssignmentChangeRequest\x1a2.n0x.assignments.v1.RecordAssignmentChangeResponse\x12v\n" +
-	"\x13FinishAssignmentRun\x12..n0x.assignments.v1.FinishAssignmentRunRequest\x1a/.n0x.assignments.v1.FinishAssignmentRunResponseB7Z5github.com/n-0x/x-api-go/assignments/v1;assignmentsv1b\x06proto3"
+	"\x1fASSIGNMENT_RUN_RESULT_CANCELLED\x10\x052\xd8\x1c\n" +
+	"\x12AssignmentsService\x12\xe3\x01\n" +
+	"\x12ListCatalogEntries\x12-.n0x.assignments.v1.ListCatalogEntriesRequest\x1a..n0x.assignments.v1.ListCatalogEntriesResponse\"n\xb2\xe1\x18j\b\x01\x12\x10assignments.read\x1aTList the assignments that can be activated in the tenant, such as the tenant review.\x12\xd9\x01\n" +
+	"\x0fGetCatalogEntry\x12*.n0x.assignments.v1.GetCatalogEntryRequest\x1a+.n0x.assignments.v1.GetCatalogEntryResponse\"m\xb2\xe1\x18i\b\x01\x12\x10assignments.read\x1aSGet one catalog assignment with what it does, its triggers and the access it needs.\x12\x83\x02\n" +
+	"\x12ActivateAssignment\x12-.n0x.assignments.v1.ActivateAssignmentRequest\x1a..n0x.assignments.v1.ActivateAssignmentResponse\"\x8d\x01\xb2\xe1\x18\x88\x01\b\x02\x12\x11assignments.write\x1aqActivate a catalog assignment in the tenant with its triggers and change limit; this creates its service account.\x12\xd8\x01\n" +
+	"\x17ListAssignmentInstances\x122.n0x.assignments.v1.ListAssignmentInstancesRequest\x1a3.n0x.assignments.v1.ListAssignmentInstancesResponse\"T\xb2\xe1\x18P\b\x01\x12\x10assignments.read\x1a:List the assignments active in the tenant and their state.\x12\xe9\x01\n" +
+	"\x15GetAssignmentInstance\x120.n0x.assignments.v1.GetAssignmentInstanceRequest\x1a1.n0x.assignments.v1.GetAssignmentInstanceResponse\"k\xb2\xe1\x18g\b\x01\x12\x10assignments.read\x1aQGet one active assignment with its triggers, change limit and responsible person.\x12\xfb\x01\n" +
+	"\x1bConfigureAssignmentInstance\x126.n0x.assignments.v1.ConfigureAssignmentInstanceRequest\x1a7.n0x.assignments.v1.ConfigureAssignmentInstanceResponse\"k\xb2\xe1\x18g\b\x02\x12\x11assignments.write\x1aPChange the triggers, change limit or responsible person of an active assignment.\x12\xf3\x01\n" +
+	"\x1cDeactivateAssignmentInstance\x127.n0x.assignments.v1.DeactivateAssignmentInstanceRequest\x1a8.n0x.assignments.v1.DeactivateAssignmentInstanceResponse\"`\xb2\xe1\x18\\\b\x02\x12\x11assignments.write\x1aEDeactivate an assignment and its service account so it stops running.\x12\xbe\x01\n" +
+	"\x14TriggerAssignmentRun\x12/.n0x.assignments.v1.TriggerAssignmentRunRequest\x1a0.n0x.assignments.v1.TriggerAssignmentRunResponse\"C\xb2\xe1\x18?\b\x03\x12\x11assignments.write\x1a(Start a run of an active assignment now.\x12\xe5\x01\n" +
+	"\x12ListAssignmentRuns\x12-.n0x.assignments.v1.ListAssignmentRunsRequest\x1a..n0x.assignments.v1.ListAssignmentRunsResponse\"p\xb2\xe1\x18l\b\x01\x12\x10assignments.read\x1aVList the runs of an assignment with their result, filtered by time, result or charter.\x12\xcd\x01\n" +
+	"\x10GetAssignmentRun\x12+.n0x.assignments.v1.GetAssignmentRunRequest\x1a,.n0x.assignments.v1.GetAssignmentRunResponse\"^\xb2\xe1\x18Z\b\x01\x12\x10assignments.read\x1aDGet one assignment run with its steps, findings and recommendations.\x12\xd7\x01\n" +
+	"\x14GetAssignmentMetrics\x12/.n0x.assignments.v1.GetAssignmentMetricsRequest\x1a0.n0x.assignments.v1.GetAssignmentMetricsResponse\"\\\xb2\xe1\x18X\b\x01\x12\x10assignments.read\x1aBGet counts of the changes an assignment applied over a time range.\x12\x9a\x01\n" +
+	"\x16RevertAssignmentChange\x121.n0x.assignments.v1.RevertAssignmentChangeRequest\x1a2.n0x.assignments.v1.RevertAssignmentChangeResponse\"\x19\xb2\xe1\x18\x15\b\x04\x12\x11assignments.write\x12\x94\x01\n" +
+	"\x14AcceptRecommendation\x12/.n0x.assignments.v1.AcceptRecommendationRequest\x1a0.n0x.assignments.v1.AcceptRecommendationResponse\"\x19\xb2\xe1\x18\x15\b\x04\x12\x11assignments.write\x12{\n" +
+	"\x12StartAssignmentRun\x12-.n0x.assignments.v1.StartAssignmentRunRequest\x1a..n0x.assignments.v1.StartAssignmentRunResponse\"\x06\xb2\xe1\x18\x02\b\x05\x12\x81\x01\n" +
+	"\x14AppendAssignmentStep\x12/.n0x.assignments.v1.AppendAssignmentStepRequest\x1a0.n0x.assignments.v1.AppendAssignmentStepResponse\"\x06\xb2\xe1\x18\x02\b\x05\x12\x8a\x01\n" +
+	"\x17RecordAssignmentFinding\x122.n0x.assignments.v1.RecordAssignmentFindingRequest\x1a3.n0x.assignments.v1.RecordAssignmentFindingResponse\"\x06\xb2\xe1\x18\x02\b\x05\x12\x9f\x01\n" +
+	"\x1eRecordAssignmentRecommendation\x129.n0x.assignments.v1.RecordAssignmentRecommendationRequest\x1a:.n0x.assignments.v1.RecordAssignmentRecommendationResponse\"\x06\xb2\xe1\x18\x02\b\x05\x12\x87\x01\n" +
+	"\x16RecordAssignmentChange\x121.n0x.assignments.v1.RecordAssignmentChangeRequest\x1a2.n0x.assignments.v1.RecordAssignmentChangeResponse\"\x06\xb2\xe1\x18\x02\b\x05\x12~\n" +
+	"\x13FinishAssignmentRun\x12..n0x.assignments.v1.FinishAssignmentRunRequest\x1a/.n0x.assignments.v1.FinishAssignmentRunResponse\"\x06\xb2\xe1\x18\x02\b\x05B7Z5github.com/n-0x/x-api-go/assignments/v1;assignmentsv1b\x06proto3"
 
 var (
 	file_n0x_assignments_v1_assignments_proto_rawDescOnce sync.Once

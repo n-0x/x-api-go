@@ -7,6 +7,7 @@
 package authorityv1
 
 import (
+	_ "github.com/n-0x/x-api-go/catalog/v1"
 	v1 "github.com/n-0x/x-api-go/control/v1"
 	v11 "github.com/n-0x/x-api-go/signed/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -5455,7 +5456,7 @@ var File_n0x_authority_v1_authority_proto protoreflect.FileDescriptor
 
 const file_n0x_authority_v1_authority_proto_rawDesc = "" +
 	"\n" +
-	" n0x/authority/v1/authority.proto\x12\x10n0x.authority.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cn0x/control/v1/control.proto\x1a\x1an0x/signed/v1/signed.proto\"f\n" +
+	" n0x/authority/v1/authority.proto\x12\x10n0x.authority.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cn0x/catalog/v1/catalog.proto\x1a\x1cn0x/control/v1/control.proto\x1a\x1an0x/signed/v1/signed.proto\"f\n" +
 	"\x05Scope\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\x1d\n" +
 	"\n" +
@@ -5938,15 +5939,19 @@ const file_n0x_authority_v1_authority_proto_rawDesc = "" +
 	"\x05scope\x18\x03 \x01(\v2\x17.n0x.authority.v1.ScopeR\x05scope\x12%\n" +
 	"\x0eincarnation_id\x18\x04 \x01(\tR\rincarnationId\"n\n" +
 	"!CreateAdminEnrollmentCodeResponse\x12I\n" +
-	"\x0fenrollment_code\x18\x01 \x01(\v2 .n0x.authority.v1.EnrollmentCodeR\x0eenrollmentCode2\xaa\x05\n" +
-	"\x0fResourceService\x12c\n" +
-	"\x0eExecuteCommand\x12'.n0x.authority.v1.ExecuteCommandRequest\x1a(.n0x.authority.v1.ExecuteCommandResponse\x12Q\n" +
-	"\bGetState\x12!.n0x.authority.v1.GetStateRequest\x1a\".n0x.authority.v1.GetStateResponse\x12Q\n" +
-	"\bGetScope\x12!.n0x.authority.v1.GetScopeRequest\x1a\".n0x.authority.v1.GetScopeResponse\x12T\n" +
-	"\tListNodes\x12\".n0x.authority.v1.ListNodesRequest\x1a#.n0x.authority.v1.ListNodesResponse\x12]\n" +
-	"\fGetOperation\x12%.n0x.authority.v1.GetOperationRequest\x1a&.n0x.authority.v1.GetOperationResponse\x12`\n" +
-	"\rGetRetirement\x12&.n0x.authority.v1.GetRetirementRequest\x1a'.n0x.authority.v1.GetRetirementResponse\x12u\n" +
-	"\x14CreateEnrollmentCode\x12-.n0x.authority.v1.CreateEnrollmentCodeRequest\x1a..n0x.authority.v1.CreateEnrollmentCodeResponse2\x97\x03\n" +
+	"\x0fenrollment_code\x18\x01 \x01(\v2 .n0x.authority.v1.EnrollmentCodeR\x0eenrollmentCode2\x94\t\n" +
+	"\x0fResourceService\x12k\n" +
+	"\x0eExecuteCommand\x12'.n0x.authority.v1.ExecuteCommandRequest\x1a(.n0x.authority.v1.ExecuteCommandResponse\"\x06\xb2\xe1\x18\x02\b\x05\x12\xc2\x01\n" +
+	"\bGetState\x12!.n0x.authority.v1.GetStateRequest\x1a\".n0x.authority.v1.GetStateResponse\"o\xb2\xe1\x18k\b\x01\x12\n" +
+	"state.read\x1a[Get the full state of a network: nodes with telemetry, recent operations and applied rules.\x12\x9d\x01\n" +
+	"\bGetScope\x12!.n0x.authority.v1.GetScopeRequest\x1a\".n0x.authority.v1.GetScopeResponse\"J\xb2\xe1\x18F\b\x01\x12\ftenants.read\x1a4Get the current configuration revision of a network.\x12\xb3\x01\n" +
+	"\tListNodes\x12\".n0x.authority.v1.ListNodesRequest\x1a#.n0x.authority.v1.ListNodesResponse\"]\xb2\xe1\x18Y\b\x01\x12\n" +
+	"nodes.read\x1aIList the nodes of a network with their phase and whether they are online.\x12\xcb\x01\n" +
+	"\fGetOperation\x12%.n0x.authority.v1.GetOperationRequest\x1a&.n0x.authority.v1.GetOperationResponse\"l\xb2\xe1\x18h\b\x01\x12\n" +
+	"state.read\x1aXGet the progress of a node operation, such as creation or retirement, by its request id.\x12\x9c\x01\n" +
+	"\rGetRetirement\x12&.n0x.authority.v1.GetRetirementRequest\x1a'.n0x.authority.v1.GetRetirementResponse\":\xb2\xe1\x186\b\x01\x12\n" +
+	"state.read\x1a&Get the progress of a node retirement.\x12\x8b\x01\n" +
+	"\x14CreateEnrollmentCode\x12-.n0x.authority.v1.CreateEnrollmentCodeRequest\x1a..n0x.authority.v1.CreateEnrollmentCodeResponse\"\x14\xb2\xe1\x18\x10\b\x04\x12\fnodes.enroll2\x97\x03\n" +
 	"\rTenantService\x12Z\n" +
 	"\vListTenants\x12$.n0x.authority.v1.ListTenantsRequest\x1a%.n0x.authority.v1.ListTenantsResponse\x12T\n" +
 	"\tGetTenant\x12\".n0x.authority.v1.GetTenantRequest\x1a#.n0x.authority.v1.GetTenantResponse\x12]\n" +
