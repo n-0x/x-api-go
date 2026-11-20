@@ -4932,8 +4932,12 @@ type ManagerProcessConfig_AssistantConfig struct {
 	GatewayEndpoints []string               `protobuf:"bytes,2,rep,name=gateway_endpoints,json=gatewayEndpoints,proto3" json:"gateway_endpoints,omitempty"`
 	GatewaySpiffeId  string                 `protobuf:"bytes,3,opt,name=gateway_spiffe_id,json=gatewaySpiffeId,proto3" json:"gateway_spiffe_id,omitempty"`
 	Model            string                 `protobuf:"bytes,4,opt,name=model,proto3" json:"model,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Activa el bucle de herramientas search y call (lecturas con token
+	// delegado de conversacion). Ausente o false: una llamada al modelo por
+	// turno, sin herramientas.
+	ToolsEnabled  bool `protobuf:"varint,5,opt,name=tools_enabled,json=toolsEnabled,proto3" json:"tools_enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ManagerProcessConfig_AssistantConfig) Reset() {
@@ -4992,6 +4996,13 @@ func (x *ManagerProcessConfig_AssistantConfig) GetModel() string {
 		return x.Model
 	}
 	return ""
+}
+
+func (x *ManagerProcessConfig_AssistantConfig) GetToolsEnabled() bool {
+	if x != nil {
+		return x.ToolsEnabled
+	}
+	return false
 }
 
 type ManagerProcessConfig_PlaybooksConfig struct {
@@ -5250,7 +5261,7 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\x1eassignment_instance_trust_file\x18& \x01(\tH\x01R\x1bassignmentInstanceTrustFile\x88\x01\x01\x12W\n" +
 	"\x16proxy_table_publishers\x18' \x03(\v2!.n0x.files.v1.ProxyTablePublisherR\x14proxyTablePublishersB'\n" +
 	"%_assignment_instance_signing_key_fileB!\n" +
-	"\x1f_assignment_instance_trust_file\"\xc5\x0f\n" +
+	"\x1f_assignment_instance_trust_file\"\xea\x0f\n" +
 	"\x14ManagerProcessConfig\x12\x1b\n" +
 	"\tauth_mode\x18\x01 \x01(\tR\bauthMode\x12@\n" +
 	"\x0egoogle_sign_in\x18\x02 \x01(\v2\x1a.n0x.files.v1.GoogleSignInR\fgoogleSignIn\x125\n" +
@@ -5284,12 +5295,13 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\tplaybooks\x18\x1b \x01(\v22.n0x.files.v1.ManagerProcessConfig.PlaybooksConfigR\tplaybooks\x12E\n" +
 	"\x1dproxy_return_signing_key_file\x18\x1c \x01(\tH\x00R\x19proxyReturnSigningKeyFile\x88\x01\x01\x122\n" +
 	"\x13proxy_return_key_id\x18\x1d \x01(\tH\x01R\x10proxyReturnKeyId\x88\x01\x01\x123\n" +
-	"\x13proxy_public_domain\x18\x1e \x01(\tH\x02R\x11proxyPublicDomain\x88\x01\x01\x1a\x9a\x01\n" +
+	"\x13proxy_public_domain\x18\x1e \x01(\tH\x02R\x11proxyPublicDomain\x88\x01\x01\x1a\xbf\x01\n" +
 	"\x0fAssistantConfig\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x12+\n" +
 	"\x11gateway_endpoints\x18\x02 \x03(\tR\x10gatewayEndpoints\x12*\n" +
 	"\x11gateway_spiffe_id\x18\x03 \x01(\tR\x0fgatewaySpiffeId\x12\x14\n" +
-	"\x05model\x18\x04 \x01(\tR\x05model\x1a\xc5\x01\n" +
+	"\x05model\x18\x04 \x01(\tR\x05model\x12#\n" +
+	"\rtools_enabled\x18\x05 \x01(\bR\ftoolsEnabled\x1a\xc5\x01\n" +
 	"\x0fPlaybooksConfig\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x12)\n" +
 	"\x10authority_origin\x18\x02 \x01(\tR\x0fauthorityOrigin\x12+\n" +
