@@ -1146,6 +1146,242 @@ func (x *NodeLease) GetExpiresAt() int64 {
 	return 0
 }
 
+// Consulta firmada por el controller owner (kind n2x-node-query-v2) y
+// publicada en n2x/v1/nodes/<incarnation_id>/query. El nodo la verifica como
+// un NodeLease: firmante = owner del grant, ventana issued_at/not_before/
+// expires_at (Unix segundos) y encarnacion, boot, sesion y binding iguales a
+// los suyos. request_id identifica la respuesta en AnswerNodeQuery.
+type NodeQuery struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	SchemaVersion     int32                  `protobuf:"varint,1,opt,name=schema_version,json=schemaVersion,proto3" json:"schema_version,omitempty"`
+	Scope             *Scope                 `protobuf:"bytes,2,opt,name=scope,proto3" json:"scope,omitempty"`
+	IncarnationId     string                 `protobuf:"bytes,3,opt,name=incarnation_id,json=incarnationId,proto3" json:"incarnation_id,omitempty"`
+	BootId            string                 `protobuf:"bytes,4,opt,name=boot_id,json=bootId,proto3" json:"boot_id,omitempty"`
+	SessionGeneration string                 `protobuf:"bytes,5,opt,name=session_generation,json=sessionGeneration,proto3" json:"session_generation,omitempty"`
+	BindingGeneration string                 `protobuf:"bytes,6,opt,name=binding_generation,json=bindingGeneration,proto3" json:"binding_generation,omitempty"`
+	RequestId         string                 `protobuf:"bytes,7,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	Grant             string                 `protobuf:"bytes,8,opt,name=grant,proto3" json:"grant,omitempty"`
+	IssuedAt          int64                  `protobuf:"varint,9,opt,name=issued_at,json=issuedAt,proto3" json:"issued_at,omitempty"`
+	NotBefore         int64                  `protobuf:"varint,10,opt,name=not_before,json=notBefore,proto3" json:"not_before,omitempty"`
+	ExpiresAt         int64                  `protobuf:"varint,11,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	// Types that are valid to be assigned to Body:
+	//
+	//	*NodeQuery_Metrics
+	Body          isNodeQuery_Body `protobuf_oneof:"body"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NodeQuery) Reset() {
+	*x = NodeQuery{}
+	mi := &file_n0x_signed_v1_signed_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodeQuery) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeQuery) ProtoMessage() {}
+
+func (x *NodeQuery) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_signed_v1_signed_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeQuery.ProtoReflect.Descriptor instead.
+func (*NodeQuery) Descriptor() ([]byte, []int) {
+	return file_n0x_signed_v1_signed_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *NodeQuery) GetSchemaVersion() int32 {
+	if x != nil {
+		return x.SchemaVersion
+	}
+	return 0
+}
+
+func (x *NodeQuery) GetScope() *Scope {
+	if x != nil {
+		return x.Scope
+	}
+	return nil
+}
+
+func (x *NodeQuery) GetIncarnationId() string {
+	if x != nil {
+		return x.IncarnationId
+	}
+	return ""
+}
+
+func (x *NodeQuery) GetBootId() string {
+	if x != nil {
+		return x.BootId
+	}
+	return ""
+}
+
+func (x *NodeQuery) GetSessionGeneration() string {
+	if x != nil {
+		return x.SessionGeneration
+	}
+	return ""
+}
+
+func (x *NodeQuery) GetBindingGeneration() string {
+	if x != nil {
+		return x.BindingGeneration
+	}
+	return ""
+}
+
+func (x *NodeQuery) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *NodeQuery) GetGrant() string {
+	if x != nil {
+		return x.Grant
+	}
+	return ""
+}
+
+func (x *NodeQuery) GetIssuedAt() int64 {
+	if x != nil {
+		return x.IssuedAt
+	}
+	return 0
+}
+
+func (x *NodeQuery) GetNotBefore() int64 {
+	if x != nil {
+		return x.NotBefore
+	}
+	return 0
+}
+
+func (x *NodeQuery) GetExpiresAt() int64 {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return 0
+}
+
+func (x *NodeQuery) GetBody() isNodeQuery_Body {
+	if x != nil {
+		return x.Body
+	}
+	return nil
+}
+
+func (x *NodeQuery) GetMetrics() *NodeMetricsQuery {
+	if x != nil {
+		if x, ok := x.Body.(*NodeQuery_Metrics); ok {
+			return x.Metrics
+		}
+	}
+	return nil
+}
+
+type isNodeQuery_Body interface {
+	isNodeQuery_Body()
+}
+
+type NodeQuery_Metrics struct {
+	Metrics *NodeMetricsQuery `protobuf:"bytes,12,opt,name=metrics,proto3,oneof"`
+}
+
+func (*NodeQuery_Metrics) isNodeQuery_Body() {}
+
+// Lectura del almacen local de metricas del nodo; no admite otras lecturas.
+// Vive en signed/v1 porque este fichero no importa otros; control/v1 la usa
+// como n0x.signed.v1.NodeMetricsQuery.
+type NodeMetricsQuery struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Vacio selecciona el nodo; si no, una carga publicada en este nodo.
+	WorkloadId string `protobuf:"bytes,1,opt,name=workload_id,json=workloadId,proto3" json:"workload_id,omitempty"`
+	// Intervalo [start, end) en Unix segundos, como los demas tiempos firmados.
+	Start int64 `protobuf:"varint,2,opt,name=start,proto3" json:"start,omitempty"`
+	End   int64 `protobuf:"varint,3,opt,name=end,proto3" json:"end,omitempty"`
+	// Duracion de cada bucket devuelto: 60, 300, 900, 3600 o 14400; menor de
+	// 3600 lee minutos, si no horas. start y end son multiplos de step_seconds
+	// y (end - start) / step_seconds es como mucho 512. Otro valor responde
+	// INVALID_QUERY.
+	StepSeconds   uint32 `protobuf:"varint,4,opt,name=step_seconds,json=stepSeconds,proto3" json:"step_seconds,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NodeMetricsQuery) Reset() {
+	*x = NodeMetricsQuery{}
+	mi := &file_n0x_signed_v1_signed_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodeMetricsQuery) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeMetricsQuery) ProtoMessage() {}
+
+func (x *NodeMetricsQuery) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_signed_v1_signed_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeMetricsQuery.ProtoReflect.Descriptor instead.
+func (*NodeMetricsQuery) Descriptor() ([]byte, []int) {
+	return file_n0x_signed_v1_signed_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *NodeMetricsQuery) GetWorkloadId() string {
+	if x != nil {
+		return x.WorkloadId
+	}
+	return ""
+}
+
+func (x *NodeMetricsQuery) GetStart() int64 {
+	if x != nil {
+		return x.Start
+	}
+	return 0
+}
+
+func (x *NodeMetricsQuery) GetEnd() int64 {
+	if x != nil {
+		return x.End
+	}
+	return 0
+}
+
+func (x *NodeMetricsQuery) GetStepSeconds() uint32 {
+	if x != nil {
+		return x.StepSeconds
+	}
+	return 0
+}
+
 type NodeReport struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	SchemaVersion     int32                  `protobuf:"varint,1,opt,name=schema_version,json=schemaVersion,proto3" json:"schema_version,omitempty"`
@@ -1172,7 +1408,7 @@ type NodeReport struct {
 
 func (x *NodeReport) Reset() {
 	*x = NodeReport{}
-	mi := &file_n0x_signed_v1_signed_proto_msgTypes[11]
+	mi := &file_n0x_signed_v1_signed_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1184,7 +1420,7 @@ func (x *NodeReport) String() string {
 func (*NodeReport) ProtoMessage() {}
 
 func (x *NodeReport) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_signed_v1_signed_proto_msgTypes[11]
+	mi := &file_n0x_signed_v1_signed_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1197,7 +1433,7 @@ func (x *NodeReport) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NodeReport.ProtoReflect.Descriptor instead.
 func (*NodeReport) Descriptor() ([]byte, []int) {
-	return file_n0x_signed_v1_signed_proto_rawDescGZIP(), []int{11}
+	return file_n0x_signed_v1_signed_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *NodeReport) GetSchemaVersion() int32 {
@@ -1342,7 +1578,7 @@ type FingerprintValue struct {
 
 func (x *FingerprintValue) Reset() {
 	*x = FingerprintValue{}
-	mi := &file_n0x_signed_v1_signed_proto_msgTypes[12]
+	mi := &file_n0x_signed_v1_signed_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1354,7 +1590,7 @@ func (x *FingerprintValue) String() string {
 func (*FingerprintValue) ProtoMessage() {}
 
 func (x *FingerprintValue) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_signed_v1_signed_proto_msgTypes[12]
+	mi := &file_n0x_signed_v1_signed_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1367,7 +1603,7 @@ func (x *FingerprintValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FingerprintValue.ProtoReflect.Descriptor instead.
 func (*FingerprintValue) Descriptor() ([]byte, []int) {
-	return file_n0x_signed_v1_signed_proto_rawDescGZIP(), []int{12}
+	return file_n0x_signed_v1_signed_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *FingerprintValue) GetType() string {
@@ -1537,7 +1773,31 @@ const file_n0x_signed_v1_signed_proto_rawDesc = "" +
 	"\n" +
 	"not_before\x18\x10 \x01(\x03R\tnotBefore\x12\x1d\n" +
 	"\n" +
-	"expires_at\x18\x11 \x01(\x03R\texpiresAt\"\xf6\x04\n" +
+	"expires_at\x18\x11 \x01(\x03R\texpiresAt\"\xd1\x03\n" +
+	"\tNodeQuery\x12%\n" +
+	"\x0eschema_version\x18\x01 \x01(\x05R\rschemaVersion\x12*\n" +
+	"\x05scope\x18\x02 \x01(\v2\x14.n0x.signed.v1.ScopeR\x05scope\x12%\n" +
+	"\x0eincarnation_id\x18\x03 \x01(\tR\rincarnationId\x12\x17\n" +
+	"\aboot_id\x18\x04 \x01(\tR\x06bootId\x12-\n" +
+	"\x12session_generation\x18\x05 \x01(\tR\x11sessionGeneration\x12-\n" +
+	"\x12binding_generation\x18\x06 \x01(\tR\x11bindingGeneration\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\a \x01(\tR\trequestId\x12\x14\n" +
+	"\x05grant\x18\b \x01(\tR\x05grant\x12\x1b\n" +
+	"\tissued_at\x18\t \x01(\x03R\bissuedAt\x12\x1d\n" +
+	"\n" +
+	"not_before\x18\n" +
+	" \x01(\x03R\tnotBefore\x12\x1d\n" +
+	"\n" +
+	"expires_at\x18\v \x01(\x03R\texpiresAt\x12;\n" +
+	"\ametrics\x18\f \x01(\v2\x1f.n0x.signed.v1.NodeMetricsQueryH\x00R\ametricsB\x06\n" +
+	"\x04body\"~\n" +
+	"\x10NodeMetricsQuery\x12\x1f\n" +
+	"\vworkload_id\x18\x01 \x01(\tR\n" +
+	"workloadId\x12\x14\n" +
+	"\x05start\x18\x02 \x01(\x03R\x05start\x12\x10\n" +
+	"\x03end\x18\x03 \x01(\x03R\x03end\x12!\n" +
+	"\fstep_seconds\x18\x04 \x01(\rR\vstepSeconds\"\xf6\x04\n" +
 	"\n" +
 	"NodeReport\x12%\n" +
 	"\x0eschema_version\x18\x01 \x01(\x05R\rschemaVersion\x12*\n" +
@@ -1586,7 +1846,7 @@ func file_n0x_signed_v1_signed_proto_rawDescGZIP() []byte {
 	return file_n0x_signed_v1_signed_proto_rawDescData
 }
 
-var file_n0x_signed_v1_signed_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_n0x_signed_v1_signed_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_n0x_signed_v1_signed_proto_goTypes = []any{
 	(*Scope)(nil),               // 0: n0x.signed.v1.Scope
 	(*Member)(nil),              // 1: n0x.signed.v1.Member
@@ -1599,9 +1859,11 @@ var file_n0x_signed_v1_signed_proto_goTypes = []any{
 	(*ActivationChallenge)(nil), // 8: n0x.signed.v1.ActivationChallenge
 	(*NodeSessionProof)(nil),    // 9: n0x.signed.v1.NodeSessionProof
 	(*NodeLease)(nil),           // 10: n0x.signed.v1.NodeLease
-	(*NodeReport)(nil),          // 11: n0x.signed.v1.NodeReport
-	(*FingerprintValue)(nil),    // 12: n0x.signed.v1.FingerprintValue
-	nil,                         // 13: n0x.signed.v1.FingerprintValue.FieldsEntry
+	(*NodeQuery)(nil),           // 11: n0x.signed.v1.NodeQuery
+	(*NodeMetricsQuery)(nil),    // 12: n0x.signed.v1.NodeMetricsQuery
+	(*NodeReport)(nil),          // 13: n0x.signed.v1.NodeReport
+	(*FingerprintValue)(nil),    // 14: n0x.signed.v1.FingerprintValue
+	nil,                         // 15: n0x.signed.v1.FingerprintValue.FieldsEntry
 }
 var file_n0x_signed_v1_signed_proto_depIdxs = []int32{
 	0,  // 0: n0x.signed.v1.ConfigDocument.scope:type_name -> n0x.signed.v1.Scope
@@ -1616,15 +1878,17 @@ var file_n0x_signed_v1_signed_proto_depIdxs = []int32{
 	6,  // 9: n0x.signed.v1.NodeSessionProof.request_binding:type_name -> n0x.signed.v1.RequestBinding
 	0,  // 10: n0x.signed.v1.NodeLease.scope:type_name -> n0x.signed.v1.Scope
 	6,  // 11: n0x.signed.v1.NodeLease.request_binding:type_name -> n0x.signed.v1.RequestBinding
-	0,  // 12: n0x.signed.v1.NodeReport.scope:type_name -> n0x.signed.v1.Scope
-	13, // 13: n0x.signed.v1.FingerprintValue.fields:type_name -> n0x.signed.v1.FingerprintValue.FieldsEntry
-	12, // 14: n0x.signed.v1.FingerprintValue.items:type_name -> n0x.signed.v1.FingerprintValue
-	12, // 15: n0x.signed.v1.FingerprintValue.FieldsEntry.value:type_name -> n0x.signed.v1.FingerprintValue
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	0,  // 12: n0x.signed.v1.NodeQuery.scope:type_name -> n0x.signed.v1.Scope
+	12, // 13: n0x.signed.v1.NodeQuery.metrics:type_name -> n0x.signed.v1.NodeMetricsQuery
+	0,  // 14: n0x.signed.v1.NodeReport.scope:type_name -> n0x.signed.v1.Scope
+	15, // 15: n0x.signed.v1.FingerprintValue.fields:type_name -> n0x.signed.v1.FingerprintValue.FieldsEntry
+	14, // 16: n0x.signed.v1.FingerprintValue.items:type_name -> n0x.signed.v1.FingerprintValue
+	14, // 17: n0x.signed.v1.FingerprintValue.FieldsEntry.value:type_name -> n0x.signed.v1.FingerprintValue
+	18, // [18:18] is the sub-list for method output_type
+	18, // [18:18] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_n0x_signed_v1_signed_proto_init() }
@@ -1632,13 +1896,16 @@ func file_n0x_signed_v1_signed_proto_init() {
 	if File_n0x_signed_v1_signed_proto != nil {
 		return
 	}
+	file_n0x_signed_v1_signed_proto_msgTypes[11].OneofWrappers = []any{
+		(*NodeQuery_Metrics)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_signed_v1_signed_proto_rawDesc), len(file_n0x_signed_v1_signed_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

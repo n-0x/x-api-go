@@ -27,6 +27,7 @@ const (
 	NodeControlService_ReportState_FullMethodName              = "/n0x.control.v1.NodeControlService/ReportState"
 	NodeControlService_ReportFlows_FullMethodName              = "/n0x.control.v1.NodeControlService/ReportFlows"
 	NodeControlService_RegisterWorkloadFromHost_FullMethodName = "/n0x.control.v1.NodeControlService/RegisterWorkloadFromHost"
+	NodeControlService_AnswerNodeQuery_FullMethodName          = "/n0x.control.v1.NodeControlService/AnswerNodeQuery"
 )
 
 // NodeControlServiceClient is the client API for NodeControlService service.
@@ -43,6 +44,9 @@ type NodeControlServiceClient interface {
 	// Ruta mTLS de nodo: el sujeto y la sesion verificados deben corresponder
 	// a request.identity_id y al account/tenant. Publicar no concede acceso.
 	RegisterWorkloadFromHost(ctx context.Context, in *RegisterWorkloadFromHostRequest, opts ...grpc.CallOption) (*RegisterWorkloadFromHostResponse, error)
+	// Solo el nodo de la consulta, con su sesion y SVID; en malla se reenvia
+	// al owner como ReportFlows.
+	AnswerNodeQuery(ctx context.Context, in *AnswerNodeQueryRequest, opts ...grpc.CallOption) (*AnswerNodeQueryResponse, error)
 }
 
 type nodeControlServiceClient struct {
@@ -133,6 +137,16 @@ func (c *nodeControlServiceClient) RegisterWorkloadFromHost(ctx context.Context,
 	return out, nil
 }
 
+func (c *nodeControlServiceClient) AnswerNodeQuery(ctx context.Context, in *AnswerNodeQueryRequest, opts ...grpc.CallOption) (*AnswerNodeQueryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AnswerNodeQueryResponse)
+	err := c.cc.Invoke(ctx, NodeControlService_AnswerNodeQuery_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodeControlServiceServer is the server API for NodeControlService service.
 // All implementations must embed UnimplementedNodeControlServiceServer
 // for forward compatibility.
@@ -147,6 +161,9 @@ type NodeControlServiceServer interface {
 	// Ruta mTLS de nodo: el sujeto y la sesion verificados deben corresponder
 	// a request.identity_id y al account/tenant. Publicar no concede acceso.
 	RegisterWorkloadFromHost(context.Context, *RegisterWorkloadFromHostRequest) (*RegisterWorkloadFromHostResponse, error)
+	// Solo el nodo de la consulta, con su sesion y SVID; en malla se reenvia
+	// al owner como ReportFlows.
+	AnswerNodeQuery(context.Context, *AnswerNodeQueryRequest) (*AnswerNodeQueryResponse, error)
 	mustEmbedUnimplementedNodeControlServiceServer()
 }
 
@@ -180,6 +197,9 @@ func (UnimplementedNodeControlServiceServer) ReportFlows(context.Context, *Repor
 }
 func (UnimplementedNodeControlServiceServer) RegisterWorkloadFromHost(context.Context, *RegisterWorkloadFromHostRequest) (*RegisterWorkloadFromHostResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterWorkloadFromHost not implemented")
+}
+func (UnimplementedNodeControlServiceServer) AnswerNodeQuery(context.Context, *AnswerNodeQueryRequest) (*AnswerNodeQueryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AnswerNodeQuery not implemented")
 }
 func (UnimplementedNodeControlServiceServer) mustEmbedUnimplementedNodeControlServiceServer() {}
 func (UnimplementedNodeControlServiceServer) testEmbeddedByValue()                            {}
@@ -346,6 +366,24 @@ func _NodeControlService_RegisterWorkloadFromHost_Handler(srv interface{}, ctx c
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NodeControlService_AnswerNodeQuery_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AnswerNodeQueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeControlServiceServer).AnswerNodeQuery(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeControlService_AnswerNodeQuery_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeControlServiceServer).AnswerNodeQuery(ctx, req.(*AnswerNodeQueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NodeControlService_ServiceDesc is the grpc.ServiceDesc for NodeControlService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -384,6 +422,10 @@ var NodeControlService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RegisterWorkloadFromHost",
 			Handler:    _NodeControlService_RegisterWorkloadFromHost_Handler,
+		},
+		{
+			MethodName: "AnswerNodeQuery",
+			Handler:    _NodeControlService_AnswerNodeQuery_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1321,8 +1363,9 @@ var OwnershipAdminService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ControlObservationsService_ReadProjection_FullMethodName = "/n0x.control.v1.ControlObservationsService/ReadProjection"
-	ControlObservationsService_ReadFlowEvents_FullMethodName = "/n0x.control.v1.ControlObservationsService/ReadFlowEvents"
+	ControlObservationsService_ReadProjection_FullMethodName   = "/n0x.control.v1.ControlObservationsService/ReadProjection"
+	ControlObservationsService_ReadFlowEvents_FullMethodName   = "/n0x.control.v1.ControlObservationsService/ReadFlowEvents"
+	ControlObservationsService_QueryNodeMetrics_FullMethodName = "/n0x.control.v1.ControlObservationsService/QueryNodeMetrics"
 )
 
 // ControlObservationsServiceClient is the client API for ControlObservationsService service.
@@ -1333,6 +1376,9 @@ type ControlObservationsServiceClient interface {
 	// Solo authority autenticado por mTLS; lee el anillo sin depender de que
 	// existan suscriptores en la consola ni del ultimo reporte de 1024 eventos.
 	ReadFlowEvents(ctx context.Context, in *ReadFlowEventsRequest, opts ...grpc.CallOption) (*ReadFlowEventsResponse, error)
+	// Solo resources autenticado por mTLS, como ReadProjection. Lo atiende el
+	// owner de la encarnacion; los demas controllers no lo reenvian.
+	QueryNodeMetrics(ctx context.Context, in *QueryNodeMetricsRequest, opts ...grpc.CallOption) (*QueryNodeMetricsResponse, error)
 }
 
 type controlObservationsServiceClient struct {
@@ -1363,6 +1409,16 @@ func (c *controlObservationsServiceClient) ReadFlowEvents(ctx context.Context, i
 	return out, nil
 }
 
+func (c *controlObservationsServiceClient) QueryNodeMetrics(ctx context.Context, in *QueryNodeMetricsRequest, opts ...grpc.CallOption) (*QueryNodeMetricsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(QueryNodeMetricsResponse)
+	err := c.cc.Invoke(ctx, ControlObservationsService_QueryNodeMetrics_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ControlObservationsServiceServer is the server API for ControlObservationsService service.
 // All implementations must embed UnimplementedControlObservationsServiceServer
 // for forward compatibility.
@@ -1371,6 +1427,9 @@ type ControlObservationsServiceServer interface {
 	// Solo authority autenticado por mTLS; lee el anillo sin depender de que
 	// existan suscriptores en la consola ni del ultimo reporte de 1024 eventos.
 	ReadFlowEvents(context.Context, *ReadFlowEventsRequest) (*ReadFlowEventsResponse, error)
+	// Solo resources autenticado por mTLS, como ReadProjection. Lo atiende el
+	// owner de la encarnacion; los demas controllers no lo reenvian.
+	QueryNodeMetrics(context.Context, *QueryNodeMetricsRequest) (*QueryNodeMetricsResponse, error)
 	mustEmbedUnimplementedControlObservationsServiceServer()
 }
 
@@ -1386,6 +1445,9 @@ func (UnimplementedControlObservationsServiceServer) ReadProjection(context.Cont
 }
 func (UnimplementedControlObservationsServiceServer) ReadFlowEvents(context.Context, *ReadFlowEventsRequest) (*ReadFlowEventsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReadFlowEvents not implemented")
+}
+func (UnimplementedControlObservationsServiceServer) QueryNodeMetrics(context.Context, *QueryNodeMetricsRequest) (*QueryNodeMetricsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryNodeMetrics not implemented")
 }
 func (UnimplementedControlObservationsServiceServer) mustEmbedUnimplementedControlObservationsServiceServer() {
 }
@@ -1445,6 +1507,24 @@ func _ControlObservationsService_ReadFlowEvents_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ControlObservationsService_QueryNodeMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryNodeMetricsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControlObservationsServiceServer).QueryNodeMetrics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControlObservationsService_QueryNodeMetrics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControlObservationsServiceServer).QueryNodeMetrics(ctx, req.(*QueryNodeMetricsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ControlObservationsService_ServiceDesc is the grpc.ServiceDesc for ControlObservationsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1459,6 +1539,10 @@ var ControlObservationsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReadFlowEvents",
 			Handler:    _ControlObservationsService_ReadFlowEvents_Handler,
+		},
+		{
+			MethodName: "QueryNodeMetrics",
+			Handler:    _ControlObservationsService_QueryNodeMetrics_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

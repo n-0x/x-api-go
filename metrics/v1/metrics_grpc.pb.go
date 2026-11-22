@@ -26,8 +26,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// Historico servido por resources desde agregados por minuto, sin IPs,
-// puertos ni filas por flujo (ADR 0026).
+// Historico servido por resources. Los agregados por minuto y por hora viven
+// en cada nodo y resources los pide al nodo bajo demanda (ADR 0028); no hay
+// copia central. Sin IPs, puertos ni filas por flujo (ADR 0026, punto 1).
 type MetricsServiceClient interface {
 	// Requiere el permiso de lectura del tenant, el mismo que GetState de nodos
 	// y cargas. Una metrica no soportada por el sujeto devuelve InvalidArgument.
@@ -57,8 +58,9 @@ func (c *metricsServiceClient) GetSeries(ctx context.Context, in *GetSeriesReque
 // All implementations must embed UnimplementedMetricsServiceServer
 // for forward compatibility.
 //
-// Historico servido por resources desde agregados por minuto, sin IPs,
-// puertos ni filas por flujo (ADR 0026).
+// Historico servido por resources. Los agregados por minuto y por hora viven
+// en cada nodo y resources los pide al nodo bajo demanda (ADR 0028); no hay
+// copia central. Sin IPs, puertos ni filas por flujo (ADR 0026, punto 1).
 type MetricsServiceServer interface {
 	// Requiere el permiso de lectura del tenant, el mismo que GetState de nodos
 	// y cargas. Una metrica no soportada por el sujeto devuelve InvalidArgument.

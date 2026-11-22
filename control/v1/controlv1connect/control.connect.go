@@ -82,6 +82,9 @@ const (
 	// NodeControlServiceRegisterWorkloadFromHostProcedure is the procedure name of the
 	// NodeControlService's RegisterWorkloadFromHost RPC.
 	NodeControlServiceRegisterWorkloadFromHostProcedure = "/n0x.control.v1.NodeControlService/RegisterWorkloadFromHost"
+	// NodeControlServiceAnswerNodeQueryProcedure is the procedure name of the NodeControlService's
+	// AnswerNodeQuery RPC.
+	NodeControlServiceAnswerNodeQueryProcedure = "/n0x.control.v1.NodeControlService/AnswerNodeQuery"
 	// AuthorityControlServicePublishConfigurationProcedure is the procedure name of the
 	// AuthorityControlService's PublishConfiguration RPC.
 	AuthorityControlServicePublishConfigurationProcedure = "/n0x.control.v1.AuthorityControlService/PublishConfiguration"
@@ -136,6 +139,9 @@ const (
 	// ControlObservationsServiceReadFlowEventsProcedure is the procedure name of the
 	// ControlObservationsService's ReadFlowEvents RPC.
 	ControlObservationsServiceReadFlowEventsProcedure = "/n0x.control.v1.ControlObservationsService/ReadFlowEvents"
+	// ControlObservationsServiceQueryNodeMetricsProcedure is the procedure name of the
+	// ControlObservationsService's QueryNodeMetrics RPC.
+	ControlObservationsServiceQueryNodeMetricsProcedure = "/n0x.control.v1.ControlObservationsService/QueryNodeMetrics"
 	// OwnershipAutomaticServiceClaimOwnerProcedure is the procedure name of the
 	// OwnershipAutomaticService's ClaimOwner RPC.
 	OwnershipAutomaticServiceClaimOwnerProcedure = "/n0x.control.v1.OwnershipAutomaticService/ClaimOwner"
@@ -234,6 +240,13 @@ var (
 			Procedure:  NodeControlServiceRegisterWorkloadFromHostProcedure,
 		}
 	})
+	nodeControlServiceAnswerNodeQuerySpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_control_v1_control_proto.Services().ByName("NodeControlService").Methods().ByName("AnswerNodeQuery"),
+			Procedure:  NodeControlServiceAnswerNodeQueryProcedure,
+		}
+	})
 )
 
 // NodeControlServiceClient is a client for the n0x.control.v1.NodeControlService service.
@@ -248,6 +261,9 @@ type NodeControlServiceClient interface {
 	// Ruta mTLS de nodo: el sujeto y la sesion verificados deben corresponder
 	// a request.identity_id y al account/tenant. Publicar no concede acceso.
 	RegisterWorkloadFromHost(context.Context, *v1.RegisterWorkloadFromHostRequest) (*v1.RegisterWorkloadFromHostResponse, error)
+	// Solo el nodo de la consulta, con su sesion y SVID; en malla se reenvia
+	// al owner como ReportFlows.
+	AnswerNodeQuery(context.Context, *v1.AnswerNodeQueryRequest) (*v1.AnswerNodeQueryResponse, error)
 }
 
 // NewNodeControlServiceClient constructs a client for the n0x.control.v1.NodeControlService
@@ -268,6 +284,9 @@ type NodeControlServiceHandler interface {
 	// Ruta mTLS de nodo: el sujeto y la sesion verificados deben corresponder
 	// a request.identity_id y al account/tenant. Publicar no concede acceso.
 	RegisterWorkloadFromHost(context.Context, *v1.RegisterWorkloadFromHostRequest) (*v1.RegisterWorkloadFromHostResponse, error)
+	// Solo el nodo de la consulta, con su sesion y SVID; en malla se reenvia
+	// al owner como ReportFlows.
+	AnswerNodeQuery(context.Context, *v1.AnswerNodeQueryRequest) (*v1.AnswerNodeQueryResponse, error)
 }
 
 // RegisterNodeControlServiceHandler registers svc as the n0x.control.v1.NodeControlService
@@ -283,6 +302,7 @@ func RegisterNodeControlServiceHandler(server *connect.Server, svc NodeControlSe
 		connect.Method{Spec: nodeControlServiceReportStateSpec(), Handler: adapter.reportState},
 		connect.Method{Spec: nodeControlServiceReportFlowsSpec(), Handler: adapter.reportFlows},
 		connect.Method{Spec: nodeControlServiceRegisterWorkloadFromHostSpec(), Handler: adapter.registerWorkloadFromHost},
+		connect.Method{Spec: nodeControlServiceAnswerNodeQuerySpec(), Handler: adapter.answerNodeQuery},
 	)
 }
 
@@ -319,6 +339,10 @@ func (UnimplementedNodeControlServiceHandler) ReportFlows(context.Context, *v1.R
 
 func (UnimplementedNodeControlServiceHandler) RegisterWorkloadFromHost(context.Context, *v1.RegisterWorkloadFromHostRequest) (*v1.RegisterWorkloadFromHostResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.NodeControlService.RegisterWorkloadFromHost is not implemented")
+}
+
+func (UnimplementedNodeControlServiceHandler) AnswerNodeQuery(context.Context, *v1.AnswerNodeQueryRequest) (*v1.AnswerNodeQueryResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.NodeControlService.AnswerNodeQuery is not implemented")
 }
 
 type nodeControlServiceClient struct {
@@ -384,6 +408,14 @@ func (c *nodeControlServiceClient) ReportFlows(ctx context.Context, req *v1.Repo
 func (c *nodeControlServiceClient) RegisterWorkloadFromHost(ctx context.Context, req *v1.RegisterWorkloadFromHostRequest) (*v1.RegisterWorkloadFromHostResponse, error) {
 	var res v1.RegisterWorkloadFromHostResponse
 	if err := c.client.CallUnary(ctx, nodeControlServiceRegisterWorkloadFromHostSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *nodeControlServiceClient) AnswerNodeQuery(ctx context.Context, req *v1.AnswerNodeQueryRequest) (*v1.AnswerNodeQueryResponse, error) {
+	var res v1.AnswerNodeQueryResponse
+	if err := c.client.CallUnary(ctx, nodeControlServiceAnswerNodeQuerySpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -481,6 +513,18 @@ func (h nodeControlServiceHandler) registerWorkloadFromHost(ctx context.Context,
 		return err
 	}
 	res, err := h.svc.RegisterWorkloadFromHost(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h nodeControlServiceHandler) answerNodeQuery(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.AnswerNodeQueryRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.AnswerNodeQuery(ctx, &req)
 	if err != nil {
 		return err
 	}
@@ -1227,6 +1271,13 @@ var (
 			Procedure:  ControlObservationsServiceReadFlowEventsProcedure,
 		}
 	})
+	controlObservationsServiceQueryNodeMetricsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_control_v1_control_proto.Services().ByName("ControlObservationsService").Methods().ByName("QueryNodeMetrics"),
+			Procedure:  ControlObservationsServiceQueryNodeMetricsProcedure,
+		}
+	})
 )
 
 // ControlObservationsServiceClient is a client for the n0x.control.v1.ControlObservationsService
@@ -1236,6 +1287,9 @@ type ControlObservationsServiceClient interface {
 	// Solo authority autenticado por mTLS; lee el anillo sin depender de que
 	// existan suscriptores en la consola ni del ultimo reporte de 1024 eventos.
 	ReadFlowEvents(context.Context, *v1.ReadFlowEventsRequest) (*v1.ReadFlowEventsResponse, error)
+	// Solo resources autenticado por mTLS, como ReadProjection. Lo atiende el
+	// owner de la encarnacion; los demas controllers no lo reenvian.
+	QueryNodeMetrics(context.Context, *v1.QueryNodeMetricsRequest) (*v1.QueryNodeMetricsResponse, error)
 }
 
 // NewControlObservationsServiceClient constructs a client for the
@@ -1252,6 +1306,9 @@ type ControlObservationsServiceHandler interface {
 	// Solo authority autenticado por mTLS; lee el anillo sin depender de que
 	// existan suscriptores en la consola ni del ultimo reporte de 1024 eventos.
 	ReadFlowEvents(context.Context, *v1.ReadFlowEventsRequest) (*v1.ReadFlowEventsResponse, error)
+	// Solo resources autenticado por mTLS, como ReadProjection. Lo atiende el
+	// owner de la encarnacion; los demas controllers no lo reenvian.
+	QueryNodeMetrics(context.Context, *v1.QueryNodeMetricsRequest) (*v1.QueryNodeMetricsResponse, error)
 }
 
 // RegisterControlObservationsServiceHandler registers svc as the
@@ -1261,6 +1318,7 @@ func RegisterControlObservationsServiceHandler(server *connect.Server, svc Contr
 	server.Register(
 		connect.Method{Spec: controlObservationsServiceReadProjectionSpec(), Handler: adapter.readProjection},
 		connect.Method{Spec: controlObservationsServiceReadFlowEventsSpec(), Handler: adapter.readFlowEvents},
+		connect.Method{Spec: controlObservationsServiceQueryNodeMetricsSpec(), Handler: adapter.queryNodeMetrics},
 	)
 }
 
@@ -1273,6 +1331,10 @@ func (UnimplementedControlObservationsServiceHandler) ReadProjection(context.Con
 
 func (UnimplementedControlObservationsServiceHandler) ReadFlowEvents(context.Context, *v1.ReadFlowEventsRequest) (*v1.ReadFlowEventsResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.ControlObservationsService.ReadFlowEvents is not implemented")
+}
+
+func (UnimplementedControlObservationsServiceHandler) QueryNodeMetrics(context.Context, *v1.QueryNodeMetricsRequest) (*v1.QueryNodeMetricsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.ControlObservationsService.QueryNodeMetrics is not implemented")
 }
 
 type controlObservationsServiceClient struct {
@@ -1290,6 +1352,14 @@ func (c *controlObservationsServiceClient) ReadProjection(ctx context.Context, r
 func (c *controlObservationsServiceClient) ReadFlowEvents(ctx context.Context, req *v1.ReadFlowEventsRequest) (*v1.ReadFlowEventsResponse, error) {
 	var res v1.ReadFlowEventsResponse
 	if err := c.client.CallUnary(ctx, controlObservationsServiceReadFlowEventsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *controlObservationsServiceClient) QueryNodeMetrics(ctx context.Context, req *v1.QueryNodeMetricsRequest) (*v1.QueryNodeMetricsResponse, error) {
+	var res v1.QueryNodeMetricsResponse
+	if err := c.client.CallUnary(ctx, controlObservationsServiceQueryNodeMetricsSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -1317,6 +1387,18 @@ func (h controlObservationsServiceHandler) readFlowEvents(ctx context.Context, _
 		return err
 	}
 	res, err := h.svc.ReadFlowEvents(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h controlObservationsServiceHandler) queryNodeMetrics(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.QueryNodeMetricsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.QueryNodeMetrics(ctx, &req)
 	if err != nil {
 		return err
 	}

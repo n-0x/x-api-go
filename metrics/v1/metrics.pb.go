@@ -87,6 +87,11 @@ func (Range) EnumDescriptor() ([]byte, []int) {
 	return file_n0x_metrics_v1_metrics_proto_rawDescGZIP(), []int{0}
 }
 
+// Sujetos: node_id y tenant aceptan NODE_*, FLOWS_* y CONNECT_LATENCY_*;
+// tenant combina por bucket los nodos activos del tenant. workload_id acepta
+// WORKLOAD_* y tambien FLOWS_* y CONNECT_LATENCY_*, con el mismo significado
+// pero medidos en el nodo de la carga sobre su puerto. Otra combinacion
+// devuelve InvalidArgument.
 type Metric int32
 
 const (
@@ -127,9 +132,24 @@ const (
 	// Unidad: UNIT_COUNT.
 	// buf:lint:ignore ENUM_VALUE_PREFIX
 	Metric_WORKLOAD_CONNECTIONS Metric = 12
-	// Unidad: UNIT_COUNT.
+	// Unidad: UNIT_COUNT. Sin fuente desde v0.8.0: devuelve buckets sin value.
 	// buf:lint:ignore ENUM_VALUE_PREFIX
 	Metric_WORKLOAD_REQUESTS Metric = 13
+	// Unidad: UNIT_BYTES. Interfaces del host salvo lo y la interfaz n2x.
+	// buf:lint:ignore ENUM_VALUE_PREFIX
+	Metric_NODE_NET_RX_BYTES Metric = 14
+	// Unidad: UNIT_BYTES. Interfaces del host salvo lo y la interfaz n2x.
+	// buf:lint:ignore ENUM_VALUE_PREFIX
+	Metric_NODE_NET_TX_BYTES Metric = 15
+	// Unidad: UNIT_BYTES. Bytes hacia la carga por el tunel de su nodo.
+	// buf:lint:ignore ENUM_VALUE_PREFIX
+	Metric_WORKLOAD_BYTES_IN Metric = 16
+	// Unidad: UNIT_BYTES. Bytes desde la carga por el tunel de su nodo.
+	// buf:lint:ignore ENUM_VALUE_PREFIX
+	Metric_WORKLOAD_BYTES_OUT Metric = 17
+	// Unidad: UNIT_COUNT. Dials fallidos del tunel al backend local.
+	// buf:lint:ignore ENUM_VALUE_PREFIX
+	Metric_WORKLOAD_DIAL_ERRORS Metric = 18
 )
 
 // Enum value maps for Metric.
@@ -149,6 +169,11 @@ var (
 		11: "CONNECT_LATENCY_P95_MS",
 		12: "WORKLOAD_CONNECTIONS",
 		13: "WORKLOAD_REQUESTS",
+		14: "NODE_NET_RX_BYTES",
+		15: "NODE_NET_TX_BYTES",
+		16: "WORKLOAD_BYTES_IN",
+		17: "WORKLOAD_BYTES_OUT",
+		18: "WORKLOAD_DIAL_ERRORS",
 	}
 	Metric_value = map[string]int32{
 		"METRIC_UNSPECIFIED":     0,
@@ -165,6 +190,11 @@ var (
 		"CONNECT_LATENCY_P95_MS": 11,
 		"WORKLOAD_CONNECTIONS":   12,
 		"WORKLOAD_REQUESTS":      13,
+		"NODE_NET_RX_BYTES":      14,
+		"NODE_NET_TX_BYTES":      15,
+		"WORKLOAD_BYTES_IN":      16,
+		"WORKLOAD_BYTES_OUT":     17,
+		"WORKLOAD_DIAL_ERRORS":   18,
 	}
 )
 
@@ -193,6 +223,82 @@ func (x Metric) Number() protoreflect.EnumNumber {
 // Deprecated: Use Metric.Descriptor instead.
 func (Metric) EnumDescriptor() ([]byte, []int) {
 	return file_n0x_metrics_v1_metrics_proto_rawDescGZIP(), []int{1}
+}
+
+// Estado de la lectura bajo demanda en los nodos del sujeto. Un tenant y una
+// carga con varios nodos solo usan COMPLETE o PARTIAL (PARTIAL con todos los
+// nodos en missing_node_ids si no responde ninguno); los demas valores son
+// para un nodo o una carga con un solo nodo. Un nodo que responde que la
+// carga no esta publicada en el cuenta como respuesta sin datos.
+type Availability int32
+
+const (
+	Availability_AVAILABILITY_UNSPECIFIED Availability = 0
+	// Respondieron todos los nodos del sujeto.
+	Availability_AVAILABILITY_COMPLETE Availability = 1
+	// Faltan los nodos de missing_node_ids; los totales cubren los demas.
+	Availability_AVAILABILITY_PARTIAL Availability = 2
+	// El nodo no esta conectado; sus metricas siguen guardadas en el nodo.
+	Availability_AVAILABILITY_NODE_OFFLINE Availability = 3
+	// El agente del nodo no atiende consultas de metricas.
+	Availability_AVAILABILITY_AGENT_UNSUPPORTED Availability = 4
+	// El nodo no respondio a tiempo.
+	Availability_AVAILABILITY_NODE_UNREACHABLE Availability = 5
+	// El nodo no pudo leer su almacen de metricas.
+	Availability_AVAILABILITY_NODE_ERROR Availability = 6
+	// La carga no tiene nodo que la sirva, por ejemplo direct_destination.
+	Availability_AVAILABILITY_NO_NODE Availability = 7
+)
+
+// Enum value maps for Availability.
+var (
+	Availability_name = map[int32]string{
+		0: "AVAILABILITY_UNSPECIFIED",
+		1: "AVAILABILITY_COMPLETE",
+		2: "AVAILABILITY_PARTIAL",
+		3: "AVAILABILITY_NODE_OFFLINE",
+		4: "AVAILABILITY_AGENT_UNSUPPORTED",
+		5: "AVAILABILITY_NODE_UNREACHABLE",
+		6: "AVAILABILITY_NODE_ERROR",
+		7: "AVAILABILITY_NO_NODE",
+	}
+	Availability_value = map[string]int32{
+		"AVAILABILITY_UNSPECIFIED":       0,
+		"AVAILABILITY_COMPLETE":          1,
+		"AVAILABILITY_PARTIAL":           2,
+		"AVAILABILITY_NODE_OFFLINE":      3,
+		"AVAILABILITY_AGENT_UNSUPPORTED": 4,
+		"AVAILABILITY_NODE_UNREACHABLE":  5,
+		"AVAILABILITY_NODE_ERROR":        6,
+		"AVAILABILITY_NO_NODE":           7,
+	}
+)
+
+func (x Availability) Enum() *Availability {
+	p := new(Availability)
+	*p = x
+	return p
+}
+
+func (x Availability) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Availability) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_metrics_v1_metrics_proto_enumTypes[2].Descriptor()
+}
+
+func (Availability) Type() protoreflect.EnumType {
+	return &file_n0x_metrics_v1_metrics_proto_enumTypes[2]
+}
+
+func (x Availability) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Availability.Descriptor instead.
+func (Availability) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_metrics_v1_metrics_proto_rawDescGZIP(), []int{2}
 }
 
 type Unit int32
@@ -240,11 +346,11 @@ func (x Unit) String() string {
 }
 
 func (Unit) Descriptor() protoreflect.EnumDescriptor {
-	return file_n0x_metrics_v1_metrics_proto_enumTypes[2].Descriptor()
+	return file_n0x_metrics_v1_metrics_proto_enumTypes[3].Descriptor()
 }
 
 func (Unit) Type() protoreflect.EnumType {
-	return &file_n0x_metrics_v1_metrics_proto_enumTypes[2]
+	return &file_n0x_metrics_v1_metrics_proto_enumTypes[3]
 }
 
 func (x Unit) Number() protoreflect.EnumNumber {
@@ -253,7 +359,7 @@ func (x Unit) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Unit.Descriptor instead.
 func (Unit) EnumDescriptor() ([]byte, []int) {
-	return file_n0x_metrics_v1_metrics_proto_rawDescGZIP(), []int{2}
+	return file_n0x_metrics_v1_metrics_proto_rawDescGZIP(), []int{3}
 }
 
 type GetSeriesRequest struct {
@@ -403,8 +509,13 @@ type GetSeriesResponse struct {
 	End           *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=end,proto3" json:"end,omitempty"`
 	BucketSeconds uint32                 `protobuf:"varint,3,opt,name=bucket_seconds,json=bucketSeconds,proto3" json:"bucket_seconds,omitempty"`
 	Series        []*Series              `protobuf:"bytes,4,rep,name=series,proto3" json:"series,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// UNSPECIFIED: servidor anterior a v0.8.0. Con un valor distinto de
+	// UNSPECIFIED, COMPLETE o PARTIAL no hay datos: ningun bucket lleva value.
+	Availability Availability `protobuf:"varint,5,opt,name=availability,proto3,enum=n0x.metrics.v1.Availability" json:"availability,omitempty"`
+	// Con PARTIAL, los nodos que no respondieron; vacio en los demas casos.
+	MissingNodeIds []string `protobuf:"bytes,6,rep,name=missing_node_ids,json=missingNodeIds,proto3" json:"missing_node_ids,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *GetSeriesResponse) Reset() {
@@ -461,6 +572,20 @@ func (x *GetSeriesResponse) GetBucketSeconds() uint32 {
 func (x *GetSeriesResponse) GetSeries() []*Series {
 	if x != nil {
 		return x.Series
+	}
+	return nil
+}
+
+func (x *GetSeriesResponse) GetAvailability() Availability {
+	if x != nil {
+		return x.Availability
+	}
+	return Availability_AVAILABILITY_UNSPECIFIED
+}
+
+func (x *GetSeriesResponse) GetMissingNodeIds() []string {
+	if x != nil {
+		return x.MissingNodeIds
 	}
 	return nil
 }
@@ -623,12 +748,14 @@ const file_n0x_metrics_v1_metrics_proto_rawDesc = "" +
 	"\asubjectB\r\n" +
 	"\v_account_idB\f\n" +
 	"\n" +
-	"_tenant_id\"\xca\x01\n" +
+	"_tenant_id\"\xb6\x02\n" +
 	"\x11GetSeriesResponse\x120\n" +
 	"\x05start\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x05start\x12,\n" +
 	"\x03end\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x03end\x12%\n" +
 	"\x0ebucket_seconds\x18\x03 \x01(\rR\rbucketSeconds\x12.\n" +
-	"\x06series\x18\x04 \x03(\v2\x16.n0x.metrics.v1.SeriesR\x06series\"\xc3\x02\n" +
+	"\x06series\x18\x04 \x03(\v2\x16.n0x.metrics.v1.SeriesR\x06series\x12@\n" +
+	"\favailability\x18\x05 \x01(\x0e2\x1c.n0x.metrics.v1.AvailabilityR\favailability\x12(\n" +
+	"\x10missing_node_ids\x18\x06 \x03(\tR\x0emissingNodeIds\"\xc3\x02\n" +
 	"\x06Series\x12.\n" +
 	"\x06metric\x18\x01 \x01(\x0e2\x16.n0x.metrics.v1.MetricR\x06metric\x12(\n" +
 	"\x04unit\x18\x02 \x01(\x0e2\x14.n0x.metrics.v1.UnitR\x04unit\x120\n" +
@@ -648,7 +775,7 @@ const file_n0x_metrics_v1_metrics_proto_rawDesc = "" +
 	"\bRANGE_6H\x10\x02\x12\r\n" +
 	"\tRANGE_24H\x10\x03\x12\f\n" +
 	"\bRANGE_7D\x10\x04\x12\r\n" +
-	"\tRANGE_30D\x10\x05*\xc8\x02\n" +
+	"\tRANGE_30D\x10\x05*\xbf\x03\n" +
 	"\x06Metric\x12\x16\n" +
 	"\x12METRIC_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10NODE_CPU_PERCENT\x10\x01\x12\x17\n" +
@@ -664,7 +791,21 @@ const file_n0x_metrics_v1_metrics_proto_rawDesc = "" +
 	"\x12\x1a\n" +
 	"\x16CONNECT_LATENCY_P95_MS\x10\v\x12\x18\n" +
 	"\x14WORKLOAD_CONNECTIONS\x10\f\x12\x15\n" +
-	"\x11WORKLOAD_REQUESTS\x10\r*\x84\x01\n" +
+	"\x11WORKLOAD_REQUESTS\x10\r\x12\x15\n" +
+	"\x11NODE_NET_RX_BYTES\x10\x0e\x12\x15\n" +
+	"\x11NODE_NET_TX_BYTES\x10\x0f\x12\x15\n" +
+	"\x11WORKLOAD_BYTES_IN\x10\x10\x12\x16\n" +
+	"\x12WORKLOAD_BYTES_OUT\x10\x11\x12\x18\n" +
+	"\x14WORKLOAD_DIAL_ERRORS\x10\x12*\xfe\x01\n" +
+	"\fAvailability\x12\x1c\n" +
+	"\x18AVAILABILITY_UNSPECIFIED\x10\x00\x12\x19\n" +
+	"\x15AVAILABILITY_COMPLETE\x10\x01\x12\x18\n" +
+	"\x14AVAILABILITY_PARTIAL\x10\x02\x12\x1d\n" +
+	"\x19AVAILABILITY_NODE_OFFLINE\x10\x03\x12\"\n" +
+	"\x1eAVAILABILITY_AGENT_UNSUPPORTED\x10\x04\x12!\n" +
+	"\x1dAVAILABILITY_NODE_UNREACHABLE\x10\x05\x12\x1b\n" +
+	"\x17AVAILABILITY_NODE_ERROR\x10\x06\x12\x18\n" +
+	"\x14AVAILABILITY_NO_NODE\x10\a*\x84\x01\n" +
 	"\x04Unit\x12\x14\n" +
 	"\x10UNIT_UNSPECIFIED\x10\x00\x12\x10\n" +
 	"\fUNIT_PERCENT\x10\x01\x12\x0e\n" +
@@ -675,10 +816,10 @@ const file_n0x_metrics_v1_metrics_proto_rawDesc = "" +
 	"\n" +
 	"UNIT_RATIO\x10\x04\x12\x15\n" +
 	"\x11UNIT_MILLISECONDS\x10\x05\x12\r\n" +
-	"\tUNIT_LOAD\x10\x062\xf7\x01\n" +
-	"\x0eMetricsService\x12\xe4\x01\n" +
-	"\tGetSeries\x12 .n0x.metrics.v1.GetSeriesRequest\x1a!.n0x.metrics.v1.GetSeriesResponse\"\x91\x01\xb2\xe1\x18\x8c\x01\b\x01\x12\n" +
-	"nodes.read\x1a|Get usage history for a node, workload or the tenant: CPU, memory, traffic, flows and latency over the last hour to 30 days.B/Z-github.com/n-0x/x-api-go/metrics/v1;metricsv1b\x06proto3"
+	"\tUNIT_LOAD\x10\x062\x92\x02\n" +
+	"\x0eMetricsService\x12\xff\x01\n" +
+	"\tGetSeries\x12 .n0x.metrics.v1.GetSeriesRequest\x1a!.n0x.metrics.v1.GetSeriesResponse\"\xac\x01\xb2\xe1\x18\xa7\x01\b\x01\x12\n" +
+	"nodes.read\x1a\x96\x01Get usage history for a node, workload or the tenant, fetched on demand from the nodes: CPU, memory, traffic, flows and latency, last hour to 30 days.B/Z-github.com/n-0x/x-api-go/metrics/v1;metricsv1b\x06proto3"
 
 var (
 	file_n0x_metrics_v1_metrics_proto_rawDescOnce sync.Once
@@ -692,36 +833,38 @@ func file_n0x_metrics_v1_metrics_proto_rawDescGZIP() []byte {
 	return file_n0x_metrics_v1_metrics_proto_rawDescData
 }
 
-var file_n0x_metrics_v1_metrics_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_n0x_metrics_v1_metrics_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
 var file_n0x_metrics_v1_metrics_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_n0x_metrics_v1_metrics_proto_goTypes = []any{
 	(Range)(0),                    // 0: n0x.metrics.v1.Range
 	(Metric)(0),                   // 1: n0x.metrics.v1.Metric
-	(Unit)(0),                     // 2: n0x.metrics.v1.Unit
-	(*GetSeriesRequest)(nil),      // 3: n0x.metrics.v1.GetSeriesRequest
-	(*GetSeriesResponse)(nil),     // 4: n0x.metrics.v1.GetSeriesResponse
-	(*Series)(nil),                // 5: n0x.metrics.v1.Series
-	(*Bucket)(nil),                // 6: n0x.metrics.v1.Bucket
-	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+	(Availability)(0),             // 2: n0x.metrics.v1.Availability
+	(Unit)(0),                     // 3: n0x.metrics.v1.Unit
+	(*GetSeriesRequest)(nil),      // 4: n0x.metrics.v1.GetSeriesRequest
+	(*GetSeriesResponse)(nil),     // 5: n0x.metrics.v1.GetSeriesResponse
+	(*Series)(nil),                // 6: n0x.metrics.v1.Series
+	(*Bucket)(nil),                // 7: n0x.metrics.v1.Bucket
+	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
 }
 var file_n0x_metrics_v1_metrics_proto_depIdxs = []int32{
 	1,  // 0: n0x.metrics.v1.GetSeriesRequest.metrics:type_name -> n0x.metrics.v1.Metric
 	0,  // 1: n0x.metrics.v1.GetSeriesRequest.range:type_name -> n0x.metrics.v1.Range
-	7,  // 2: n0x.metrics.v1.GetSeriesResponse.start:type_name -> google.protobuf.Timestamp
-	7,  // 3: n0x.metrics.v1.GetSeriesResponse.end:type_name -> google.protobuf.Timestamp
-	5,  // 4: n0x.metrics.v1.GetSeriesResponse.series:type_name -> n0x.metrics.v1.Series
-	1,  // 5: n0x.metrics.v1.Series.metric:type_name -> n0x.metrics.v1.Metric
-	2,  // 6: n0x.metrics.v1.Series.unit:type_name -> n0x.metrics.v1.Unit
-	6,  // 7: n0x.metrics.v1.Series.current:type_name -> n0x.metrics.v1.Bucket
-	6,  // 8: n0x.metrics.v1.Series.previous:type_name -> n0x.metrics.v1.Bucket
-	7,  // 9: n0x.metrics.v1.Bucket.start:type_name -> google.protobuf.Timestamp
-	3,  // 10: n0x.metrics.v1.MetricsService.GetSeries:input_type -> n0x.metrics.v1.GetSeriesRequest
-	4,  // 11: n0x.metrics.v1.MetricsService.GetSeries:output_type -> n0x.metrics.v1.GetSeriesResponse
-	11, // [11:12] is the sub-list for method output_type
-	10, // [10:11] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	8,  // 2: n0x.metrics.v1.GetSeriesResponse.start:type_name -> google.protobuf.Timestamp
+	8,  // 3: n0x.metrics.v1.GetSeriesResponse.end:type_name -> google.protobuf.Timestamp
+	6,  // 4: n0x.metrics.v1.GetSeriesResponse.series:type_name -> n0x.metrics.v1.Series
+	2,  // 5: n0x.metrics.v1.GetSeriesResponse.availability:type_name -> n0x.metrics.v1.Availability
+	1,  // 6: n0x.metrics.v1.Series.metric:type_name -> n0x.metrics.v1.Metric
+	3,  // 7: n0x.metrics.v1.Series.unit:type_name -> n0x.metrics.v1.Unit
+	7,  // 8: n0x.metrics.v1.Series.current:type_name -> n0x.metrics.v1.Bucket
+	7,  // 9: n0x.metrics.v1.Series.previous:type_name -> n0x.metrics.v1.Bucket
+	8,  // 10: n0x.metrics.v1.Bucket.start:type_name -> google.protobuf.Timestamp
+	4,  // 11: n0x.metrics.v1.MetricsService.GetSeries:input_type -> n0x.metrics.v1.GetSeriesRequest
+	5,  // 12: n0x.metrics.v1.MetricsService.GetSeries:output_type -> n0x.metrics.v1.GetSeriesResponse
+	12, // [12:13] is the sub-list for method output_type
+	11, // [11:12] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_n0x_metrics_v1_metrics_proto_init() }
@@ -741,7 +884,7 @@ func file_n0x_metrics_v1_metrics_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_metrics_v1_metrics_proto_rawDesc), len(file_n0x_metrics_v1_metrics_proto_rawDesc)),
-			NumEnums:      3,
+			NumEnums:      4,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
