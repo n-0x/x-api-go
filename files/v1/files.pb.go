@@ -4163,11 +4163,27 @@ func (x *CatalogCounts) GetAccounts() int32 {
 	return 0
 }
 
-// Both fields must be present, including a measured zero uncertainty.
+// measured_at and uncertainty_ms must both be present, including a measured
+// zero uncertainty. A kernel measurement (servers) carries only those two.
+//
+// A corrected measurement (nodes, authenticated NTS) also carries offset_ns,
+// anchor_boottime_ns and anchor_raw_ns, all three or none. The corrected time
+// is CLOCK_BOOTTIME + offset_ns. uncertainty_ms is the bound at the anchor;
+// readers add the drift allowance for the age measured on CLOCK_BOOTTIME and
+// the CLOCK_BOOTTIME/CLOCK_MONOTONIC_RAW divergence since the anchor, so a
+// slewed or suspended clock widens the bound instead of hiding an error.
 type ClockHealth struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MeasuredAt    *uint32                `protobuf:"varint,1,opt,name=measured_at,json=measuredAt,proto3,oneof" json:"measured_at,omitempty"`
 	UncertaintyMs *uint32                `protobuf:"varint,2,opt,name=uncertainty_ms,json=uncertaintyMs,proto3,oneof" json:"uncertainty_ms,omitempty"`
+	// UTC minus CLOCK_BOOTTIME, in nanoseconds, at the anchor.
+	OffsetNs *int64 `protobuf:"zigzag64,3,opt,name=offset_ns,json=offsetNs,proto3,oneof" json:"offset_ns,omitempty"`
+	// CLOCK_BOOTTIME, in nanoseconds, at the anchor.
+	AnchorBoottimeNs *uint64 `protobuf:"varint,4,opt,name=anchor_boottime_ns,json=anchorBoottimeNs,proto3,oneof" json:"anchor_boottime_ns,omitempty"`
+	// Diagnostic only: the sources that agreed, for example "nts:a,b".
+	Source *string `protobuf:"bytes,5,opt,name=source,proto3,oneof" json:"source,omitempty"`
+	// CLOCK_MONOTONIC_RAW, in nanoseconds, at the anchor.
+	AnchorRawNs   *uint64 `protobuf:"varint,6,opt,name=anchor_raw_ns,json=anchorRawNs,proto3,oneof" json:"anchor_raw_ns,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4212,6 +4228,34 @@ func (x *ClockHealth) GetMeasuredAt() uint32 {
 func (x *ClockHealth) GetUncertaintyMs() uint32 {
 	if x != nil && x.UncertaintyMs != nil {
 		return *x.UncertaintyMs
+	}
+	return 0
+}
+
+func (x *ClockHealth) GetOffsetNs() int64 {
+	if x != nil && x.OffsetNs != nil {
+		return *x.OffsetNs
+	}
+	return 0
+}
+
+func (x *ClockHealth) GetAnchorBoottimeNs() uint64 {
+	if x != nil && x.AnchorBoottimeNs != nil {
+		return *x.AnchorBoottimeNs
+	}
+	return 0
+}
+
+func (x *ClockHealth) GetSource() string {
+	if x != nil && x.Source != nil {
+		return *x.Source
+	}
+	return ""
+}
+
+func (x *ClockHealth) GetAnchorRawNs() uint64 {
+	if x != nil && x.AnchorRawNs != nil {
+		return *x.AnchorRawNs
 	}
 	return 0
 }
@@ -5625,13 +5669,22 @@ const file_n0x_files_v1_files_proto_rawDesc = "" +
 	"\aversion\x18\f \x01(\tR\aversion\x12\x16\n" +
 	"\x06legacy\x18\r \x01(\bR\x06legacy\"+\n" +
 	"\rCatalogCounts\x12\x1a\n" +
-	"\baccounts\x18\x01 \x01(\x05R\baccounts\"\x82\x01\n" +
+	"\baccounts\x18\x01 \x01(\x05R\baccounts\"\xdf\x02\n" +
 	"\vClockHealth\x12$\n" +
 	"\vmeasured_at\x18\x01 \x01(\rH\x00R\n" +
 	"measuredAt\x88\x01\x01\x12*\n" +
-	"\x0euncertainty_ms\x18\x02 \x01(\rH\x01R\runcertaintyMs\x88\x01\x01B\x0e\n" +
+	"\x0euncertainty_ms\x18\x02 \x01(\rH\x01R\runcertaintyMs\x88\x01\x01\x12 \n" +
+	"\toffset_ns\x18\x03 \x01(\x12H\x02R\boffsetNs\x88\x01\x01\x121\n" +
+	"\x12anchor_boottime_ns\x18\x04 \x01(\x04H\x03R\x10anchorBoottimeNs\x88\x01\x01\x12\x1b\n" +
+	"\x06source\x18\x05 \x01(\tH\x04R\x06source\x88\x01\x01\x12'\n" +
+	"\ranchor_raw_ns\x18\x06 \x01(\x04H\x05R\vanchorRawNs\x88\x01\x01B\x0e\n" +
 	"\f_measured_atB\x11\n" +
-	"\x0f_uncertainty_ms\"s\n" +
+	"\x0f_uncertainty_msB\f\n" +
+	"\n" +
+	"_offset_nsB\x15\n" +
+	"\x13_anchor_boottime_nsB\t\n" +
+	"\a_sourceB\x10\n" +
+	"\x0e_anchor_raw_ns\"s\n" +
 	"\tPublicJwk\x12\x10\n" +
 	"\x03kty\x18\x01 \x01(\tR\x03kty\x12\x10\n" +
 	"\x03crv\x18\x02 \x01(\tR\x03crv\x12\x10\n" +
