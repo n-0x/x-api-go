@@ -45,6 +45,9 @@ const (
 	// WorkloadsServiceSetWorkloadProtectionProcedure is the procedure name of the WorkloadsService's
 	// SetWorkloadProtection RPC.
 	WorkloadsServiceSetWorkloadProtectionProcedure = "/n0x.workloads.v1.WorkloadsService/SetWorkloadProtection"
+	// WorkloadsServiceSetWorkloadLabelsProcedure is the procedure name of the WorkloadsService's
+	// SetWorkloadLabels RPC.
+	WorkloadsServiceSetWorkloadLabelsProcedure = "/n0x.workloads.v1.WorkloadsService/SetWorkloadLabels"
 	// WorkloadsServiceListListeningPortsProcedure is the procedure name of the WorkloadsService's
 	// ListListeningPorts RPC.
 	WorkloadsServiceListListeningPortsProcedure = "/n0x.workloads.v1.WorkloadsService/ListListeningPorts"
@@ -106,6 +109,13 @@ var (
 			Procedure:  WorkloadsServiceSetWorkloadProtectionProcedure,
 		}
 	})
+	workloadsServiceSetWorkloadLabelsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_workloads_v1_workloads_proto.Services().ByName("WorkloadsService").Methods().ByName("SetWorkloadLabels"),
+			Procedure:  WorkloadsServiceSetWorkloadLabelsProcedure,
+		}
+	})
 	workloadsServiceListListeningPortsSpec = sync.OnceValue(func() connect.Spec {
 		return connect.Spec{
 			StreamType: connect.StreamTypeUnary,
@@ -138,6 +148,10 @@ type WorkloadsServiceClient interface {
 	RemoveWorkloadNode(context.Context, *v1.RemoveWorkloadNodeRequest) (*v1.RemoveWorkloadNodeResponse, error)
 	RetireWorkload(context.Context, *v1.RetireWorkloadRequest) (*v1.RetireWorkloadResponse, error)
 	SetWorkloadProtection(context.Context, *v1.SetWorkloadProtectionRequest) (*v1.SetWorkloadProtectionResponse, error)
+	// Requires nodes.write on the target. Also requires policies.write in the
+	// tenant when the change alters any policy selector match. Check against
+	// active and applicable draft policies in the mutation transaction.
+	SetWorkloadLabels(context.Context, *v1.SetWorkloadLabelsRequest) (*v1.SetWorkloadLabelsResponse, error)
 	ListListeningPorts(context.Context, *v1.ListListeningPortsRequest) (*v1.ListListeningPortsResponse, error)
 	ListSessions(context.Context, *v1.ListSessionsRequest) (*v1.ListSessionsResponse, error)
 	GetSession(context.Context, *v1.GetSessionRequest) (*v1.GetSessionResponse, error)
@@ -158,6 +172,10 @@ type WorkloadsServiceHandler interface {
 	RemoveWorkloadNode(context.Context, *v1.RemoveWorkloadNodeRequest) (*v1.RemoveWorkloadNodeResponse, error)
 	RetireWorkload(context.Context, *v1.RetireWorkloadRequest) (*v1.RetireWorkloadResponse, error)
 	SetWorkloadProtection(context.Context, *v1.SetWorkloadProtectionRequest) (*v1.SetWorkloadProtectionResponse, error)
+	// Requires nodes.write on the target. Also requires policies.write in the
+	// tenant when the change alters any policy selector match. Check against
+	// active and applicable draft policies in the mutation transaction.
+	SetWorkloadLabels(context.Context, *v1.SetWorkloadLabelsRequest) (*v1.SetWorkloadLabelsResponse, error)
 	ListListeningPorts(context.Context, *v1.ListListeningPortsRequest) (*v1.ListListeningPortsResponse, error)
 	ListSessions(context.Context, *v1.ListSessionsRequest) (*v1.ListSessionsResponse, error)
 	GetSession(context.Context, *v1.GetSessionRequest) (*v1.GetSessionResponse, error)
@@ -175,6 +193,7 @@ func RegisterWorkloadsServiceHandler(server *connect.Server, svc WorkloadsServic
 		connect.Method{Spec: workloadsServiceRemoveWorkloadNodeSpec(), Handler: adapter.removeWorkloadNode},
 		connect.Method{Spec: workloadsServiceRetireWorkloadSpec(), Handler: adapter.retireWorkload},
 		connect.Method{Spec: workloadsServiceSetWorkloadProtectionSpec(), Handler: adapter.setWorkloadProtection},
+		connect.Method{Spec: workloadsServiceSetWorkloadLabelsSpec(), Handler: adapter.setWorkloadLabels},
 		connect.Method{Spec: workloadsServiceListListeningPortsSpec(), Handler: adapter.listListeningPorts},
 		connect.Method{Spec: workloadsServiceListSessionsSpec(), Handler: adapter.listSessions},
 		connect.Method{Spec: workloadsServiceGetSessionSpec(), Handler: adapter.getSession},
@@ -210,6 +229,10 @@ func (UnimplementedWorkloadsServiceHandler) RetireWorkload(context.Context, *v1.
 
 func (UnimplementedWorkloadsServiceHandler) SetWorkloadProtection(context.Context, *v1.SetWorkloadProtectionRequest) (*v1.SetWorkloadProtectionResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.workloads.v1.WorkloadsService.SetWorkloadProtection is not implemented")
+}
+
+func (UnimplementedWorkloadsServiceHandler) SetWorkloadLabels(context.Context, *v1.SetWorkloadLabelsRequest) (*v1.SetWorkloadLabelsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.workloads.v1.WorkloadsService.SetWorkloadLabels is not implemented")
 }
 
 func (UnimplementedWorkloadsServiceHandler) ListListeningPorts(context.Context, *v1.ListListeningPortsRequest) (*v1.ListListeningPortsResponse, error) {
@@ -279,6 +302,14 @@ func (c *workloadsServiceClient) RetireWorkload(ctx context.Context, req *v1.Ret
 func (c *workloadsServiceClient) SetWorkloadProtection(ctx context.Context, req *v1.SetWorkloadProtectionRequest) (*v1.SetWorkloadProtectionResponse, error) {
 	var res v1.SetWorkloadProtectionResponse
 	if err := c.client.CallUnary(ctx, workloadsServiceSetWorkloadProtectionSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *workloadsServiceClient) SetWorkloadLabels(ctx context.Context, req *v1.SetWorkloadLabelsRequest) (*v1.SetWorkloadLabelsResponse, error) {
+	var res v1.SetWorkloadLabelsResponse
+	if err := c.client.CallUnary(ctx, workloadsServiceSetWorkloadLabelsSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -388,6 +419,18 @@ func (h workloadsServiceHandler) setWorkloadProtection(ctx context.Context, _ co
 		return err
 	}
 	res, err := h.svc.SetWorkloadProtection(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h workloadsServiceHandler) setWorkloadLabels(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SetWorkloadLabelsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.SetWorkloadLabels(ctx, &req)
 	if err != nil {
 		return err
 	}

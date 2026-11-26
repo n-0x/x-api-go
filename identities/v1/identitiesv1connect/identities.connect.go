@@ -51,6 +51,9 @@ const (
 	// IdentitiesServiceUpdateIdentityProcedure is the procedure name of the IdentitiesService's
 	// UpdateIdentity RPC.
 	IdentitiesServiceUpdateIdentityProcedure = "/n0x.identities.v1.IdentitiesService/UpdateIdentity"
+	// IdentitiesServiceSetIdentityLabelsProcedure is the procedure name of the IdentitiesService's
+	// SetIdentityLabels RPC.
+	IdentitiesServiceSetIdentityLabelsProcedure = "/n0x.identities.v1.IdentitiesService/SetIdentityLabels"
 	// IdentitiesServiceSetIdentityProtectionProcedure is the procedure name of the IdentitiesService's
 	// SetIdentityProtection RPC.
 	IdentitiesServiceSetIdentityProtectionProcedure = "/n0x.identities.v1.IdentitiesService/SetIdentityProtection"
@@ -146,6 +149,13 @@ var (
 			Procedure:  IdentitiesServiceUpdateIdentityProcedure,
 		}
 	})
+	identitiesServiceSetIdentityLabelsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_identities_v1_identities_proto.Services().ByName("IdentitiesService").Methods().ByName("SetIdentityLabels"),
+			Procedure:  IdentitiesServiceSetIdentityLabelsProcedure,
+		}
+	})
 	identitiesServiceSetIdentityProtectionSpec = sync.OnceValue(func() connect.Spec {
 		return connect.Spec{
 			StreamType: connect.StreamTypeUnary,
@@ -238,6 +248,10 @@ type IdentitiesServiceClient interface {
 	// fallback credential operation is audited, not a revision.
 	ReissueBootstrapSecret(context.Context, *v1.ReissueBootstrapSecretRequest) (*v1.ReissueBootstrapSecretResponse, error)
 	UpdateIdentity(context.Context, *v1.UpdateIdentityRequest) (*v1.UpdateIdentityResponse, error)
+	// Requires iam.write on the target. Also requires policies.write in the
+	// tenant when the change alters any policy selector match. Check against
+	// active and applicable draft policies in the mutation transaction.
+	SetIdentityLabels(context.Context, *v1.SetIdentityLabelsRequest) (*v1.SetIdentityLabelsResponse, error)
 	SetIdentityProtection(context.Context, *v1.SetIdentityProtectionRequest) (*v1.SetIdentityProtectionResponse, error)
 	// Requires identities.quarantine; automatic assignment actions are future work.
 	QuarantineIdentity(context.Context, *v1.QuarantineIdentityRequest) (*v1.QuarantineIdentityResponse, error)
@@ -279,6 +293,10 @@ type IdentitiesServiceHandler interface {
 	// fallback credential operation is audited, not a revision.
 	ReissueBootstrapSecret(context.Context, *v1.ReissueBootstrapSecretRequest) (*v1.ReissueBootstrapSecretResponse, error)
 	UpdateIdentity(context.Context, *v1.UpdateIdentityRequest) (*v1.UpdateIdentityResponse, error)
+	// Requires iam.write on the target. Also requires policies.write in the
+	// tenant when the change alters any policy selector match. Check against
+	// active and applicable draft policies in the mutation transaction.
+	SetIdentityLabels(context.Context, *v1.SetIdentityLabelsRequest) (*v1.SetIdentityLabelsResponse, error)
 	SetIdentityProtection(context.Context, *v1.SetIdentityProtectionRequest) (*v1.SetIdentityProtectionResponse, error)
 	// Requires identities.quarantine; automatic assignment actions are future work.
 	QuarantineIdentity(context.Context, *v1.QuarantineIdentityRequest) (*v1.QuarantineIdentityResponse, error)
@@ -308,6 +326,7 @@ func RegisterIdentitiesServiceHandler(server *connect.Server, svc IdentitiesServ
 		connect.Method{Spec: identitiesServiceRenewIdentityCredentialsSpec(), Handler: adapter.renewIdentityCredentials},
 		connect.Method{Spec: identitiesServiceReissueBootstrapSecretSpec(), Handler: adapter.reissueBootstrapSecret},
 		connect.Method{Spec: identitiesServiceUpdateIdentitySpec(), Handler: adapter.updateIdentity},
+		connect.Method{Spec: identitiesServiceSetIdentityLabelsSpec(), Handler: adapter.setIdentityLabels},
 		connect.Method{Spec: identitiesServiceSetIdentityProtectionSpec(), Handler: adapter.setIdentityProtection},
 		connect.Method{Spec: identitiesServiceQuarantineIdentitySpec(), Handler: adapter.quarantineIdentity},
 		connect.Method{Spec: identitiesServiceReleaseIdentityQuarantineSpec(), Handler: adapter.releaseIdentityQuarantine},
@@ -358,6 +377,10 @@ func (UnimplementedIdentitiesServiceHandler) ReissueBootstrapSecret(context.Cont
 
 func (UnimplementedIdentitiesServiceHandler) UpdateIdentity(context.Context, *v1.UpdateIdentityRequest) (*v1.UpdateIdentityResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.identities.v1.IdentitiesService.UpdateIdentity is not implemented")
+}
+
+func (UnimplementedIdentitiesServiceHandler) SetIdentityLabels(context.Context, *v1.SetIdentityLabelsRequest) (*v1.SetIdentityLabelsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.identities.v1.IdentitiesService.SetIdentityLabels is not implemented")
 }
 
 func (UnimplementedIdentitiesServiceHandler) SetIdentityProtection(context.Context, *v1.SetIdentityProtectionRequest) (*v1.SetIdentityProtectionResponse, error) {
@@ -471,6 +494,14 @@ func (c *identitiesServiceClient) ReissueBootstrapSecret(ctx context.Context, re
 func (c *identitiesServiceClient) UpdateIdentity(ctx context.Context, req *v1.UpdateIdentityRequest) (*v1.UpdateIdentityResponse, error) {
 	var res v1.UpdateIdentityResponse
 	if err := c.client.CallUnary(ctx, identitiesServiceUpdateIdentitySpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *identitiesServiceClient) SetIdentityLabels(ctx context.Context, req *v1.SetIdentityLabelsRequest) (*v1.SetIdentityLabelsResponse, error) {
+	var res v1.SetIdentityLabelsResponse
+	if err := c.client.CallUnary(ctx, identitiesServiceSetIdentityLabelsSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -660,6 +691,18 @@ func (h identitiesServiceHandler) updateIdentity(ctx context.Context, _ connect.
 		return err
 	}
 	res, err := h.svc.UpdateIdentity(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h identitiesServiceHandler) setIdentityLabels(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SetIdentityLabelsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.SetIdentityLabels(ctx, &req)
 	if err != nil {
 		return err
 	}

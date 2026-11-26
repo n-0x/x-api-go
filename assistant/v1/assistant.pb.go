@@ -729,7 +729,7 @@ type ToolActivity struct {
 	// navegador la muestra como texto, nunca como HTML ni enlace.
 	Summary string `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`
 	// Con call, el metodo pedido. Vacio con search. Nombre completo protobuf
-	// del metodo, p. ej. n0x.permissions.v1.PermissionsService.CreatePermission.
+	// del metodo, p. ej. n0x.policy.v1.NetworkPolicyService.CreatePolicy.
 	Operation string `protobuf:"bytes,3,opt,name=operation,proto3" json:"operation,omitempty"`
 	// Tipo del catalogo para operation, tambien PERSON_ONLY o EXCLUDED cuando
 	// la llamada se rechaza; un metodo sin la opcion se informa como EXCLUDED.
@@ -838,7 +838,7 @@ type ProposedChange struct {
 	// Lo asigna el manager; unico en la conversacion.
 	ChangeId string `protobuf:"bytes,1,opt,name=change_id,json=changeId,proto3" json:"change_id,omitempty"`
 	// Nombre completo protobuf del metodo, p. ej.
-	// n0x.permissions.v1.PermissionsService.CreatePermission.
+	// n0x.policy.v1.NetworkPolicyService.CreatePolicy.
 	Operation string `protobuf:"bytes,2,opt,name=operation,proto3" json:"operation,omitempty"`
 	// GOVERNED o EFFECT, copiado del catalogo al anotar.
 	Kind v1.OperationKind `protobuf:"varint,3,opt,name=kind,proto3,enum=n0x.catalog.v1.OperationKind" json:"kind,omitempty"`

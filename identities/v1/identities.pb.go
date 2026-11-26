@@ -455,6 +455,7 @@ type Identity struct {
 	//	*Identity_Node
 	//	*Identity_ServiceAccount
 	Details       isIdentity_Details `protobuf_oneof:"details"`
+	Labels        map[string]string  `protobuf:"bytes,15,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -596,6 +597,13 @@ func (x *Identity) GetServiceAccount() *ServiceAccountDetails {
 		if x, ok := x.Details.(*Identity_ServiceAccount); ok {
 			return x.ServiceAccount
 		}
+	}
+	return nil
+}
+
+func (x *Identity) GetLabels() map[string]string {
+	if x != nil {
+		return x.Labels
 	}
 	return nil
 }
@@ -1027,6 +1035,7 @@ type CreatePersonRequest struct {
 	RequestId           string                 `protobuf:"bytes,6,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	Reason              string                 `protobuf:"bytes,7,opt,name=reason,proto3" json:"reason,omitempty"`
 	DraftRevisionNumber *uint64                `protobuf:"varint,8,opt,name=draft_revision_number,json=draftRevisionNumber,proto3,oneof" json:"draft_revision_number,omitempty"`
+	Labels              map[string]string      `protobuf:"bytes,9,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -1117,6 +1126,13 @@ func (x *CreatePersonRequest) GetDraftRevisionNumber() uint64 {
 	return 0
 }
 
+func (x *CreatePersonRequest) GetLabels() map[string]string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
 type CreatePersonResponse struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Identity       *Identity              `protobuf:"bytes,1,opt,name=identity,proto3" json:"identity,omitempty"`
@@ -1181,6 +1197,7 @@ type CreateServiceAccountRequest struct {
 	RequestId             string                 `protobuf:"bytes,8,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	Reason                string                 `protobuf:"bytes,9,opt,name=reason,proto3" json:"reason,omitempty"`
 	DraftRevisionNumber   *uint64                `protobuf:"varint,10,opt,name=draft_revision_number,json=draftRevisionNumber,proto3,oneof" json:"draft_revision_number,omitempty"`
+	Labels                map[string]string      `protobuf:"bytes,11,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
@@ -1285,6 +1302,13 @@ func (x *CreateServiceAccountRequest) GetDraftRevisionNumber() uint64 {
 	return 0
 }
 
+func (x *CreateServiceAccountRequest) GetLabels() map[string]string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
 type CreateServiceAccountResponse struct {
 	state    protoimpl.MessageState `protogen:"open.v1"`
 	Identity *Identity              `protobuf:"bytes,1,opt,name=identity,proto3" json:"identity,omitempty"`
@@ -1368,7 +1392,8 @@ type CreateNodeEnrollmentRequest struct {
 	// Ausente o false conserva el alta con malla; true da de alta un nodo que
 	// solo expone cargas por conexion saliente, sin TUN ni direccion de malla.
 	// El bootstrap resultante lleva files/v1.ClientBootstrap.expose_only.
-	ExposeOnly    *bool `protobuf:"varint,9,opt,name=expose_only,json=exposeOnly,proto3,oneof" json:"expose_only,omitempty"`
+	ExposeOnly    *bool             `protobuf:"varint,9,opt,name=expose_only,json=exposeOnly,proto3,oneof" json:"expose_only,omitempty"`
+	Labels        map[string]string `protobuf:"bytes,10,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1464,6 +1489,13 @@ func (x *CreateNodeEnrollmentRequest) GetExposeOnly() bool {
 		return *x.ExposeOnly
 	}
 	return false
+}
+
+func (x *CreateNodeEnrollmentRequest) GetLabels() map[string]string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
 }
 
 type CreateNodeEnrollmentResponse struct {
@@ -2884,6 +2916,7 @@ type CreateGroupRequest struct {
 	RequestId           string                 `protobuf:"bytes,6,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	Reason              string                 `protobuf:"bytes,7,opt,name=reason,proto3" json:"reason,omitempty"`
 	DraftRevisionNumber *uint64                `protobuf:"varint,8,opt,name=draft_revision_number,json=draftRevisionNumber,proto3,oneof" json:"draft_revision_number,omitempty"`
+	Labels              map[string]string      `protobuf:"bytes,9,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -2974,6 +3007,161 @@ func (x *CreateGroupRequest) GetDraftRevisionNumber() uint64 {
 	return 0
 }
 
+func (x *CreateGroupRequest) GetLabels() map[string]string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+// Replaces the full label map. Keys and values use the policy label grammar;
+// a resource may have at most 32 labels. Direct changes recompile and run the
+// active policy test suite atomically. A failure leaves the active state intact.
+// Staged changes run through the gate at PublishDraft.
+type SetIdentityLabelsRequest struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	AccountId           string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	TenantId            string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	IdentityId          string                 `protobuf:"bytes,3,opt,name=identity_id,json=identityId,proto3" json:"identity_id,omitempty"`
+	Labels              map[string]string      `protobuf:"bytes,4,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	RequestId           string                 `protobuf:"bytes,5,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	Reason              string                 `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`
+	DraftRevisionNumber *uint64                `protobuf:"varint,7,opt,name=draft_revision_number,json=draftRevisionNumber,proto3,oneof" json:"draft_revision_number,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *SetIdentityLabelsRequest) Reset() {
+	*x = SetIdentityLabelsRequest{}
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetIdentityLabelsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetIdentityLabelsRequest) ProtoMessage() {}
+
+func (x *SetIdentityLabelsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetIdentityLabelsRequest.ProtoReflect.Descriptor instead.
+func (*SetIdentityLabelsRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *SetIdentityLabelsRequest) GetAccountId() string {
+	if x != nil {
+		return x.AccountId
+	}
+	return ""
+}
+
+func (x *SetIdentityLabelsRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *SetIdentityLabelsRequest) GetIdentityId() string {
+	if x != nil {
+		return x.IdentityId
+	}
+	return ""
+}
+
+func (x *SetIdentityLabelsRequest) GetLabels() map[string]string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+func (x *SetIdentityLabelsRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *SetIdentityLabelsRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *SetIdentityLabelsRequest) GetDraftRevisionNumber() uint64 {
+	if x != nil && x.DraftRevisionNumber != nil {
+		return *x.DraftRevisionNumber
+	}
+	return 0
+}
+
+type SetIdentityLabelsResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Identity       *Identity              `protobuf:"bytes,1,opt,name=identity,proto3" json:"identity,omitempty"`
+	RevisionNumber uint64                 `protobuf:"varint,2,opt,name=revision_number,json=revisionNumber,proto3" json:"revision_number,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *SetIdentityLabelsResponse) Reset() {
+	*x = SetIdentityLabelsResponse{}
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetIdentityLabelsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetIdentityLabelsResponse) ProtoMessage() {}
+
+func (x *SetIdentityLabelsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetIdentityLabelsResponse.ProtoReflect.Descriptor instead.
+func (*SetIdentityLabelsResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *SetIdentityLabelsResponse) GetIdentity() *Identity {
+	if x != nil {
+		return x.Identity
+	}
+	return nil
+}
+
+func (x *SetIdentityLabelsResponse) GetRevisionNumber() uint64 {
+	if x != nil {
+		return x.RevisionNumber
+	}
+	return 0
+}
+
 type CreateGroupResponse struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Group          *Group                 `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
@@ -2984,7 +3172,7 @@ type CreateGroupResponse struct {
 
 func (x *CreateGroupResponse) Reset() {
 	*x = CreateGroupResponse{}
-	mi := &file_n0x_identities_v1_identities_proto_msgTypes[39]
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2996,7 +3184,7 @@ func (x *CreateGroupResponse) String() string {
 func (*CreateGroupResponse) ProtoMessage() {}
 
 func (x *CreateGroupResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_identities_v1_identities_proto_msgTypes[39]
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3009,7 +3197,7 @@ func (x *CreateGroupResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateGroupResponse.ProtoReflect.Descriptor instead.
 func (*CreateGroupResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{39}
+	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *CreateGroupResponse) GetGroup() *Group {
@@ -3041,7 +3229,7 @@ type AddGroupMembersRequest struct {
 
 func (x *AddGroupMembersRequest) Reset() {
 	*x = AddGroupMembersRequest{}
-	mi := &file_n0x_identities_v1_identities_proto_msgTypes[40]
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3053,7 +3241,7 @@ func (x *AddGroupMembersRequest) String() string {
 func (*AddGroupMembersRequest) ProtoMessage() {}
 
 func (x *AddGroupMembersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_identities_v1_identities_proto_msgTypes[40]
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3066,7 +3254,7 @@ func (x *AddGroupMembersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddGroupMembersRequest.ProtoReflect.Descriptor instead.
 func (*AddGroupMembersRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{40}
+	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *AddGroupMembersRequest) GetAccountId() string {
@@ -3128,7 +3316,7 @@ type AddGroupMembersResponse struct {
 
 func (x *AddGroupMembersResponse) Reset() {
 	*x = AddGroupMembersResponse{}
-	mi := &file_n0x_identities_v1_identities_proto_msgTypes[41]
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3140,7 +3328,7 @@ func (x *AddGroupMembersResponse) String() string {
 func (*AddGroupMembersResponse) ProtoMessage() {}
 
 func (x *AddGroupMembersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_identities_v1_identities_proto_msgTypes[41]
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3153,7 +3341,7 @@ func (x *AddGroupMembersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddGroupMembersResponse.ProtoReflect.Descriptor instead.
 func (*AddGroupMembersResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{41}
+	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *AddGroupMembersResponse) GetGroup() *Group {
@@ -3185,7 +3373,7 @@ type RemoveGroupMembersRequest struct {
 
 func (x *RemoveGroupMembersRequest) Reset() {
 	*x = RemoveGroupMembersRequest{}
-	mi := &file_n0x_identities_v1_identities_proto_msgTypes[42]
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3197,7 +3385,7 @@ func (x *RemoveGroupMembersRequest) String() string {
 func (*RemoveGroupMembersRequest) ProtoMessage() {}
 
 func (x *RemoveGroupMembersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_identities_v1_identities_proto_msgTypes[42]
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3210,7 +3398,7 @@ func (x *RemoveGroupMembersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveGroupMembersRequest.ProtoReflect.Descriptor instead.
 func (*RemoveGroupMembersRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{42}
+	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *RemoveGroupMembersRequest) GetAccountId() string {
@@ -3272,7 +3460,7 @@ type RemoveGroupMembersResponse struct {
 
 func (x *RemoveGroupMembersResponse) Reset() {
 	*x = RemoveGroupMembersResponse{}
-	mi := &file_n0x_identities_v1_identities_proto_msgTypes[43]
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3284,7 +3472,7 @@ func (x *RemoveGroupMembersResponse) String() string {
 func (*RemoveGroupMembersResponse) ProtoMessage() {}
 
 func (x *RemoveGroupMembersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_identities_v1_identities_proto_msgTypes[43]
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3297,7 +3485,7 @@ func (x *RemoveGroupMembersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveGroupMembersResponse.ProtoReflect.Descriptor instead.
 func (*RemoveGroupMembersResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{43}
+	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *RemoveGroupMembersResponse) GetGroup() *Group {
@@ -3328,7 +3516,7 @@ type DeleteGroupRequest struct {
 
 func (x *DeleteGroupRequest) Reset() {
 	*x = DeleteGroupRequest{}
-	mi := &file_n0x_identities_v1_identities_proto_msgTypes[44]
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3340,7 +3528,7 @@ func (x *DeleteGroupRequest) String() string {
 func (*DeleteGroupRequest) ProtoMessage() {}
 
 func (x *DeleteGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_identities_v1_identities_proto_msgTypes[44]
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3353,7 +3541,7 @@ func (x *DeleteGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteGroupRequest.ProtoReflect.Descriptor instead.
 func (*DeleteGroupRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{44}
+	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *DeleteGroupRequest) GetAccountId() string {
@@ -3409,7 +3597,7 @@ type DeleteGroupResponse struct {
 
 func (x *DeleteGroupResponse) Reset() {
 	*x = DeleteGroupResponse{}
-	mi := &file_n0x_identities_v1_identities_proto_msgTypes[45]
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3421,7 +3609,7 @@ func (x *DeleteGroupResponse) String() string {
 func (*DeleteGroupResponse) ProtoMessage() {}
 
 func (x *DeleteGroupResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_identities_v1_identities_proto_msgTypes[45]
+	mi := &file_n0x_identities_v1_identities_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3434,7 +3622,7 @@ func (x *DeleteGroupResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteGroupResponse.ProtoReflect.Descriptor instead.
 func (*DeleteGroupResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{45}
+	return file_n0x_identities_v1_identities_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *DeleteGroupResponse) GetGroup() *Group {
@@ -3477,7 +3665,7 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\n" +
 	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12F\n" +
 	"\x11expiration_notice\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10expirationNotice\x12N\n" +
-	"\x15expiration_warning_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x13expirationWarningAt\"\xce\x05\n" +
+	"\x15expiration_warning_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x13expirationWarningAt\"\xca\x06\n" +
 	"\bIdentity\x12\x1f\n" +
 	"\videntity_id\x18\x01 \x01(\tR\n" +
 	"identityId\x12\x1d\n" +
@@ -3500,7 +3688,11 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\x0frevision_number\x18\v \x01(\x04R\x0erevisionNumber\x12:\n" +
 	"\x06person\x18\f \x01(\v2 .n0x.identities.v1.PersonDetailsH\x00R\x06person\x124\n" +
 	"\x04node\x18\r \x01(\v2\x1e.n0x.identities.v1.NodeDetailsH\x00R\x04node\x12S\n" +
-	"\x0fservice_account\x18\x0e \x01(\v2(.n0x.identities.v1.ServiceAccountDetailsH\x00R\x0eserviceAccountB\t\n" +
+	"\x0fservice_account\x18\x0e \x01(\v2(.n0x.identities.v1.ServiceAccountDetailsH\x00R\x0eserviceAccount\x12?\n" +
+	"\x06labels\x18\x0f \x03(\v2'.n0x.identities.v1.Identity.LabelsEntryR\x06labels\x1a9\n" +
+	"\vLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\t\n" +
 	"\adetails\"\x8b\x01\n" +
 	"\x05Group\x12\x19\n" +
 	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x127\n" +
@@ -3537,7 +3729,7 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\videntity_id\x18\x03 \x01(\tR\n" +
 	"identityId\"N\n" +
 	"\x13GetIdentityResponse\x127\n" +
-	"\bidentity\x18\x01 \x01(\v2\x1b.n0x.identities.v1.IdentityR\bidentity\"\xa7\x02\n" +
+	"\bidentity\x18\x01 \x01(\v2\x1b.n0x.identities.v1.IdentityR\bidentity\"\xae\x03\n" +
 	"\x13CreatePersonRequest\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
@@ -3548,11 +3740,15 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\n" +
 	"request_id\x18\x06 \x01(\tR\trequestId\x12\x16\n" +
 	"\x06reason\x18\a \x01(\tR\x06reason\x127\n" +
-	"\x15draft_revision_number\x18\b \x01(\x04H\x00R\x13draftRevisionNumber\x88\x01\x01B\x18\n" +
+	"\x15draft_revision_number\x18\b \x01(\x04H\x00R\x13draftRevisionNumber\x88\x01\x01\x12J\n" +
+	"\x06labels\x18\t \x03(\v22.n0x.identities.v1.CreatePersonRequest.LabelsEntryR\x06labels\x1a9\n" +
+	"\vLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x18\n" +
 	"\x16_draft_revision_number\"x\n" +
 	"\x14CreatePersonResponse\x127\n" +
 	"\bidentity\x18\x01 \x01(\v2\x1b.n0x.identities.v1.IdentityR\bidentity\x12'\n" +
-	"\x0frevision_number\x18\x02 \x01(\x04R\x0erevisionNumber\"\xd4\x03\n" +
+	"\x0frevision_number\x18\x02 \x01(\x04R\x0erevisionNumber\"\xe3\x04\n" +
 	"\x1bCreateServiceAccountRequest\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
@@ -3567,13 +3763,17 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"request_id\x18\b \x01(\tR\trequestId\x12\x16\n" +
 	"\x06reason\x18\t \x01(\tR\x06reason\x127\n" +
 	"\x15draft_revision_number\x18\n" +
-	" \x01(\x04H\x00R\x13draftRevisionNumber\x88\x01\x01B\x18\n" +
+	" \x01(\x04H\x00R\x13draftRevisionNumber\x88\x01\x01\x12R\n" +
+	"\x06labels\x18\v \x03(\v2:.n0x.identities.v1.CreateServiceAccountRequest.LabelsEntryR\x06labels\x1a9\n" +
+	"\vLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x18\n" +
 	"\x16_draft_revision_number\"\x86\x02\n" +
 	"\x1cCreateServiceAccountResponse\x127\n" +
 	"\bidentity\x18\x01 \x01(\v2\x1b.n0x.identities.v1.IdentityR\bidentity\x12)\n" +
 	"\x10bootstrap_secret\x18\x02 \x01(\tR\x0fbootstrapSecret\x12Y\n" +
 	"\x1bbootstrap_secret_expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x18bootstrapSecretExpiresAt\x12'\n" +
-	"\x0frevision_number\x18\x04 \x01(\x04R\x0erevisionNumber\"\x8e\x03\n" +
+	"\x0frevision_number\x18\x04 \x01(\x04R\x0erevisionNumber\"\x9d\x04\n" +
 	"\x1bCreateNodeEnrollmentRequest\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
@@ -3586,7 +3786,12 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\x06reason\x18\a \x01(\tR\x06reason\x127\n" +
 	"\x15draft_revision_number\x18\b \x01(\x04H\x01R\x13draftRevisionNumber\x88\x01\x01\x12$\n" +
 	"\vexpose_only\x18\t \x01(\bH\x02R\n" +
-	"exposeOnly\x88\x01\x01B\x11\n" +
+	"exposeOnly\x88\x01\x01\x12R\n" +
+	"\x06labels\x18\n" +
+	" \x03(\v2:.n0x.identities.v1.CreateNodeEnrollmentRequest.LabelsEntryR\x06labels\x1a9\n" +
+	"\vLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x11\n" +
 	"\x0f_incarnation_idB\x18\n" +
 	"\x16_draft_revision_numberB\x0e\n" +
 	"\f_expose_only\"\x86\x02\n" +
@@ -3727,7 +3932,7 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\ttenant_id\x18\x02 \x01(\tR\btenantId\x12\x19\n" +
 	"\bgroup_id\x18\x03 \x01(\tR\agroupId\"B\n" +
 	"\x10GetGroupResponse\x12.\n" +
-	"\x05group\x18\x01 \x01(\v2\x18.n0x.identities.v1.GroupR\x05group\"\xc0\x02\n" +
+	"\x05group\x18\x01 \x01(\v2\x18.n0x.identities.v1.GroupR\x05group\"\xc6\x03\n" +
 	"\x12CreateGroupRequest\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
@@ -3738,8 +3943,31 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\n" +
 	"request_id\x18\x06 \x01(\tR\trequestId\x12\x16\n" +
 	"\x06reason\x18\a \x01(\tR\x06reason\x127\n" +
-	"\x15draft_revision_number\x18\b \x01(\x04H\x00R\x13draftRevisionNumber\x88\x01\x01B\x18\n" +
-	"\x16_draft_revision_number\"n\n" +
+	"\x15draft_revision_number\x18\b \x01(\x04H\x00R\x13draftRevisionNumber\x88\x01\x01\x12I\n" +
+	"\x06labels\x18\t \x03(\v21.n0x.identities.v1.CreateGroupRequest.LabelsEntryR\x06labels\x1a9\n" +
+	"\vLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x18\n" +
+	"\x16_draft_revision_number\"\xc1\x03\n" +
+	"\x18SetIdentityLabelsRequest\x12\x1d\n" +
+	"\n" +
+	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
+	"\ttenant_id\x18\x02 \x01(\tR\btenantId\x12\x1f\n" +
+	"\videntity_id\x18\x03 \x01(\tR\n" +
+	"identityId\x12O\n" +
+	"\x06labels\x18\x04 \x03(\v27.n0x.identities.v1.SetIdentityLabelsRequest.LabelsEntryR\x06labels\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x05 \x01(\tR\trequestId\x12\x16\n" +
+	"\x06reason\x18\x06 \x01(\tR\x06reason\x127\n" +
+	"\x15draft_revision_number\x18\a \x01(\x04H\x00R\x13draftRevisionNumber\x88\x01\x01\x1a9\n" +
+	"\vLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x18\n" +
+	"\x16_draft_revision_numberJ\x04\b\b\x10\tJ\x04\b\t\x10\n" +
+	"R\x15override_failed_testsR\x0foverride_reason\"}\n" +
+	"\x19SetIdentityLabelsResponse\x127\n" +
+	"\bidentity\x18\x01 \x01(\v2\x1b.n0x.identities.v1.IdentityR\bidentity\x12'\n" +
+	"\x0frevision_number\x18\x02 \x01(\x04R\x0erevisionNumber\"n\n" +
 	"\x13CreateGroupResponse\x12.\n" +
 	"\x05group\x18\x01 \x01(\v2\x18.n0x.identities.v1.GroupR\x05group\x12'\n" +
 	"\x0frevision_number\x18\x02 \x01(\x04R\x0erevisionNumber\"\xa9\x02\n" +
@@ -3795,7 +4023,7 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\x15IDENTITY_STATE_ACTIVE\x10\x01\x12\x1a\n" +
 	"\x16IDENTITY_STATE_EXPIRED\x10\x02\x12\x1e\n" +
 	"\x1aIDENTITY_STATE_QUARANTINED\x10\x03\x12\x1e\n" +
-	"\x1aIDENTITY_STATE_DEACTIVATED\x10\x042\xc8\x19\n" +
+	"\x1aIDENTITY_STATE_DEACTIVATED\x10\x042\x98\x1b\n" +
 	"\x11IdentitiesService\x12\xe1\x01\n" +
 	"\x0eListIdentities\x12(.n0x.identities.v1.ListIdentitiesRequest\x1a).n0x.identities.v1.ListIdentitiesResponse\"z\xb2\xe1\x18v\b\x01\x12\biam.read\x1ahList the people, nodes, service accounts and groups of the tenant, optionally filtered by type or state.\x12\xd2\x01\n" +
 	"\vGetIdentity\x12%.n0x.identities.v1.GetIdentityRequest\x1a&.n0x.identities.v1.GetIdentityResponse\"t\xb2\xe1\x18p\b\x01\x12\biam.read\x1abGet the details of one identity: a person, node or service account, with its state and expiration.\x12\xa1\x01\n" +
@@ -3805,7 +4033,8 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\x17ExchangeBootstrapSecret\x121.n0x.identities.v1.ExchangeBootstrapSecretRequest\x1a2.n0x.identities.v1.ExchangeBootstrapSecretResponse\"\x06\xb2\xe1\x18\x02\b\x05\x12\x8b\x01\n" +
 	"\x18RenewIdentityCredentials\x122.n0x.identities.v1.RenewIdentityCredentialsRequest\x1a3.n0x.identities.v1.RenewIdentityCredentialsResponse\"\x06\xb2\xe1\x18\x02\b\x05\x12\x90\x01\n" +
 	"\x16ReissueBootstrapSecret\x120.n0x.identities.v1.ReissueBootstrapSecretRequest\x1a1.n0x.identities.v1.ReissueBootstrapSecretResponse\"\x11\xb2\xe1\x18\r\b\x04\x12\tiam.write\x12\xc7\x01\n" +
-	"\x0eUpdateIdentity\x12(.n0x.identities.v1.UpdateIdentityRequest\x1a).n0x.identities.v1.UpdateIdentityResponse\"`\xb2\xe1\x18\\\b\x02\x12\tiam.write\x1aMChange the name, description, responsible owner or expiration of an identity.\x12\x8d\x01\n" +
+	"\x0eUpdateIdentity\x12(.n0x.identities.v1.UpdateIdentityRequest\x1a).n0x.identities.v1.UpdateIdentityResponse\"`\xb2\xe1\x18\\\b\x02\x12\tiam.write\x1aMChange the name, description, responsible owner or expiration of an identity.\x12\xcd\x01\n" +
+	"\x11SetIdentityLabels\x12+.n0x.identities.v1.SetIdentityLabelsRequest\x1a,.n0x.identities.v1.SetIdentityLabelsResponse\"]\xb2\xe1\x18Y\b\x02\x12\tiam.write\x1aJReplace the labels of an identity or group and reconcile network policies.\x12\x8d\x01\n" +
 	"\x15SetIdentityProtection\x12/.n0x.identities.v1.SetIdentityProtectionRequest\x1a0.n0x.identities.v1.SetIdentityProtectionResponse\"\x11\xb2\xe1\x18\r\b\x04\x12\tiam.write\x12\xe4\x01\n" +
 	"\x12QuarantineIdentity\x12,.n0x.identities.v1.QuarantineIdentityRequest\x1a-.n0x.identities.v1.QuarantineIdentityResponse\"q\xb2\xe1\x18m\b\x03\x12\x15identities.quarantine\x1aRQuarantine an identity: cut all its access immediately until a person releases it.\x12\xa5\x01\n" +
 	"\x19ReleaseIdentityQuarantine\x123.n0x.identities.v1.ReleaseIdentityQuarantineRequest\x1a4.n0x.identities.v1.ReleaseIdentityQuarantineResponse\"\x1d\xb2\xe1\x18\x19\b\x04\x12\x15identities.quarantine\x12\xdd\x01\n" +
@@ -3831,7 +4060,7 @@ func file_n0x_identities_v1_identities_proto_rawDescGZIP() []byte {
 }
 
 var file_n0x_identities_v1_identities_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_n0x_identities_v1_identities_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
+var file_n0x_identities_v1_identities_proto_msgTypes = make([]protoimpl.MessageInfo, 54)
 var file_n0x_identities_v1_identities_proto_goTypes = []any{
 	(IdentityType)(0),                         // 0: n0x.identities.v1.IdentityType
 	(IdentityState)(0),                        // 1: n0x.identities.v1.IdentityState
@@ -3874,103 +4103,120 @@ var file_n0x_identities_v1_identities_proto_goTypes = []any{
 	(*GetGroupRequest)(nil),                   // 38: n0x.identities.v1.GetGroupRequest
 	(*GetGroupResponse)(nil),                  // 39: n0x.identities.v1.GetGroupResponse
 	(*CreateGroupRequest)(nil),                // 40: n0x.identities.v1.CreateGroupRequest
-	(*CreateGroupResponse)(nil),               // 41: n0x.identities.v1.CreateGroupResponse
-	(*AddGroupMembersRequest)(nil),            // 42: n0x.identities.v1.AddGroupMembersRequest
-	(*AddGroupMembersResponse)(nil),           // 43: n0x.identities.v1.AddGroupMembersResponse
-	(*RemoveGroupMembersRequest)(nil),         // 44: n0x.identities.v1.RemoveGroupMembersRequest
-	(*RemoveGroupMembersResponse)(nil),        // 45: n0x.identities.v1.RemoveGroupMembersResponse
-	(*DeleteGroupRequest)(nil),                // 46: n0x.identities.v1.DeleteGroupRequest
-	(*DeleteGroupResponse)(nil),               // 47: n0x.identities.v1.DeleteGroupResponse
-	(*timestamppb.Timestamp)(nil),             // 48: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),               // 49: google.protobuf.Duration
+	(*SetIdentityLabelsRequest)(nil),          // 41: n0x.identities.v1.SetIdentityLabelsRequest
+	(*SetIdentityLabelsResponse)(nil),         // 42: n0x.identities.v1.SetIdentityLabelsResponse
+	(*CreateGroupResponse)(nil),               // 43: n0x.identities.v1.CreateGroupResponse
+	(*AddGroupMembersRequest)(nil),            // 44: n0x.identities.v1.AddGroupMembersRequest
+	(*AddGroupMembersResponse)(nil),           // 45: n0x.identities.v1.AddGroupMembersResponse
+	(*RemoveGroupMembersRequest)(nil),         // 46: n0x.identities.v1.RemoveGroupMembersRequest
+	(*RemoveGroupMembersResponse)(nil),        // 47: n0x.identities.v1.RemoveGroupMembersResponse
+	(*DeleteGroupRequest)(nil),                // 48: n0x.identities.v1.DeleteGroupRequest
+	(*DeleteGroupResponse)(nil),               // 49: n0x.identities.v1.DeleteGroupResponse
+	nil,                                       // 50: n0x.identities.v1.Identity.LabelsEntry
+	nil,                                       // 51: n0x.identities.v1.CreatePersonRequest.LabelsEntry
+	nil,                                       // 52: n0x.identities.v1.CreateServiceAccountRequest.LabelsEntry
+	nil,                                       // 53: n0x.identities.v1.CreateNodeEnrollmentRequest.LabelsEntry
+	nil,                                       // 54: n0x.identities.v1.CreateGroupRequest.LabelsEntry
+	nil,                                       // 55: n0x.identities.v1.SetIdentityLabelsRequest.LabelsEntry
+	(*timestamppb.Timestamp)(nil),             // 56: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),               // 57: google.protobuf.Duration
 }
 var file_n0x_identities_v1_identities_proto_depIdxs = []int32{
-	48, // 0: n0x.identities.v1.IdentityQuarantine.quarantined_at:type_name -> google.protobuf.Timestamp
-	48, // 1: n0x.identities.v1.ServiceAccountDetails.expires_at:type_name -> google.protobuf.Timestamp
-	49, // 2: n0x.identities.v1.ServiceAccountDetails.expiration_notice:type_name -> google.protobuf.Duration
-	48, // 3: n0x.identities.v1.ServiceAccountDetails.expiration_warning_at:type_name -> google.protobuf.Timestamp
+	56, // 0: n0x.identities.v1.IdentityQuarantine.quarantined_at:type_name -> google.protobuf.Timestamp
+	56, // 1: n0x.identities.v1.ServiceAccountDetails.expires_at:type_name -> google.protobuf.Timestamp
+	57, // 2: n0x.identities.v1.ServiceAccountDetails.expiration_notice:type_name -> google.protobuf.Duration
+	56, // 3: n0x.identities.v1.ServiceAccountDetails.expiration_warning_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: n0x.identities.v1.Identity.type:type_name -> n0x.identities.v1.IdentityType
 	1,  // 5: n0x.identities.v1.Identity.state:type_name -> n0x.identities.v1.IdentityState
 	2,  // 6: n0x.identities.v1.Identity.protection:type_name -> n0x.identities.v1.IdentityProtection
 	3,  // 7: n0x.identities.v1.Identity.quarantine:type_name -> n0x.identities.v1.IdentityQuarantine
-	48, // 8: n0x.identities.v1.Identity.created_at:type_name -> google.protobuf.Timestamp
+	56, // 8: n0x.identities.v1.Identity.created_at:type_name -> google.protobuf.Timestamp
 	4,  // 9: n0x.identities.v1.Identity.person:type_name -> n0x.identities.v1.PersonDetails
 	5,  // 10: n0x.identities.v1.Identity.node:type_name -> n0x.identities.v1.NodeDetails
 	6,  // 11: n0x.identities.v1.Identity.service_account:type_name -> n0x.identities.v1.ServiceAccountDetails
-	7,  // 12: n0x.identities.v1.Group.identity:type_name -> n0x.identities.v1.Identity
-	48, // 13: n0x.identities.v1.IdentityCredentials.expires_at:type_name -> google.protobuf.Timestamp
-	48, // 14: n0x.identities.v1.IdentityCredentials.renew_after:type_name -> google.protobuf.Timestamp
-	0,  // 15: n0x.identities.v1.ListIdentitiesRequest.type:type_name -> n0x.identities.v1.IdentityType
-	1,  // 16: n0x.identities.v1.ListIdentitiesRequest.state:type_name -> n0x.identities.v1.IdentityState
-	7,  // 17: n0x.identities.v1.ListIdentitiesResponse.identities:type_name -> n0x.identities.v1.Identity
-	7,  // 18: n0x.identities.v1.GetIdentityResponse.identity:type_name -> n0x.identities.v1.Identity
-	7,  // 19: n0x.identities.v1.CreatePersonResponse.identity:type_name -> n0x.identities.v1.Identity
-	48, // 20: n0x.identities.v1.CreateServiceAccountRequest.expires_at:type_name -> google.protobuf.Timestamp
-	49, // 21: n0x.identities.v1.CreateServiceAccountRequest.expiration_notice:type_name -> google.protobuf.Duration
-	7,  // 22: n0x.identities.v1.CreateServiceAccountResponse.identity:type_name -> n0x.identities.v1.Identity
-	48, // 23: n0x.identities.v1.CreateServiceAccountResponse.bootstrap_secret_expires_at:type_name -> google.protobuf.Timestamp
-	7,  // 24: n0x.identities.v1.CreateNodeEnrollmentResponse.identity:type_name -> n0x.identities.v1.Identity
-	48, // 25: n0x.identities.v1.CreateNodeEnrollmentResponse.bootstrap_secret_expires_at:type_name -> google.protobuf.Timestamp
-	9,  // 26: n0x.identities.v1.ExchangeBootstrapSecretResponse.credentials:type_name -> n0x.identities.v1.IdentityCredentials
-	9,  // 27: n0x.identities.v1.RenewIdentityCredentialsResponse.credentials:type_name -> n0x.identities.v1.IdentityCredentials
-	48, // 28: n0x.identities.v1.ReissueBootstrapSecretResponse.bootstrap_secret_expires_at:type_name -> google.protobuf.Timestamp
-	48, // 29: n0x.identities.v1.UpdateIdentityRequest.expires_at:type_name -> google.protobuf.Timestamp
-	49, // 30: n0x.identities.v1.UpdateIdentityRequest.expiration_notice:type_name -> google.protobuf.Duration
-	7,  // 31: n0x.identities.v1.UpdateIdentityResponse.identity:type_name -> n0x.identities.v1.Identity
-	2,  // 32: n0x.identities.v1.SetIdentityProtectionRequest.protection:type_name -> n0x.identities.v1.IdentityProtection
-	7,  // 33: n0x.identities.v1.SetIdentityProtectionResponse.identity:type_name -> n0x.identities.v1.Identity
-	7,  // 34: n0x.identities.v1.QuarantineIdentityResponse.identity:type_name -> n0x.identities.v1.Identity
-	7,  // 35: n0x.identities.v1.ReleaseIdentityQuarantineResponse.identity:type_name -> n0x.identities.v1.Identity
-	7,  // 36: n0x.identities.v1.DeactivateIdentityResponse.identity:type_name -> n0x.identities.v1.Identity
-	8,  // 37: n0x.identities.v1.ListGroupsResponse.groups:type_name -> n0x.identities.v1.Group
-	8,  // 38: n0x.identities.v1.GetGroupResponse.group:type_name -> n0x.identities.v1.Group
-	8,  // 39: n0x.identities.v1.CreateGroupResponse.group:type_name -> n0x.identities.v1.Group
-	8,  // 40: n0x.identities.v1.AddGroupMembersResponse.group:type_name -> n0x.identities.v1.Group
-	8,  // 41: n0x.identities.v1.RemoveGroupMembersResponse.group:type_name -> n0x.identities.v1.Group
-	8,  // 42: n0x.identities.v1.DeleteGroupResponse.group:type_name -> n0x.identities.v1.Group
-	10, // 43: n0x.identities.v1.IdentitiesService.ListIdentities:input_type -> n0x.identities.v1.ListIdentitiesRequest
-	12, // 44: n0x.identities.v1.IdentitiesService.GetIdentity:input_type -> n0x.identities.v1.GetIdentityRequest
-	14, // 45: n0x.identities.v1.IdentitiesService.CreatePerson:input_type -> n0x.identities.v1.CreatePersonRequest
-	16, // 46: n0x.identities.v1.IdentitiesService.CreateServiceAccount:input_type -> n0x.identities.v1.CreateServiceAccountRequest
-	18, // 47: n0x.identities.v1.IdentitiesService.CreateNodeEnrollment:input_type -> n0x.identities.v1.CreateNodeEnrollmentRequest
-	20, // 48: n0x.identities.v1.IdentitiesService.ExchangeBootstrapSecret:input_type -> n0x.identities.v1.ExchangeBootstrapSecretRequest
-	22, // 49: n0x.identities.v1.IdentitiesService.RenewIdentityCredentials:input_type -> n0x.identities.v1.RenewIdentityCredentialsRequest
-	24, // 50: n0x.identities.v1.IdentitiesService.ReissueBootstrapSecret:input_type -> n0x.identities.v1.ReissueBootstrapSecretRequest
-	26, // 51: n0x.identities.v1.IdentitiesService.UpdateIdentity:input_type -> n0x.identities.v1.UpdateIdentityRequest
-	28, // 52: n0x.identities.v1.IdentitiesService.SetIdentityProtection:input_type -> n0x.identities.v1.SetIdentityProtectionRequest
-	30, // 53: n0x.identities.v1.IdentitiesService.QuarantineIdentity:input_type -> n0x.identities.v1.QuarantineIdentityRequest
-	32, // 54: n0x.identities.v1.IdentitiesService.ReleaseIdentityQuarantine:input_type -> n0x.identities.v1.ReleaseIdentityQuarantineRequest
-	34, // 55: n0x.identities.v1.IdentitiesService.DeactivateIdentity:input_type -> n0x.identities.v1.DeactivateIdentityRequest
-	36, // 56: n0x.identities.v1.IdentitiesService.ListGroups:input_type -> n0x.identities.v1.ListGroupsRequest
-	38, // 57: n0x.identities.v1.IdentitiesService.GetGroup:input_type -> n0x.identities.v1.GetGroupRequest
-	40, // 58: n0x.identities.v1.IdentitiesService.CreateGroup:input_type -> n0x.identities.v1.CreateGroupRequest
-	42, // 59: n0x.identities.v1.IdentitiesService.AddGroupMembers:input_type -> n0x.identities.v1.AddGroupMembersRequest
-	44, // 60: n0x.identities.v1.IdentitiesService.RemoveGroupMembers:input_type -> n0x.identities.v1.RemoveGroupMembersRequest
-	46, // 61: n0x.identities.v1.IdentitiesService.DeleteGroup:input_type -> n0x.identities.v1.DeleteGroupRequest
-	11, // 62: n0x.identities.v1.IdentitiesService.ListIdentities:output_type -> n0x.identities.v1.ListIdentitiesResponse
-	13, // 63: n0x.identities.v1.IdentitiesService.GetIdentity:output_type -> n0x.identities.v1.GetIdentityResponse
-	15, // 64: n0x.identities.v1.IdentitiesService.CreatePerson:output_type -> n0x.identities.v1.CreatePersonResponse
-	17, // 65: n0x.identities.v1.IdentitiesService.CreateServiceAccount:output_type -> n0x.identities.v1.CreateServiceAccountResponse
-	19, // 66: n0x.identities.v1.IdentitiesService.CreateNodeEnrollment:output_type -> n0x.identities.v1.CreateNodeEnrollmentResponse
-	21, // 67: n0x.identities.v1.IdentitiesService.ExchangeBootstrapSecret:output_type -> n0x.identities.v1.ExchangeBootstrapSecretResponse
-	23, // 68: n0x.identities.v1.IdentitiesService.RenewIdentityCredentials:output_type -> n0x.identities.v1.RenewIdentityCredentialsResponse
-	25, // 69: n0x.identities.v1.IdentitiesService.ReissueBootstrapSecret:output_type -> n0x.identities.v1.ReissueBootstrapSecretResponse
-	27, // 70: n0x.identities.v1.IdentitiesService.UpdateIdentity:output_type -> n0x.identities.v1.UpdateIdentityResponse
-	29, // 71: n0x.identities.v1.IdentitiesService.SetIdentityProtection:output_type -> n0x.identities.v1.SetIdentityProtectionResponse
-	31, // 72: n0x.identities.v1.IdentitiesService.QuarantineIdentity:output_type -> n0x.identities.v1.QuarantineIdentityResponse
-	33, // 73: n0x.identities.v1.IdentitiesService.ReleaseIdentityQuarantine:output_type -> n0x.identities.v1.ReleaseIdentityQuarantineResponse
-	35, // 74: n0x.identities.v1.IdentitiesService.DeactivateIdentity:output_type -> n0x.identities.v1.DeactivateIdentityResponse
-	37, // 75: n0x.identities.v1.IdentitiesService.ListGroups:output_type -> n0x.identities.v1.ListGroupsResponse
-	39, // 76: n0x.identities.v1.IdentitiesService.GetGroup:output_type -> n0x.identities.v1.GetGroupResponse
-	41, // 77: n0x.identities.v1.IdentitiesService.CreateGroup:output_type -> n0x.identities.v1.CreateGroupResponse
-	43, // 78: n0x.identities.v1.IdentitiesService.AddGroupMembers:output_type -> n0x.identities.v1.AddGroupMembersResponse
-	45, // 79: n0x.identities.v1.IdentitiesService.RemoveGroupMembers:output_type -> n0x.identities.v1.RemoveGroupMembersResponse
-	47, // 80: n0x.identities.v1.IdentitiesService.DeleteGroup:output_type -> n0x.identities.v1.DeleteGroupResponse
-	62, // [62:81] is the sub-list for method output_type
-	43, // [43:62] is the sub-list for method input_type
-	43, // [43:43] is the sub-list for extension type_name
-	43, // [43:43] is the sub-list for extension extendee
-	0,  // [0:43] is the sub-list for field type_name
+	50, // 12: n0x.identities.v1.Identity.labels:type_name -> n0x.identities.v1.Identity.LabelsEntry
+	7,  // 13: n0x.identities.v1.Group.identity:type_name -> n0x.identities.v1.Identity
+	56, // 14: n0x.identities.v1.IdentityCredentials.expires_at:type_name -> google.protobuf.Timestamp
+	56, // 15: n0x.identities.v1.IdentityCredentials.renew_after:type_name -> google.protobuf.Timestamp
+	0,  // 16: n0x.identities.v1.ListIdentitiesRequest.type:type_name -> n0x.identities.v1.IdentityType
+	1,  // 17: n0x.identities.v1.ListIdentitiesRequest.state:type_name -> n0x.identities.v1.IdentityState
+	7,  // 18: n0x.identities.v1.ListIdentitiesResponse.identities:type_name -> n0x.identities.v1.Identity
+	7,  // 19: n0x.identities.v1.GetIdentityResponse.identity:type_name -> n0x.identities.v1.Identity
+	51, // 20: n0x.identities.v1.CreatePersonRequest.labels:type_name -> n0x.identities.v1.CreatePersonRequest.LabelsEntry
+	7,  // 21: n0x.identities.v1.CreatePersonResponse.identity:type_name -> n0x.identities.v1.Identity
+	56, // 22: n0x.identities.v1.CreateServiceAccountRequest.expires_at:type_name -> google.protobuf.Timestamp
+	57, // 23: n0x.identities.v1.CreateServiceAccountRequest.expiration_notice:type_name -> google.protobuf.Duration
+	52, // 24: n0x.identities.v1.CreateServiceAccountRequest.labels:type_name -> n0x.identities.v1.CreateServiceAccountRequest.LabelsEntry
+	7,  // 25: n0x.identities.v1.CreateServiceAccountResponse.identity:type_name -> n0x.identities.v1.Identity
+	56, // 26: n0x.identities.v1.CreateServiceAccountResponse.bootstrap_secret_expires_at:type_name -> google.protobuf.Timestamp
+	53, // 27: n0x.identities.v1.CreateNodeEnrollmentRequest.labels:type_name -> n0x.identities.v1.CreateNodeEnrollmentRequest.LabelsEntry
+	7,  // 28: n0x.identities.v1.CreateNodeEnrollmentResponse.identity:type_name -> n0x.identities.v1.Identity
+	56, // 29: n0x.identities.v1.CreateNodeEnrollmentResponse.bootstrap_secret_expires_at:type_name -> google.protobuf.Timestamp
+	9,  // 30: n0x.identities.v1.ExchangeBootstrapSecretResponse.credentials:type_name -> n0x.identities.v1.IdentityCredentials
+	9,  // 31: n0x.identities.v1.RenewIdentityCredentialsResponse.credentials:type_name -> n0x.identities.v1.IdentityCredentials
+	56, // 32: n0x.identities.v1.ReissueBootstrapSecretResponse.bootstrap_secret_expires_at:type_name -> google.protobuf.Timestamp
+	56, // 33: n0x.identities.v1.UpdateIdentityRequest.expires_at:type_name -> google.protobuf.Timestamp
+	57, // 34: n0x.identities.v1.UpdateIdentityRequest.expiration_notice:type_name -> google.protobuf.Duration
+	7,  // 35: n0x.identities.v1.UpdateIdentityResponse.identity:type_name -> n0x.identities.v1.Identity
+	2,  // 36: n0x.identities.v1.SetIdentityProtectionRequest.protection:type_name -> n0x.identities.v1.IdentityProtection
+	7,  // 37: n0x.identities.v1.SetIdentityProtectionResponse.identity:type_name -> n0x.identities.v1.Identity
+	7,  // 38: n0x.identities.v1.QuarantineIdentityResponse.identity:type_name -> n0x.identities.v1.Identity
+	7,  // 39: n0x.identities.v1.ReleaseIdentityQuarantineResponse.identity:type_name -> n0x.identities.v1.Identity
+	7,  // 40: n0x.identities.v1.DeactivateIdentityResponse.identity:type_name -> n0x.identities.v1.Identity
+	8,  // 41: n0x.identities.v1.ListGroupsResponse.groups:type_name -> n0x.identities.v1.Group
+	8,  // 42: n0x.identities.v1.GetGroupResponse.group:type_name -> n0x.identities.v1.Group
+	54, // 43: n0x.identities.v1.CreateGroupRequest.labels:type_name -> n0x.identities.v1.CreateGroupRequest.LabelsEntry
+	55, // 44: n0x.identities.v1.SetIdentityLabelsRequest.labels:type_name -> n0x.identities.v1.SetIdentityLabelsRequest.LabelsEntry
+	7,  // 45: n0x.identities.v1.SetIdentityLabelsResponse.identity:type_name -> n0x.identities.v1.Identity
+	8,  // 46: n0x.identities.v1.CreateGroupResponse.group:type_name -> n0x.identities.v1.Group
+	8,  // 47: n0x.identities.v1.AddGroupMembersResponse.group:type_name -> n0x.identities.v1.Group
+	8,  // 48: n0x.identities.v1.RemoveGroupMembersResponse.group:type_name -> n0x.identities.v1.Group
+	8,  // 49: n0x.identities.v1.DeleteGroupResponse.group:type_name -> n0x.identities.v1.Group
+	10, // 50: n0x.identities.v1.IdentitiesService.ListIdentities:input_type -> n0x.identities.v1.ListIdentitiesRequest
+	12, // 51: n0x.identities.v1.IdentitiesService.GetIdentity:input_type -> n0x.identities.v1.GetIdentityRequest
+	14, // 52: n0x.identities.v1.IdentitiesService.CreatePerson:input_type -> n0x.identities.v1.CreatePersonRequest
+	16, // 53: n0x.identities.v1.IdentitiesService.CreateServiceAccount:input_type -> n0x.identities.v1.CreateServiceAccountRequest
+	18, // 54: n0x.identities.v1.IdentitiesService.CreateNodeEnrollment:input_type -> n0x.identities.v1.CreateNodeEnrollmentRequest
+	20, // 55: n0x.identities.v1.IdentitiesService.ExchangeBootstrapSecret:input_type -> n0x.identities.v1.ExchangeBootstrapSecretRequest
+	22, // 56: n0x.identities.v1.IdentitiesService.RenewIdentityCredentials:input_type -> n0x.identities.v1.RenewIdentityCredentialsRequest
+	24, // 57: n0x.identities.v1.IdentitiesService.ReissueBootstrapSecret:input_type -> n0x.identities.v1.ReissueBootstrapSecretRequest
+	26, // 58: n0x.identities.v1.IdentitiesService.UpdateIdentity:input_type -> n0x.identities.v1.UpdateIdentityRequest
+	41, // 59: n0x.identities.v1.IdentitiesService.SetIdentityLabels:input_type -> n0x.identities.v1.SetIdentityLabelsRequest
+	28, // 60: n0x.identities.v1.IdentitiesService.SetIdentityProtection:input_type -> n0x.identities.v1.SetIdentityProtectionRequest
+	30, // 61: n0x.identities.v1.IdentitiesService.QuarantineIdentity:input_type -> n0x.identities.v1.QuarantineIdentityRequest
+	32, // 62: n0x.identities.v1.IdentitiesService.ReleaseIdentityQuarantine:input_type -> n0x.identities.v1.ReleaseIdentityQuarantineRequest
+	34, // 63: n0x.identities.v1.IdentitiesService.DeactivateIdentity:input_type -> n0x.identities.v1.DeactivateIdentityRequest
+	36, // 64: n0x.identities.v1.IdentitiesService.ListGroups:input_type -> n0x.identities.v1.ListGroupsRequest
+	38, // 65: n0x.identities.v1.IdentitiesService.GetGroup:input_type -> n0x.identities.v1.GetGroupRequest
+	40, // 66: n0x.identities.v1.IdentitiesService.CreateGroup:input_type -> n0x.identities.v1.CreateGroupRequest
+	44, // 67: n0x.identities.v1.IdentitiesService.AddGroupMembers:input_type -> n0x.identities.v1.AddGroupMembersRequest
+	46, // 68: n0x.identities.v1.IdentitiesService.RemoveGroupMembers:input_type -> n0x.identities.v1.RemoveGroupMembersRequest
+	48, // 69: n0x.identities.v1.IdentitiesService.DeleteGroup:input_type -> n0x.identities.v1.DeleteGroupRequest
+	11, // 70: n0x.identities.v1.IdentitiesService.ListIdentities:output_type -> n0x.identities.v1.ListIdentitiesResponse
+	13, // 71: n0x.identities.v1.IdentitiesService.GetIdentity:output_type -> n0x.identities.v1.GetIdentityResponse
+	15, // 72: n0x.identities.v1.IdentitiesService.CreatePerson:output_type -> n0x.identities.v1.CreatePersonResponse
+	17, // 73: n0x.identities.v1.IdentitiesService.CreateServiceAccount:output_type -> n0x.identities.v1.CreateServiceAccountResponse
+	19, // 74: n0x.identities.v1.IdentitiesService.CreateNodeEnrollment:output_type -> n0x.identities.v1.CreateNodeEnrollmentResponse
+	21, // 75: n0x.identities.v1.IdentitiesService.ExchangeBootstrapSecret:output_type -> n0x.identities.v1.ExchangeBootstrapSecretResponse
+	23, // 76: n0x.identities.v1.IdentitiesService.RenewIdentityCredentials:output_type -> n0x.identities.v1.RenewIdentityCredentialsResponse
+	25, // 77: n0x.identities.v1.IdentitiesService.ReissueBootstrapSecret:output_type -> n0x.identities.v1.ReissueBootstrapSecretResponse
+	27, // 78: n0x.identities.v1.IdentitiesService.UpdateIdentity:output_type -> n0x.identities.v1.UpdateIdentityResponse
+	42, // 79: n0x.identities.v1.IdentitiesService.SetIdentityLabels:output_type -> n0x.identities.v1.SetIdentityLabelsResponse
+	29, // 80: n0x.identities.v1.IdentitiesService.SetIdentityProtection:output_type -> n0x.identities.v1.SetIdentityProtectionResponse
+	31, // 81: n0x.identities.v1.IdentitiesService.QuarantineIdentity:output_type -> n0x.identities.v1.QuarantineIdentityResponse
+	33, // 82: n0x.identities.v1.IdentitiesService.ReleaseIdentityQuarantine:output_type -> n0x.identities.v1.ReleaseIdentityQuarantineResponse
+	35, // 83: n0x.identities.v1.IdentitiesService.DeactivateIdentity:output_type -> n0x.identities.v1.DeactivateIdentityResponse
+	37, // 84: n0x.identities.v1.IdentitiesService.ListGroups:output_type -> n0x.identities.v1.ListGroupsResponse
+	39, // 85: n0x.identities.v1.IdentitiesService.GetGroup:output_type -> n0x.identities.v1.GetGroupResponse
+	43, // 86: n0x.identities.v1.IdentitiesService.CreateGroup:output_type -> n0x.identities.v1.CreateGroupResponse
+	45, // 87: n0x.identities.v1.IdentitiesService.AddGroupMembers:output_type -> n0x.identities.v1.AddGroupMembersResponse
+	47, // 88: n0x.identities.v1.IdentitiesService.RemoveGroupMembers:output_type -> n0x.identities.v1.RemoveGroupMembersResponse
+	49, // 89: n0x.identities.v1.IdentitiesService.DeleteGroup:output_type -> n0x.identities.v1.DeleteGroupResponse
+	70, // [70:90] is the sub-list for method output_type
+	50, // [50:70] is the sub-list for method input_type
+	50, // [50:50] is the sub-list for extension type_name
+	50, // [50:50] is the sub-list for extension extendee
+	0,  // [0:50] is the sub-list for field type_name
 }
 
 func init() { file_n0x_identities_v1_identities_proto_init() }
@@ -3991,16 +4237,17 @@ func file_n0x_identities_v1_identities_proto_init() {
 	file_n0x_identities_v1_identities_proto_msgTypes[26].OneofWrappers = []any{}
 	file_n0x_identities_v1_identities_proto_msgTypes[32].OneofWrappers = []any{}
 	file_n0x_identities_v1_identities_proto_msgTypes[38].OneofWrappers = []any{}
-	file_n0x_identities_v1_identities_proto_msgTypes[40].OneofWrappers = []any{}
+	file_n0x_identities_v1_identities_proto_msgTypes[39].OneofWrappers = []any{}
 	file_n0x_identities_v1_identities_proto_msgTypes[42].OneofWrappers = []any{}
 	file_n0x_identities_v1_identities_proto_msgTypes[44].OneofWrappers = []any{}
+	file_n0x_identities_v1_identities_proto_msgTypes[46].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_identities_v1_identities_proto_rawDesc), len(file_n0x_identities_v1_identities_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   46,
+			NumMessages:   54,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

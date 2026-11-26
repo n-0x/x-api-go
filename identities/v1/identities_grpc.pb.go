@@ -28,6 +28,7 @@ const (
 	IdentitiesService_RenewIdentityCredentials_FullMethodName  = "/n0x.identities.v1.IdentitiesService/RenewIdentityCredentials"
 	IdentitiesService_ReissueBootstrapSecret_FullMethodName    = "/n0x.identities.v1.IdentitiesService/ReissueBootstrapSecret"
 	IdentitiesService_UpdateIdentity_FullMethodName            = "/n0x.identities.v1.IdentitiesService/UpdateIdentity"
+	IdentitiesService_SetIdentityLabels_FullMethodName         = "/n0x.identities.v1.IdentitiesService/SetIdentityLabels"
 	IdentitiesService_SetIdentityProtection_FullMethodName     = "/n0x.identities.v1.IdentitiesService/SetIdentityProtection"
 	IdentitiesService_QuarantineIdentity_FullMethodName        = "/n0x.identities.v1.IdentitiesService/QuarantineIdentity"
 	IdentitiesService_ReleaseIdentityQuarantine_FullMethodName = "/n0x.identities.v1.IdentitiesService/ReleaseIdentityQuarantine"
@@ -46,7 +47,7 @@ const (
 //
 // Governed mutations require nonempty reason and request_id. With a draft they
 // stage changes only; otherwise they publish a new tenant revision. Responses
-// return the staged or published revision_number owned by PermissionsService.
+// return the staged or published revision_number owned by NetworkPolicyService.
 // Operational credential exchange/renewal and quarantine are not revisions.
 type IdentitiesServiceClient interface {
 	ListIdentities(ctx context.Context, in *ListIdentitiesRequest, opts ...grpc.CallOption) (*ListIdentitiesResponse, error)
@@ -67,6 +68,10 @@ type IdentitiesServiceClient interface {
 	// fallback credential operation is audited, not a revision.
 	ReissueBootstrapSecret(ctx context.Context, in *ReissueBootstrapSecretRequest, opts ...grpc.CallOption) (*ReissueBootstrapSecretResponse, error)
 	UpdateIdentity(ctx context.Context, in *UpdateIdentityRequest, opts ...grpc.CallOption) (*UpdateIdentityResponse, error)
+	// Requires iam.write on the target. Also requires policies.write in the
+	// tenant when the change alters any policy selector match. Check against
+	// active and applicable draft policies in the mutation transaction.
+	SetIdentityLabels(ctx context.Context, in *SetIdentityLabelsRequest, opts ...grpc.CallOption) (*SetIdentityLabelsResponse, error)
 	SetIdentityProtection(ctx context.Context, in *SetIdentityProtectionRequest, opts ...grpc.CallOption) (*SetIdentityProtectionResponse, error)
 	// Requires identities.quarantine; automatic assignment actions are future work.
 	QuarantineIdentity(ctx context.Context, in *QuarantineIdentityRequest, opts ...grpc.CallOption) (*QuarantineIdentityResponse, error)
@@ -180,6 +185,16 @@ func (c *identitiesServiceClient) UpdateIdentity(ctx context.Context, in *Update
 	return out, nil
 }
 
+func (c *identitiesServiceClient) SetIdentityLabels(ctx context.Context, in *SetIdentityLabelsRequest, opts ...grpc.CallOption) (*SetIdentityLabelsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetIdentityLabelsResponse)
+	err := c.cc.Invoke(ctx, IdentitiesService_SetIdentityLabels_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *identitiesServiceClient) SetIdentityProtection(ctx context.Context, in *SetIdentityProtectionRequest, opts ...grpc.CallOption) (*SetIdentityProtectionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SetIdentityProtectionResponse)
@@ -286,7 +301,7 @@ func (c *identitiesServiceClient) DeleteGroup(ctx context.Context, in *DeleteGro
 //
 // Governed mutations require nonempty reason and request_id. With a draft they
 // stage changes only; otherwise they publish a new tenant revision. Responses
-// return the staged or published revision_number owned by PermissionsService.
+// return the staged or published revision_number owned by NetworkPolicyService.
 // Operational credential exchange/renewal and quarantine are not revisions.
 type IdentitiesServiceServer interface {
 	ListIdentities(context.Context, *ListIdentitiesRequest) (*ListIdentitiesResponse, error)
@@ -307,6 +322,10 @@ type IdentitiesServiceServer interface {
 	// fallback credential operation is audited, not a revision.
 	ReissueBootstrapSecret(context.Context, *ReissueBootstrapSecretRequest) (*ReissueBootstrapSecretResponse, error)
 	UpdateIdentity(context.Context, *UpdateIdentityRequest) (*UpdateIdentityResponse, error)
+	// Requires iam.write on the target. Also requires policies.write in the
+	// tenant when the change alters any policy selector match. Check against
+	// active and applicable draft policies in the mutation transaction.
+	SetIdentityLabels(context.Context, *SetIdentityLabelsRequest) (*SetIdentityLabelsResponse, error)
 	SetIdentityProtection(context.Context, *SetIdentityProtectionRequest) (*SetIdentityProtectionResponse, error)
 	// Requires identities.quarantine; automatic assignment actions are future work.
 	QuarantineIdentity(context.Context, *QuarantineIdentityRequest) (*QuarantineIdentityResponse, error)
@@ -356,6 +375,9 @@ func (UnimplementedIdentitiesServiceServer) ReissueBootstrapSecret(context.Conte
 }
 func (UnimplementedIdentitiesServiceServer) UpdateIdentity(context.Context, *UpdateIdentityRequest) (*UpdateIdentityResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateIdentity not implemented")
+}
+func (UnimplementedIdentitiesServiceServer) SetIdentityLabels(context.Context, *SetIdentityLabelsRequest) (*SetIdentityLabelsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetIdentityLabels not implemented")
 }
 func (UnimplementedIdentitiesServiceServer) SetIdentityProtection(context.Context, *SetIdentityProtectionRequest) (*SetIdentityProtectionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetIdentityProtection not implemented")
@@ -566,6 +588,24 @@ func _IdentitiesService_UpdateIdentity_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(IdentitiesServiceServer).UpdateIdentity(ctx, req.(*UpdateIdentityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IdentitiesService_SetIdentityLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetIdentityLabelsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentitiesServiceServer).SetIdentityLabels(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentitiesService_SetIdentityLabels_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentitiesServiceServer).SetIdentityLabels(ctx, req.(*SetIdentityLabelsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -792,6 +832,10 @@ var IdentitiesService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateIdentity",
 			Handler:    _IdentitiesService_UpdateIdentity_Handler,
+		},
+		{
+			MethodName: "SetIdentityLabels",
+			Handler:    _IdentitiesService_SetIdentityLabels_Handler,
 		},
 		{
 			MethodName: "SetIdentityProtection",

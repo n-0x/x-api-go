@@ -1215,7 +1215,7 @@ func (x *AssignmentFinding) GetCharterId() string {
 type AssignmentAction struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	PlatformAction string                 `protobuf:"bytes,1,opt,name=platform_action,json=platformAction,proto3" json:"platform_action,omitempty"`
-	// Fully qualified method, e.g. n0x.permissions.v1.PermissionsService.CreatePermission.
+	// Fully qualified method, e.g. n0x.policy.v1.NetworkPolicyService.CreatePolicy.
 	RpcMethod string `protobuf:"bytes,2,opt,name=rpc_method,json=rpcMethod,proto3" json:"rpc_method,omitempty"`
 	// ProtoJSON request fields for that method, excluding credentials, actor,
 	// account_id, tenant_id, request_id, reason, and draft_revision_number. The

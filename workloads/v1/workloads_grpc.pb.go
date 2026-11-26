@@ -26,6 +26,7 @@ const (
 	WorkloadsService_RemoveWorkloadNode_FullMethodName       = "/n0x.workloads.v1.WorkloadsService/RemoveWorkloadNode"
 	WorkloadsService_RetireWorkload_FullMethodName           = "/n0x.workloads.v1.WorkloadsService/RetireWorkload"
 	WorkloadsService_SetWorkloadProtection_FullMethodName    = "/n0x.workloads.v1.WorkloadsService/SetWorkloadProtection"
+	WorkloadsService_SetWorkloadLabels_FullMethodName        = "/n0x.workloads.v1.WorkloadsService/SetWorkloadLabels"
 	WorkloadsService_ListListeningPorts_FullMethodName       = "/n0x.workloads.v1.WorkloadsService/ListListeningPorts"
 	WorkloadsService_ListSessions_FullMethodName             = "/n0x.workloads.v1.WorkloadsService/ListSessions"
 	WorkloadsService_GetSession_FullMethodName               = "/n0x.workloads.v1.WorkloadsService/GetSession"
@@ -47,6 +48,10 @@ type WorkloadsServiceClient interface {
 	RemoveWorkloadNode(ctx context.Context, in *RemoveWorkloadNodeRequest, opts ...grpc.CallOption) (*RemoveWorkloadNodeResponse, error)
 	RetireWorkload(ctx context.Context, in *RetireWorkloadRequest, opts ...grpc.CallOption) (*RetireWorkloadResponse, error)
 	SetWorkloadProtection(ctx context.Context, in *SetWorkloadProtectionRequest, opts ...grpc.CallOption) (*SetWorkloadProtectionResponse, error)
+	// Requires nodes.write on the target. Also requires policies.write in the
+	// tenant when the change alters any policy selector match. Check against
+	// active and applicable draft policies in the mutation transaction.
+	SetWorkloadLabels(ctx context.Context, in *SetWorkloadLabelsRequest, opts ...grpc.CallOption) (*SetWorkloadLabelsResponse, error)
 	ListListeningPorts(ctx context.Context, in *ListListeningPortsRequest, opts ...grpc.CallOption) (*ListListeningPortsResponse, error)
 	ListSessions(ctx context.Context, in *ListSessionsRequest, opts ...grpc.CallOption) (*ListSessionsResponse, error)
 	GetSession(ctx context.Context, in *GetSessionRequest, opts ...grpc.CallOption) (*GetSessionResponse, error)
@@ -130,6 +135,16 @@ func (c *workloadsServiceClient) SetWorkloadProtection(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *workloadsServiceClient) SetWorkloadLabels(ctx context.Context, in *SetWorkloadLabelsRequest, opts ...grpc.CallOption) (*SetWorkloadLabelsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetWorkloadLabelsResponse)
+	err := c.cc.Invoke(ctx, WorkloadsService_SetWorkloadLabels_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *workloadsServiceClient) ListListeningPorts(ctx context.Context, in *ListListeningPortsRequest, opts ...grpc.CallOption) (*ListListeningPortsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListListeningPortsResponse)
@@ -176,6 +191,10 @@ type WorkloadsServiceServer interface {
 	RemoveWorkloadNode(context.Context, *RemoveWorkloadNodeRequest) (*RemoveWorkloadNodeResponse, error)
 	RetireWorkload(context.Context, *RetireWorkloadRequest) (*RetireWorkloadResponse, error)
 	SetWorkloadProtection(context.Context, *SetWorkloadProtectionRequest) (*SetWorkloadProtectionResponse, error)
+	// Requires nodes.write on the target. Also requires policies.write in the
+	// tenant when the change alters any policy selector match. Check against
+	// active and applicable draft policies in the mutation transaction.
+	SetWorkloadLabels(context.Context, *SetWorkloadLabelsRequest) (*SetWorkloadLabelsResponse, error)
 	ListListeningPorts(context.Context, *ListListeningPortsRequest) (*ListListeningPortsResponse, error)
 	ListSessions(context.Context, *ListSessionsRequest) (*ListSessionsResponse, error)
 	GetSession(context.Context, *GetSessionRequest) (*GetSessionResponse, error)
@@ -209,6 +228,9 @@ func (UnimplementedWorkloadsServiceServer) RetireWorkload(context.Context, *Reti
 }
 func (UnimplementedWorkloadsServiceServer) SetWorkloadProtection(context.Context, *SetWorkloadProtectionRequest) (*SetWorkloadProtectionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetWorkloadProtection not implemented")
+}
+func (UnimplementedWorkloadsServiceServer) SetWorkloadLabels(context.Context, *SetWorkloadLabelsRequest) (*SetWorkloadLabelsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetWorkloadLabels not implemented")
 }
 func (UnimplementedWorkloadsServiceServer) ListListeningPorts(context.Context, *ListListeningPortsRequest) (*ListListeningPortsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListListeningPorts not implemented")
@@ -366,6 +388,24 @@ func _WorkloadsService_SetWorkloadProtection_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WorkloadsService_SetWorkloadLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetWorkloadLabelsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WorkloadsServiceServer).SetWorkloadLabels(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WorkloadsService_SetWorkloadLabels_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WorkloadsServiceServer).SetWorkloadLabels(ctx, req.(*SetWorkloadLabelsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _WorkloadsService_ListListeningPorts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListListeningPortsRequest)
 	if err := dec(in); err != nil {
@@ -454,6 +494,10 @@ var WorkloadsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetWorkloadProtection",
 			Handler:    _WorkloadsService_SetWorkloadProtection_Handler,
+		},
+		{
+			MethodName: "SetWorkloadLabels",
+			Handler:    _WorkloadsService_SetWorkloadLabels_Handler,
 		},
 		{
 			MethodName: "ListListeningPorts",

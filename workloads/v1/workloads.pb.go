@@ -705,8 +705,9 @@ type Workload struct {
 	Window *durationpb.Duration `protobuf:"bytes,16,opt,name=window,proto3" json:"window,omitempty"`
 	// Ausente/UNSPECIFIED conserva HTTP por el nodo y TLS verificado por
 	// hostname en destino directo. HTTPS verifica el certificado del origen.
-	OriginScheme     *OriginScheme `protobuf:"varint,17,opt,name=origin_scheme,json=originScheme,proto3,enum=n0x.workloads.v1.OriginScheme,oneof" json:"origin_scheme,omitempty"`
-	OriginServerName *string       `protobuf:"bytes,18,opt,name=origin_server_name,json=originServerName,proto3,oneof" json:"origin_server_name,omitempty"`
+	OriginScheme     *OriginScheme     `protobuf:"varint,17,opt,name=origin_scheme,json=originScheme,proto3,enum=n0x.workloads.v1.OriginScheme,oneof" json:"origin_scheme,omitempty"`
+	OriginServerName *string           `protobuf:"bytes,18,opt,name=origin_server_name,json=originServerName,proto3,oneof" json:"origin_server_name,omitempty"`
+	Labels           map[string]string `protobuf:"bytes,19,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -876,6 +877,13 @@ func (x *Workload) GetOriginServerName() string {
 		return *x.OriginServerName
 	}
 	return ""
+}
+
+func (x *Workload) GetLabels() map[string]string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
 }
 
 type isWorkload_Destination interface {
@@ -1814,7 +1822,8 @@ type CreateWorkloadRequest struct {
 	// Ausente/UNSPECIFIED conserva HTTP por el nodo y TLS por hostname directo.
 	OriginScheme *OriginScheme `protobuf:"varint,14,opt,name=origin_scheme,json=originScheme,proto3,enum=n0x.workloads.v1.OriginScheme,oneof" json:"origin_scheme,omitempty"`
 	// Nombre para SNI y verificacion del certificado del origen HTTPS.
-	OriginServerName *string `protobuf:"bytes,15,opt,name=origin_server_name,json=originServerName,proto3,oneof" json:"origin_server_name,omitempty"`
+	OriginServerName *string           `protobuf:"bytes,15,opt,name=origin_server_name,json=originServerName,proto3,oneof" json:"origin_server_name,omitempty"`
+	Labels           map[string]string `protobuf:"bytes,16,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -1965,6 +1974,13 @@ func (x *CreateWorkloadRequest) GetOriginServerName() string {
 		return *x.OriginServerName
 	}
 	return ""
+}
+
+func (x *CreateWorkloadRequest) GetLabels() map[string]string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
 }
 
 type isCreateWorkloadRequest_Publication interface {
@@ -2707,6 +2723,154 @@ func (x *SetWorkloadProtectionResponse) GetRevisionNumber() uint64 {
 	return 0
 }
 
+// Replaces the full label map. Keys and values use the policy label grammar;
+// a resource may have at most 32 labels. Direct changes recompile and run the
+// active policy test suite atomically. A failure leaves the active state intact.
+// Staged changes run through the gate at PublishDraft.
+type SetWorkloadLabelsRequest struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	AccountId           string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	TenantId            string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	WorkloadId          string                 `protobuf:"bytes,3,opt,name=workload_id,json=workloadId,proto3" json:"workload_id,omitempty"`
+	Labels              map[string]string      `protobuf:"bytes,4,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	RequestId           string                 `protobuf:"bytes,5,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	Reason              string                 `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`
+	DraftRevisionNumber *uint64                `protobuf:"varint,7,opt,name=draft_revision_number,json=draftRevisionNumber,proto3,oneof" json:"draft_revision_number,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *SetWorkloadLabelsRequest) Reset() {
+	*x = SetWorkloadLabelsRequest{}
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetWorkloadLabelsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetWorkloadLabelsRequest) ProtoMessage() {}
+
+func (x *SetWorkloadLabelsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetWorkloadLabelsRequest.ProtoReflect.Descriptor instead.
+func (*SetWorkloadLabelsRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_workloads_v1_workloads_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *SetWorkloadLabelsRequest) GetAccountId() string {
+	if x != nil {
+		return x.AccountId
+	}
+	return ""
+}
+
+func (x *SetWorkloadLabelsRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *SetWorkloadLabelsRequest) GetWorkloadId() string {
+	if x != nil {
+		return x.WorkloadId
+	}
+	return ""
+}
+
+func (x *SetWorkloadLabelsRequest) GetLabels() map[string]string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+func (x *SetWorkloadLabelsRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *SetWorkloadLabelsRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *SetWorkloadLabelsRequest) GetDraftRevisionNumber() uint64 {
+	if x != nil && x.DraftRevisionNumber != nil {
+		return *x.DraftRevisionNumber
+	}
+	return 0
+}
+
+type SetWorkloadLabelsResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Workload       *Workload              `protobuf:"bytes,1,opt,name=workload,proto3" json:"workload,omitempty"`
+	RevisionNumber uint64                 `protobuf:"varint,2,opt,name=revision_number,json=revisionNumber,proto3" json:"revision_number,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *SetWorkloadLabelsResponse) Reset() {
+	*x = SetWorkloadLabelsResponse{}
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetWorkloadLabelsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetWorkloadLabelsResponse) ProtoMessage() {}
+
+func (x *SetWorkloadLabelsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetWorkloadLabelsResponse.ProtoReflect.Descriptor instead.
+func (*SetWorkloadLabelsResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_workloads_v1_workloads_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *SetWorkloadLabelsResponse) GetWorkload() *Workload {
+	if x != nil {
+		return x.Workload
+	}
+	return nil
+}
+
+func (x *SetWorkloadLabelsResponse) GetRevisionNumber() uint64 {
+	if x != nil {
+		return x.RevisionNumber
+	}
+	return 0
+}
+
 // Detection is advisory; publishing does not require a matching observation.
 type ListListeningPortsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -2721,7 +2885,7 @@ type ListListeningPortsRequest struct {
 
 func (x *ListListeningPortsRequest) Reset() {
 	*x = ListListeningPortsRequest{}
-	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[26]
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2733,7 +2897,7 @@ func (x *ListListeningPortsRequest) String() string {
 func (*ListListeningPortsRequest) ProtoMessage() {}
 
 func (x *ListListeningPortsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[26]
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2746,7 +2910,7 @@ func (x *ListListeningPortsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListListeningPortsRequest.ProtoReflect.Descriptor instead.
 func (*ListListeningPortsRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_workloads_v1_workloads_proto_rawDescGZIP(), []int{26}
+	return file_n0x_workloads_v1_workloads_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ListListeningPortsRequest) GetAccountId() string {
@@ -2794,7 +2958,7 @@ type ListListeningPortsResponse struct {
 
 func (x *ListListeningPortsResponse) Reset() {
 	*x = ListListeningPortsResponse{}
-	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[27]
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2806,7 +2970,7 @@ func (x *ListListeningPortsResponse) String() string {
 func (*ListListeningPortsResponse) ProtoMessage() {}
 
 func (x *ListListeningPortsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[27]
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2819,7 +2983,7 @@ func (x *ListListeningPortsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListListeningPortsResponse.ProtoReflect.Descriptor instead.
 func (*ListListeningPortsResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_workloads_v1_workloads_proto_rawDescGZIP(), []int{27}
+	return file_n0x_workloads_v1_workloads_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ListListeningPortsResponse) GetListeningPorts() []*ListeningPort {
@@ -2856,7 +3020,7 @@ type ListSessionsRequest struct {
 
 func (x *ListSessionsRequest) Reset() {
 	*x = ListSessionsRequest{}
-	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[28]
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2868,7 +3032,7 @@ func (x *ListSessionsRequest) String() string {
 func (*ListSessionsRequest) ProtoMessage() {}
 
 func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[28]
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2881,7 +3045,7 @@ func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionsRequest.ProtoReflect.Descriptor instead.
 func (*ListSessionsRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_workloads_v1_workloads_proto_rawDescGZIP(), []int{28}
+	return file_n0x_workloads_v1_workloads_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ListSessionsRequest) GetAccountId() string {
@@ -2978,7 +3142,7 @@ type ListSessionsResponse struct {
 
 func (x *ListSessionsResponse) Reset() {
 	*x = ListSessionsResponse{}
-	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[29]
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2990,7 +3154,7 @@ func (x *ListSessionsResponse) String() string {
 func (*ListSessionsResponse) ProtoMessage() {}
 
 func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[29]
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3003,7 +3167,7 @@ func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionsResponse.ProtoReflect.Descriptor instead.
 func (*ListSessionsResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_workloads_v1_workloads_proto_rawDescGZIP(), []int{29}
+	return file_n0x_workloads_v1_workloads_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ListSessionsResponse) GetSessions() []*Session {
@@ -3031,7 +3195,7 @@ type GetSessionRequest struct {
 
 func (x *GetSessionRequest) Reset() {
 	*x = GetSessionRequest{}
-	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[30]
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3043,7 +3207,7 @@ func (x *GetSessionRequest) String() string {
 func (*GetSessionRequest) ProtoMessage() {}
 
 func (x *GetSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[30]
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3056,7 +3220,7 @@ func (x *GetSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSessionRequest.ProtoReflect.Descriptor instead.
 func (*GetSessionRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_workloads_v1_workloads_proto_rawDescGZIP(), []int{30}
+	return file_n0x_workloads_v1_workloads_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetSessionRequest) GetAccountId() string {
@@ -3089,7 +3253,7 @@ type GetSessionResponse struct {
 
 func (x *GetSessionResponse) Reset() {
 	*x = GetSessionResponse{}
-	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[31]
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3101,7 +3265,7 @@ func (x *GetSessionResponse) String() string {
 func (*GetSessionResponse) ProtoMessage() {}
 
 func (x *GetSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[31]
+	mi := &file_n0x_workloads_v1_workloads_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3114,7 +3278,7 @@ func (x *GetSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSessionResponse.ProtoReflect.Descriptor instead.
 func (*GetSessionResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_workloads_v1_workloads_proto_rawDescGZIP(), []int{31}
+	return file_n0x_workloads_v1_workloads_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *GetSessionResponse) GetSession() *Session {
@@ -3146,7 +3310,7 @@ const file_n0x_workloads_v1_workloads_proto_rawDesc = "" +
 	"\x04ipv4\x18\x02 \x01(\tH\x00R\x04ipv4\x12\x14\n" +
 	"\x04ipv6\x18\x03 \x01(\tH\x00R\x04ipv6\x12\x12\n" +
 	"\x04port\x18\x04 \x01(\rR\x04portB\t\n" +
-	"\aaddress\"\xbd\a\n" +
+	"\aaddress\"\xb8\b\n" +
 	"\bWorkload\x12\x1f\n" +
 	"\vworkload_id\x18\x01 \x01(\tR\n" +
 	"workloadId\x12\x1d\n" +
@@ -3171,7 +3335,11 @@ const file_n0x_workloads_v1_workloads_proto_rawDesc = "" +
 	"byte_limit\x18\x0f \x01(\x04H\x01R\tbyteLimit\x88\x01\x01\x121\n" +
 	"\x06window\x18\x10 \x01(\v2\x19.google.protobuf.DurationR\x06window\x12H\n" +
 	"\rorigin_scheme\x18\x11 \x01(\x0e2\x1e.n0x.workloads.v1.OriginSchemeH\x02R\foriginScheme\x88\x01\x01\x121\n" +
-	"\x12origin_server_name\x18\x12 \x01(\tH\x03R\x10originServerName\x88\x01\x01B\r\n" +
+	"\x12origin_server_name\x18\x12 \x01(\tH\x03R\x10originServerName\x88\x01\x01\x12>\n" +
+	"\x06labels\x18\x13 \x03(\v2&.n0x.workloads.v1.Workload.LabelsEntryR\x06labels\x1a9\n" +
+	"\vLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\r\n" +
 	"\vdestinationB\r\n" +
 	"\v_byte_limitB\x10\n" +
 	"\x0e_origin_schemeB\x15\n" +
@@ -3260,7 +3428,7 @@ const file_n0x_workloads_v1_workloads_proto_rawDesc = "" +
 	"\vworkload_id\x18\x03 \x01(\tR\n" +
 	"workloadId\"M\n" +
 	"\x13GetWorkloadResponse\x126\n" +
-	"\bworkload\x18\x01 \x01(\v2\x1a.n0x.workloads.v1.WorkloadR\bworkload\"\xe3\x06\n" +
+	"\bworkload\x18\x01 \x01(\v2\x1a.n0x.workloads.v1.WorkloadR\bworkload\"\xeb\a\n" +
 	"\x15CreateWorkloadRequest\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
@@ -3281,7 +3449,11 @@ const file_n0x_workloads_v1_workloads_proto_rawDesc = "" +
 	"byte_limit\x18\f \x01(\x04H\x02R\tbyteLimit\x88\x01\x01\x121\n" +
 	"\x06window\x18\r \x01(\v2\x19.google.protobuf.DurationR\x06window\x12H\n" +
 	"\rorigin_scheme\x18\x0e \x01(\x0e2\x1e.n0x.workloads.v1.OriginSchemeH\x03R\foriginScheme\x88\x01\x01\x121\n" +
-	"\x12origin_server_name\x18\x0f \x01(\tH\x04R\x10originServerName\x88\x01\x01B\r\n" +
+	"\x12origin_server_name\x18\x0f \x01(\tH\x04R\x10originServerName\x88\x01\x01\x12K\n" +
+	"\x06labels\x18\x10 \x03(\v23.n0x.workloads.v1.CreateWorkloadRequest.LabelsEntryR\x06labels\x1a9\n" +
+	"\vLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\r\n" +
 	"\vpublicationB\x18\n" +
 	"\x16_draft_revision_numberB\r\n" +
 	"\v_byte_limitB\x10\n" +
@@ -3361,6 +3533,25 @@ const file_n0x_workloads_v1_workloads_proto_rawDesc = "" +
 	"\x15draft_revision_number\x18\a \x01(\x04H\x00R\x13draftRevisionNumber\x88\x01\x01B\x18\n" +
 	"\x16_draft_revision_number\"\x80\x01\n" +
 	"\x1dSetWorkloadProtectionResponse\x126\n" +
+	"\bworkload\x18\x01 \x01(\v2\x1a.n0x.workloads.v1.WorkloadR\bworkload\x12'\n" +
+	"\x0frevision_number\x18\x02 \x01(\x04R\x0erevisionNumber\"\xc0\x03\n" +
+	"\x18SetWorkloadLabelsRequest\x12\x1d\n" +
+	"\n" +
+	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
+	"\ttenant_id\x18\x02 \x01(\tR\btenantId\x12\x1f\n" +
+	"\vworkload_id\x18\x03 \x01(\tR\n" +
+	"workloadId\x12N\n" +
+	"\x06labels\x18\x04 \x03(\v26.n0x.workloads.v1.SetWorkloadLabelsRequest.LabelsEntryR\x06labels\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x05 \x01(\tR\trequestId\x12\x16\n" +
+	"\x06reason\x18\x06 \x01(\tR\x06reason\x127\n" +
+	"\x15draft_revision_number\x18\a \x01(\x04H\x00R\x13draftRevisionNumber\x88\x01\x01\x1a9\n" +
+	"\vLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x18\n" +
+	"\x16_draft_revision_numberJ\x04\b\b\x10\tJ\x04\b\t\x10\n" +
+	"R\x15override_failed_testsR\x0foverride_reason\"|\n" +
+	"\x19SetWorkloadLabelsResponse\x126\n" +
 	"\bworkload\x18\x01 \x01(\v2\x1a.n0x.workloads.v1.WorkloadR\bworkload\x12'\n" +
 	"\x0frevision_number\x18\x02 \x01(\x04R\x0erevisionNumber\"\xb4\x01\n" +
 	"\x19ListListeningPortsRequest\x12\x1d\n" +
@@ -3442,7 +3633,7 @@ const file_n0x_workloads_v1_workloads_proto_rawDesc = "" +
 	"\x1eSESSION_EVENT_TYPE_UNSPECIFIED\x10\x00\x12$\n" +
 	" SESSION_EVENT_TYPE_AUTHENTICATED\x10\x01\x12\x1e\n" +
 	"\x1aSESSION_EVENT_TYPE_RENEWED\x10\x02\x12\x1d\n" +
-	"\x19SESSION_EVENT_TYPE_CLOSED\x10\x032\xbb\x0f\n" +
+	"\x19SESSION_EVENT_TYPE_CLOSED\x10\x032\x81\x11\n" +
 	"\x10WorkloadsService\x12\xd5\x01\n" +
 	"\rListWorkloads\x12&.n0x.workloads.v1.ListWorkloadsRequest\x1a'.n0x.workloads.v1.ListWorkloadsResponse\"s\xb2\xe1\x18o\b\x01\x12\n" +
 	"nodes.read\x1a_List published workloads (HTTPS, SSH or TCP services), filtered by state, type or serving node.\x12\xbd\x01\n" +
@@ -3452,7 +3643,8 @@ const file_n0x_workloads_v1_workloads_proto_rawDesc = "" +
 	"\x18RegisterWorkloadFromHost\x121.n0x.workloads.v1.RegisterWorkloadFromHostRequest\x1a2.n0x.workloads.v1.RegisterWorkloadFromHostResponse\"\x06\xb2\xe1\x18\x02\b\x05\x12\xdd\x01\n" +
 	"\x12RemoveWorkloadNode\x12+.n0x.workloads.v1.RemoveWorkloadNodeRequest\x1a,.n0x.workloads.v1.RemoveWorkloadNodeResponse\"l\xb2\xe1\x18h\b\x02\x12\vnodes.write\x1aWStop serving a workload from one node; the workload stays published on its other nodes.\x12\xaf\x01\n" +
 	"\x0eRetireWorkload\x12'.n0x.workloads.v1.RetireWorkloadRequest\x1a(.n0x.workloads.v1.RetireWorkloadResponse\"J\xb2\xe1\x18F\b\x02\x12\vnodes.write\x1a5Retire a workload: unpublish it and keep its history.\x12\x8d\x01\n" +
-	"\x15SetWorkloadProtection\x12..n0x.workloads.v1.SetWorkloadProtectionRequest\x1a/.n0x.workloads.v1.SetWorkloadProtectionResponse\"\x13\xb2\xe1\x18\x0f\b\x04\x12\vnodes.write\x12\xe5\x01\n" +
+	"\x15SetWorkloadProtection\x12..n0x.workloads.v1.SetWorkloadProtectionRequest\x1a/.n0x.workloads.v1.SetWorkloadProtectionResponse\"\x13\xb2\xe1\x18\x0f\b\x04\x12\vnodes.write\x12\xc3\x01\n" +
+	"\x11SetWorkloadLabels\x12*.n0x.workloads.v1.SetWorkloadLabelsRequest\x1a+.n0x.workloads.v1.SetWorkloadLabelsResponse\"U\xb2\xe1\x18Q\b\x02\x12\vnodes.write\x1a@Replace the labels of a workload and reconcile network policies.\x12\xe5\x01\n" +
 	"\x12ListListeningPorts\x12+.n0x.workloads.v1.ListListeningPortsRequest\x1a,.n0x.workloads.v1.ListListeningPortsResponse\"t\xb2\xe1\x18p\b\x01\x12\n" +
 	"nodes.read\x1a`List the ports a node is listening on, as detected by its agent, to help choose what to publish.\x12\xdb\x01\n" +
 	"\fListSessions\x12%.n0x.workloads.v1.ListSessionsRequest\x1a&.n0x.workloads.v1.ListSessionsResponse\"|\xb2\xe1\x18x\b\x01\x12\vevents.read\x1agList access sessions to workloads and nodes: who connected, from where, when, and whether still active.\x12\xb8\x01\n" +
@@ -3472,7 +3664,7 @@ func file_n0x_workloads_v1_workloads_proto_rawDescGZIP() []byte {
 }
 
 var file_n0x_workloads_v1_workloads_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
-var file_n0x_workloads_v1_workloads_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
+var file_n0x_workloads_v1_workloads_proto_msgTypes = make([]protoimpl.MessageInfo, 37)
 var file_n0x_workloads_v1_workloads_proto_goTypes = []any{
 	(OriginScheme)(0),                        // 0: n0x.workloads.v1.OriginScheme
 	(WorkloadType)(0),                        // 1: n0x.workloads.v1.WorkloadType
@@ -3508,88 +3700,99 @@ var file_n0x_workloads_v1_workloads_proto_goTypes = []any{
 	(*RetireWorkloadResponse)(nil),           // 31: n0x.workloads.v1.RetireWorkloadResponse
 	(*SetWorkloadProtectionRequest)(nil),     // 32: n0x.workloads.v1.SetWorkloadProtectionRequest
 	(*SetWorkloadProtectionResponse)(nil),    // 33: n0x.workloads.v1.SetWorkloadProtectionResponse
-	(*ListListeningPortsRequest)(nil),        // 34: n0x.workloads.v1.ListListeningPortsRequest
-	(*ListListeningPortsResponse)(nil),       // 35: n0x.workloads.v1.ListListeningPortsResponse
-	(*ListSessionsRequest)(nil),              // 36: n0x.workloads.v1.ListSessionsRequest
-	(*ListSessionsResponse)(nil),             // 37: n0x.workloads.v1.ListSessionsResponse
-	(*GetSessionRequest)(nil),                // 38: n0x.workloads.v1.GetSessionRequest
-	(*GetSessionResponse)(nil),               // 39: n0x.workloads.v1.GetSessionResponse
-	(*timestamppb.Timestamp)(nil),            // 40: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),              // 41: google.protobuf.Duration
+	(*SetWorkloadLabelsRequest)(nil),         // 34: n0x.workloads.v1.SetWorkloadLabelsRequest
+	(*SetWorkloadLabelsResponse)(nil),        // 35: n0x.workloads.v1.SetWorkloadLabelsResponse
+	(*ListListeningPortsRequest)(nil),        // 36: n0x.workloads.v1.ListListeningPortsRequest
+	(*ListListeningPortsResponse)(nil),       // 37: n0x.workloads.v1.ListListeningPortsResponse
+	(*ListSessionsRequest)(nil),              // 38: n0x.workloads.v1.ListSessionsRequest
+	(*ListSessionsResponse)(nil),             // 39: n0x.workloads.v1.ListSessionsResponse
+	(*GetSessionRequest)(nil),                // 40: n0x.workloads.v1.GetSessionRequest
+	(*GetSessionResponse)(nil),               // 41: n0x.workloads.v1.GetSessionResponse
+	nil,                                      // 42: n0x.workloads.v1.Workload.LabelsEntry
+	nil,                                      // 43: n0x.workloads.v1.CreateWorkloadRequest.LabelsEntry
+	nil,                                      // 44: n0x.workloads.v1.SetWorkloadLabelsRequest.LabelsEntry
+	(*timestamppb.Timestamp)(nil),            // 45: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),              // 46: google.protobuf.Duration
 }
 var file_n0x_workloads_v1_workloads_proto_depIdxs = []int32{
 	3,  // 0: n0x.workloads.v1.WorkloadNode.state:type_name -> n0x.workloads.v1.WorkloadNodeState
-	40, // 1: n0x.workloads.v1.WorkloadNode.state_changed_at:type_name -> google.protobuf.Timestamp
+	45, // 1: n0x.workloads.v1.WorkloadNode.state_changed_at:type_name -> google.protobuf.Timestamp
 	8,  // 2: n0x.workloads.v1.WorkloadNodes.nodes:type_name -> n0x.workloads.v1.WorkloadNode
 	1,  // 3: n0x.workloads.v1.Workload.type:type_name -> n0x.workloads.v1.WorkloadType
 	9,  // 4: n0x.workloads.v1.Workload.serving_nodes:type_name -> n0x.workloads.v1.WorkloadNodes
 	10, // 5: n0x.workloads.v1.Workload.direct_destination:type_name -> n0x.workloads.v1.DirectWorkloadDestination
 	2,  // 6: n0x.workloads.v1.Workload.state:type_name -> n0x.workloads.v1.WorkloadState
-	40, // 7: n0x.workloads.v1.Workload.created_at:type_name -> google.protobuf.Timestamp
-	40, // 8: n0x.workloads.v1.Workload.retired_at:type_name -> google.protobuf.Timestamp
-	41, // 9: n0x.workloads.v1.Workload.window:type_name -> google.protobuf.Duration
+	45, // 7: n0x.workloads.v1.Workload.created_at:type_name -> google.protobuf.Timestamp
+	45, // 8: n0x.workloads.v1.Workload.retired_at:type_name -> google.protobuf.Timestamp
+	46, // 9: n0x.workloads.v1.Workload.window:type_name -> google.protobuf.Duration
 	0,  // 10: n0x.workloads.v1.Workload.origin_scheme:type_name -> n0x.workloads.v1.OriginScheme
-	40, // 11: n0x.workloads.v1.WorkloadPublishCommand.expires_at:type_name -> google.protobuf.Timestamp
-	7,  // 12: n0x.workloads.v1.SessionEvent.type:type_name -> n0x.workloads.v1.SessionEventType
-	40, // 13: n0x.workloads.v1.SessionEvent.occurred_at:type_name -> google.protobuf.Timestamp
-	4,  // 14: n0x.workloads.v1.Session.client:type_name -> n0x.workloads.v1.SessionClient
-	15, // 15: n0x.workloads.v1.Session.origin:type_name -> n0x.workloads.v1.SessionOrigin
-	16, // 16: n0x.workloads.v1.Session.node:type_name -> n0x.workloads.v1.SessionNodeDestination
-	5,  // 17: n0x.workloads.v1.Session.layer:type_name -> n0x.workloads.v1.SessionLayer
-	6,  // 18: n0x.workloads.v1.Session.mechanism:type_name -> n0x.workloads.v1.SessionMechanism
-	40, // 19: n0x.workloads.v1.Session.started_at:type_name -> google.protobuf.Timestamp
-	40, // 20: n0x.workloads.v1.Session.last_activity_at:type_name -> google.protobuf.Timestamp
-	40, // 21: n0x.workloads.v1.Session.closed_at:type_name -> google.protobuf.Timestamp
-	17, // 22: n0x.workloads.v1.Session.timeline:type_name -> n0x.workloads.v1.SessionEvent
-	40, // 23: n0x.workloads.v1.ListeningPort.observed_at:type_name -> google.protobuf.Timestamp
-	2,  // 24: n0x.workloads.v1.ListWorkloadsRequest.state:type_name -> n0x.workloads.v1.WorkloadState
-	1,  // 25: n0x.workloads.v1.ListWorkloadsRequest.type:type_name -> n0x.workloads.v1.WorkloadType
-	11, // 26: n0x.workloads.v1.ListWorkloadsResponse.workloads:type_name -> n0x.workloads.v1.Workload
-	11, // 27: n0x.workloads.v1.GetWorkloadResponse.workload:type_name -> n0x.workloads.v1.Workload
-	1,  // 28: n0x.workloads.v1.CreateWorkloadRequest.type:type_name -> n0x.workloads.v1.WorkloadType
-	12, // 29: n0x.workloads.v1.CreateWorkloadRequest.existing_node:type_name -> n0x.workloads.v1.ExistingNodePublication
-	13, // 30: n0x.workloads.v1.CreateWorkloadRequest.expose_only:type_name -> n0x.workloads.v1.ExposeOnlyPublication
-	10, // 31: n0x.workloads.v1.CreateWorkloadRequest.direct_destination:type_name -> n0x.workloads.v1.DirectWorkloadDestination
-	41, // 32: n0x.workloads.v1.CreateWorkloadRequest.window:type_name -> google.protobuf.Duration
-	0,  // 33: n0x.workloads.v1.CreateWorkloadRequest.origin_scheme:type_name -> n0x.workloads.v1.OriginScheme
-	11, // 34: n0x.workloads.v1.CreateWorkloadResponse.workload:type_name -> n0x.workloads.v1.Workload
-	14, // 35: n0x.workloads.v1.CreateWorkloadResponse.publish_command:type_name -> n0x.workloads.v1.WorkloadPublishCommand
-	1,  // 36: n0x.workloads.v1.RegisterWorkloadFromHostRequest.type:type_name -> n0x.workloads.v1.WorkloadType
-	11, // 37: n0x.workloads.v1.RegisterWorkloadFromHostResponse.workload:type_name -> n0x.workloads.v1.Workload
-	11, // 38: n0x.workloads.v1.RemoveWorkloadNodeResponse.workload:type_name -> n0x.workloads.v1.Workload
-	11, // 39: n0x.workloads.v1.RetireWorkloadResponse.workload:type_name -> n0x.workloads.v1.Workload
-	11, // 40: n0x.workloads.v1.SetWorkloadProtectionResponse.workload:type_name -> n0x.workloads.v1.Workload
-	19, // 41: n0x.workloads.v1.ListListeningPortsResponse.listening_ports:type_name -> n0x.workloads.v1.ListeningPort
-	5,  // 42: n0x.workloads.v1.ListSessionsRequest.layer:type_name -> n0x.workloads.v1.SessionLayer
-	40, // 43: n0x.workloads.v1.ListSessionsRequest.started_after:type_name -> google.protobuf.Timestamp
-	40, // 44: n0x.workloads.v1.ListSessionsRequest.started_before:type_name -> google.protobuf.Timestamp
-	18, // 45: n0x.workloads.v1.ListSessionsResponse.sessions:type_name -> n0x.workloads.v1.Session
-	18, // 46: n0x.workloads.v1.GetSessionResponse.session:type_name -> n0x.workloads.v1.Session
-	20, // 47: n0x.workloads.v1.WorkloadsService.ListWorkloads:input_type -> n0x.workloads.v1.ListWorkloadsRequest
-	22, // 48: n0x.workloads.v1.WorkloadsService.GetWorkload:input_type -> n0x.workloads.v1.GetWorkloadRequest
-	24, // 49: n0x.workloads.v1.WorkloadsService.CreateWorkload:input_type -> n0x.workloads.v1.CreateWorkloadRequest
-	26, // 50: n0x.workloads.v1.WorkloadsService.RegisterWorkloadFromHost:input_type -> n0x.workloads.v1.RegisterWorkloadFromHostRequest
-	28, // 51: n0x.workloads.v1.WorkloadsService.RemoveWorkloadNode:input_type -> n0x.workloads.v1.RemoveWorkloadNodeRequest
-	30, // 52: n0x.workloads.v1.WorkloadsService.RetireWorkload:input_type -> n0x.workloads.v1.RetireWorkloadRequest
-	32, // 53: n0x.workloads.v1.WorkloadsService.SetWorkloadProtection:input_type -> n0x.workloads.v1.SetWorkloadProtectionRequest
-	34, // 54: n0x.workloads.v1.WorkloadsService.ListListeningPorts:input_type -> n0x.workloads.v1.ListListeningPortsRequest
-	36, // 55: n0x.workloads.v1.WorkloadsService.ListSessions:input_type -> n0x.workloads.v1.ListSessionsRequest
-	38, // 56: n0x.workloads.v1.WorkloadsService.GetSession:input_type -> n0x.workloads.v1.GetSessionRequest
-	21, // 57: n0x.workloads.v1.WorkloadsService.ListWorkloads:output_type -> n0x.workloads.v1.ListWorkloadsResponse
-	23, // 58: n0x.workloads.v1.WorkloadsService.GetWorkload:output_type -> n0x.workloads.v1.GetWorkloadResponse
-	25, // 59: n0x.workloads.v1.WorkloadsService.CreateWorkload:output_type -> n0x.workloads.v1.CreateWorkloadResponse
-	27, // 60: n0x.workloads.v1.WorkloadsService.RegisterWorkloadFromHost:output_type -> n0x.workloads.v1.RegisterWorkloadFromHostResponse
-	29, // 61: n0x.workloads.v1.WorkloadsService.RemoveWorkloadNode:output_type -> n0x.workloads.v1.RemoveWorkloadNodeResponse
-	31, // 62: n0x.workloads.v1.WorkloadsService.RetireWorkload:output_type -> n0x.workloads.v1.RetireWorkloadResponse
-	33, // 63: n0x.workloads.v1.WorkloadsService.SetWorkloadProtection:output_type -> n0x.workloads.v1.SetWorkloadProtectionResponse
-	35, // 64: n0x.workloads.v1.WorkloadsService.ListListeningPorts:output_type -> n0x.workloads.v1.ListListeningPortsResponse
-	37, // 65: n0x.workloads.v1.WorkloadsService.ListSessions:output_type -> n0x.workloads.v1.ListSessionsResponse
-	39, // 66: n0x.workloads.v1.WorkloadsService.GetSession:output_type -> n0x.workloads.v1.GetSessionResponse
-	57, // [57:67] is the sub-list for method output_type
-	47, // [47:57] is the sub-list for method input_type
-	47, // [47:47] is the sub-list for extension type_name
-	47, // [47:47] is the sub-list for extension extendee
-	0,  // [0:47] is the sub-list for field type_name
+	42, // 11: n0x.workloads.v1.Workload.labels:type_name -> n0x.workloads.v1.Workload.LabelsEntry
+	45, // 12: n0x.workloads.v1.WorkloadPublishCommand.expires_at:type_name -> google.protobuf.Timestamp
+	7,  // 13: n0x.workloads.v1.SessionEvent.type:type_name -> n0x.workloads.v1.SessionEventType
+	45, // 14: n0x.workloads.v1.SessionEvent.occurred_at:type_name -> google.protobuf.Timestamp
+	4,  // 15: n0x.workloads.v1.Session.client:type_name -> n0x.workloads.v1.SessionClient
+	15, // 16: n0x.workloads.v1.Session.origin:type_name -> n0x.workloads.v1.SessionOrigin
+	16, // 17: n0x.workloads.v1.Session.node:type_name -> n0x.workloads.v1.SessionNodeDestination
+	5,  // 18: n0x.workloads.v1.Session.layer:type_name -> n0x.workloads.v1.SessionLayer
+	6,  // 19: n0x.workloads.v1.Session.mechanism:type_name -> n0x.workloads.v1.SessionMechanism
+	45, // 20: n0x.workloads.v1.Session.started_at:type_name -> google.protobuf.Timestamp
+	45, // 21: n0x.workloads.v1.Session.last_activity_at:type_name -> google.protobuf.Timestamp
+	45, // 22: n0x.workloads.v1.Session.closed_at:type_name -> google.protobuf.Timestamp
+	17, // 23: n0x.workloads.v1.Session.timeline:type_name -> n0x.workloads.v1.SessionEvent
+	45, // 24: n0x.workloads.v1.ListeningPort.observed_at:type_name -> google.protobuf.Timestamp
+	2,  // 25: n0x.workloads.v1.ListWorkloadsRequest.state:type_name -> n0x.workloads.v1.WorkloadState
+	1,  // 26: n0x.workloads.v1.ListWorkloadsRequest.type:type_name -> n0x.workloads.v1.WorkloadType
+	11, // 27: n0x.workloads.v1.ListWorkloadsResponse.workloads:type_name -> n0x.workloads.v1.Workload
+	11, // 28: n0x.workloads.v1.GetWorkloadResponse.workload:type_name -> n0x.workloads.v1.Workload
+	1,  // 29: n0x.workloads.v1.CreateWorkloadRequest.type:type_name -> n0x.workloads.v1.WorkloadType
+	12, // 30: n0x.workloads.v1.CreateWorkloadRequest.existing_node:type_name -> n0x.workloads.v1.ExistingNodePublication
+	13, // 31: n0x.workloads.v1.CreateWorkloadRequest.expose_only:type_name -> n0x.workloads.v1.ExposeOnlyPublication
+	10, // 32: n0x.workloads.v1.CreateWorkloadRequest.direct_destination:type_name -> n0x.workloads.v1.DirectWorkloadDestination
+	46, // 33: n0x.workloads.v1.CreateWorkloadRequest.window:type_name -> google.protobuf.Duration
+	0,  // 34: n0x.workloads.v1.CreateWorkloadRequest.origin_scheme:type_name -> n0x.workloads.v1.OriginScheme
+	43, // 35: n0x.workloads.v1.CreateWorkloadRequest.labels:type_name -> n0x.workloads.v1.CreateWorkloadRequest.LabelsEntry
+	11, // 36: n0x.workloads.v1.CreateWorkloadResponse.workload:type_name -> n0x.workloads.v1.Workload
+	14, // 37: n0x.workloads.v1.CreateWorkloadResponse.publish_command:type_name -> n0x.workloads.v1.WorkloadPublishCommand
+	1,  // 38: n0x.workloads.v1.RegisterWorkloadFromHostRequest.type:type_name -> n0x.workloads.v1.WorkloadType
+	11, // 39: n0x.workloads.v1.RegisterWorkloadFromHostResponse.workload:type_name -> n0x.workloads.v1.Workload
+	11, // 40: n0x.workloads.v1.RemoveWorkloadNodeResponse.workload:type_name -> n0x.workloads.v1.Workload
+	11, // 41: n0x.workloads.v1.RetireWorkloadResponse.workload:type_name -> n0x.workloads.v1.Workload
+	11, // 42: n0x.workloads.v1.SetWorkloadProtectionResponse.workload:type_name -> n0x.workloads.v1.Workload
+	44, // 43: n0x.workloads.v1.SetWorkloadLabelsRequest.labels:type_name -> n0x.workloads.v1.SetWorkloadLabelsRequest.LabelsEntry
+	11, // 44: n0x.workloads.v1.SetWorkloadLabelsResponse.workload:type_name -> n0x.workloads.v1.Workload
+	19, // 45: n0x.workloads.v1.ListListeningPortsResponse.listening_ports:type_name -> n0x.workloads.v1.ListeningPort
+	5,  // 46: n0x.workloads.v1.ListSessionsRequest.layer:type_name -> n0x.workloads.v1.SessionLayer
+	45, // 47: n0x.workloads.v1.ListSessionsRequest.started_after:type_name -> google.protobuf.Timestamp
+	45, // 48: n0x.workloads.v1.ListSessionsRequest.started_before:type_name -> google.protobuf.Timestamp
+	18, // 49: n0x.workloads.v1.ListSessionsResponse.sessions:type_name -> n0x.workloads.v1.Session
+	18, // 50: n0x.workloads.v1.GetSessionResponse.session:type_name -> n0x.workloads.v1.Session
+	20, // 51: n0x.workloads.v1.WorkloadsService.ListWorkloads:input_type -> n0x.workloads.v1.ListWorkloadsRequest
+	22, // 52: n0x.workloads.v1.WorkloadsService.GetWorkload:input_type -> n0x.workloads.v1.GetWorkloadRequest
+	24, // 53: n0x.workloads.v1.WorkloadsService.CreateWorkload:input_type -> n0x.workloads.v1.CreateWorkloadRequest
+	26, // 54: n0x.workloads.v1.WorkloadsService.RegisterWorkloadFromHost:input_type -> n0x.workloads.v1.RegisterWorkloadFromHostRequest
+	28, // 55: n0x.workloads.v1.WorkloadsService.RemoveWorkloadNode:input_type -> n0x.workloads.v1.RemoveWorkloadNodeRequest
+	30, // 56: n0x.workloads.v1.WorkloadsService.RetireWorkload:input_type -> n0x.workloads.v1.RetireWorkloadRequest
+	32, // 57: n0x.workloads.v1.WorkloadsService.SetWorkloadProtection:input_type -> n0x.workloads.v1.SetWorkloadProtectionRequest
+	34, // 58: n0x.workloads.v1.WorkloadsService.SetWorkloadLabels:input_type -> n0x.workloads.v1.SetWorkloadLabelsRequest
+	36, // 59: n0x.workloads.v1.WorkloadsService.ListListeningPorts:input_type -> n0x.workloads.v1.ListListeningPortsRequest
+	38, // 60: n0x.workloads.v1.WorkloadsService.ListSessions:input_type -> n0x.workloads.v1.ListSessionsRequest
+	40, // 61: n0x.workloads.v1.WorkloadsService.GetSession:input_type -> n0x.workloads.v1.GetSessionRequest
+	21, // 62: n0x.workloads.v1.WorkloadsService.ListWorkloads:output_type -> n0x.workloads.v1.ListWorkloadsResponse
+	23, // 63: n0x.workloads.v1.WorkloadsService.GetWorkload:output_type -> n0x.workloads.v1.GetWorkloadResponse
+	25, // 64: n0x.workloads.v1.WorkloadsService.CreateWorkload:output_type -> n0x.workloads.v1.CreateWorkloadResponse
+	27, // 65: n0x.workloads.v1.WorkloadsService.RegisterWorkloadFromHost:output_type -> n0x.workloads.v1.RegisterWorkloadFromHostResponse
+	29, // 66: n0x.workloads.v1.WorkloadsService.RemoveWorkloadNode:output_type -> n0x.workloads.v1.RemoveWorkloadNodeResponse
+	31, // 67: n0x.workloads.v1.WorkloadsService.RetireWorkload:output_type -> n0x.workloads.v1.RetireWorkloadResponse
+	33, // 68: n0x.workloads.v1.WorkloadsService.SetWorkloadProtection:output_type -> n0x.workloads.v1.SetWorkloadProtectionResponse
+	35, // 69: n0x.workloads.v1.WorkloadsService.SetWorkloadLabels:output_type -> n0x.workloads.v1.SetWorkloadLabelsResponse
+	37, // 70: n0x.workloads.v1.WorkloadsService.ListListeningPorts:output_type -> n0x.workloads.v1.ListListeningPortsResponse
+	39, // 71: n0x.workloads.v1.WorkloadsService.ListSessions:output_type -> n0x.workloads.v1.ListSessionsResponse
+	41, // 72: n0x.workloads.v1.WorkloadsService.GetSession:output_type -> n0x.workloads.v1.GetSessionResponse
+	62, // [62:73] is the sub-list for method output_type
+	51, // [51:62] is the sub-list for method input_type
+	51, // [51:51] is the sub-list for extension type_name
+	51, // [51:51] is the sub-list for extension extendee
+	0,  // [0:51] is the sub-list for field type_name
 }
 
 func init() { file_n0x_workloads_v1_workloads_proto_init() }
@@ -3623,13 +3826,14 @@ func file_n0x_workloads_v1_workloads_proto_init() {
 	file_n0x_workloads_v1_workloads_proto_msgTypes[20].OneofWrappers = []any{}
 	file_n0x_workloads_v1_workloads_proto_msgTypes[22].OneofWrappers = []any{}
 	file_n0x_workloads_v1_workloads_proto_msgTypes[24].OneofWrappers = []any{}
+	file_n0x_workloads_v1_workloads_proto_msgTypes[26].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_workloads_v1_workloads_proto_rawDesc), len(file_n0x_workloads_v1_workloads_proto_rawDesc)),
 			NumEnums:      8,
-			NumMessages:   32,
+			NumMessages:   37,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
