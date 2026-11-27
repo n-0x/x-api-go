@@ -81,6 +81,12 @@ const (
 	// NetworkPolicyServiceRemovePolicyTestProcedure is the procedure name of the NetworkPolicyService's
 	// RemovePolicyTest RPC.
 	NetworkPolicyServiceRemovePolicyTestProcedure = "/n0x.policy.v1.NetworkPolicyService/RemovePolicyTest"
+	// NetworkPolicyServiceRunConnectivityProbeProcedure is the procedure name of the
+	// NetworkPolicyService's RunConnectivityProbe RPC.
+	NetworkPolicyServiceRunConnectivityProbeProcedure = "/n0x.policy.v1.NetworkPolicyService/RunConnectivityProbe"
+	// NetworkPolicyServiceWatchPairFlowProcedure is the procedure name of the NetworkPolicyService's
+	// WatchPairFlow RPC.
+	NetworkPolicyServiceWatchPairFlowProcedure = "/n0x.policy.v1.NetworkPolicyService/WatchPairFlow"
 )
 
 var (
@@ -217,6 +223,20 @@ var (
 			Procedure:  NetworkPolicyServiceRemovePolicyTestProcedure,
 		}
 	})
+	networkPolicyServiceRunConnectivityProbeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_policy_v1_policy_proto.Services().ByName("NetworkPolicyService").Methods().ByName("RunConnectivityProbe"),
+			Procedure:  NetworkPolicyServiceRunConnectivityProbeProcedure,
+		}
+	})
+	networkPolicyServiceWatchPairFlowSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeServer,
+			Schema:     v1.File_n0x_policy_v1_policy_proto.Services().ByName("NetworkPolicyService").Methods().ByName("WatchPairFlow"),
+			Procedure:  NetworkPolicyServiceWatchPairFlowProcedure,
+		}
+	})
 )
 
 // NetworkPolicyServiceClient is a client for the n0x.policy.v1.NetworkPolicyService service.
@@ -242,12 +262,35 @@ type NetworkPolicyServiceClient interface {
 	UpdatePolicyTest(context.Context, *v1.UpdatePolicyTestRequest) (*v1.UpdatePolicyTestResponse, error)
 	// Removing a test cannot exempt its active assertion from the gate.
 	RemovePolicyTest(context.Context, *v1.RemovePolicyTestRequest) (*v1.RemovePolicyTestResponse, error)
+	RunConnectivityProbe(context.Context, *v1.RunConnectivityProbeRequest) (*v1.RunConnectivityProbeResponse, error)
+	WatchPairFlow(context.Context, *v1.WatchPairFlowRequest) (NetworkPolicyServiceWatchPairFlowClientStream, error)
 }
 
 // NewNetworkPolicyServiceClient constructs a client for the n0x.policy.v1.NetworkPolicyService
 // service. Multiple service clients may share a single connect.Client.
 func NewNetworkPolicyServiceClient(client *connect.Client) NetworkPolicyServiceClient {
 	return &networkPolicyServiceClient{client: client}
+}
+
+// NetworkPolicyServiceWatchPairFlowClientStream is the client stream for the NetworkPolicyService's
+// WatchPairFlow RPC.
+type NetworkPolicyServiceWatchPairFlowClientStream struct {
+	stream connect.ClientStream
+}
+
+// Receive returns the next response message from the server.
+func (s NetworkPolicyServiceWatchPairFlowClientStream) Receive() (*v1.WatchPairFlowResponse, error) {
+	var res v1.WatchPairFlowResponse
+	if err := s.stream.Receive(&res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// Close releases the stream's resources. It is idempotent and is typically deferred to clean up a
+// stream abandoned before io.EOF.
+func (s NetworkPolicyServiceWatchPairFlowClientStream) Close() error {
+	return s.stream.Close()
 }
 
 // NetworkPolicyServiceHandler is an implementation of the n0x.policy.v1.NetworkPolicyService
@@ -274,6 +317,8 @@ type NetworkPolicyServiceHandler interface {
 	UpdatePolicyTest(context.Context, *v1.UpdatePolicyTestRequest) (*v1.UpdatePolicyTestResponse, error)
 	// Removing a test cannot exempt its active assertion from the gate.
 	RemovePolicyTest(context.Context, *v1.RemovePolicyTestRequest) (*v1.RemovePolicyTestResponse, error)
+	RunConnectivityProbe(context.Context, *v1.RunConnectivityProbeRequest) (*v1.RunConnectivityProbeResponse, error)
+	WatchPairFlow(context.Context, *v1.WatchPairFlowRequest, NetworkPolicyServiceWatchPairFlowServerStream) error
 }
 
 // RegisterNetworkPolicyServiceHandler registers svc as the n0x.policy.v1.NetworkPolicyService
@@ -300,7 +345,25 @@ func RegisterNetworkPolicyServiceHandler(server *connect.Server, svc NetworkPoli
 		connect.Method{Spec: networkPolicyServiceCreatePolicyTestSpec(), Handler: adapter.createPolicyTest},
 		connect.Method{Spec: networkPolicyServiceUpdatePolicyTestSpec(), Handler: adapter.updatePolicyTest},
 		connect.Method{Spec: networkPolicyServiceRemovePolicyTestSpec(), Handler: adapter.removePolicyTest},
+		connect.Method{Spec: networkPolicyServiceRunConnectivityProbeSpec(), Handler: adapter.runConnectivityProbe},
+		connect.Method{Spec: networkPolicyServiceWatchPairFlowSpec(), Handler: adapter.watchPairFlow},
 	)
+}
+
+// NetworkPolicyServiceWatchPairFlowServerStream is the server stream for the NetworkPolicyService's
+// WatchPairFlow RPC.
+type NetworkPolicyServiceWatchPairFlowServerStream struct {
+	stream connect.ServerStream
+}
+
+// SendHeaders flushes the response headers without a message. The first Send does this implicitly.
+func (s NetworkPolicyServiceWatchPairFlowServerStream) SendHeaders() error {
+	return s.stream.SendHeaders()
+}
+
+// Send sends a response message to the client.
+func (s NetworkPolicyServiceWatchPairFlowServerStream) Send(res *v1.WatchPairFlowResponse) error {
+	return s.stream.Send(res)
 }
 
 // UnimplementedNetworkPolicyServiceHandler returns CodeUnimplemented from all methods.
@@ -380,6 +443,14 @@ func (UnimplementedNetworkPolicyServiceHandler) UpdatePolicyTest(context.Context
 
 func (UnimplementedNetworkPolicyServiceHandler) RemovePolicyTest(context.Context, *v1.RemovePolicyTestRequest) (*v1.RemovePolicyTestResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.policy.v1.NetworkPolicyService.RemovePolicyTest is not implemented")
+}
+
+func (UnimplementedNetworkPolicyServiceHandler) RunConnectivityProbe(context.Context, *v1.RunConnectivityProbeRequest) (*v1.RunConnectivityProbeResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.policy.v1.NetworkPolicyService.RunConnectivityProbe is not implemented")
+}
+
+func (UnimplementedNetworkPolicyServiceHandler) WatchPairFlow(context.Context, *v1.WatchPairFlowRequest, NetworkPolicyServiceWatchPairFlowServerStream) error {
+	return connect.NewError(connect.CodeUnimplemented, "n0x.policy.v1.NetworkPolicyService.WatchPairFlow is not implemented")
 }
 
 type networkPolicyServiceClient struct {
@@ -536,6 +607,22 @@ func (c *networkPolicyServiceClient) RemovePolicyTest(ctx context.Context, req *
 		return nil, err
 	}
 	return &res, nil
+}
+
+func (c *networkPolicyServiceClient) RunConnectivityProbe(ctx context.Context, req *v1.RunConnectivityProbeRequest) (*v1.RunConnectivityProbeResponse, error) {
+	var res v1.RunConnectivityProbeResponse
+	if err := c.client.CallUnary(ctx, networkPolicyServiceRunConnectivityProbeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *networkPolicyServiceClient) WatchPairFlow(ctx context.Context, req *v1.WatchPairFlowRequest) (NetworkPolicyServiceWatchPairFlowClientStream, error) {
+	stream, err := c.client.CallServerStream(ctx, networkPolicyServiceWatchPairFlowSpec(), req)
+	if err != nil {
+		return NetworkPolicyServiceWatchPairFlowClientStream{}, err
+	}
+	return NetworkPolicyServiceWatchPairFlowClientStream{stream: stream}, nil
 }
 
 type networkPolicyServiceHandler struct{ svc NetworkPolicyServiceHandler }
@@ -766,4 +853,24 @@ func (h networkPolicyServiceHandler) removePolicyTest(ctx context.Context, _ con
 		return err
 	}
 	return stream.Send(res)
+}
+
+func (h networkPolicyServiceHandler) runConnectivityProbe(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.RunConnectivityProbeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RunConnectivityProbe(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h networkPolicyServiceHandler) watchPairFlow(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.WatchPairFlowRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	return h.svc.WatchPairFlow(ctx, &req, NetworkPolicyServiceWatchPairFlowServerStream{stream: stream})
 }

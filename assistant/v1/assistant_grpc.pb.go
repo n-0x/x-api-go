@@ -26,6 +26,8 @@ const (
 	AssistantService_DismissProposal_FullMethodName       = "/n0x.assistant.v1.AssistantService/DismissProposal"
 	AssistantService_DeleteConversation_FullMethodName    = "/n0x.assistant.v1.AssistantService/DeleteConversation"
 	AssistantService_ReportProposalOutcome_FullMethodName = "/n0x.assistant.v1.AssistantService/ReportProposalOutcome"
+	AssistantService_SetAutonomyMode_FullMethodName       = "/n0x.assistant.v1.AssistantService/SetAutonomyMode"
+	AssistantService_WatchConversation_FullMethodName     = "/n0x.assistant.v1.AssistantService/WatchConversation"
 )
 
 // AssistantServiceClient is the client API for AssistantService service.
@@ -51,6 +53,8 @@ type AssistantServiceClient interface {
 	// APPLIED con otro revision_number, FailedPrecondition); otro estado,
 	// FailedPrecondition. FAILED a FAILED reemplaza error.
 	ReportProposalOutcome(ctx context.Context, in *ReportProposalOutcomeRequest, opts ...grpc.CallOption) (*ReportProposalOutcomeResponse, error)
+	SetAutonomyMode(ctx context.Context, in *SetAutonomyModeRequest, opts ...grpc.CallOption) (*SetAutonomyModeResponse, error)
+	WatchConversation(ctx context.Context, in *WatchConversationRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WatchConversationResponse], error)
 }
 
 type assistantServiceClient struct {
@@ -131,6 +135,35 @@ func (c *assistantServiceClient) ReportProposalOutcome(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *assistantServiceClient) SetAutonomyMode(ctx context.Context, in *SetAutonomyModeRequest, opts ...grpc.CallOption) (*SetAutonomyModeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetAutonomyModeResponse)
+	err := c.cc.Invoke(ctx, AssistantService_SetAutonomyMode_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) WatchConversation(ctx context.Context, in *WatchConversationRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WatchConversationResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &AssistantService_ServiceDesc.Streams[0], AssistantService_WatchConversation_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[WatchConversationRequest, WatchConversationResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AssistantService_WatchConversationClient = grpc.ServerStreamingClient[WatchConversationResponse]
+
 // AssistantServiceServer is the server API for AssistantService service.
 // All implementations must embed UnimplementedAssistantServiceServer
 // for forward compatibility.
@@ -154,6 +187,8 @@ type AssistantServiceServer interface {
 	// APPLIED con otro revision_number, FailedPrecondition); otro estado,
 	// FailedPrecondition. FAILED a FAILED reemplaza error.
 	ReportProposalOutcome(context.Context, *ReportProposalOutcomeRequest) (*ReportProposalOutcomeResponse, error)
+	SetAutonomyMode(context.Context, *SetAutonomyModeRequest) (*SetAutonomyModeResponse, error)
+	WatchConversation(*WatchConversationRequest, grpc.ServerStreamingServer[WatchConversationResponse]) error
 	mustEmbedUnimplementedAssistantServiceServer()
 }
 
@@ -184,6 +219,12 @@ func (UnimplementedAssistantServiceServer) DeleteConversation(context.Context, *
 }
 func (UnimplementedAssistantServiceServer) ReportProposalOutcome(context.Context, *ReportProposalOutcomeRequest) (*ReportProposalOutcomeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReportProposalOutcome not implemented")
+}
+func (UnimplementedAssistantServiceServer) SetAutonomyMode(context.Context, *SetAutonomyModeRequest) (*SetAutonomyModeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetAutonomyMode not implemented")
+}
+func (UnimplementedAssistantServiceServer) WatchConversation(*WatchConversationRequest, grpc.ServerStreamingServer[WatchConversationResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method WatchConversation not implemented")
 }
 func (UnimplementedAssistantServiceServer) mustEmbedUnimplementedAssistantServiceServer() {}
 func (UnimplementedAssistantServiceServer) testEmbeddedByValue()                          {}
@@ -332,6 +373,35 @@ func _AssistantService_ReportProposalOutcome_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AssistantService_SetAutonomyMode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetAutonomyModeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).SetAutonomyMode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_SetAutonomyMode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).SetAutonomyMode(ctx, req.(*SetAutonomyModeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_WatchConversation_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(WatchConversationRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(AssistantServiceServer).WatchConversation(m, &grpc.GenericServerStream[WatchConversationRequest, WatchConversationResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AssistantService_WatchConversationServer = grpc.ServerStreamingServer[WatchConversationResponse]
+
 // AssistantService_ServiceDesc is the grpc.ServiceDesc for AssistantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -367,7 +437,17 @@ var AssistantService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "ReportProposalOutcome",
 			Handler:    _AssistantService_ReportProposalOutcome_Handler,
 		},
+		{
+			MethodName: "SetAutonomyMode",
+			Handler:    _AssistantService_SetAutonomyMode_Handler,
+		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "WatchConversation",
+			Handler:       _AssistantService_WatchConversation_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "n0x/assistant/v1/assistant.proto",
 }

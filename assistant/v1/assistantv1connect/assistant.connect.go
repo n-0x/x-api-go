@@ -45,6 +45,12 @@ const (
 	// AssistantServiceReportProposalOutcomeProcedure is the procedure name of the AssistantService's
 	// ReportProposalOutcome RPC.
 	AssistantServiceReportProposalOutcomeProcedure = "/n0x.assistant.v1.AssistantService/ReportProposalOutcome"
+	// AssistantServiceSetAutonomyModeProcedure is the procedure name of the AssistantService's
+	// SetAutonomyMode RPC.
+	AssistantServiceSetAutonomyModeProcedure = "/n0x.assistant.v1.AssistantService/SetAutonomyMode"
+	// AssistantServiceWatchConversationProcedure is the procedure name of the AssistantService's
+	// WatchConversation RPC.
+	AssistantServiceWatchConversationProcedure = "/n0x.assistant.v1.AssistantService/WatchConversation"
 )
 
 var (
@@ -97,6 +103,20 @@ var (
 			Procedure:  AssistantServiceReportProposalOutcomeProcedure,
 		}
 	})
+	assistantServiceSetAutonomyModeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_assistant_v1_assistant_proto.Services().ByName("AssistantService").Methods().ByName("SetAutonomyMode"),
+			Procedure:  AssistantServiceSetAutonomyModeProcedure,
+		}
+	})
+	assistantServiceWatchConversationSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeServer,
+			Schema:     v1.File_n0x_assistant_v1_assistant_proto.Services().ByName("AssistantService").Methods().ByName("WatchConversation"),
+			Procedure:  AssistantServiceWatchConversationProcedure,
+		}
+	})
 )
 
 // AssistantServiceClient is a client for the n0x.assistant.v1.AssistantService service.
@@ -120,12 +140,35 @@ type AssistantServiceClient interface {
 	// APPLIED con otro revision_number, FailedPrecondition); otro estado,
 	// FailedPrecondition. FAILED a FAILED reemplaza error.
 	ReportProposalOutcome(context.Context, *v1.ReportProposalOutcomeRequest) (*v1.ReportProposalOutcomeResponse, error)
+	SetAutonomyMode(context.Context, *v1.SetAutonomyModeRequest) (*v1.SetAutonomyModeResponse, error)
+	WatchConversation(context.Context, *v1.WatchConversationRequest) (AssistantServiceWatchConversationClientStream, error)
 }
 
 // NewAssistantServiceClient constructs a client for the n0x.assistant.v1.AssistantService service.
 // Multiple service clients may share a single connect.Client.
 func NewAssistantServiceClient(client *connect.Client) AssistantServiceClient {
 	return &assistantServiceClient{client: client}
+}
+
+// AssistantServiceWatchConversationClientStream is the client stream for the AssistantService's
+// WatchConversation RPC.
+type AssistantServiceWatchConversationClientStream struct {
+	stream connect.ClientStream
+}
+
+// Receive returns the next response message from the server.
+func (s AssistantServiceWatchConversationClientStream) Receive() (*v1.WatchConversationResponse, error) {
+	var res v1.WatchConversationResponse
+	if err := s.stream.Receive(&res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// Close releases the stream's resources. It is idempotent and is typically deferred to clean up a
+// stream abandoned before io.EOF.
+func (s AssistantServiceWatchConversationClientStream) Close() error {
+	return s.stream.Close()
 }
 
 // AssistantServiceHandler is an implementation of the n0x.assistant.v1.AssistantService service.
@@ -149,6 +192,8 @@ type AssistantServiceHandler interface {
 	// APPLIED con otro revision_number, FailedPrecondition); otro estado,
 	// FailedPrecondition. FAILED a FAILED reemplaza error.
 	ReportProposalOutcome(context.Context, *v1.ReportProposalOutcomeRequest) (*v1.ReportProposalOutcomeResponse, error)
+	SetAutonomyMode(context.Context, *v1.SetAutonomyModeRequest) (*v1.SetAutonomyModeResponse, error)
+	WatchConversation(context.Context, *v1.WatchConversationRequest, AssistantServiceWatchConversationServerStream) error
 }
 
 // RegisterAssistantServiceHandler registers svc as the n0x.assistant.v1.AssistantService
@@ -163,7 +208,25 @@ func RegisterAssistantServiceHandler(server *connect.Server, svc AssistantServic
 		connect.Method{Spec: assistantServiceDismissProposalSpec(), Handler: adapter.dismissProposal},
 		connect.Method{Spec: assistantServiceDeleteConversationSpec(), Handler: adapter.deleteConversation},
 		connect.Method{Spec: assistantServiceReportProposalOutcomeSpec(), Handler: adapter.reportProposalOutcome},
+		connect.Method{Spec: assistantServiceSetAutonomyModeSpec(), Handler: adapter.setAutonomyMode},
+		connect.Method{Spec: assistantServiceWatchConversationSpec(), Handler: adapter.watchConversation},
 	)
+}
+
+// AssistantServiceWatchConversationServerStream is the server stream for the AssistantService's
+// WatchConversation RPC.
+type AssistantServiceWatchConversationServerStream struct {
+	stream connect.ServerStream
+}
+
+// SendHeaders flushes the response headers without a message. The first Send does this implicitly.
+func (s AssistantServiceWatchConversationServerStream) SendHeaders() error {
+	return s.stream.SendHeaders()
+}
+
+// Send sends a response message to the client.
+func (s AssistantServiceWatchConversationServerStream) Send(res *v1.WatchConversationResponse) error {
+	return s.stream.Send(res)
 }
 
 // UnimplementedAssistantServiceHandler returns CodeUnimplemented from all methods.
@@ -195,6 +258,14 @@ func (UnimplementedAssistantServiceHandler) DeleteConversation(context.Context, 
 
 func (UnimplementedAssistantServiceHandler) ReportProposalOutcome(context.Context, *v1.ReportProposalOutcomeRequest) (*v1.ReportProposalOutcomeResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.assistant.v1.AssistantService.ReportProposalOutcome is not implemented")
+}
+
+func (UnimplementedAssistantServiceHandler) SetAutonomyMode(context.Context, *v1.SetAutonomyModeRequest) (*v1.SetAutonomyModeResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.assistant.v1.AssistantService.SetAutonomyMode is not implemented")
+}
+
+func (UnimplementedAssistantServiceHandler) WatchConversation(context.Context, *v1.WatchConversationRequest, AssistantServiceWatchConversationServerStream) error {
+	return connect.NewError(connect.CodeUnimplemented, "n0x.assistant.v1.AssistantService.WatchConversation is not implemented")
 }
 
 type assistantServiceClient struct {
@@ -255,6 +326,22 @@ func (c *assistantServiceClient) ReportProposalOutcome(ctx context.Context, req 
 		return nil, err
 	}
 	return &res, nil
+}
+
+func (c *assistantServiceClient) SetAutonomyMode(ctx context.Context, req *v1.SetAutonomyModeRequest) (*v1.SetAutonomyModeResponse, error) {
+	var res v1.SetAutonomyModeResponse
+	if err := c.client.CallUnary(ctx, assistantServiceSetAutonomyModeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *assistantServiceClient) WatchConversation(ctx context.Context, req *v1.WatchConversationRequest) (AssistantServiceWatchConversationClientStream, error) {
+	stream, err := c.client.CallServerStream(ctx, assistantServiceWatchConversationSpec(), req)
+	if err != nil {
+		return AssistantServiceWatchConversationClientStream{}, err
+	}
+	return AssistantServiceWatchConversationClientStream{stream: stream}, nil
 }
 
 type assistantServiceHandler struct{ svc AssistantServiceHandler }
@@ -341,4 +428,24 @@ func (h assistantServiceHandler) reportProposalOutcome(ctx context.Context, _ co
 		return err
 	}
 	return stream.Send(res)
+}
+
+func (h assistantServiceHandler) setAutonomyMode(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SetAutonomyModeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.SetAutonomyMode(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h assistantServiceHandler) watchConversation(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.WatchConversationRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	return h.svc.WatchConversation(ctx, &req, AssistantServiceWatchConversationServerStream{stream: stream})
 }

@@ -142,6 +142,12 @@ const (
 	// ControlObservationsServiceQueryNodeMetricsProcedure is the procedure name of the
 	// ControlObservationsService's QueryNodeMetrics RPC.
 	ControlObservationsServiceQueryNodeMetricsProcedure = "/n0x.control.v1.ControlObservationsService/QueryNodeMetrics"
+	// ControlObservationsServiceQueryNodeProbeProcedure is the procedure name of the
+	// ControlObservationsService's QueryNodeProbe RPC.
+	ControlObservationsServiceQueryNodeProbeProcedure = "/n0x.control.v1.ControlObservationsService/QueryNodeProbe"
+	// ControlObservationsServiceQueryNodeFlowTapProcedure is the procedure name of the
+	// ControlObservationsService's QueryNodeFlowTap RPC.
+	ControlObservationsServiceQueryNodeFlowTapProcedure = "/n0x.control.v1.ControlObservationsService/QueryNodeFlowTap"
 	// OwnershipAutomaticServiceClaimOwnerProcedure is the procedure name of the
 	// OwnershipAutomaticService's ClaimOwner RPC.
 	OwnershipAutomaticServiceClaimOwnerProcedure = "/n0x.control.v1.OwnershipAutomaticService/ClaimOwner"
@@ -1278,6 +1284,20 @@ var (
 			Procedure:  ControlObservationsServiceQueryNodeMetricsProcedure,
 		}
 	})
+	controlObservationsServiceQueryNodeProbeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_control_v1_control_proto.Services().ByName("ControlObservationsService").Methods().ByName("QueryNodeProbe"),
+			Procedure:  ControlObservationsServiceQueryNodeProbeProcedure,
+		}
+	})
+	controlObservationsServiceQueryNodeFlowTapSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_control_v1_control_proto.Services().ByName("ControlObservationsService").Methods().ByName("QueryNodeFlowTap"),
+			Procedure:  ControlObservationsServiceQueryNodeFlowTapProcedure,
+		}
+	})
 )
 
 // ControlObservationsServiceClient is a client for the n0x.control.v1.ControlObservationsService
@@ -1290,6 +1310,8 @@ type ControlObservationsServiceClient interface {
 	// Solo resources autenticado por mTLS, como ReadProjection. Lo atiende el
 	// owner de la encarnacion; los demas controllers no lo reenvian.
 	QueryNodeMetrics(context.Context, *v1.QueryNodeMetricsRequest) (*v1.QueryNodeMetricsResponse, error)
+	QueryNodeProbe(context.Context, *v1.QueryNodeProbeRequest) (*v1.QueryNodeProbeResponse, error)
+	QueryNodeFlowTap(context.Context, *v1.QueryNodeFlowTapRequest) (*v1.QueryNodeFlowTapResponse, error)
 }
 
 // NewControlObservationsServiceClient constructs a client for the
@@ -1309,6 +1331,8 @@ type ControlObservationsServiceHandler interface {
 	// Solo resources autenticado por mTLS, como ReadProjection. Lo atiende el
 	// owner de la encarnacion; los demas controllers no lo reenvian.
 	QueryNodeMetrics(context.Context, *v1.QueryNodeMetricsRequest) (*v1.QueryNodeMetricsResponse, error)
+	QueryNodeProbe(context.Context, *v1.QueryNodeProbeRequest) (*v1.QueryNodeProbeResponse, error)
+	QueryNodeFlowTap(context.Context, *v1.QueryNodeFlowTapRequest) (*v1.QueryNodeFlowTapResponse, error)
 }
 
 // RegisterControlObservationsServiceHandler registers svc as the
@@ -1319,6 +1343,8 @@ func RegisterControlObservationsServiceHandler(server *connect.Server, svc Contr
 		connect.Method{Spec: controlObservationsServiceReadProjectionSpec(), Handler: adapter.readProjection},
 		connect.Method{Spec: controlObservationsServiceReadFlowEventsSpec(), Handler: adapter.readFlowEvents},
 		connect.Method{Spec: controlObservationsServiceQueryNodeMetricsSpec(), Handler: adapter.queryNodeMetrics},
+		connect.Method{Spec: controlObservationsServiceQueryNodeProbeSpec(), Handler: adapter.queryNodeProbe},
+		connect.Method{Spec: controlObservationsServiceQueryNodeFlowTapSpec(), Handler: adapter.queryNodeFlowTap},
 	)
 }
 
@@ -1335,6 +1361,14 @@ func (UnimplementedControlObservationsServiceHandler) ReadFlowEvents(context.Con
 
 func (UnimplementedControlObservationsServiceHandler) QueryNodeMetrics(context.Context, *v1.QueryNodeMetricsRequest) (*v1.QueryNodeMetricsResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.ControlObservationsService.QueryNodeMetrics is not implemented")
+}
+
+func (UnimplementedControlObservationsServiceHandler) QueryNodeProbe(context.Context, *v1.QueryNodeProbeRequest) (*v1.QueryNodeProbeResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.ControlObservationsService.QueryNodeProbe is not implemented")
+}
+
+func (UnimplementedControlObservationsServiceHandler) QueryNodeFlowTap(context.Context, *v1.QueryNodeFlowTapRequest) (*v1.QueryNodeFlowTapResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.control.v1.ControlObservationsService.QueryNodeFlowTap is not implemented")
 }
 
 type controlObservationsServiceClient struct {
@@ -1360,6 +1394,22 @@ func (c *controlObservationsServiceClient) ReadFlowEvents(ctx context.Context, r
 func (c *controlObservationsServiceClient) QueryNodeMetrics(ctx context.Context, req *v1.QueryNodeMetricsRequest) (*v1.QueryNodeMetricsResponse, error) {
 	var res v1.QueryNodeMetricsResponse
 	if err := c.client.CallUnary(ctx, controlObservationsServiceQueryNodeMetricsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *controlObservationsServiceClient) QueryNodeProbe(ctx context.Context, req *v1.QueryNodeProbeRequest) (*v1.QueryNodeProbeResponse, error) {
+	var res v1.QueryNodeProbeResponse
+	if err := c.client.CallUnary(ctx, controlObservationsServiceQueryNodeProbeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *controlObservationsServiceClient) QueryNodeFlowTap(ctx context.Context, req *v1.QueryNodeFlowTapRequest) (*v1.QueryNodeFlowTapResponse, error) {
+	var res v1.QueryNodeFlowTapResponse
+	if err := c.client.CallUnary(ctx, controlObservationsServiceQueryNodeFlowTapSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -1399,6 +1449,30 @@ func (h controlObservationsServiceHandler) queryNodeMetrics(ctx context.Context,
 		return err
 	}
 	res, err := h.svc.QueryNodeMetrics(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h controlObservationsServiceHandler) queryNodeProbe(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.QueryNodeProbeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.QueryNodeProbe(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h controlObservationsServiceHandler) queryNodeFlowTap(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.QueryNodeFlowTapRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.QueryNodeFlowTap(ctx, &req)
 	if err != nil {
 		return err
 	}

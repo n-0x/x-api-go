@@ -25,6 +25,7 @@ const (
 	AuthorityService_ListBindings_FullMethodName        = "/n0x.internal.v1.AuthorityService/ListBindings"
 	AuthorityService_Activate_FullMethodName            = "/n0x.internal.v1.AuthorityService/Activate"
 	AuthorityService_UpdateCommercial_FullMethodName    = "/n0x.internal.v1.AuthorityService/UpdateCommercial"
+	AuthorityService_SyncAutonomyGrant_FullMethodName   = "/n0x.internal.v1.AuthorityService/SyncAutonomyGrant"
 )
 
 // AuthorityServiceClient is the client API for AuthorityService service.
@@ -37,6 +38,7 @@ type AuthorityServiceClient interface {
 	ListBindings(ctx context.Context, in *ListBindingsRequest, opts ...grpc.CallOption) (*ListBindingsResponse, error)
 	Activate(ctx context.Context, in *ActivateRequest, opts ...grpc.CallOption) (*ActivateResponse, error)
 	UpdateCommercial(ctx context.Context, in *UpdateCommercialRequest, opts ...grpc.CallOption) (*UpdateCommercialResponse, error)
+	SyncAutonomyGrant(ctx context.Context, in *SyncAutonomyGrantRequest, opts ...grpc.CallOption) (*SyncAutonomyGrantResponse, error)
 }
 
 type authorityServiceClient struct {
@@ -107,6 +109,16 @@ func (c *authorityServiceClient) UpdateCommercial(ctx context.Context, in *Updat
 	return out, nil
 }
 
+func (c *authorityServiceClient) SyncAutonomyGrant(ctx context.Context, in *SyncAutonomyGrantRequest, opts ...grpc.CallOption) (*SyncAutonomyGrantResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SyncAutonomyGrantResponse)
+	err := c.cc.Invoke(ctx, AuthorityService_SyncAutonomyGrant_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthorityServiceServer is the server API for AuthorityService service.
 // All implementations must embed UnimplementedAuthorityServiceServer
 // for forward compatibility.
@@ -117,6 +129,7 @@ type AuthorityServiceServer interface {
 	ListBindings(context.Context, *ListBindingsRequest) (*ListBindingsResponse, error)
 	Activate(context.Context, *ActivateRequest) (*ActivateResponse, error)
 	UpdateCommercial(context.Context, *UpdateCommercialRequest) (*UpdateCommercialResponse, error)
+	SyncAutonomyGrant(context.Context, *SyncAutonomyGrantRequest) (*SyncAutonomyGrantResponse, error)
 	mustEmbedUnimplementedAuthorityServiceServer()
 }
 
@@ -144,6 +157,9 @@ func (UnimplementedAuthorityServiceServer) Activate(context.Context, *ActivateRe
 }
 func (UnimplementedAuthorityServiceServer) UpdateCommercial(context.Context, *UpdateCommercialRequest) (*UpdateCommercialResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateCommercial not implemented")
+}
+func (UnimplementedAuthorityServiceServer) SyncAutonomyGrant(context.Context, *SyncAutonomyGrantRequest) (*SyncAutonomyGrantResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SyncAutonomyGrant not implemented")
 }
 func (UnimplementedAuthorityServiceServer) mustEmbedUnimplementedAuthorityServiceServer() {}
 func (UnimplementedAuthorityServiceServer) testEmbeddedByValue()                          {}
@@ -274,6 +290,24 @@ func _AuthorityService_UpdateCommercial_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthorityService_SyncAutonomyGrant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SyncAutonomyGrantRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorityServiceServer).SyncAutonomyGrant(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthorityService_SyncAutonomyGrant_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorityServiceServer).SyncAutonomyGrant(ctx, req.(*SyncAutonomyGrantRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthorityService_ServiceDesc is the grpc.ServiceDesc for AuthorityService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +338,10 @@ var AuthorityService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateCommercial",
 			Handler:    _AuthorityService_UpdateCommercial_Handler,
+		},
+		{
+			MethodName: "SyncAutonomyGrant",
+			Handler:    _AuthorityService_SyncAutonomyGrant_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1366,6 +1366,8 @@ const (
 	ControlObservationsService_ReadProjection_FullMethodName   = "/n0x.control.v1.ControlObservationsService/ReadProjection"
 	ControlObservationsService_ReadFlowEvents_FullMethodName   = "/n0x.control.v1.ControlObservationsService/ReadFlowEvents"
 	ControlObservationsService_QueryNodeMetrics_FullMethodName = "/n0x.control.v1.ControlObservationsService/QueryNodeMetrics"
+	ControlObservationsService_QueryNodeProbe_FullMethodName   = "/n0x.control.v1.ControlObservationsService/QueryNodeProbe"
+	ControlObservationsService_QueryNodeFlowTap_FullMethodName = "/n0x.control.v1.ControlObservationsService/QueryNodeFlowTap"
 )
 
 // ControlObservationsServiceClient is the client API for ControlObservationsService service.
@@ -1379,6 +1381,8 @@ type ControlObservationsServiceClient interface {
 	// Solo resources autenticado por mTLS, como ReadProjection. Lo atiende el
 	// owner de la encarnacion; los demas controllers no lo reenvian.
 	QueryNodeMetrics(ctx context.Context, in *QueryNodeMetricsRequest, opts ...grpc.CallOption) (*QueryNodeMetricsResponse, error)
+	QueryNodeProbe(ctx context.Context, in *QueryNodeProbeRequest, opts ...grpc.CallOption) (*QueryNodeProbeResponse, error)
+	QueryNodeFlowTap(ctx context.Context, in *QueryNodeFlowTapRequest, opts ...grpc.CallOption) (*QueryNodeFlowTapResponse, error)
 }
 
 type controlObservationsServiceClient struct {
@@ -1419,6 +1423,26 @@ func (c *controlObservationsServiceClient) QueryNodeMetrics(ctx context.Context,
 	return out, nil
 }
 
+func (c *controlObservationsServiceClient) QueryNodeProbe(ctx context.Context, in *QueryNodeProbeRequest, opts ...grpc.CallOption) (*QueryNodeProbeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(QueryNodeProbeResponse)
+	err := c.cc.Invoke(ctx, ControlObservationsService_QueryNodeProbe_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *controlObservationsServiceClient) QueryNodeFlowTap(ctx context.Context, in *QueryNodeFlowTapRequest, opts ...grpc.CallOption) (*QueryNodeFlowTapResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(QueryNodeFlowTapResponse)
+	err := c.cc.Invoke(ctx, ControlObservationsService_QueryNodeFlowTap_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ControlObservationsServiceServer is the server API for ControlObservationsService service.
 // All implementations must embed UnimplementedControlObservationsServiceServer
 // for forward compatibility.
@@ -1430,6 +1454,8 @@ type ControlObservationsServiceServer interface {
 	// Solo resources autenticado por mTLS, como ReadProjection. Lo atiende el
 	// owner de la encarnacion; los demas controllers no lo reenvian.
 	QueryNodeMetrics(context.Context, *QueryNodeMetricsRequest) (*QueryNodeMetricsResponse, error)
+	QueryNodeProbe(context.Context, *QueryNodeProbeRequest) (*QueryNodeProbeResponse, error)
+	QueryNodeFlowTap(context.Context, *QueryNodeFlowTapRequest) (*QueryNodeFlowTapResponse, error)
 	mustEmbedUnimplementedControlObservationsServiceServer()
 }
 
@@ -1448,6 +1474,12 @@ func (UnimplementedControlObservationsServiceServer) ReadFlowEvents(context.Cont
 }
 func (UnimplementedControlObservationsServiceServer) QueryNodeMetrics(context.Context, *QueryNodeMetricsRequest) (*QueryNodeMetricsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryNodeMetrics not implemented")
+}
+func (UnimplementedControlObservationsServiceServer) QueryNodeProbe(context.Context, *QueryNodeProbeRequest) (*QueryNodeProbeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryNodeProbe not implemented")
+}
+func (UnimplementedControlObservationsServiceServer) QueryNodeFlowTap(context.Context, *QueryNodeFlowTapRequest) (*QueryNodeFlowTapResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryNodeFlowTap not implemented")
 }
 func (UnimplementedControlObservationsServiceServer) mustEmbedUnimplementedControlObservationsServiceServer() {
 }
@@ -1525,6 +1557,42 @@ func _ControlObservationsService_QueryNodeMetrics_Handler(srv interface{}, ctx c
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ControlObservationsService_QueryNodeProbe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryNodeProbeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControlObservationsServiceServer).QueryNodeProbe(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControlObservationsService_QueryNodeProbe_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControlObservationsServiceServer).QueryNodeProbe(ctx, req.(*QueryNodeProbeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ControlObservationsService_QueryNodeFlowTap_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryNodeFlowTapRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControlObservationsServiceServer).QueryNodeFlowTap(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControlObservationsService_QueryNodeFlowTap_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControlObservationsServiceServer).QueryNodeFlowTap(ctx, req.(*QueryNodeFlowTapRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ControlObservationsService_ServiceDesc is the grpc.ServiceDesc for ControlObservationsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1543,6 +1611,14 @@ var ControlObservationsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QueryNodeMetrics",
 			Handler:    _ControlObservationsService_QueryNodeMetrics_Handler,
+		},
+		{
+			MethodName: "QueryNodeProbe",
+			Handler:    _ControlObservationsService_QueryNodeProbe_Handler,
+		},
+		{
+			MethodName: "QueryNodeFlowTap",
+			Handler:    _ControlObservationsService_QueryNodeFlowTap_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

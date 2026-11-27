@@ -191,6 +191,220 @@ func (ProposedChangeStatus) EnumDescriptor() ([]byte, []int) {
 	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{2}
 }
 
+type AutonomyMode int32
+
+const (
+	AutonomyMode_AUTONOMY_MODE_UNSPECIFIED AutonomyMode = 0
+	AutonomyMode_AUTONOMY_MODE_CONFIRM     AutonomyMode = 1
+	AutonomyMode_AUTONOMY_MODE_AUTOMATE    AutonomyMode = 2
+)
+
+// Enum value maps for AutonomyMode.
+var (
+	AutonomyMode_name = map[int32]string{
+		0: "AUTONOMY_MODE_UNSPECIFIED",
+		1: "AUTONOMY_MODE_CONFIRM",
+		2: "AUTONOMY_MODE_AUTOMATE",
+	}
+	AutonomyMode_value = map[string]int32{
+		"AUTONOMY_MODE_UNSPECIFIED": 0,
+		"AUTONOMY_MODE_CONFIRM":     1,
+		"AUTONOMY_MODE_AUTOMATE":    2,
+	}
+)
+
+func (x AutonomyMode) Enum() *AutonomyMode {
+	p := new(AutonomyMode)
+	*p = x
+	return p
+}
+
+func (x AutonomyMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AutonomyMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_assistant_v1_assistant_proto_enumTypes[3].Descriptor()
+}
+
+func (AutonomyMode) Type() protoreflect.EnumType {
+	return &file_n0x_assistant_v1_assistant_proto_enumTypes[3]
+}
+
+func (x AutonomyMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AutonomyMode.Descriptor instead.
+func (AutonomyMode) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{3}
+}
+
+type VerificationCheckKind int32
+
+const (
+	VerificationCheckKind_VERIFICATION_CHECK_KIND_UNSPECIFIED             VerificationCheckKind = 0
+	VerificationCheckKind_VERIFICATION_CHECK_KIND_ENFORCEMENT_CONVERGENCE VerificationCheckKind = 1
+	VerificationCheckKind_VERIFICATION_CHECK_KIND_LIVE_PAIR_FLOW          VerificationCheckKind = 2
+	VerificationCheckKind_VERIFICATION_CHECK_KIND_ACTIVE_PROBE            VerificationCheckKind = 3
+	VerificationCheckKind_VERIFICATION_CHECK_KIND_POLICY_SIMULATION       VerificationCheckKind = 4
+	VerificationCheckKind_VERIFICATION_CHECK_KIND_OBJECT_STATE            VerificationCheckKind = 5
+)
+
+// Enum value maps for VerificationCheckKind.
+var (
+	VerificationCheckKind_name = map[int32]string{
+		0: "VERIFICATION_CHECK_KIND_UNSPECIFIED",
+		1: "VERIFICATION_CHECK_KIND_ENFORCEMENT_CONVERGENCE",
+		2: "VERIFICATION_CHECK_KIND_LIVE_PAIR_FLOW",
+		3: "VERIFICATION_CHECK_KIND_ACTIVE_PROBE",
+		4: "VERIFICATION_CHECK_KIND_POLICY_SIMULATION",
+		5: "VERIFICATION_CHECK_KIND_OBJECT_STATE",
+	}
+	VerificationCheckKind_value = map[string]int32{
+		"VERIFICATION_CHECK_KIND_UNSPECIFIED":             0,
+		"VERIFICATION_CHECK_KIND_ENFORCEMENT_CONVERGENCE": 1,
+		"VERIFICATION_CHECK_KIND_LIVE_PAIR_FLOW":          2,
+		"VERIFICATION_CHECK_KIND_ACTIVE_PROBE":            3,
+		"VERIFICATION_CHECK_KIND_POLICY_SIMULATION":       4,
+		"VERIFICATION_CHECK_KIND_OBJECT_STATE":            5,
+	}
+)
+
+func (x VerificationCheckKind) Enum() *VerificationCheckKind {
+	p := new(VerificationCheckKind)
+	*p = x
+	return p
+}
+
+func (x VerificationCheckKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (VerificationCheckKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_assistant_v1_assistant_proto_enumTypes[4].Descriptor()
+}
+
+func (VerificationCheckKind) Type() protoreflect.EnumType {
+	return &file_n0x_assistant_v1_assistant_proto_enumTypes[4]
+}
+
+func (x VerificationCheckKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use VerificationCheckKind.Descriptor instead.
+func (VerificationCheckKind) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{4}
+}
+
+type VerificationExpectedVerdict int32
+
+const (
+	VerificationExpectedVerdict_VERIFICATION_EXPECTED_VERDICT_UNSPECIFIED VerificationExpectedVerdict = 0
+	VerificationExpectedVerdict_VERIFICATION_EXPECTED_VERDICT_ALLOW       VerificationExpectedVerdict = 1
+	VerificationExpectedVerdict_VERIFICATION_EXPECTED_VERDICT_DENY        VerificationExpectedVerdict = 2
+	VerificationExpectedVerdict_VERIFICATION_EXPECTED_VERDICT_APPLIED     VerificationExpectedVerdict = 3
+)
+
+// Enum value maps for VerificationExpectedVerdict.
+var (
+	VerificationExpectedVerdict_name = map[int32]string{
+		0: "VERIFICATION_EXPECTED_VERDICT_UNSPECIFIED",
+		1: "VERIFICATION_EXPECTED_VERDICT_ALLOW",
+		2: "VERIFICATION_EXPECTED_VERDICT_DENY",
+		3: "VERIFICATION_EXPECTED_VERDICT_APPLIED",
+	}
+	VerificationExpectedVerdict_value = map[string]int32{
+		"VERIFICATION_EXPECTED_VERDICT_UNSPECIFIED": 0,
+		"VERIFICATION_EXPECTED_VERDICT_ALLOW":       1,
+		"VERIFICATION_EXPECTED_VERDICT_DENY":        2,
+		"VERIFICATION_EXPECTED_VERDICT_APPLIED":     3,
+	}
+)
+
+func (x VerificationExpectedVerdict) Enum() *VerificationExpectedVerdict {
+	p := new(VerificationExpectedVerdict)
+	*p = x
+	return p
+}
+
+func (x VerificationExpectedVerdict) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (VerificationExpectedVerdict) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_assistant_v1_assistant_proto_enumTypes[5].Descriptor()
+}
+
+func (VerificationExpectedVerdict) Type() protoreflect.EnumType {
+	return &file_n0x_assistant_v1_assistant_proto_enumTypes[5]
+}
+
+func (x VerificationExpectedVerdict) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use VerificationExpectedVerdict.Descriptor instead.
+func (VerificationExpectedVerdict) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{5}
+}
+
+type VerificationStatus int32
+
+const (
+	VerificationStatus_VERIFICATION_STATUS_UNSPECIFIED  VerificationStatus = 0
+	VerificationStatus_VERIFICATION_STATUS_PENDING      VerificationStatus = 1
+	VerificationStatus_VERIFICATION_STATUS_VERIFIED     VerificationStatus = 2
+	VerificationStatus_VERIFICATION_STATUS_FAILED       VerificationStatus = 3
+	VerificationStatus_VERIFICATION_STATUS_INCONCLUSIVE VerificationStatus = 4
+)
+
+// Enum value maps for VerificationStatus.
+var (
+	VerificationStatus_name = map[int32]string{
+		0: "VERIFICATION_STATUS_UNSPECIFIED",
+		1: "VERIFICATION_STATUS_PENDING",
+		2: "VERIFICATION_STATUS_VERIFIED",
+		3: "VERIFICATION_STATUS_FAILED",
+		4: "VERIFICATION_STATUS_INCONCLUSIVE",
+	}
+	VerificationStatus_value = map[string]int32{
+		"VERIFICATION_STATUS_UNSPECIFIED":  0,
+		"VERIFICATION_STATUS_PENDING":      1,
+		"VERIFICATION_STATUS_VERIFIED":     2,
+		"VERIFICATION_STATUS_FAILED":       3,
+		"VERIFICATION_STATUS_INCONCLUSIVE": 4,
+	}
+)
+
+func (x VerificationStatus) Enum() *VerificationStatus {
+	p := new(VerificationStatus)
+	*p = x
+	return p
+}
+
+func (x VerificationStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (VerificationStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_assistant_v1_assistant_proto_enumTypes[6].Descriptor()
+}
+
+func (VerificationStatus) Type() protoreflect.EnumType {
+	return &file_n0x_assistant_v1_assistant_proto_enumTypes[6]
+}
+
+func (x VerificationStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use VerificationStatus.Descriptor instead.
+func (VerificationStatus) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{6}
+}
+
 type Conversation struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
 	Id        string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -209,9 +423,12 @@ type Conversation struct {
 	// proposal_full o effects_full. Los cambios nuevos nunca se copian al
 	// Proposal antiguo: una consola en v0.6.0 no debe ver una tarjeta que no
 	// sabe aplicar.
-	Changes       []*ProposedChange `protobuf:"bytes,12,rep,name=changes,proto3" json:"changes,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Changes         []*ProposedChange     `protobuf:"bytes,12,rep,name=changes,proto3" json:"changes,omitempty"`
+	AutonomyMode    AutonomyMode          `protobuf:"varint,13,opt,name=autonomy_mode,json=autonomyMode,proto3,enum=n0x.assistant.v1.AutonomyMode" json:"autonomy_mode,omitempty"`
+	AutonomyGrantId string                `protobuf:"bytes,14,opt,name=autonomy_grant_id,json=autonomyGrantId,proto3" json:"autonomy_grant_id,omitempty"`
+	Verifications   []*VerificationRecord `protobuf:"bytes,15,rep,name=verifications,proto3" json:"verifications,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *Conversation) Reset() {
@@ -324,6 +541,27 @@ func (x *Conversation) GetUpdatedAt() *timestamppb.Timestamp {
 func (x *Conversation) GetChanges() []*ProposedChange {
 	if x != nil {
 		return x.Changes
+	}
+	return nil
+}
+
+func (x *Conversation) GetAutonomyMode() AutonomyMode {
+	if x != nil {
+		return x.AutonomyMode
+	}
+	return AutonomyMode_AUTONOMY_MODE_UNSPECIFIED
+}
+
+func (x *Conversation) GetAutonomyGrantId() string {
+	if x != nil {
+		return x.AutonomyGrantId
+	}
+	return ""
+}
+
+func (x *Conversation) GetVerifications() []*VerificationRecord {
+	if x != nil {
+		return x.Verifications
 	}
 	return nil
 }
@@ -862,9 +1100,11 @@ type ProposedChange struct {
 	AppliedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=applied_at,json=appliedAt,proto3" json:"applied_at,omitempty"`
 	// Con APPLIED, si x-api devolvio revision_number: la revision que contiene
 	// el cambio. Enlaza la conversacion con la revision.
-	RevisionNumber *uint64 `protobuf:"varint,10,opt,name=revision_number,json=revisionNumber,proto3,oneof" json:"revision_number,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	RevisionNumber       *uint64 `protobuf:"varint,10,opt,name=revision_number,json=revisionNumber,proto3,oneof" json:"revision_number,omitempty"`
+	ExecutedAutonomously bool    `protobuf:"varint,11,opt,name=executed_autonomously,json=executedAutonomously,proto3" json:"executed_autonomously,omitempty"`
+	AutonomyGrantId      string  `protobuf:"bytes,12,opt,name=autonomy_grant_id,json=autonomyGrantId,proto3" json:"autonomy_grant_id,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ProposedChange) Reset() {
@@ -965,6 +1205,20 @@ func (x *ProposedChange) GetRevisionNumber() uint64 {
 		return *x.RevisionNumber
 	}
 	return 0
+}
+
+func (x *ProposedChange) GetExecutedAutonomously() bool {
+	if x != nil {
+		return x.ExecutedAutonomously
+	}
+	return false
+}
+
+func (x *ProposedChange) GetAutonomyGrantId() string {
+	if x != nil {
+		return x.AutonomyGrantId
+	}
+	return ""
 }
 
 type ProposedChangeOutcome struct {
@@ -1765,11 +2019,491 @@ func (x *ReportProposalOutcomeResponse) GetConversation() *Conversation {
 	return nil
 }
 
+type VerificationSpec struct {
+	state            protoimpl.MessageState      `protogen:"open.v1"`
+	SpecId           string                      `protobuf:"bytes,1,opt,name=spec_id,json=specId,proto3" json:"spec_id,omitempty"`
+	SourceIdentityId string                      `protobuf:"bytes,2,opt,name=source_identity_id,json=sourceIdentityId,proto3" json:"source_identity_id,omitempty"`
+	TargetIdentityId string                      `protobuf:"bytes,3,opt,name=target_identity_id,json=targetIdentityId,proto3" json:"target_identity_id,omitempty"`
+	TargetObjectType string                      `protobuf:"bytes,4,opt,name=target_object_type,json=targetObjectType,proto3" json:"target_object_type,omitempty"`
+	TargetObjectId   string                      `protobuf:"bytes,5,opt,name=target_object_id,json=targetObjectId,proto3" json:"target_object_id,omitempty"`
+	Protocol         string                      `protobuf:"bytes,6,opt,name=protocol,proto3" json:"protocol,omitempty"`
+	Port             uint32                      `protobuf:"varint,7,opt,name=port,proto3" json:"port,omitempty"`
+	ExpectedVerdict  VerificationExpectedVerdict `protobuf:"varint,8,opt,name=expected_verdict,json=expectedVerdict,proto3,enum=n0x.assistant.v1.VerificationExpectedVerdict" json:"expected_verdict,omitempty"`
+	Checks           []VerificationCheckKind     `protobuf:"varint,9,rep,packed,name=checks,proto3,enum=n0x.assistant.v1.VerificationCheckKind" json:"checks,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *VerificationSpec) Reset() {
+	*x = VerificationSpec{}
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerificationSpec) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerificationSpec) ProtoMessage() {}
+
+func (x *VerificationSpec) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerificationSpec.ProtoReflect.Descriptor instead.
+func (*VerificationSpec) Descriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *VerificationSpec) GetSpecId() string {
+	if x != nil {
+		return x.SpecId
+	}
+	return ""
+}
+
+func (x *VerificationSpec) GetSourceIdentityId() string {
+	if x != nil {
+		return x.SourceIdentityId
+	}
+	return ""
+}
+
+func (x *VerificationSpec) GetTargetIdentityId() string {
+	if x != nil {
+		return x.TargetIdentityId
+	}
+	return ""
+}
+
+func (x *VerificationSpec) GetTargetObjectType() string {
+	if x != nil {
+		return x.TargetObjectType
+	}
+	return ""
+}
+
+func (x *VerificationSpec) GetTargetObjectId() string {
+	if x != nil {
+		return x.TargetObjectId
+	}
+	return ""
+}
+
+func (x *VerificationSpec) GetProtocol() string {
+	if x != nil {
+		return x.Protocol
+	}
+	return ""
+}
+
+func (x *VerificationSpec) GetPort() uint32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *VerificationSpec) GetExpectedVerdict() VerificationExpectedVerdict {
+	if x != nil {
+		return x.ExpectedVerdict
+	}
+	return VerificationExpectedVerdict_VERIFICATION_EXPECTED_VERDICT_UNSPECIFIED
+}
+
+func (x *VerificationSpec) GetChecks() []VerificationCheckKind {
+	if x != nil {
+		return x.Checks
+	}
+	return nil
+}
+
+type VerificationRecord struct {
+	state             protoimpl.MessageState      `protogen:"open.v1"`
+	VerificationId    string                      `protobuf:"bytes,1,opt,name=verification_id,json=verificationId,proto3" json:"verification_id,omitempty"`
+	ChangeId          string                      `protobuf:"bytes,2,opt,name=change_id,json=changeId,proto3" json:"change_id,omitempty"`
+	SpecId            string                      `protobuf:"bytes,3,opt,name=spec_id,json=specId,proto3" json:"spec_id,omitempty"`
+	Status            VerificationStatus          `protobuf:"varint,4,opt,name=status,proto3,enum=n0x.assistant.v1.VerificationStatus" json:"status,omitempty"`
+	ExpectedVerdict   VerificationExpectedVerdict `protobuf:"varint,5,opt,name=expected_verdict,json=expectedVerdict,proto3,enum=n0x.assistant.v1.VerificationExpectedVerdict" json:"expected_verdict,omitempty"`
+	ConvergenceStatus VerificationStatus          `protobuf:"varint,6,opt,name=convergence_status,json=convergenceStatus,proto3,enum=n0x.assistant.v1.VerificationStatus" json:"convergence_status,omitempty"`
+	ProbeStatus       VerificationStatus          `protobuf:"varint,7,opt,name=probe_status,json=probeStatus,proto3,enum=n0x.assistant.v1.VerificationStatus" json:"probe_status,omitempty"`
+	FlowStatus        VerificationStatus          `protobuf:"varint,8,opt,name=flow_status,json=flowStatus,proto3,enum=n0x.assistant.v1.VerificationStatus" json:"flow_status,omitempty"`
+	RevisionNumber    *uint64                     `protobuf:"varint,9,opt,name=revision_number,json=revisionNumber,proto3,oneof" json:"revision_number,omitempty"`
+	Summary           string                      `protobuf:"bytes,10,opt,name=summary,proto3" json:"summary,omitempty"`
+	VerifiedAt        *timestamppb.Timestamp      `protobuf:"bytes,11,opt,name=verified_at,json=verifiedAt,proto3" json:"verified_at,omitempty"`
+	Spec              *VerificationSpec           `protobuf:"bytes,12,opt,name=spec,proto3" json:"spec,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *VerificationRecord) Reset() {
+	*x = VerificationRecord{}
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerificationRecord) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerificationRecord) ProtoMessage() {}
+
+func (x *VerificationRecord) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerificationRecord.ProtoReflect.Descriptor instead.
+func (*VerificationRecord) Descriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *VerificationRecord) GetVerificationId() string {
+	if x != nil {
+		return x.VerificationId
+	}
+	return ""
+}
+
+func (x *VerificationRecord) GetChangeId() string {
+	if x != nil {
+		return x.ChangeId
+	}
+	return ""
+}
+
+func (x *VerificationRecord) GetSpecId() string {
+	if x != nil {
+		return x.SpecId
+	}
+	return ""
+}
+
+func (x *VerificationRecord) GetStatus() VerificationStatus {
+	if x != nil {
+		return x.Status
+	}
+	return VerificationStatus_VERIFICATION_STATUS_UNSPECIFIED
+}
+
+func (x *VerificationRecord) GetExpectedVerdict() VerificationExpectedVerdict {
+	if x != nil {
+		return x.ExpectedVerdict
+	}
+	return VerificationExpectedVerdict_VERIFICATION_EXPECTED_VERDICT_UNSPECIFIED
+}
+
+func (x *VerificationRecord) GetConvergenceStatus() VerificationStatus {
+	if x != nil {
+		return x.ConvergenceStatus
+	}
+	return VerificationStatus_VERIFICATION_STATUS_UNSPECIFIED
+}
+
+func (x *VerificationRecord) GetProbeStatus() VerificationStatus {
+	if x != nil {
+		return x.ProbeStatus
+	}
+	return VerificationStatus_VERIFICATION_STATUS_UNSPECIFIED
+}
+
+func (x *VerificationRecord) GetFlowStatus() VerificationStatus {
+	if x != nil {
+		return x.FlowStatus
+	}
+	return VerificationStatus_VERIFICATION_STATUS_UNSPECIFIED
+}
+
+func (x *VerificationRecord) GetRevisionNumber() uint64 {
+	if x != nil && x.RevisionNumber != nil {
+		return *x.RevisionNumber
+	}
+	return 0
+}
+
+func (x *VerificationRecord) GetSummary() string {
+	if x != nil {
+		return x.Summary
+	}
+	return ""
+}
+
+func (x *VerificationRecord) GetVerifiedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.VerifiedAt
+	}
+	return nil
+}
+
+func (x *VerificationRecord) GetSpec() *VerificationSpec {
+	if x != nil {
+		return x.Spec
+	}
+	return nil
+}
+
+type SetAutonomyModeRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	ConversationId  string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	ExpectedVersion string                 `protobuf:"bytes,2,opt,name=expected_version,json=expectedVersion,proto3" json:"expected_version,omitempty"`
+	RequestId       string                 `protobuf:"bytes,3,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	Mode            AutonomyMode           `protobuf:"varint,4,opt,name=mode,proto3,enum=n0x.assistant.v1.AutonomyMode" json:"mode,omitempty"`
+	TtlSeconds      *uint32                `protobuf:"varint,5,opt,name=ttl_seconds,json=ttlSeconds,proto3,oneof" json:"ttl_seconds,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *SetAutonomyModeRequest) Reset() {
+	*x = SetAutonomyModeRequest{}
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetAutonomyModeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetAutonomyModeRequest) ProtoMessage() {}
+
+func (x *SetAutonomyModeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetAutonomyModeRequest.ProtoReflect.Descriptor instead.
+func (*SetAutonomyModeRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *SetAutonomyModeRequest) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
+}
+
+func (x *SetAutonomyModeRequest) GetExpectedVersion() string {
+	if x != nil {
+		return x.ExpectedVersion
+	}
+	return ""
+}
+
+func (x *SetAutonomyModeRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *SetAutonomyModeRequest) GetMode() AutonomyMode {
+	if x != nil {
+		return x.Mode
+	}
+	return AutonomyMode_AUTONOMY_MODE_UNSPECIFIED
+}
+
+func (x *SetAutonomyModeRequest) GetTtlSeconds() uint32 {
+	if x != nil && x.TtlSeconds != nil {
+		return *x.TtlSeconds
+	}
+	return 0
+}
+
+type SetAutonomyModeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Conversation  *Conversation          `protobuf:"bytes,1,opt,name=conversation,proto3" json:"conversation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetAutonomyModeResponse) Reset() {
+	*x = SetAutonomyModeResponse{}
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetAutonomyModeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetAutonomyModeResponse) ProtoMessage() {}
+
+func (x *SetAutonomyModeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetAutonomyModeResponse.ProtoReflect.Descriptor instead.
+func (*SetAutonomyModeResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *SetAutonomyModeResponse) GetConversation() *Conversation {
+	if x != nil {
+		return x.Conversation
+	}
+	return nil
+}
+
+type WatchConversationRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ConversationId string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	Cursor         string                 `protobuf:"bytes,2,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	FromVersion    string                 `protobuf:"bytes,3,opt,name=from_version,json=fromVersion,proto3" json:"from_version,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *WatchConversationRequest) Reset() {
+	*x = WatchConversationRequest{}
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WatchConversationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WatchConversationRequest) ProtoMessage() {}
+
+func (x *WatchConversationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WatchConversationRequest.ProtoReflect.Descriptor instead.
+func (*WatchConversationRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *WatchConversationRequest) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
+}
+
+func (x *WatchConversationRequest) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
+func (x *WatchConversationRequest) GetFromVersion() string {
+	if x != nil {
+		return x.FromVersion
+	}
+	return ""
+}
+
+type WatchConversationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Conversation  *Conversation          `protobuf:"bytes,1,opt,name=conversation,proto3" json:"conversation,omitempty"`
+	Cursor        string                 `protobuf:"bytes,2,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	CheckpointAt  *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=checkpoint_at,json=checkpointAt,proto3" json:"checkpoint_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WatchConversationResponse) Reset() {
+	*x = WatchConversationResponse{}
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WatchConversationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WatchConversationResponse) ProtoMessage() {}
+
+func (x *WatchConversationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WatchConversationResponse.ProtoReflect.Descriptor instead.
+func (*WatchConversationResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *WatchConversationResponse) GetConversation() *Conversation {
+	if x != nil {
+		return x.Conversation
+	}
+	return nil
+}
+
+func (x *WatchConversationResponse) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
+func (x *WatchConversationResponse) GetCheckpointAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CheckpointAt
+	}
+	return nil
+}
+
 var File_n0x_assistant_v1_assistant_proto protoreflect.FileDescriptor
 
 const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"\n" +
-	" n0x/assistant/v1/assistant.proto\x12\x10n0x.assistant.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cn0x/catalog/v1/catalog.proto\"\xf0\x03\n" +
+	" n0x/assistant/v1/assistant.proto\x12\x10n0x.assistant.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cn0x/catalog/v1/catalog.proto\"\xad\x05\n" +
 	"\fConversation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -1786,7 +2520,10 @@ const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
 	"updated_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12:\n" +
-	"\achanges\x18\f \x03(\v2 .n0x.assistant.v1.ProposedChangeR\achanges\"\xdc\x01\n" +
+	"\achanges\x18\f \x03(\v2 .n0x.assistant.v1.ProposedChangeR\achanges\x12C\n" +
+	"\rautonomy_mode\x18\r \x01(\x0e2\x1e.n0x.assistant.v1.AutonomyModeR\fautonomyMode\x12*\n" +
+	"\x11autonomy_grant_id\x18\x0e \x01(\tR\x0fautonomyGrantId\x12J\n" +
+	"\rverifications\x18\x0f \x03(\v2$.n0x.assistant.v1.VerificationRecordR\rverifications\"\xdc\x01\n" +
 	"\aMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04role\x18\x02 \x01(\tR\x04role\x12\x12\n" +
@@ -1827,7 +2564,7 @@ const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"\voccurred_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"occurredAt\x12\x1b\n" +
 	"\tchange_id\x18\a \x01(\tR\bchangeId\x12\x14\n" +
-	"\x05error\x18\b \x01(\tR\x05error\"\xcb\x03\n" +
+	"\x05error\x18\b \x01(\tR\x05error\"\xac\x04\n" +
 	"\x0eProposedChange\x12\x1b\n" +
 	"\tchange_id\x18\x01 \x01(\tR\bchangeId\x12\x1c\n" +
 	"\toperation\x18\x02 \x01(\tR\toperation\x121\n" +
@@ -1841,7 +2578,9 @@ const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"\n" +
 	"applied_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tappliedAt\x12,\n" +
 	"\x0frevision_number\x18\n" +
-	" \x01(\x04H\x00R\x0erevisionNumber\x88\x01\x01B\x12\n" +
+	" \x01(\x04H\x00R\x0erevisionNumber\x88\x01\x01\x123\n" +
+	"\x15executed_autonomously\x18\v \x01(\bR\x14executedAutonomously\x12*\n" +
+	"\x11autonomy_grant_id\x18\f \x01(\tR\x0fautonomyGrantIdB\x12\n" +
 	"\x10_revision_number\"\xcc\x01\n" +
 	"\x15ProposedChangeOutcome\x12\x1b\n" +
 	"\tchange_id\x18\x01 \x01(\tR\bchangeId\x12>\n" +
@@ -1896,7 +2635,53 @@ const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"request_id\x18\x02 \x01(\tR\trequestId\x12C\n" +
 	"\boutcomes\x18\x03 \x03(\v2'.n0x.assistant.v1.ProposedChangeOutcomeR\boutcomes\"c\n" +
 	"\x1dReportProposalOutcomeResponse\x12B\n" +
-	"\fconversation\x18\x01 \x01(\v2\x1e.n0x.assistant.v1.ConversationR\fconversation*c\n" +
+	"\fconversation\x18\x01 \x01(\v2\x1e.n0x.assistant.v1.ConversationR\fconversation\"\xaa\x03\n" +
+	"\x10VerificationSpec\x12\x17\n" +
+	"\aspec_id\x18\x01 \x01(\tR\x06specId\x12,\n" +
+	"\x12source_identity_id\x18\x02 \x01(\tR\x10sourceIdentityId\x12,\n" +
+	"\x12target_identity_id\x18\x03 \x01(\tR\x10targetIdentityId\x12,\n" +
+	"\x12target_object_type\x18\x04 \x01(\tR\x10targetObjectType\x12(\n" +
+	"\x10target_object_id\x18\x05 \x01(\tR\x0etargetObjectId\x12\x1a\n" +
+	"\bprotocol\x18\x06 \x01(\tR\bprotocol\x12\x12\n" +
+	"\x04port\x18\a \x01(\rR\x04port\x12X\n" +
+	"\x10expected_verdict\x18\b \x01(\x0e2-.n0x.assistant.v1.VerificationExpectedVerdictR\x0fexpectedVerdict\x12?\n" +
+	"\x06checks\x18\t \x03(\x0e2'.n0x.assistant.v1.VerificationCheckKindR\x06checks\"\xc1\x05\n" +
+	"\x12VerificationRecord\x12'\n" +
+	"\x0fverification_id\x18\x01 \x01(\tR\x0everificationId\x12\x1b\n" +
+	"\tchange_id\x18\x02 \x01(\tR\bchangeId\x12\x17\n" +
+	"\aspec_id\x18\x03 \x01(\tR\x06specId\x12<\n" +
+	"\x06status\x18\x04 \x01(\x0e2$.n0x.assistant.v1.VerificationStatusR\x06status\x12X\n" +
+	"\x10expected_verdict\x18\x05 \x01(\x0e2-.n0x.assistant.v1.VerificationExpectedVerdictR\x0fexpectedVerdict\x12S\n" +
+	"\x12convergence_status\x18\x06 \x01(\x0e2$.n0x.assistant.v1.VerificationStatusR\x11convergenceStatus\x12G\n" +
+	"\fprobe_status\x18\a \x01(\x0e2$.n0x.assistant.v1.VerificationStatusR\vprobeStatus\x12E\n" +
+	"\vflow_status\x18\b \x01(\x0e2$.n0x.assistant.v1.VerificationStatusR\n" +
+	"flowStatus\x12,\n" +
+	"\x0frevision_number\x18\t \x01(\x04H\x00R\x0erevisionNumber\x88\x01\x01\x12\x18\n" +
+	"\asummary\x18\n" +
+	" \x01(\tR\asummary\x12;\n" +
+	"\vverified_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"verifiedAt\x126\n" +
+	"\x04spec\x18\f \x01(\v2\".n0x.assistant.v1.VerificationSpecR\x04specB\x12\n" +
+	"\x10_revision_number\"\xf5\x01\n" +
+	"\x16SetAutonomyModeRequest\x12'\n" +
+	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12)\n" +
+	"\x10expected_version\x18\x02 \x01(\tR\x0fexpectedVersion\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x03 \x01(\tR\trequestId\x122\n" +
+	"\x04mode\x18\x04 \x01(\x0e2\x1e.n0x.assistant.v1.AutonomyModeR\x04mode\x12$\n" +
+	"\vttl_seconds\x18\x05 \x01(\rH\x00R\n" +
+	"ttlSeconds\x88\x01\x01B\x0e\n" +
+	"\f_ttl_seconds\"]\n" +
+	"\x17SetAutonomyModeResponse\x12B\n" +
+	"\fconversation\x18\x01 \x01(\v2\x1e.n0x.assistant.v1.ConversationR\fconversation\"~\n" +
+	"\x18WatchConversationRequest\x12'\n" +
+	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\x16\n" +
+	"\x06cursor\x18\x02 \x01(\tR\x06cursor\x12!\n" +
+	"\ffrom_version\x18\x03 \x01(\tR\vfromVersion\"\xb8\x01\n" +
+	"\x19WatchConversationResponse\x12B\n" +
+	"\fconversation\x18\x01 \x01(\v2\x1e.n0x.assistant.v1.ConversationR\fconversation\x12\x16\n" +
+	"\x06cursor\x18\x02 \x01(\tR\x06cursor\x12?\n" +
+	"\rcheckpoint_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\fcheckpointAt*c\n" +
 	"\rAssistantTool\x12\x1e\n" +
 	"\x1aASSISTANT_TOOL_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15ASSISTANT_TOOL_SEARCH\x10\x01\x12\x17\n" +
@@ -1912,7 +2697,29 @@ const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"\x1fPROPOSED_CHANGE_STATUS_PROPOSED\x10\x01\x12\"\n" +
 	"\x1ePROPOSED_CHANGE_STATUS_APPLIED\x10\x02\x12!\n" +
 	"\x1dPROPOSED_CHANGE_STATUS_FAILED\x10\x03\x12$\n" +
-	" PROPOSED_CHANGE_STATUS_DISCARDED\x10\x042\x88\x06\n" +
+	" PROPOSED_CHANGE_STATUS_DISCARDED\x10\x04*d\n" +
+	"\fAutonomyMode\x12\x1d\n" +
+	"\x19AUTONOMY_MODE_UNSPECIFIED\x10\x00\x12\x19\n" +
+	"\x15AUTONOMY_MODE_CONFIRM\x10\x01\x12\x1a\n" +
+	"\x16AUTONOMY_MODE_AUTOMATE\x10\x02*\xa4\x02\n" +
+	"\x15VerificationCheckKind\x12'\n" +
+	"#VERIFICATION_CHECK_KIND_UNSPECIFIED\x10\x00\x123\n" +
+	"/VERIFICATION_CHECK_KIND_ENFORCEMENT_CONVERGENCE\x10\x01\x12*\n" +
+	"&VERIFICATION_CHECK_KIND_LIVE_PAIR_FLOW\x10\x02\x12(\n" +
+	"$VERIFICATION_CHECK_KIND_ACTIVE_PROBE\x10\x03\x12-\n" +
+	")VERIFICATION_CHECK_KIND_POLICY_SIMULATION\x10\x04\x12(\n" +
+	"$VERIFICATION_CHECK_KIND_OBJECT_STATE\x10\x05*\xc8\x01\n" +
+	"\x1bVerificationExpectedVerdict\x12-\n" +
+	")VERIFICATION_EXPECTED_VERDICT_UNSPECIFIED\x10\x00\x12'\n" +
+	"#VERIFICATION_EXPECTED_VERDICT_ALLOW\x10\x01\x12&\n" +
+	"\"VERIFICATION_EXPECTED_VERDICT_DENY\x10\x02\x12)\n" +
+	"%VERIFICATION_EXPECTED_VERDICT_APPLIED\x10\x03*\xc2\x01\n" +
+	"\x12VerificationStatus\x12#\n" +
+	"\x1fVERIFICATION_STATUS_UNSPECIFIED\x10\x00\x12\x1f\n" +
+	"\x1bVERIFICATION_STATUS_PENDING\x10\x01\x12 \n" +
+	"\x1cVERIFICATION_STATUS_VERIFIED\x10\x02\x12\x1e\n" +
+	"\x1aVERIFICATION_STATUS_FAILED\x10\x03\x12$\n" +
+	" VERIFICATION_STATUS_INCONCLUSIVE\x10\x042\xe0\a\n" +
 	"\x10AssistantService\x12o\n" +
 	"\x12CreateConversation\x12+.n0x.assistant.v1.CreateConversationRequest\x1a,.n0x.assistant.v1.CreateConversationResponse\x12l\n" +
 	"\x11ListConversations\x12*.n0x.assistant.v1.ListConversationsRequest\x1a+.n0x.assistant.v1.ListConversationsResponse\x12f\n" +
@@ -1920,7 +2727,9 @@ const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"\vSendMessage\x12$.n0x.assistant.v1.SendMessageRequest\x1a%.n0x.assistant.v1.SendMessageResponse\x12f\n" +
 	"\x0fDismissProposal\x12(.n0x.assistant.v1.DismissProposalRequest\x1a).n0x.assistant.v1.DismissProposalResponse\x12o\n" +
 	"\x12DeleteConversation\x12+.n0x.assistant.v1.DeleteConversationRequest\x1a,.n0x.assistant.v1.DeleteConversationResponse\x12x\n" +
-	"\x15ReportProposalOutcome\x12..n0x.assistant.v1.ReportProposalOutcomeRequest\x1a/.n0x.assistant.v1.ReportProposalOutcomeResponseB3Z1github.com/n-0x/x-api-go/assistant/v1;assistantv1b\x06proto3"
+	"\x15ReportProposalOutcome\x12..n0x.assistant.v1.ReportProposalOutcomeRequest\x1a/.n0x.assistant.v1.ReportProposalOutcomeResponse\x12f\n" +
+	"\x0fSetAutonomyMode\x12(.n0x.assistant.v1.SetAutonomyModeRequest\x1a).n0x.assistant.v1.SetAutonomyModeResponse\x12n\n" +
+	"\x11WatchConversation\x12*.n0x.assistant.v1.WatchConversationRequest\x1a+.n0x.assistant.v1.WatchConversationResponse0\x01B3Z1github.com/n-0x/x-api-go/assistant/v1;assistantv1b\x06proto3"
 
 var (
 	file_n0x_assistant_v1_assistant_proto_rawDescOnce sync.Once
@@ -1934,87 +2743,116 @@ func file_n0x_assistant_v1_assistant_proto_rawDescGZIP() []byte {
 	return file_n0x_assistant_v1_assistant_proto_rawDescData
 }
 
-var file_n0x_assistant_v1_assistant_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_n0x_assistant_v1_assistant_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_n0x_assistant_v1_assistant_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_n0x_assistant_v1_assistant_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
 var file_n0x_assistant_v1_assistant_proto_goTypes = []any{
 	(AssistantTool)(0),                    // 0: n0x.assistant.v1.AssistantTool
 	(ToolOutcome)(0),                      // 1: n0x.assistant.v1.ToolOutcome
 	(ProposedChangeStatus)(0),             // 2: n0x.assistant.v1.ProposedChangeStatus
-	(*Conversation)(nil),                  // 3: n0x.assistant.v1.Conversation
-	(*Message)(nil),                       // 4: n0x.assistant.v1.Message
-	(*Turn)(nil),                          // 5: n0x.assistant.v1.Turn
-	(*Proposal)(nil),                      // 6: n0x.assistant.v1.Proposal
-	(*ProposalCommand)(nil),               // 7: n0x.assistant.v1.ProposalCommand
-	(*ConversationContext)(nil),           // 8: n0x.assistant.v1.ConversationContext
-	(*ToolActivity)(nil),                  // 9: n0x.assistant.v1.ToolActivity
-	(*ProposedChange)(nil),                // 10: n0x.assistant.v1.ProposedChange
-	(*ProposedChangeOutcome)(nil),         // 11: n0x.assistant.v1.ProposedChangeOutcome
-	(*CreateConversationRequest)(nil),     // 12: n0x.assistant.v1.CreateConversationRequest
-	(*CreateConversationResponse)(nil),    // 13: n0x.assistant.v1.CreateConversationResponse
-	(*ListConversationsRequest)(nil),      // 14: n0x.assistant.v1.ListConversationsRequest
-	(*ListConversationsResponse)(nil),     // 15: n0x.assistant.v1.ListConversationsResponse
-	(*GetConversationRequest)(nil),        // 16: n0x.assistant.v1.GetConversationRequest
-	(*GetConversationResponse)(nil),       // 17: n0x.assistant.v1.GetConversationResponse
-	(*SendMessageRequest)(nil),            // 18: n0x.assistant.v1.SendMessageRequest
-	(*SendMessageResponse)(nil),           // 19: n0x.assistant.v1.SendMessageResponse
-	(*DeleteConversationRequest)(nil),     // 20: n0x.assistant.v1.DeleteConversationRequest
-	(*DeleteConversationResponse)(nil),    // 21: n0x.assistant.v1.DeleteConversationResponse
-	(*DismissProposalRequest)(nil),        // 22: n0x.assistant.v1.DismissProposalRequest
-	(*DismissProposalResponse)(nil),       // 23: n0x.assistant.v1.DismissProposalResponse
-	(*ReportProposalOutcomeRequest)(nil),  // 24: n0x.assistant.v1.ReportProposalOutcomeRequest
-	(*ReportProposalOutcomeResponse)(nil), // 25: n0x.assistant.v1.ReportProposalOutcomeResponse
-	(*timestamppb.Timestamp)(nil),         // 26: google.protobuf.Timestamp
-	(*structpb.Struct)(nil),               // 27: google.protobuf.Struct
-	(v1.OperationKind)(0),                 // 28: n0x.catalog.v1.OperationKind
+	(AutonomyMode)(0),                     // 3: n0x.assistant.v1.AutonomyMode
+	(VerificationCheckKind)(0),            // 4: n0x.assistant.v1.VerificationCheckKind
+	(VerificationExpectedVerdict)(0),      // 5: n0x.assistant.v1.VerificationExpectedVerdict
+	(VerificationStatus)(0),               // 6: n0x.assistant.v1.VerificationStatus
+	(*Conversation)(nil),                  // 7: n0x.assistant.v1.Conversation
+	(*Message)(nil),                       // 8: n0x.assistant.v1.Message
+	(*Turn)(nil),                          // 9: n0x.assistant.v1.Turn
+	(*Proposal)(nil),                      // 10: n0x.assistant.v1.Proposal
+	(*ProposalCommand)(nil),               // 11: n0x.assistant.v1.ProposalCommand
+	(*ConversationContext)(nil),           // 12: n0x.assistant.v1.ConversationContext
+	(*ToolActivity)(nil),                  // 13: n0x.assistant.v1.ToolActivity
+	(*ProposedChange)(nil),                // 14: n0x.assistant.v1.ProposedChange
+	(*ProposedChangeOutcome)(nil),         // 15: n0x.assistant.v1.ProposedChangeOutcome
+	(*CreateConversationRequest)(nil),     // 16: n0x.assistant.v1.CreateConversationRequest
+	(*CreateConversationResponse)(nil),    // 17: n0x.assistant.v1.CreateConversationResponse
+	(*ListConversationsRequest)(nil),      // 18: n0x.assistant.v1.ListConversationsRequest
+	(*ListConversationsResponse)(nil),     // 19: n0x.assistant.v1.ListConversationsResponse
+	(*GetConversationRequest)(nil),        // 20: n0x.assistant.v1.GetConversationRequest
+	(*GetConversationResponse)(nil),       // 21: n0x.assistant.v1.GetConversationResponse
+	(*SendMessageRequest)(nil),            // 22: n0x.assistant.v1.SendMessageRequest
+	(*SendMessageResponse)(nil),           // 23: n0x.assistant.v1.SendMessageResponse
+	(*DeleteConversationRequest)(nil),     // 24: n0x.assistant.v1.DeleteConversationRequest
+	(*DeleteConversationResponse)(nil),    // 25: n0x.assistant.v1.DeleteConversationResponse
+	(*DismissProposalRequest)(nil),        // 26: n0x.assistant.v1.DismissProposalRequest
+	(*DismissProposalResponse)(nil),       // 27: n0x.assistant.v1.DismissProposalResponse
+	(*ReportProposalOutcomeRequest)(nil),  // 28: n0x.assistant.v1.ReportProposalOutcomeRequest
+	(*ReportProposalOutcomeResponse)(nil), // 29: n0x.assistant.v1.ReportProposalOutcomeResponse
+	(*VerificationSpec)(nil),              // 30: n0x.assistant.v1.VerificationSpec
+	(*VerificationRecord)(nil),            // 31: n0x.assistant.v1.VerificationRecord
+	(*SetAutonomyModeRequest)(nil),        // 32: n0x.assistant.v1.SetAutonomyModeRequest
+	(*SetAutonomyModeResponse)(nil),       // 33: n0x.assistant.v1.SetAutonomyModeResponse
+	(*WatchConversationRequest)(nil),      // 34: n0x.assistant.v1.WatchConversationRequest
+	(*WatchConversationResponse)(nil),     // 35: n0x.assistant.v1.WatchConversationResponse
+	(*timestamppb.Timestamp)(nil),         // 36: google.protobuf.Timestamp
+	(*structpb.Struct)(nil),               // 37: google.protobuf.Struct
+	(v1.OperationKind)(0),                 // 38: n0x.catalog.v1.OperationKind
 }
 var file_n0x_assistant_v1_assistant_proto_depIdxs = []int32{
-	4,  // 0: n0x.assistant.v1.Conversation.messages:type_name -> n0x.assistant.v1.Message
-	5,  // 1: n0x.assistant.v1.Conversation.turn:type_name -> n0x.assistant.v1.Turn
-	6,  // 2: n0x.assistant.v1.Conversation.proposal:type_name -> n0x.assistant.v1.Proposal
-	26, // 3: n0x.assistant.v1.Conversation.created_at:type_name -> google.protobuf.Timestamp
-	26, // 4: n0x.assistant.v1.Conversation.updated_at:type_name -> google.protobuf.Timestamp
-	10, // 5: n0x.assistant.v1.Conversation.changes:type_name -> n0x.assistant.v1.ProposedChange
-	26, // 6: n0x.assistant.v1.Message.at:type_name -> google.protobuf.Timestamp
-	9,  // 7: n0x.assistant.v1.Message.activity:type_name -> n0x.assistant.v1.ToolActivity
-	9,  // 8: n0x.assistant.v1.Turn.activity:type_name -> n0x.assistant.v1.ToolActivity
-	7,  // 9: n0x.assistant.v1.Proposal.commands:type_name -> n0x.assistant.v1.ProposalCommand
-	27, // 10: n0x.assistant.v1.ProposalCommand.fields:type_name -> google.protobuf.Struct
-	0,  // 11: n0x.assistant.v1.ToolActivity.tool:type_name -> n0x.assistant.v1.AssistantTool
-	28, // 12: n0x.assistant.v1.ToolActivity.kind:type_name -> n0x.catalog.v1.OperationKind
-	1,  // 13: n0x.assistant.v1.ToolActivity.outcome:type_name -> n0x.assistant.v1.ToolOutcome
-	26, // 14: n0x.assistant.v1.ToolActivity.occurred_at:type_name -> google.protobuf.Timestamp
-	28, // 15: n0x.assistant.v1.ProposedChange.kind:type_name -> n0x.catalog.v1.OperationKind
-	2,  // 16: n0x.assistant.v1.ProposedChange.status:type_name -> n0x.assistant.v1.ProposedChangeStatus
-	26, // 17: n0x.assistant.v1.ProposedChange.proposed_at:type_name -> google.protobuf.Timestamp
-	26, // 18: n0x.assistant.v1.ProposedChange.applied_at:type_name -> google.protobuf.Timestamp
-	2,  // 19: n0x.assistant.v1.ProposedChangeOutcome.status:type_name -> n0x.assistant.v1.ProposedChangeStatus
-	3,  // 20: n0x.assistant.v1.CreateConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	3,  // 21: n0x.assistant.v1.ListConversationsResponse.conversations:type_name -> n0x.assistant.v1.Conversation
-	3,  // 22: n0x.assistant.v1.GetConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	8,  // 23: n0x.assistant.v1.SendMessageRequest.context:type_name -> n0x.assistant.v1.ConversationContext
-	3,  // 24: n0x.assistant.v1.SendMessageResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	3,  // 25: n0x.assistant.v1.DismissProposalResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	11, // 26: n0x.assistant.v1.ReportProposalOutcomeRequest.outcomes:type_name -> n0x.assistant.v1.ProposedChangeOutcome
-	3,  // 27: n0x.assistant.v1.ReportProposalOutcomeResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	12, // 28: n0x.assistant.v1.AssistantService.CreateConversation:input_type -> n0x.assistant.v1.CreateConversationRequest
-	14, // 29: n0x.assistant.v1.AssistantService.ListConversations:input_type -> n0x.assistant.v1.ListConversationsRequest
-	16, // 30: n0x.assistant.v1.AssistantService.GetConversation:input_type -> n0x.assistant.v1.GetConversationRequest
-	18, // 31: n0x.assistant.v1.AssistantService.SendMessage:input_type -> n0x.assistant.v1.SendMessageRequest
-	22, // 32: n0x.assistant.v1.AssistantService.DismissProposal:input_type -> n0x.assistant.v1.DismissProposalRequest
-	20, // 33: n0x.assistant.v1.AssistantService.DeleteConversation:input_type -> n0x.assistant.v1.DeleteConversationRequest
-	24, // 34: n0x.assistant.v1.AssistantService.ReportProposalOutcome:input_type -> n0x.assistant.v1.ReportProposalOutcomeRequest
-	13, // 35: n0x.assistant.v1.AssistantService.CreateConversation:output_type -> n0x.assistant.v1.CreateConversationResponse
-	15, // 36: n0x.assistant.v1.AssistantService.ListConversations:output_type -> n0x.assistant.v1.ListConversationsResponse
-	17, // 37: n0x.assistant.v1.AssistantService.GetConversation:output_type -> n0x.assistant.v1.GetConversationResponse
-	19, // 38: n0x.assistant.v1.AssistantService.SendMessage:output_type -> n0x.assistant.v1.SendMessageResponse
-	23, // 39: n0x.assistant.v1.AssistantService.DismissProposal:output_type -> n0x.assistant.v1.DismissProposalResponse
-	21, // 40: n0x.assistant.v1.AssistantService.DeleteConversation:output_type -> n0x.assistant.v1.DeleteConversationResponse
-	25, // 41: n0x.assistant.v1.AssistantService.ReportProposalOutcome:output_type -> n0x.assistant.v1.ReportProposalOutcomeResponse
-	35, // [35:42] is the sub-list for method output_type
-	28, // [28:35] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	8,  // 0: n0x.assistant.v1.Conversation.messages:type_name -> n0x.assistant.v1.Message
+	9,  // 1: n0x.assistant.v1.Conversation.turn:type_name -> n0x.assistant.v1.Turn
+	10, // 2: n0x.assistant.v1.Conversation.proposal:type_name -> n0x.assistant.v1.Proposal
+	36, // 3: n0x.assistant.v1.Conversation.created_at:type_name -> google.protobuf.Timestamp
+	36, // 4: n0x.assistant.v1.Conversation.updated_at:type_name -> google.protobuf.Timestamp
+	14, // 5: n0x.assistant.v1.Conversation.changes:type_name -> n0x.assistant.v1.ProposedChange
+	3,  // 6: n0x.assistant.v1.Conversation.autonomy_mode:type_name -> n0x.assistant.v1.AutonomyMode
+	31, // 7: n0x.assistant.v1.Conversation.verifications:type_name -> n0x.assistant.v1.VerificationRecord
+	36, // 8: n0x.assistant.v1.Message.at:type_name -> google.protobuf.Timestamp
+	13, // 9: n0x.assistant.v1.Message.activity:type_name -> n0x.assistant.v1.ToolActivity
+	13, // 10: n0x.assistant.v1.Turn.activity:type_name -> n0x.assistant.v1.ToolActivity
+	11, // 11: n0x.assistant.v1.Proposal.commands:type_name -> n0x.assistant.v1.ProposalCommand
+	37, // 12: n0x.assistant.v1.ProposalCommand.fields:type_name -> google.protobuf.Struct
+	0,  // 13: n0x.assistant.v1.ToolActivity.tool:type_name -> n0x.assistant.v1.AssistantTool
+	38, // 14: n0x.assistant.v1.ToolActivity.kind:type_name -> n0x.catalog.v1.OperationKind
+	1,  // 15: n0x.assistant.v1.ToolActivity.outcome:type_name -> n0x.assistant.v1.ToolOutcome
+	36, // 16: n0x.assistant.v1.ToolActivity.occurred_at:type_name -> google.protobuf.Timestamp
+	38, // 17: n0x.assistant.v1.ProposedChange.kind:type_name -> n0x.catalog.v1.OperationKind
+	2,  // 18: n0x.assistant.v1.ProposedChange.status:type_name -> n0x.assistant.v1.ProposedChangeStatus
+	36, // 19: n0x.assistant.v1.ProposedChange.proposed_at:type_name -> google.protobuf.Timestamp
+	36, // 20: n0x.assistant.v1.ProposedChange.applied_at:type_name -> google.protobuf.Timestamp
+	2,  // 21: n0x.assistant.v1.ProposedChangeOutcome.status:type_name -> n0x.assistant.v1.ProposedChangeStatus
+	7,  // 22: n0x.assistant.v1.CreateConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	7,  // 23: n0x.assistant.v1.ListConversationsResponse.conversations:type_name -> n0x.assistant.v1.Conversation
+	7,  // 24: n0x.assistant.v1.GetConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	12, // 25: n0x.assistant.v1.SendMessageRequest.context:type_name -> n0x.assistant.v1.ConversationContext
+	7,  // 26: n0x.assistant.v1.SendMessageResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	7,  // 27: n0x.assistant.v1.DismissProposalResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	15, // 28: n0x.assistant.v1.ReportProposalOutcomeRequest.outcomes:type_name -> n0x.assistant.v1.ProposedChangeOutcome
+	7,  // 29: n0x.assistant.v1.ReportProposalOutcomeResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	5,  // 30: n0x.assistant.v1.VerificationSpec.expected_verdict:type_name -> n0x.assistant.v1.VerificationExpectedVerdict
+	4,  // 31: n0x.assistant.v1.VerificationSpec.checks:type_name -> n0x.assistant.v1.VerificationCheckKind
+	6,  // 32: n0x.assistant.v1.VerificationRecord.status:type_name -> n0x.assistant.v1.VerificationStatus
+	5,  // 33: n0x.assistant.v1.VerificationRecord.expected_verdict:type_name -> n0x.assistant.v1.VerificationExpectedVerdict
+	6,  // 34: n0x.assistant.v1.VerificationRecord.convergence_status:type_name -> n0x.assistant.v1.VerificationStatus
+	6,  // 35: n0x.assistant.v1.VerificationRecord.probe_status:type_name -> n0x.assistant.v1.VerificationStatus
+	6,  // 36: n0x.assistant.v1.VerificationRecord.flow_status:type_name -> n0x.assistant.v1.VerificationStatus
+	36, // 37: n0x.assistant.v1.VerificationRecord.verified_at:type_name -> google.protobuf.Timestamp
+	30, // 38: n0x.assistant.v1.VerificationRecord.spec:type_name -> n0x.assistant.v1.VerificationSpec
+	3,  // 39: n0x.assistant.v1.SetAutonomyModeRequest.mode:type_name -> n0x.assistant.v1.AutonomyMode
+	7,  // 40: n0x.assistant.v1.SetAutonomyModeResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	7,  // 41: n0x.assistant.v1.WatchConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	36, // 42: n0x.assistant.v1.WatchConversationResponse.checkpoint_at:type_name -> google.protobuf.Timestamp
+	16, // 43: n0x.assistant.v1.AssistantService.CreateConversation:input_type -> n0x.assistant.v1.CreateConversationRequest
+	18, // 44: n0x.assistant.v1.AssistantService.ListConversations:input_type -> n0x.assistant.v1.ListConversationsRequest
+	20, // 45: n0x.assistant.v1.AssistantService.GetConversation:input_type -> n0x.assistant.v1.GetConversationRequest
+	22, // 46: n0x.assistant.v1.AssistantService.SendMessage:input_type -> n0x.assistant.v1.SendMessageRequest
+	26, // 47: n0x.assistant.v1.AssistantService.DismissProposal:input_type -> n0x.assistant.v1.DismissProposalRequest
+	24, // 48: n0x.assistant.v1.AssistantService.DeleteConversation:input_type -> n0x.assistant.v1.DeleteConversationRequest
+	28, // 49: n0x.assistant.v1.AssistantService.ReportProposalOutcome:input_type -> n0x.assistant.v1.ReportProposalOutcomeRequest
+	32, // 50: n0x.assistant.v1.AssistantService.SetAutonomyMode:input_type -> n0x.assistant.v1.SetAutonomyModeRequest
+	34, // 51: n0x.assistant.v1.AssistantService.WatchConversation:input_type -> n0x.assistant.v1.WatchConversationRequest
+	17, // 52: n0x.assistant.v1.AssistantService.CreateConversation:output_type -> n0x.assistant.v1.CreateConversationResponse
+	19, // 53: n0x.assistant.v1.AssistantService.ListConversations:output_type -> n0x.assistant.v1.ListConversationsResponse
+	21, // 54: n0x.assistant.v1.AssistantService.GetConversation:output_type -> n0x.assistant.v1.GetConversationResponse
+	23, // 55: n0x.assistant.v1.AssistantService.SendMessage:output_type -> n0x.assistant.v1.SendMessageResponse
+	27, // 56: n0x.assistant.v1.AssistantService.DismissProposal:output_type -> n0x.assistant.v1.DismissProposalResponse
+	25, // 57: n0x.assistant.v1.AssistantService.DeleteConversation:output_type -> n0x.assistant.v1.DeleteConversationResponse
+	29, // 58: n0x.assistant.v1.AssistantService.ReportProposalOutcome:output_type -> n0x.assistant.v1.ReportProposalOutcomeResponse
+	33, // 59: n0x.assistant.v1.AssistantService.SetAutonomyMode:output_type -> n0x.assistant.v1.SetAutonomyModeResponse
+	35, // 60: n0x.assistant.v1.AssistantService.WatchConversation:output_type -> n0x.assistant.v1.WatchConversationResponse
+	52, // [52:61] is the sub-list for method output_type
+	43, // [43:52] is the sub-list for method input_type
+	43, // [43:43] is the sub-list for extension type_name
+	43, // [43:43] is the sub-list for extension extendee
+	0,  // [0:43] is the sub-list for field type_name
 }
 
 func init() { file_n0x_assistant_v1_assistant_proto_init() }
@@ -2024,13 +2862,15 @@ func file_n0x_assistant_v1_assistant_proto_init() {
 	}
 	file_n0x_assistant_v1_assistant_proto_msgTypes[7].OneofWrappers = []any{}
 	file_n0x_assistant_v1_assistant_proto_msgTypes[8].OneofWrappers = []any{}
+	file_n0x_assistant_v1_assistant_proto_msgTypes[24].OneofWrappers = []any{}
+	file_n0x_assistant_v1_assistant_proto_msgTypes[25].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_assistant_v1_assistant_proto_rawDesc), len(file_n0x_assistant_v1_assistant_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   23,
+			NumEnums:      7,
+			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -34,7 +34,9 @@ const (
 	// workload_id no esta publicado ni registrado en este nodo.
 	NodeQueryErrorCode_NODE_QUERY_ERROR_CODE_UNKNOWN_WORKLOAD NodeQueryErrorCode = 2
 	// El almacen local no esta abierto o no se pudo leer.
-	NodeQueryErrorCode_NODE_QUERY_ERROR_CODE_STORE_UNAVAILABLE NodeQueryErrorCode = 3
+	NodeQueryErrorCode_NODE_QUERY_ERROR_CODE_STORE_UNAVAILABLE   NodeQueryErrorCode = 3
+	NodeQueryErrorCode_NODE_QUERY_ERROR_CODE_TARGET_NOT_IN_SCOPE NodeQueryErrorCode = 4
+	NodeQueryErrorCode_NODE_QUERY_ERROR_CODE_PROBE_UNSUPPORTED   NodeQueryErrorCode = 5
 )
 
 // Enum value maps for NodeQueryErrorCode.
@@ -44,12 +46,16 @@ var (
 		1: "NODE_QUERY_ERROR_CODE_INVALID_QUERY",
 		2: "NODE_QUERY_ERROR_CODE_UNKNOWN_WORKLOAD",
 		3: "NODE_QUERY_ERROR_CODE_STORE_UNAVAILABLE",
+		4: "NODE_QUERY_ERROR_CODE_TARGET_NOT_IN_SCOPE",
+		5: "NODE_QUERY_ERROR_CODE_PROBE_UNSUPPORTED",
 	}
 	NodeQueryErrorCode_value = map[string]int32{
-		"NODE_QUERY_ERROR_CODE_UNSPECIFIED":       0,
-		"NODE_QUERY_ERROR_CODE_INVALID_QUERY":     1,
-		"NODE_QUERY_ERROR_CODE_UNKNOWN_WORKLOAD":  2,
-		"NODE_QUERY_ERROR_CODE_STORE_UNAVAILABLE": 3,
+		"NODE_QUERY_ERROR_CODE_UNSPECIFIED":         0,
+		"NODE_QUERY_ERROR_CODE_INVALID_QUERY":       1,
+		"NODE_QUERY_ERROR_CODE_UNKNOWN_WORKLOAD":    2,
+		"NODE_QUERY_ERROR_CODE_STORE_UNAVAILABLE":   3,
+		"NODE_QUERY_ERROR_CODE_TARGET_NOT_IN_SCOPE": 4,
+		"NODE_QUERY_ERROR_CODE_PROBE_UNSUPPORTED":   5,
 	}
 )
 
@@ -140,6 +146,61 @@ func (x NodeQueryStatus) Number() protoreflect.EnumNumber {
 // Deprecated: Use NodeQueryStatus.Descriptor instead.
 func (NodeQueryStatus) EnumDescriptor() ([]byte, []int) {
 	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{1}
+}
+
+type NodeProbeVerdict int32
+
+const (
+	NodeProbeVerdict_NODE_PROBE_VERDICT_UNSPECIFIED NodeProbeVerdict = 0
+	NodeProbeVerdict_NODE_PROBE_VERDICT_REACHABLE   NodeProbeVerdict = 1
+	NodeProbeVerdict_NODE_PROBE_VERDICT_BLOCKED     NodeProbeVerdict = 2
+	NodeProbeVerdict_NODE_PROBE_VERDICT_TIMEOUT     NodeProbeVerdict = 3
+	NodeProbeVerdict_NODE_PROBE_VERDICT_ERROR       NodeProbeVerdict = 4
+)
+
+// Enum value maps for NodeProbeVerdict.
+var (
+	NodeProbeVerdict_name = map[int32]string{
+		0: "NODE_PROBE_VERDICT_UNSPECIFIED",
+		1: "NODE_PROBE_VERDICT_REACHABLE",
+		2: "NODE_PROBE_VERDICT_BLOCKED",
+		3: "NODE_PROBE_VERDICT_TIMEOUT",
+		4: "NODE_PROBE_VERDICT_ERROR",
+	}
+	NodeProbeVerdict_value = map[string]int32{
+		"NODE_PROBE_VERDICT_UNSPECIFIED": 0,
+		"NODE_PROBE_VERDICT_REACHABLE":   1,
+		"NODE_PROBE_VERDICT_BLOCKED":     2,
+		"NODE_PROBE_VERDICT_TIMEOUT":     3,
+		"NODE_PROBE_VERDICT_ERROR":       4,
+	}
+)
+
+func (x NodeProbeVerdict) Enum() *NodeProbeVerdict {
+	p := new(NodeProbeVerdict)
+	*p = x
+	return p
+}
+
+func (x NodeProbeVerdict) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NodeProbeVerdict) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_control_v1_control_proto_enumTypes[2].Descriptor()
+}
+
+func (NodeProbeVerdict) Type() protoreflect.EnumType {
+	return &file_n0x_control_v1_control_proto_enumTypes[2]
+}
+
+func (x NodeProbeVerdict) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NodeProbeVerdict.Descriptor instead.
+func (NodeProbeVerdict) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{2}
 }
 
 type HaPolicy struct {
@@ -2952,6 +3013,8 @@ type AnswerNodeQueryRequest struct {
 	//
 	//	*AnswerNodeQueryRequest_Metrics
 	//	*AnswerNodeQueryRequest_Error
+	//	*AnswerNodeQueryRequest_Probe
+	//	*AnswerNodeQueryRequest_FlowTap
 	Result        isAnswerNodeQueryRequest_Result `protobuf_oneof:"result"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -3026,6 +3089,24 @@ func (x *AnswerNodeQueryRequest) GetError() *NodeQueryError {
 	return nil
 }
 
+func (x *AnswerNodeQueryRequest) GetProbe() *NodeProbeAnswer {
+	if x != nil {
+		if x, ok := x.Result.(*AnswerNodeQueryRequest_Probe); ok {
+			return x.Probe
+		}
+	}
+	return nil
+}
+
+func (x *AnswerNodeQueryRequest) GetFlowTap() *NodeFlowTapAnswer {
+	if x != nil {
+		if x, ok := x.Result.(*AnswerNodeQueryRequest_FlowTap); ok {
+			return x.FlowTap
+		}
+	}
+	return nil
+}
+
 type isAnswerNodeQueryRequest_Result interface {
 	isAnswerNodeQueryRequest_Result()
 }
@@ -3038,9 +3119,21 @@ type AnswerNodeQueryRequest_Error struct {
 	Error *NodeQueryError `protobuf:"bytes,4,opt,name=error,proto3,oneof"`
 }
 
+type AnswerNodeQueryRequest_Probe struct {
+	Probe *NodeProbeAnswer `protobuf:"bytes,5,opt,name=probe,proto3,oneof"`
+}
+
+type AnswerNodeQueryRequest_FlowTap struct {
+	FlowTap *NodeFlowTapAnswer `protobuf:"bytes,6,opt,name=flow_tap,json=flowTap,proto3,oneof"`
+}
+
 func (*AnswerNodeQueryRequest_Metrics) isAnswerNodeQueryRequest_Result() {}
 
 func (*AnswerNodeQueryRequest_Error) isAnswerNodeQueryRequest_Result() {}
+
+func (*AnswerNodeQueryRequest_Probe) isAnswerNodeQueryRequest_Result() {}
+
+func (*AnswerNodeQueryRequest_FlowTap) isAnswerNodeQueryRequest_Result() {}
 
 type AnswerNodeQueryResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -6960,6 +7053,458 @@ func (x *RegisterWorkloadFromHostResponse) GetResponse() *v11.RegisterWorkloadFr
 	return nil
 }
 
+type NodeProbeAnswer struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	ProbeId           string                 `protobuf:"bytes,1,opt,name=probe_id,json=probeId,proto3" json:"probe_id,omitempty"`
+	Verdict           NodeProbeVerdict       `protobuf:"varint,2,opt,name=verdict,proto3,enum=n0x.control.v1.NodeProbeVerdict" json:"verdict,omitempty"`
+	RttMs             uint32                 `protobuf:"varint,3,opt,name=rtt_ms,json=rttMs,proto3" json:"rtt_ms,omitempty"`
+	CompletedAtUnixMs int64                  `protobuf:"varint,4,opt,name=completed_at_unix_ms,json=completedAtUnixMs,proto3" json:"completed_at_unix_ms,omitempty"`
+	Detail            string                 `protobuf:"bytes,5,opt,name=detail,proto3" json:"detail,omitempty"`
+	AppliedRevision   string                 `protobuf:"bytes,6,opt,name=applied_revision,json=appliedRevision,proto3" json:"applied_revision,omitempty"`
+	FirewallReason    string                 `protobuf:"bytes,7,opt,name=firewall_reason,json=firewallReason,proto3" json:"firewall_reason,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *NodeProbeAnswer) Reset() {
+	*x = NodeProbeAnswer{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[108]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodeProbeAnswer) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeProbeAnswer) ProtoMessage() {}
+
+func (x *NodeProbeAnswer) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[108]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeProbeAnswer.ProtoReflect.Descriptor instead.
+func (*NodeProbeAnswer) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{108}
+}
+
+func (x *NodeProbeAnswer) GetProbeId() string {
+	if x != nil {
+		return x.ProbeId
+	}
+	return ""
+}
+
+func (x *NodeProbeAnswer) GetVerdict() NodeProbeVerdict {
+	if x != nil {
+		return x.Verdict
+	}
+	return NodeProbeVerdict_NODE_PROBE_VERDICT_UNSPECIFIED
+}
+
+func (x *NodeProbeAnswer) GetRttMs() uint32 {
+	if x != nil {
+		return x.RttMs
+	}
+	return 0
+}
+
+func (x *NodeProbeAnswer) GetCompletedAtUnixMs() int64 {
+	if x != nil {
+		return x.CompletedAtUnixMs
+	}
+	return 0
+}
+
+func (x *NodeProbeAnswer) GetDetail() string {
+	if x != nil {
+		return x.Detail
+	}
+	return ""
+}
+
+func (x *NodeProbeAnswer) GetAppliedRevision() string {
+	if x != nil {
+		return x.AppliedRevision
+	}
+	return ""
+}
+
+func (x *NodeProbeAnswer) GetFirewallReason() string {
+	if x != nil {
+		return x.FirewallReason
+	}
+	return ""
+}
+
+type PairFlowSample struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ObservedAtUnixMs int64                  `protobuf:"varint,1,opt,name=observed_at_unix_ms,json=observedAtUnixMs,proto3" json:"observed_at_unix_ms,omitempty"`
+	AllowedPackets   uint64                 `protobuf:"varint,2,opt,name=allowed_packets,json=allowedPackets,proto3" json:"allowed_packets,omitempty"`
+	DeniedPackets    uint64                 `protobuf:"varint,3,opt,name=denied_packets,json=deniedPackets,proto3" json:"denied_packets,omitempty"`
+	Bytes            uint64                 `protobuf:"varint,4,opt,name=bytes,proto3" json:"bytes,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *PairFlowSample) Reset() {
+	*x = PairFlowSample{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[109]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PairFlowSample) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PairFlowSample) ProtoMessage() {}
+
+func (x *PairFlowSample) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[109]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PairFlowSample.ProtoReflect.Descriptor instead.
+func (*PairFlowSample) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{109}
+}
+
+func (x *PairFlowSample) GetObservedAtUnixMs() int64 {
+	if x != nil {
+		return x.ObservedAtUnixMs
+	}
+	return 0
+}
+
+func (x *PairFlowSample) GetAllowedPackets() uint64 {
+	if x != nil {
+		return x.AllowedPackets
+	}
+	return 0
+}
+
+func (x *PairFlowSample) GetDeniedPackets() uint64 {
+	if x != nil {
+		return x.DeniedPackets
+	}
+	return 0
+}
+
+func (x *PairFlowSample) GetBytes() uint64 {
+	if x != nil {
+		return x.Bytes
+	}
+	return 0
+}
+
+type NodeFlowTapAnswer struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Samples       []*PairFlowSample      `protobuf:"bytes,1,rep,name=samples,proto3" json:"samples,omitempty"`
+	CursorUnixMs  int64                  `protobuf:"varint,2,opt,name=cursor_unix_ms,json=cursorUnixMs,proto3" json:"cursor_unix_ms,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NodeFlowTapAnswer) Reset() {
+	*x = NodeFlowTapAnswer{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[110]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodeFlowTapAnswer) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeFlowTapAnswer) ProtoMessage() {}
+
+func (x *NodeFlowTapAnswer) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[110]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeFlowTapAnswer.ProtoReflect.Descriptor instead.
+func (*NodeFlowTapAnswer) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{110}
+}
+
+func (x *NodeFlowTapAnswer) GetSamples() []*PairFlowSample {
+	if x != nil {
+		return x.Samples
+	}
+	return nil
+}
+
+func (x *NodeFlowTapAnswer) GetCursorUnixMs() int64 {
+	if x != nil {
+		return x.CursorUnixMs
+	}
+	return 0
+}
+
+type QueryNodeProbeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Scope         *Scope                 `protobuf:"bytes,1,opt,name=scope,proto3" json:"scope,omitempty"`
+	IncarnationId string                 `protobuf:"bytes,2,opt,name=incarnation_id,json=incarnationId,proto3" json:"incarnation_id,omitempty"`
+	Query         *v1.NodeProbeQuery     `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *QueryNodeProbeRequest) Reset() {
+	*x = QueryNodeProbeRequest{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[111]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *QueryNodeProbeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryNodeProbeRequest) ProtoMessage() {}
+
+func (x *QueryNodeProbeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[111]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QueryNodeProbeRequest.ProtoReflect.Descriptor instead.
+func (*QueryNodeProbeRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{111}
+}
+
+func (x *QueryNodeProbeRequest) GetScope() *Scope {
+	if x != nil {
+		return x.Scope
+	}
+	return nil
+}
+
+func (x *QueryNodeProbeRequest) GetIncarnationId() string {
+	if x != nil {
+		return x.IncarnationId
+	}
+	return ""
+}
+
+func (x *QueryNodeProbeRequest) GetQuery() *v1.NodeProbeQuery {
+	if x != nil {
+		return x.Query
+	}
+	return nil
+}
+
+type QueryNodeProbeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        NodeQueryStatus        `protobuf:"varint,1,opt,name=status,proto3,enum=n0x.control.v1.NodeQueryStatus" json:"status,omitempty"`
+	Answer        *NodeProbeAnswer       `protobuf:"bytes,2,opt,name=answer,proto3" json:"answer,omitempty"`
+	Error         NodeQueryErrorCode     `protobuf:"varint,3,opt,name=error,proto3,enum=n0x.control.v1.NodeQueryErrorCode" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *QueryNodeProbeResponse) Reset() {
+	*x = QueryNodeProbeResponse{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[112]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *QueryNodeProbeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryNodeProbeResponse) ProtoMessage() {}
+
+func (x *QueryNodeProbeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[112]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QueryNodeProbeResponse.ProtoReflect.Descriptor instead.
+func (*QueryNodeProbeResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{112}
+}
+
+func (x *QueryNodeProbeResponse) GetStatus() NodeQueryStatus {
+	if x != nil {
+		return x.Status
+	}
+	return NodeQueryStatus_NODE_QUERY_STATUS_UNSPECIFIED
+}
+
+func (x *QueryNodeProbeResponse) GetAnswer() *NodeProbeAnswer {
+	if x != nil {
+		return x.Answer
+	}
+	return nil
+}
+
+func (x *QueryNodeProbeResponse) GetError() NodeQueryErrorCode {
+	if x != nil {
+		return x.Error
+	}
+	return NodeQueryErrorCode_NODE_QUERY_ERROR_CODE_UNSPECIFIED
+}
+
+type QueryNodeFlowTapRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Scope         *Scope                 `protobuf:"bytes,1,opt,name=scope,proto3" json:"scope,omitempty"`
+	IncarnationId string                 `protobuf:"bytes,2,opt,name=incarnation_id,json=incarnationId,proto3" json:"incarnation_id,omitempty"`
+	Query         *v1.NodeFlowTapQuery   `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *QueryNodeFlowTapRequest) Reset() {
+	*x = QueryNodeFlowTapRequest{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[113]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *QueryNodeFlowTapRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryNodeFlowTapRequest) ProtoMessage() {}
+
+func (x *QueryNodeFlowTapRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[113]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QueryNodeFlowTapRequest.ProtoReflect.Descriptor instead.
+func (*QueryNodeFlowTapRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{113}
+}
+
+func (x *QueryNodeFlowTapRequest) GetScope() *Scope {
+	if x != nil {
+		return x.Scope
+	}
+	return nil
+}
+
+func (x *QueryNodeFlowTapRequest) GetIncarnationId() string {
+	if x != nil {
+		return x.IncarnationId
+	}
+	return ""
+}
+
+func (x *QueryNodeFlowTapRequest) GetQuery() *v1.NodeFlowTapQuery {
+	if x != nil {
+		return x.Query
+	}
+	return nil
+}
+
+type QueryNodeFlowTapResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        NodeQueryStatus        `protobuf:"varint,1,opt,name=status,proto3,enum=n0x.control.v1.NodeQueryStatus" json:"status,omitempty"`
+	Answer        *NodeFlowTapAnswer     `protobuf:"bytes,2,opt,name=answer,proto3" json:"answer,omitempty"`
+	Error         NodeQueryErrorCode     `protobuf:"varint,3,opt,name=error,proto3,enum=n0x.control.v1.NodeQueryErrorCode" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *QueryNodeFlowTapResponse) Reset() {
+	*x = QueryNodeFlowTapResponse{}
+	mi := &file_n0x_control_v1_control_proto_msgTypes[114]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *QueryNodeFlowTapResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryNodeFlowTapResponse) ProtoMessage() {}
+
+func (x *QueryNodeFlowTapResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_control_v1_control_proto_msgTypes[114]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QueryNodeFlowTapResponse.ProtoReflect.Descriptor instead.
+func (*QueryNodeFlowTapResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_control_v1_control_proto_rawDescGZIP(), []int{114}
+}
+
+func (x *QueryNodeFlowTapResponse) GetStatus() NodeQueryStatus {
+	if x != nil {
+		return x.Status
+	}
+	return NodeQueryStatus_NODE_QUERY_STATUS_UNSPECIFIED
+}
+
+func (x *QueryNodeFlowTapResponse) GetAnswer() *NodeFlowTapAnswer {
+	if x != nil {
+		return x.Answer
+	}
+	return nil
+}
+
+func (x *QueryNodeFlowTapResponse) GetError() NodeQueryErrorCode {
+	if x != nil {
+		return x.Error
+	}
+	return NodeQueryErrorCode_NODE_QUERY_ERROR_CODE_UNSPECIFIED
+}
+
 var File_n0x_control_v1_control_proto protoreflect.FileDescriptor
 
 const file_n0x_control_v1_control_proto_rawDesc = "" +
@@ -7244,13 +7789,15 @@ const file_n0x_control_v1_control_proto_rawDesc = "" +
 	"\tbounds_ms\x18\x01 \x03(\x01R\bboundsMs\x12\x16\n" +
 	"\x06counts\x18\x02 \x03(\x04R\x06counts\x12\x15\n" +
 	"\x03sum\x18\x03 \x01(\x01H\x00R\x03sum\x88\x01\x01B\x06\n" +
-	"\x04_sum\"\xf5\x01\n" +
+	"\x04_sum\"\xee\x02\n" +
 	"\x16AnswerNodeQueryRequest\x12;\n" +
 	"\asession\x18\x01 \x01(\v2!.n0x.control.v1.RenewLeaseRequestR\asession\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x02 \x01(\tR\trequestId\x12=\n" +
 	"\ametrics\x18\x03 \x01(\v2!.n0x.control.v1.NodeMetricsAnswerH\x00R\ametrics\x126\n" +
-	"\x05error\x18\x04 \x01(\v2\x1e.n0x.control.v1.NodeQueryErrorH\x00R\x05errorB\b\n" +
+	"\x05error\x18\x04 \x01(\v2\x1e.n0x.control.v1.NodeQueryErrorH\x00R\x05error\x127\n" +
+	"\x05probe\x18\x05 \x01(\v2\x1f.n0x.control.v1.NodeProbeAnswerH\x00R\x05probe\x12>\n" +
+	"\bflow_tap\x18\x06 \x01(\v2!.n0x.control.v1.NodeFlowTapAnswerH\x00R\aflowTapB\b\n" +
 	"\x06result\"\x19\n" +
 	"\x17AnswerNodeQueryResponse\"R\n" +
 	"\x11NodeMetricsAnswer\x12=\n" +
@@ -7530,19 +8077,59 @@ const file_n0x_control_v1_control_proto_rawDesc = "" +
 	"\x1aRenewWorkloadOfferResponse\x12K\n" +
 	"\bresponse\x18\x01 \x01(\v2/.n0x.connectivity.v1.RenewWorkloadOfferResponseR\bresponse\"r\n" +
 	" RegisterWorkloadFromHostResponse\x12N\n" +
-	"\bresponse\x18\x01 \x01(\v22.n0x.workloads.v1.RegisterWorkloadFromHostResponseR\bresponse*\xbd\x01\n" +
+	"\bresponse\x18\x01 \x01(\v22.n0x.workloads.v1.RegisterWorkloadFromHostResponseR\bresponse\"\x9c\x02\n" +
+	"\x0fNodeProbeAnswer\x12\x19\n" +
+	"\bprobe_id\x18\x01 \x01(\tR\aprobeId\x12:\n" +
+	"\averdict\x18\x02 \x01(\x0e2 .n0x.control.v1.NodeProbeVerdictR\averdict\x12\x15\n" +
+	"\x06rtt_ms\x18\x03 \x01(\rR\x05rttMs\x12/\n" +
+	"\x14completed_at_unix_ms\x18\x04 \x01(\x03R\x11completedAtUnixMs\x12\x16\n" +
+	"\x06detail\x18\x05 \x01(\tR\x06detail\x12)\n" +
+	"\x10applied_revision\x18\x06 \x01(\tR\x0fappliedRevision\x12'\n" +
+	"\x0ffirewall_reason\x18\a \x01(\tR\x0efirewallReason\"\xa5\x01\n" +
+	"\x0ePairFlowSample\x12-\n" +
+	"\x13observed_at_unix_ms\x18\x01 \x01(\x03R\x10observedAtUnixMs\x12'\n" +
+	"\x0fallowed_packets\x18\x02 \x01(\x04R\x0eallowedPackets\x12%\n" +
+	"\x0edenied_packets\x18\x03 \x01(\x04R\rdeniedPackets\x12\x14\n" +
+	"\x05bytes\x18\x04 \x01(\x04R\x05bytes\"s\n" +
+	"\x11NodeFlowTapAnswer\x128\n" +
+	"\asamples\x18\x01 \x03(\v2\x1e.n0x.control.v1.PairFlowSampleR\asamples\x12$\n" +
+	"\x0ecursor_unix_ms\x18\x02 \x01(\x03R\fcursorUnixMs\"\xa0\x01\n" +
+	"\x15QueryNodeProbeRequest\x12+\n" +
+	"\x05scope\x18\x01 \x01(\v2\x15.n0x.control.v1.ScopeR\x05scope\x12%\n" +
+	"\x0eincarnation_id\x18\x02 \x01(\tR\rincarnationId\x123\n" +
+	"\x05query\x18\x03 \x01(\v2\x1d.n0x.signed.v1.NodeProbeQueryR\x05query\"\xc4\x01\n" +
+	"\x16QueryNodeProbeResponse\x127\n" +
+	"\x06status\x18\x01 \x01(\x0e2\x1f.n0x.control.v1.NodeQueryStatusR\x06status\x127\n" +
+	"\x06answer\x18\x02 \x01(\v2\x1f.n0x.control.v1.NodeProbeAnswerR\x06answer\x128\n" +
+	"\x05error\x18\x03 \x01(\x0e2\".n0x.control.v1.NodeQueryErrorCodeR\x05error\"\xa4\x01\n" +
+	"\x17QueryNodeFlowTapRequest\x12+\n" +
+	"\x05scope\x18\x01 \x01(\v2\x15.n0x.control.v1.ScopeR\x05scope\x12%\n" +
+	"\x0eincarnation_id\x18\x02 \x01(\tR\rincarnationId\x125\n" +
+	"\x05query\x18\x03 \x01(\v2\x1f.n0x.signed.v1.NodeFlowTapQueryR\x05query\"\xc8\x01\n" +
+	"\x18QueryNodeFlowTapResponse\x127\n" +
+	"\x06status\x18\x01 \x01(\x0e2\x1f.n0x.control.v1.NodeQueryStatusR\x06status\x129\n" +
+	"\x06answer\x18\x02 \x01(\v2!.n0x.control.v1.NodeFlowTapAnswerR\x06answer\x128\n" +
+	"\x05error\x18\x03 \x01(\x0e2\".n0x.control.v1.NodeQueryErrorCodeR\x05error*\x99\x02\n" +
 	"\x12NodeQueryErrorCode\x12%\n" +
 	"!NODE_QUERY_ERROR_CODE_UNSPECIFIED\x10\x00\x12'\n" +
 	"#NODE_QUERY_ERROR_CODE_INVALID_QUERY\x10\x01\x12*\n" +
 	"&NODE_QUERY_ERROR_CODE_UNKNOWN_WORKLOAD\x10\x02\x12+\n" +
-	"'NODE_QUERY_ERROR_CODE_STORE_UNAVAILABLE\x10\x03*\xdc\x01\n" +
+	"'NODE_QUERY_ERROR_CODE_STORE_UNAVAILABLE\x10\x03\x12-\n" +
+	")NODE_QUERY_ERROR_CODE_TARGET_NOT_IN_SCOPE\x10\x04\x12+\n" +
+	"'NODE_QUERY_ERROR_CODE_PROBE_UNSUPPORTED\x10\x05*\xdc\x01\n" +
 	"\x0fNodeQueryStatus\x12!\n" +
 	"\x1dNODE_QUERY_STATUS_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14NODE_QUERY_STATUS_OK\x10\x01\x12\"\n" +
 	"\x1eNODE_QUERY_STATUS_NODE_OFFLINE\x10\x02\x12'\n" +
 	"#NODE_QUERY_STATUS_AGENT_UNSUPPORTED\x10\x03\x12\x1d\n" +
 	"\x19NODE_QUERY_STATUS_TIMEOUT\x10\x04\x12 \n" +
-	"\x1cNODE_QUERY_STATUS_NODE_ERROR\x10\x052\xf4\x06\n" +
+	"\x1cNODE_QUERY_STATUS_NODE_ERROR\x10\x05*\xb6\x01\n" +
+	"\x10NodeProbeVerdict\x12\"\n" +
+	"\x1eNODE_PROBE_VERDICT_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cNODE_PROBE_VERDICT_REACHABLE\x10\x01\x12\x1e\n" +
+	"\x1aNODE_PROBE_VERDICT_BLOCKED\x10\x02\x12\x1e\n" +
+	"\x1aNODE_PROBE_VERDICT_TIMEOUT\x10\x03\x12\x1c\n" +
+	"\x18NODE_PROBE_VERDICT_ERROR\x10\x042\xf4\x06\n" +
 	"\x12NodeControlService\x12b\n" +
 	"\x0fBeginActivation\x12&.n0x.control.v1.BeginActivationRequest\x1a'.n0x.control.v1.BeginActivationResponse\x12Y\n" +
 	"\fActivateNode\x12#.n0x.control.v1.ActivateNodeRequest\x1a$.n0x.control.v1.ActivateNodeResponse\x12_\n" +
@@ -7574,11 +8161,13 @@ const file_n0x_control_v1_control_proto_rawDesc = "" +
 	"\x19OwnershipCandidateService\x12Y\n" +
 	"\fGetCandidate\x12#.n0x.control.v1.GetCandidateRequest\x1a$.n0x.control.v1.GetCandidateResponse2o\n" +
 	"\x15OwnershipAdminService\x12V\n" +
-	"\vChangeOwner\x12\".n0x.control.v1.ChangeOwnerRequest\x1a#.n0x.control.v1.ChangeOwnerResponse2\xc5\x02\n" +
+	"\vChangeOwner\x12\".n0x.control.v1.ChangeOwnerRequest\x1a#.n0x.control.v1.ChangeOwnerResponse2\x8d\x04\n" +
 	"\x1aControlObservationsService\x12_\n" +
 	"\x0eReadProjection\x12%.n0x.control.v1.ReadProjectionRequest\x1a&.n0x.control.v1.ReadProjectionResponse\x12_\n" +
 	"\x0eReadFlowEvents\x12%.n0x.control.v1.ReadFlowEventsRequest\x1a&.n0x.control.v1.ReadFlowEventsResponse\x12e\n" +
-	"\x10QueryNodeMetrics\x12'.n0x.control.v1.QueryNodeMetricsRequest\x1a(.n0x.control.v1.QueryNodeMetricsResponse2\xa0\x02\n" +
+	"\x10QueryNodeMetrics\x12'.n0x.control.v1.QueryNodeMetricsRequest\x1a(.n0x.control.v1.QueryNodeMetricsResponse\x12_\n" +
+	"\x0eQueryNodeProbe\x12%.n0x.control.v1.QueryNodeProbeRequest\x1a&.n0x.control.v1.QueryNodeProbeResponse\x12e\n" +
+	"\x10QueryNodeFlowTap\x12'.n0x.control.v1.QueryNodeFlowTapRequest\x1a(.n0x.control.v1.QueryNodeFlowTapResponse2\xa0\x02\n" +
 	"\x19OwnershipAutomaticService\x12S\n" +
 	"\n" +
 	"ClaimOwner\x12!.n0x.control.v1.ClaimOwnerRequest\x1a\".n0x.control.v1.ClaimOwnerResponse\x12b\n" +
@@ -7614,321 +8203,349 @@ func file_n0x_control_v1_control_proto_rawDescGZIP() []byte {
 	return file_n0x_control_v1_control_proto_rawDescData
 }
 
-var file_n0x_control_v1_control_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_n0x_control_v1_control_proto_msgTypes = make([]protoimpl.MessageInfo, 110)
+var file_n0x_control_v1_control_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_n0x_control_v1_control_proto_msgTypes = make([]protoimpl.MessageInfo, 117)
 var file_n0x_control_v1_control_proto_goTypes = []any{
 	(NodeQueryErrorCode)(0),                      // 0: n0x.control.v1.NodeQueryErrorCode
 	(NodeQueryStatus)(0),                         // 1: n0x.control.v1.NodeQueryStatus
-	(*HaPolicy)(nil),                             // 2: n0x.control.v1.HaPolicy
-	(*ScopeState)(nil),                           // 3: n0x.control.v1.ScopeState
-	(*Activation)(nil),                           // 4: n0x.control.v1.Activation
-	(*Emission)(nil),                             // 5: n0x.control.v1.Emission
-	(*AckRequest)(nil),                           // 6: n0x.control.v1.AckRequest
-	(*RecoveryCommit)(nil),                       // 7: n0x.control.v1.RecoveryCommit
-	(*ObservationView)(nil),                      // 8: n0x.control.v1.ObservationView
-	(*Scope)(nil),                                // 9: n0x.control.v1.Scope
-	(*Route)(nil),                                // 10: n0x.control.v1.Route
-	(*ProjectionSnapshot)(nil),                   // 11: n0x.control.v1.ProjectionSnapshot
-	(*ClaimableSnapshot)(nil),                    // 12: n0x.control.v1.ClaimableSnapshot
-	(*DrainResult)(nil),                          // 13: n0x.control.v1.DrainResult
-	(*OwnerCandidate)(nil),                       // 14: n0x.control.v1.OwnerCandidate
-	(*BeginActivationRequest)(nil),               // 15: n0x.control.v1.BeginActivationRequest
-	(*BeginActivationResponse)(nil),              // 16: n0x.control.v1.BeginActivationResponse
-	(*ActivateNodeRequest)(nil),                  // 17: n0x.control.v1.ActivateNodeRequest
-	(*ActivateNodeResponse)(nil),                 // 18: n0x.control.v1.ActivateNodeResponse
-	(*RecoverSessionRequest)(nil),                // 19: n0x.control.v1.RecoverSessionRequest
-	(*RecoverSessionResponse)(nil),               // 20: n0x.control.v1.RecoverSessionResponse
-	(*GetSnapshotRequest)(nil),                   // 21: n0x.control.v1.GetSnapshotRequest
-	(*GetSnapshotResponse)(nil),                  // 22: n0x.control.v1.GetSnapshotResponse
-	(*RenewLeaseRequest)(nil),                    // 23: n0x.control.v1.RenewLeaseRequest
-	(*RenewLeaseResponse)(nil),                   // 24: n0x.control.v1.RenewLeaseResponse
-	(*ReportStateRequest)(nil),                   // 25: n0x.control.v1.ReportStateRequest
-	(*ReportStateResponse)(nil),                  // 26: n0x.control.v1.ReportStateResponse
-	(*FlowRecord)(nil),                           // 27: n0x.control.v1.FlowRecord
-	(*FlowEvent)(nil),                            // 28: n0x.control.v1.FlowEvent
-	(*HostTelemetry)(nil),                        // 29: n0x.control.v1.HostTelemetry
-	(*ListeningPortsObservation)(nil),            // 30: n0x.control.v1.ListeningPortsObservation
-	(*FlowTelemetry)(nil),                        // 31: n0x.control.v1.FlowTelemetry
-	(*FlowCounters)(nil),                         // 32: n0x.control.v1.FlowCounters
-	(*ReportFlowsRequest)(nil),                   // 33: n0x.control.v1.ReportFlowsRequest
-	(*ReportFlowsResponse)(nil),                  // 34: n0x.control.v1.ReportFlowsResponse
-	(*MetricsDocument)(nil),                      // 35: n0x.control.v1.MetricsDocument
-	(*GaugeAggregate)(nil),                       // 36: n0x.control.v1.GaugeAggregate
-	(*LatencyHistogram)(nil),                     // 37: n0x.control.v1.LatencyHistogram
-	(*AnswerNodeQueryRequest)(nil),               // 38: n0x.control.v1.AnswerNodeQueryRequest
-	(*AnswerNodeQueryResponse)(nil),              // 39: n0x.control.v1.AnswerNodeQueryResponse
-	(*NodeMetricsAnswer)(nil),                    // 40: n0x.control.v1.NodeMetricsAnswer
-	(*NodeQueryError)(nil),                       // 41: n0x.control.v1.NodeQueryError
-	(*PublishConfigurationRequest)(nil),          // 42: n0x.control.v1.PublishConfigurationRequest
-	(*PublishConfigurationResponse)(nil),         // 43: n0x.control.v1.PublishConfigurationResponse
-	(*AcquireAuthorityGrantRequest)(nil),         // 44: n0x.control.v1.AcquireAuthorityGrantRequest
-	(*AcquireAuthorityGrantResponse)(nil),        // 45: n0x.control.v1.AcquireAuthorityGrantResponse
-	(*CommitRecoveryRequest)(nil),                // 46: n0x.control.v1.CommitRecoveryRequest
-	(*CommitRecoveryResponse)(nil),               // 47: n0x.control.v1.CommitRecoveryResponse
-	(*MarkEmissionDeliveredRequest)(nil),         // 48: n0x.control.v1.MarkEmissionDeliveredRequest
-	(*MarkEmissionDeliveredResponse)(nil),        // 49: n0x.control.v1.MarkEmissionDeliveredResponse
-	(*ReadEmissionRequest)(nil),                  // 50: n0x.control.v1.ReadEmissionRequest
-	(*ReadEmissionResponse)(nil),                 // 51: n0x.control.v1.ReadEmissionResponse
-	(*CommitEmissionRequest)(nil),                // 52: n0x.control.v1.CommitEmissionRequest
-	(*CommitEmissionResponse)(nil),               // 53: n0x.control.v1.CommitEmissionResponse
-	(*CommitAckRequest)(nil),                     // 54: n0x.control.v1.CommitAckRequest
-	(*CommitAckResponse)(nil),                    // 55: n0x.control.v1.CommitAckResponse
-	(*ReadScopeRequest)(nil),                     // 56: n0x.control.v1.ReadScopeRequest
-	(*ReadScopeResponse)(nil),                    // 57: n0x.control.v1.ReadScopeResponse
-	(*ReadConfigurationRequest)(nil),             // 58: n0x.control.v1.ReadConfigurationRequest
-	(*ReadConfigurationResponse)(nil),            // 59: n0x.control.v1.ReadConfigurationResponse
-	(*ReadActivationRequest)(nil),                // 60: n0x.control.v1.ReadActivationRequest
-	(*ReadActivationResponse)(nil),               // 61: n0x.control.v1.ReadActivationResponse
-	(*CommitActivationRequest)(nil),              // 62: n0x.control.v1.CommitActivationRequest
-	(*CommitActivationResponse)(nil),             // 63: n0x.control.v1.CommitActivationResponse
-	(*ReadBrokerConfigurationRequest)(nil),       // 64: n0x.control.v1.ReadBrokerConfigurationRequest
-	(*ReadBrokerConfigurationResponse)(nil),      // 65: n0x.control.v1.ReadBrokerConfigurationResponse
-	(*ReadBrokerScopeRequest)(nil),               // 66: n0x.control.v1.ReadBrokerScopeRequest
-	(*ReadBrokerScopeResponse)(nil),              // 67: n0x.control.v1.ReadBrokerScopeResponse
-	(*ReadBrokerActivationRequest)(nil),          // 68: n0x.control.v1.ReadBrokerActivationRequest
-	(*ReadBrokerActivationResponse)(nil),         // 69: n0x.control.v1.ReadBrokerActivationResponse
-	(*GetCandidateRequest)(nil),                  // 70: n0x.control.v1.GetCandidateRequest
-	(*GetCandidateResponse)(nil),                 // 71: n0x.control.v1.GetCandidateResponse
-	(*ChangeOwnerRequest)(nil),                   // 72: n0x.control.v1.ChangeOwnerRequest
-	(*ChangeOwnerResponse)(nil),                  // 73: n0x.control.v1.ChangeOwnerResponse
-	(*ReadProjectionRequest)(nil),                // 74: n0x.control.v1.ReadProjectionRequest
-	(*ReadProjectionResponse)(nil),               // 75: n0x.control.v1.ReadProjectionResponse
-	(*QueryNodeMetricsRequest)(nil),              // 76: n0x.control.v1.QueryNodeMetricsRequest
-	(*QueryNodeMetricsResponse)(nil),             // 77: n0x.control.v1.QueryNodeMetricsResponse
-	(*ClaimOwnerRequest)(nil),                    // 78: n0x.control.v1.ClaimOwnerRequest
-	(*ClaimOwnerResponse)(nil),                   // 79: n0x.control.v1.ClaimOwnerResponse
-	(*ClaimableScopesRequest)(nil),               // 80: n0x.control.v1.ClaimableScopesRequest
-	(*ClaimableScopesResponse)(nil),              // 81: n0x.control.v1.ClaimableScopesResponse
-	(*HandoffRequest)(nil),                       // 82: n0x.control.v1.HandoffRequest
-	(*HandoffResponse)(nil),                      // 83: n0x.control.v1.HandoffResponse
-	(*DrainRequest)(nil),                         // 84: n0x.control.v1.DrainRequest
-	(*DrainResponse)(nil),                        // 85: n0x.control.v1.DrainResponse
-	(*GetRouteCandidateRequest)(nil),             // 86: n0x.control.v1.GetRouteCandidateRequest
-	(*GetRouteCandidateResponse)(nil),            // 87: n0x.control.v1.GetRouteCandidateResponse
-	(*ReadRouteRequest)(nil),                     // 88: n0x.control.v1.ReadRouteRequest
-	(*ReadRouteResponse)(nil),                    // 89: n0x.control.v1.ReadRouteResponse
-	(*AdmitRequest)(nil),                         // 90: n0x.control.v1.AdmitRequest
-	(*AdmitResponse)(nil),                        // 91: n0x.control.v1.AdmitResponse
-	(*LocateScopeRequest)(nil),                   // 92: n0x.control.v1.LocateScopeRequest
-	(*LocateScopeResponse)(nil),                  // 93: n0x.control.v1.LocateScopeResponse
-	(*ListAlertRulesRequest)(nil),                // 94: n0x.control.v1.ListAlertRulesRequest
-	(*ListAlertRulesResponse)(nil),               // 95: n0x.control.v1.ListAlertRulesResponse
-	(*AlertTransition)(nil),                      // 96: n0x.control.v1.AlertTransition
-	(*RecordAlertTransitionsRequest)(nil),        // 97: n0x.control.v1.RecordAlertTransitionsRequest
-	(*RecordAlertTransitionsResponse)(nil),       // 98: n0x.control.v1.RecordAlertTransitionsResponse
-	(*AdmitWorkloadOfferRequest)(nil),            // 99: n0x.control.v1.AdmitWorkloadOfferRequest
-	(*RenewWorkloadOfferRequest)(nil),            // 100: n0x.control.v1.RenewWorkloadOfferRequest
-	(*RegisterWorkloadFromHostRequest)(nil),      // 101: n0x.control.v1.RegisterWorkloadFromHostRequest
-	(*RegisterNodeWorkloadRequest)(nil),          // 102: n0x.control.v1.RegisterNodeWorkloadRequest
-	(*RegisterNodeWorkloadResponse)(nil),         // 103: n0x.control.v1.RegisterNodeWorkloadResponse
-	(*ReadFlowEventsRequest)(nil),                // 104: n0x.control.v1.ReadFlowEventsRequest
-	(*FlowEventEntry)(nil),                       // 105: n0x.control.v1.FlowEventEntry
-	(*ReadFlowEventsResponse)(nil),               // 106: n0x.control.v1.ReadFlowEventsResponse
-	(*AdmitWorkloadOfferResponse)(nil),           // 107: n0x.control.v1.AdmitWorkloadOfferResponse
-	(*RenewWorkloadOfferResponse)(nil),           // 108: n0x.control.v1.RenewWorkloadOfferResponse
-	(*RegisterWorkloadFromHostResponse)(nil),     // 109: n0x.control.v1.RegisterWorkloadFromHostResponse
-	nil,                                          // 110: n0x.control.v1.MetricsDocument.GaugesEntry
-	nil,                                          // 111: n0x.control.v1.MetricsDocument.CountersEntry
-	(*v1.NodeReport)(nil),                        // 112: n0x.signed.v1.NodeReport
-	(*v11.ListeningPort)(nil),                    // 113: n0x.workloads.v1.ListeningPort
-	(*v1.NodeMetricsQuery)(nil),                  // 114: n0x.signed.v1.NodeMetricsQuery
-	(*v12.AdmitResult)(nil),                      // 115: n0x.connectivity.v1.AdmitResult
-	(*v13.Rule)(nil),                             // 116: n0x.alerts.v1.Rule
-	(*v13.Alert)(nil),                            // 117: n0x.alerts.v1.Alert
-	(*v12.AdmitWorkloadOfferRequest)(nil),        // 118: n0x.connectivity.v1.AdmitWorkloadOfferRequest
-	(*v12.RenewWorkloadOfferRequest)(nil),        // 119: n0x.connectivity.v1.RenewWorkloadOfferRequest
-	(*v11.RegisterWorkloadFromHostRequest)(nil),  // 120: n0x.workloads.v1.RegisterWorkloadFromHostRequest
-	(*v11.RegisterWorkloadFromHostResponse)(nil), // 121: n0x.workloads.v1.RegisterWorkloadFromHostResponse
-	(*v12.AdmitWorkloadOfferResponse)(nil),       // 122: n0x.connectivity.v1.AdmitWorkloadOfferResponse
-	(*v12.RenewWorkloadOfferResponse)(nil),       // 123: n0x.connectivity.v1.RenewWorkloadOfferResponse
+	(NodeProbeVerdict)(0),                        // 2: n0x.control.v1.NodeProbeVerdict
+	(*HaPolicy)(nil),                             // 3: n0x.control.v1.HaPolicy
+	(*ScopeState)(nil),                           // 4: n0x.control.v1.ScopeState
+	(*Activation)(nil),                           // 5: n0x.control.v1.Activation
+	(*Emission)(nil),                             // 6: n0x.control.v1.Emission
+	(*AckRequest)(nil),                           // 7: n0x.control.v1.AckRequest
+	(*RecoveryCommit)(nil),                       // 8: n0x.control.v1.RecoveryCommit
+	(*ObservationView)(nil),                      // 9: n0x.control.v1.ObservationView
+	(*Scope)(nil),                                // 10: n0x.control.v1.Scope
+	(*Route)(nil),                                // 11: n0x.control.v1.Route
+	(*ProjectionSnapshot)(nil),                   // 12: n0x.control.v1.ProjectionSnapshot
+	(*ClaimableSnapshot)(nil),                    // 13: n0x.control.v1.ClaimableSnapshot
+	(*DrainResult)(nil),                          // 14: n0x.control.v1.DrainResult
+	(*OwnerCandidate)(nil),                       // 15: n0x.control.v1.OwnerCandidate
+	(*BeginActivationRequest)(nil),               // 16: n0x.control.v1.BeginActivationRequest
+	(*BeginActivationResponse)(nil),              // 17: n0x.control.v1.BeginActivationResponse
+	(*ActivateNodeRequest)(nil),                  // 18: n0x.control.v1.ActivateNodeRequest
+	(*ActivateNodeResponse)(nil),                 // 19: n0x.control.v1.ActivateNodeResponse
+	(*RecoverSessionRequest)(nil),                // 20: n0x.control.v1.RecoverSessionRequest
+	(*RecoverSessionResponse)(nil),               // 21: n0x.control.v1.RecoverSessionResponse
+	(*GetSnapshotRequest)(nil),                   // 22: n0x.control.v1.GetSnapshotRequest
+	(*GetSnapshotResponse)(nil),                  // 23: n0x.control.v1.GetSnapshotResponse
+	(*RenewLeaseRequest)(nil),                    // 24: n0x.control.v1.RenewLeaseRequest
+	(*RenewLeaseResponse)(nil),                   // 25: n0x.control.v1.RenewLeaseResponse
+	(*ReportStateRequest)(nil),                   // 26: n0x.control.v1.ReportStateRequest
+	(*ReportStateResponse)(nil),                  // 27: n0x.control.v1.ReportStateResponse
+	(*FlowRecord)(nil),                           // 28: n0x.control.v1.FlowRecord
+	(*FlowEvent)(nil),                            // 29: n0x.control.v1.FlowEvent
+	(*HostTelemetry)(nil),                        // 30: n0x.control.v1.HostTelemetry
+	(*ListeningPortsObservation)(nil),            // 31: n0x.control.v1.ListeningPortsObservation
+	(*FlowTelemetry)(nil),                        // 32: n0x.control.v1.FlowTelemetry
+	(*FlowCounters)(nil),                         // 33: n0x.control.v1.FlowCounters
+	(*ReportFlowsRequest)(nil),                   // 34: n0x.control.v1.ReportFlowsRequest
+	(*ReportFlowsResponse)(nil),                  // 35: n0x.control.v1.ReportFlowsResponse
+	(*MetricsDocument)(nil),                      // 36: n0x.control.v1.MetricsDocument
+	(*GaugeAggregate)(nil),                       // 37: n0x.control.v1.GaugeAggregate
+	(*LatencyHistogram)(nil),                     // 38: n0x.control.v1.LatencyHistogram
+	(*AnswerNodeQueryRequest)(nil),               // 39: n0x.control.v1.AnswerNodeQueryRequest
+	(*AnswerNodeQueryResponse)(nil),              // 40: n0x.control.v1.AnswerNodeQueryResponse
+	(*NodeMetricsAnswer)(nil),                    // 41: n0x.control.v1.NodeMetricsAnswer
+	(*NodeQueryError)(nil),                       // 42: n0x.control.v1.NodeQueryError
+	(*PublishConfigurationRequest)(nil),          // 43: n0x.control.v1.PublishConfigurationRequest
+	(*PublishConfigurationResponse)(nil),         // 44: n0x.control.v1.PublishConfigurationResponse
+	(*AcquireAuthorityGrantRequest)(nil),         // 45: n0x.control.v1.AcquireAuthorityGrantRequest
+	(*AcquireAuthorityGrantResponse)(nil),        // 46: n0x.control.v1.AcquireAuthorityGrantResponse
+	(*CommitRecoveryRequest)(nil),                // 47: n0x.control.v1.CommitRecoveryRequest
+	(*CommitRecoveryResponse)(nil),               // 48: n0x.control.v1.CommitRecoveryResponse
+	(*MarkEmissionDeliveredRequest)(nil),         // 49: n0x.control.v1.MarkEmissionDeliveredRequest
+	(*MarkEmissionDeliveredResponse)(nil),        // 50: n0x.control.v1.MarkEmissionDeliveredResponse
+	(*ReadEmissionRequest)(nil),                  // 51: n0x.control.v1.ReadEmissionRequest
+	(*ReadEmissionResponse)(nil),                 // 52: n0x.control.v1.ReadEmissionResponse
+	(*CommitEmissionRequest)(nil),                // 53: n0x.control.v1.CommitEmissionRequest
+	(*CommitEmissionResponse)(nil),               // 54: n0x.control.v1.CommitEmissionResponse
+	(*CommitAckRequest)(nil),                     // 55: n0x.control.v1.CommitAckRequest
+	(*CommitAckResponse)(nil),                    // 56: n0x.control.v1.CommitAckResponse
+	(*ReadScopeRequest)(nil),                     // 57: n0x.control.v1.ReadScopeRequest
+	(*ReadScopeResponse)(nil),                    // 58: n0x.control.v1.ReadScopeResponse
+	(*ReadConfigurationRequest)(nil),             // 59: n0x.control.v1.ReadConfigurationRequest
+	(*ReadConfigurationResponse)(nil),            // 60: n0x.control.v1.ReadConfigurationResponse
+	(*ReadActivationRequest)(nil),                // 61: n0x.control.v1.ReadActivationRequest
+	(*ReadActivationResponse)(nil),               // 62: n0x.control.v1.ReadActivationResponse
+	(*CommitActivationRequest)(nil),              // 63: n0x.control.v1.CommitActivationRequest
+	(*CommitActivationResponse)(nil),             // 64: n0x.control.v1.CommitActivationResponse
+	(*ReadBrokerConfigurationRequest)(nil),       // 65: n0x.control.v1.ReadBrokerConfigurationRequest
+	(*ReadBrokerConfigurationResponse)(nil),      // 66: n0x.control.v1.ReadBrokerConfigurationResponse
+	(*ReadBrokerScopeRequest)(nil),               // 67: n0x.control.v1.ReadBrokerScopeRequest
+	(*ReadBrokerScopeResponse)(nil),              // 68: n0x.control.v1.ReadBrokerScopeResponse
+	(*ReadBrokerActivationRequest)(nil),          // 69: n0x.control.v1.ReadBrokerActivationRequest
+	(*ReadBrokerActivationResponse)(nil),         // 70: n0x.control.v1.ReadBrokerActivationResponse
+	(*GetCandidateRequest)(nil),                  // 71: n0x.control.v1.GetCandidateRequest
+	(*GetCandidateResponse)(nil),                 // 72: n0x.control.v1.GetCandidateResponse
+	(*ChangeOwnerRequest)(nil),                   // 73: n0x.control.v1.ChangeOwnerRequest
+	(*ChangeOwnerResponse)(nil),                  // 74: n0x.control.v1.ChangeOwnerResponse
+	(*ReadProjectionRequest)(nil),                // 75: n0x.control.v1.ReadProjectionRequest
+	(*ReadProjectionResponse)(nil),               // 76: n0x.control.v1.ReadProjectionResponse
+	(*QueryNodeMetricsRequest)(nil),              // 77: n0x.control.v1.QueryNodeMetricsRequest
+	(*QueryNodeMetricsResponse)(nil),             // 78: n0x.control.v1.QueryNodeMetricsResponse
+	(*ClaimOwnerRequest)(nil),                    // 79: n0x.control.v1.ClaimOwnerRequest
+	(*ClaimOwnerResponse)(nil),                   // 80: n0x.control.v1.ClaimOwnerResponse
+	(*ClaimableScopesRequest)(nil),               // 81: n0x.control.v1.ClaimableScopesRequest
+	(*ClaimableScopesResponse)(nil),              // 82: n0x.control.v1.ClaimableScopesResponse
+	(*HandoffRequest)(nil),                       // 83: n0x.control.v1.HandoffRequest
+	(*HandoffResponse)(nil),                      // 84: n0x.control.v1.HandoffResponse
+	(*DrainRequest)(nil),                         // 85: n0x.control.v1.DrainRequest
+	(*DrainResponse)(nil),                        // 86: n0x.control.v1.DrainResponse
+	(*GetRouteCandidateRequest)(nil),             // 87: n0x.control.v1.GetRouteCandidateRequest
+	(*GetRouteCandidateResponse)(nil),            // 88: n0x.control.v1.GetRouteCandidateResponse
+	(*ReadRouteRequest)(nil),                     // 89: n0x.control.v1.ReadRouteRequest
+	(*ReadRouteResponse)(nil),                    // 90: n0x.control.v1.ReadRouteResponse
+	(*AdmitRequest)(nil),                         // 91: n0x.control.v1.AdmitRequest
+	(*AdmitResponse)(nil),                        // 92: n0x.control.v1.AdmitResponse
+	(*LocateScopeRequest)(nil),                   // 93: n0x.control.v1.LocateScopeRequest
+	(*LocateScopeResponse)(nil),                  // 94: n0x.control.v1.LocateScopeResponse
+	(*ListAlertRulesRequest)(nil),                // 95: n0x.control.v1.ListAlertRulesRequest
+	(*ListAlertRulesResponse)(nil),               // 96: n0x.control.v1.ListAlertRulesResponse
+	(*AlertTransition)(nil),                      // 97: n0x.control.v1.AlertTransition
+	(*RecordAlertTransitionsRequest)(nil),        // 98: n0x.control.v1.RecordAlertTransitionsRequest
+	(*RecordAlertTransitionsResponse)(nil),       // 99: n0x.control.v1.RecordAlertTransitionsResponse
+	(*AdmitWorkloadOfferRequest)(nil),            // 100: n0x.control.v1.AdmitWorkloadOfferRequest
+	(*RenewWorkloadOfferRequest)(nil),            // 101: n0x.control.v1.RenewWorkloadOfferRequest
+	(*RegisterWorkloadFromHostRequest)(nil),      // 102: n0x.control.v1.RegisterWorkloadFromHostRequest
+	(*RegisterNodeWorkloadRequest)(nil),          // 103: n0x.control.v1.RegisterNodeWorkloadRequest
+	(*RegisterNodeWorkloadResponse)(nil),         // 104: n0x.control.v1.RegisterNodeWorkloadResponse
+	(*ReadFlowEventsRequest)(nil),                // 105: n0x.control.v1.ReadFlowEventsRequest
+	(*FlowEventEntry)(nil),                       // 106: n0x.control.v1.FlowEventEntry
+	(*ReadFlowEventsResponse)(nil),               // 107: n0x.control.v1.ReadFlowEventsResponse
+	(*AdmitWorkloadOfferResponse)(nil),           // 108: n0x.control.v1.AdmitWorkloadOfferResponse
+	(*RenewWorkloadOfferResponse)(nil),           // 109: n0x.control.v1.RenewWorkloadOfferResponse
+	(*RegisterWorkloadFromHostResponse)(nil),     // 110: n0x.control.v1.RegisterWorkloadFromHostResponse
+	(*NodeProbeAnswer)(nil),                      // 111: n0x.control.v1.NodeProbeAnswer
+	(*PairFlowSample)(nil),                       // 112: n0x.control.v1.PairFlowSample
+	(*NodeFlowTapAnswer)(nil),                    // 113: n0x.control.v1.NodeFlowTapAnswer
+	(*QueryNodeProbeRequest)(nil),                // 114: n0x.control.v1.QueryNodeProbeRequest
+	(*QueryNodeProbeResponse)(nil),               // 115: n0x.control.v1.QueryNodeProbeResponse
+	(*QueryNodeFlowTapRequest)(nil),              // 116: n0x.control.v1.QueryNodeFlowTapRequest
+	(*QueryNodeFlowTapResponse)(nil),             // 117: n0x.control.v1.QueryNodeFlowTapResponse
+	nil,                                          // 118: n0x.control.v1.MetricsDocument.GaugesEntry
+	nil,                                          // 119: n0x.control.v1.MetricsDocument.CountersEntry
+	(*v1.NodeReport)(nil),                        // 120: n0x.signed.v1.NodeReport
+	(*v11.ListeningPort)(nil),                    // 121: n0x.workloads.v1.ListeningPort
+	(*v1.NodeMetricsQuery)(nil),                  // 122: n0x.signed.v1.NodeMetricsQuery
+	(*v12.AdmitResult)(nil),                      // 123: n0x.connectivity.v1.AdmitResult
+	(*v13.Rule)(nil),                             // 124: n0x.alerts.v1.Rule
+	(*v13.Alert)(nil),                            // 125: n0x.alerts.v1.Alert
+	(*v12.AdmitWorkloadOfferRequest)(nil),        // 126: n0x.connectivity.v1.AdmitWorkloadOfferRequest
+	(*v12.RenewWorkloadOfferRequest)(nil),        // 127: n0x.connectivity.v1.RenewWorkloadOfferRequest
+	(*v11.RegisterWorkloadFromHostRequest)(nil),  // 128: n0x.workloads.v1.RegisterWorkloadFromHostRequest
+	(*v11.RegisterWorkloadFromHostResponse)(nil), // 129: n0x.workloads.v1.RegisterWorkloadFromHostResponse
+	(*v12.AdmitWorkloadOfferResponse)(nil),       // 130: n0x.connectivity.v1.AdmitWorkloadOfferResponse
+	(*v12.RenewWorkloadOfferResponse)(nil),       // 131: n0x.connectivity.v1.RenewWorkloadOfferResponse
+	(*v1.NodeProbeQuery)(nil),                    // 132: n0x.signed.v1.NodeProbeQuery
+	(*v1.NodeFlowTapQuery)(nil),                  // 133: n0x.signed.v1.NodeFlowTapQuery
 }
 var file_n0x_control_v1_control_proto_depIdxs = []int32{
-	2,   // 0: n0x.control.v1.ScopeState.ha_policy:type_name -> n0x.control.v1.HaPolicy
-	9,   // 1: n0x.control.v1.ScopeState.scope:type_name -> n0x.control.v1.Scope
-	9,   // 2: n0x.control.v1.Activation.scope:type_name -> n0x.control.v1.Scope
-	9,   // 3: n0x.control.v1.Emission.scope:type_name -> n0x.control.v1.Scope
-	112, // 4: n0x.control.v1.AckRequest.report:type_name -> n0x.signed.v1.NodeReport
-	9,   // 5: n0x.control.v1.RecoveryCommit.scope:type_name -> n0x.control.v1.Scope
-	31,  // 6: n0x.control.v1.ObservationView.telemetry:type_name -> n0x.control.v1.FlowTelemetry
-	9,   // 7: n0x.control.v1.Route.scope:type_name -> n0x.control.v1.Scope
-	8,   // 8: n0x.control.v1.ProjectionSnapshot.views:type_name -> n0x.control.v1.ObservationView
-	3,   // 9: n0x.control.v1.ClaimableSnapshot.scopes:type_name -> n0x.control.v1.ScopeState
-	9,   // 10: n0x.control.v1.DrainResult.drained:type_name -> n0x.control.v1.Scope
-	9,   // 11: n0x.control.v1.DrainResult.failed:type_name -> n0x.control.v1.Scope
-	9,   // 12: n0x.control.v1.OwnerCandidate.scope:type_name -> n0x.control.v1.Scope
-	9,   // 13: n0x.control.v1.BeginActivationRequest.scope:type_name -> n0x.control.v1.Scope
-	23,  // 14: n0x.control.v1.RecoverSessionRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
-	9,   // 15: n0x.control.v1.GetSnapshotRequest.scope:type_name -> n0x.control.v1.Scope
-	9,   // 16: n0x.control.v1.RenewLeaseRequest.scope:type_name -> n0x.control.v1.Scope
-	27,  // 17: n0x.control.v1.FlowEvent.flow:type_name -> n0x.control.v1.FlowRecord
-	113, // 18: n0x.control.v1.ListeningPortsObservation.listening_ports:type_name -> n0x.workloads.v1.ListeningPort
-	27,  // 19: n0x.control.v1.FlowTelemetry.flows:type_name -> n0x.control.v1.FlowRecord
-	28,  // 20: n0x.control.v1.FlowTelemetry.events:type_name -> n0x.control.v1.FlowEvent
-	29,  // 21: n0x.control.v1.FlowTelemetry.host:type_name -> n0x.control.v1.HostTelemetry
-	30,  // 22: n0x.control.v1.FlowTelemetry.listening_ports:type_name -> n0x.control.v1.ListeningPortsObservation
-	32,  // 23: n0x.control.v1.FlowTelemetry.counters:type_name -> n0x.control.v1.FlowCounters
-	9,   // 24: n0x.control.v1.ReportFlowsRequest.scope:type_name -> n0x.control.v1.Scope
-	31,  // 25: n0x.control.v1.ReportFlowsRequest.telemetry:type_name -> n0x.control.v1.FlowTelemetry
-	110, // 26: n0x.control.v1.MetricsDocument.gauges:type_name -> n0x.control.v1.MetricsDocument.GaugesEntry
-	111, // 27: n0x.control.v1.MetricsDocument.counters:type_name -> n0x.control.v1.MetricsDocument.CountersEntry
-	37,  // 28: n0x.control.v1.MetricsDocument.latency:type_name -> n0x.control.v1.LatencyHistogram
-	23,  // 29: n0x.control.v1.AnswerNodeQueryRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
-	40,  // 30: n0x.control.v1.AnswerNodeQueryRequest.metrics:type_name -> n0x.control.v1.NodeMetricsAnswer
-	41,  // 31: n0x.control.v1.AnswerNodeQueryRequest.error:type_name -> n0x.control.v1.NodeQueryError
-	35,  // 32: n0x.control.v1.NodeMetricsAnswer.documents:type_name -> n0x.control.v1.MetricsDocument
-	0,   // 33: n0x.control.v1.NodeQueryError.code:type_name -> n0x.control.v1.NodeQueryErrorCode
-	9,   // 34: n0x.control.v1.AcquireAuthorityGrantRequest.scope:type_name -> n0x.control.v1.Scope
-	7,   // 35: n0x.control.v1.CommitRecoveryRequest.request:type_name -> n0x.control.v1.RecoveryCommit
-	4,   // 36: n0x.control.v1.CommitRecoveryResponse.activation:type_name -> n0x.control.v1.Activation
-	9,   // 37: n0x.control.v1.MarkEmissionDeliveredRequest.scope:type_name -> n0x.control.v1.Scope
-	9,   // 38: n0x.control.v1.ReadEmissionRequest.scope:type_name -> n0x.control.v1.Scope
-	5,   // 39: n0x.control.v1.ReadEmissionResponse.emission:type_name -> n0x.control.v1.Emission
-	5,   // 40: n0x.control.v1.CommitEmissionRequest.emission:type_name -> n0x.control.v1.Emission
-	6,   // 41: n0x.control.v1.CommitAckRequest.request:type_name -> n0x.control.v1.AckRequest
-	9,   // 42: n0x.control.v1.ReadScopeRequest.scope:type_name -> n0x.control.v1.Scope
-	3,   // 43: n0x.control.v1.ReadScopeResponse.state:type_name -> n0x.control.v1.ScopeState
-	9,   // 44: n0x.control.v1.ReadConfigurationRequest.scope:type_name -> n0x.control.v1.Scope
-	9,   // 45: n0x.control.v1.ReadActivationRequest.scope:type_name -> n0x.control.v1.Scope
-	4,   // 46: n0x.control.v1.ReadActivationResponse.activation:type_name -> n0x.control.v1.Activation
-	9,   // 47: n0x.control.v1.CommitActivationRequest.scope:type_name -> n0x.control.v1.Scope
-	4,   // 48: n0x.control.v1.CommitActivationResponse.activation:type_name -> n0x.control.v1.Activation
-	9,   // 49: n0x.control.v1.ReadBrokerConfigurationRequest.scope:type_name -> n0x.control.v1.Scope
-	9,   // 50: n0x.control.v1.ReadBrokerScopeRequest.scope:type_name -> n0x.control.v1.Scope
-	3,   // 51: n0x.control.v1.ReadBrokerScopeResponse.state:type_name -> n0x.control.v1.ScopeState
-	9,   // 52: n0x.control.v1.ReadBrokerActivationRequest.scope:type_name -> n0x.control.v1.Scope
-	4,   // 53: n0x.control.v1.ReadBrokerActivationResponse.activation:type_name -> n0x.control.v1.Activation
-	14,  // 54: n0x.control.v1.GetCandidateResponse.candidate:type_name -> n0x.control.v1.OwnerCandidate
-	9,   // 55: n0x.control.v1.ChangeOwnerRequest.scope:type_name -> n0x.control.v1.Scope
-	14,  // 56: n0x.control.v1.ChangeOwnerRequest.candidate:type_name -> n0x.control.v1.OwnerCandidate
-	3,   // 57: n0x.control.v1.ChangeOwnerResponse.state:type_name -> n0x.control.v1.ScopeState
-	9,   // 58: n0x.control.v1.ReadProjectionRequest.scope:type_name -> n0x.control.v1.Scope
-	11,  // 59: n0x.control.v1.ReadProjectionResponse.snapshot:type_name -> n0x.control.v1.ProjectionSnapshot
-	9,   // 60: n0x.control.v1.QueryNodeMetricsRequest.scope:type_name -> n0x.control.v1.Scope
-	114, // 61: n0x.control.v1.QueryNodeMetricsRequest.query:type_name -> n0x.signed.v1.NodeMetricsQuery
-	1,   // 62: n0x.control.v1.QueryNodeMetricsResponse.status:type_name -> n0x.control.v1.NodeQueryStatus
-	35,  // 63: n0x.control.v1.QueryNodeMetricsResponse.documents:type_name -> n0x.control.v1.MetricsDocument
-	0,   // 64: n0x.control.v1.QueryNodeMetricsResponse.error:type_name -> n0x.control.v1.NodeQueryErrorCode
-	9,   // 65: n0x.control.v1.ClaimOwnerRequest.scope:type_name -> n0x.control.v1.Scope
-	3,   // 66: n0x.control.v1.ClaimOwnerResponse.state:type_name -> n0x.control.v1.ScopeState
-	12,  // 67: n0x.control.v1.ClaimableScopesResponse.snapshot:type_name -> n0x.control.v1.ClaimableSnapshot
-	9,   // 68: n0x.control.v1.HandoffRequest.scope:type_name -> n0x.control.v1.Scope
-	3,   // 69: n0x.control.v1.HandoffResponse.state:type_name -> n0x.control.v1.ScopeState
-	13,  // 70: n0x.control.v1.DrainResponse.result:type_name -> n0x.control.v1.DrainResult
-	9,   // 71: n0x.control.v1.GetRouteCandidateRequest.scope:type_name -> n0x.control.v1.Scope
-	9,   // 72: n0x.control.v1.GetRouteCandidateResponse.scope:type_name -> n0x.control.v1.Scope
-	9,   // 73: n0x.control.v1.ReadRouteRequest.scope:type_name -> n0x.control.v1.Scope
-	10,  // 74: n0x.control.v1.ReadRouteResponse.route:type_name -> n0x.control.v1.Route
-	23,  // 75: n0x.control.v1.AdmitRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
-	115, // 76: n0x.control.v1.AdmitResponse.result:type_name -> n0x.connectivity.v1.AdmitResult
-	9,   // 77: n0x.control.v1.LocateScopeRequest.scope:type_name -> n0x.control.v1.Scope
-	9,   // 78: n0x.control.v1.ListAlertRulesRequest.scope:type_name -> n0x.control.v1.Scope
-	116, // 79: n0x.control.v1.ListAlertRulesResponse.rules:type_name -> n0x.alerts.v1.Rule
-	117, // 80: n0x.control.v1.ListAlertRulesResponse.firing:type_name -> n0x.alerts.v1.Alert
-	9,   // 81: n0x.control.v1.RecordAlertTransitionsRequest.scope:type_name -> n0x.control.v1.Scope
-	96,  // 82: n0x.control.v1.RecordAlertTransitionsRequest.transitions:type_name -> n0x.control.v1.AlertTransition
-	23,  // 83: n0x.control.v1.AdmitWorkloadOfferRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
-	118, // 84: n0x.control.v1.AdmitWorkloadOfferRequest.request:type_name -> n0x.connectivity.v1.AdmitWorkloadOfferRequest
-	23,  // 85: n0x.control.v1.RenewWorkloadOfferRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
-	119, // 86: n0x.control.v1.RenewWorkloadOfferRequest.request:type_name -> n0x.connectivity.v1.RenewWorkloadOfferRequest
-	23,  // 87: n0x.control.v1.RegisterWorkloadFromHostRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
-	120, // 88: n0x.control.v1.RegisterWorkloadFromHostRequest.request:type_name -> n0x.workloads.v1.RegisterWorkloadFromHostRequest
-	9,   // 89: n0x.control.v1.RegisterNodeWorkloadRequest.scope:type_name -> n0x.control.v1.Scope
-	120, // 90: n0x.control.v1.RegisterNodeWorkloadRequest.request:type_name -> n0x.workloads.v1.RegisterWorkloadFromHostRequest
-	121, // 91: n0x.control.v1.RegisterNodeWorkloadResponse.response:type_name -> n0x.workloads.v1.RegisterWorkloadFromHostResponse
-	9,   // 92: n0x.control.v1.ReadFlowEventsRequest.scope:type_name -> n0x.control.v1.Scope
-	28,  // 93: n0x.control.v1.FlowEventEntry.event:type_name -> n0x.control.v1.FlowEvent
-	105, // 94: n0x.control.v1.ReadFlowEventsResponse.entries:type_name -> n0x.control.v1.FlowEventEntry
-	122, // 95: n0x.control.v1.AdmitWorkloadOfferResponse.response:type_name -> n0x.connectivity.v1.AdmitWorkloadOfferResponse
-	123, // 96: n0x.control.v1.RenewWorkloadOfferResponse.response:type_name -> n0x.connectivity.v1.RenewWorkloadOfferResponse
-	121, // 97: n0x.control.v1.RegisterWorkloadFromHostResponse.response:type_name -> n0x.workloads.v1.RegisterWorkloadFromHostResponse
-	36,  // 98: n0x.control.v1.MetricsDocument.GaugesEntry.value:type_name -> n0x.control.v1.GaugeAggregate
-	15,  // 99: n0x.control.v1.NodeControlService.BeginActivation:input_type -> n0x.control.v1.BeginActivationRequest
-	17,  // 100: n0x.control.v1.NodeControlService.ActivateNode:input_type -> n0x.control.v1.ActivateNodeRequest
-	19,  // 101: n0x.control.v1.NodeControlService.RecoverSession:input_type -> n0x.control.v1.RecoverSessionRequest
-	21,  // 102: n0x.control.v1.NodeControlService.GetSnapshot:input_type -> n0x.control.v1.GetSnapshotRequest
-	23,  // 103: n0x.control.v1.NodeControlService.RenewLease:input_type -> n0x.control.v1.RenewLeaseRequest
-	25,  // 104: n0x.control.v1.NodeControlService.ReportState:input_type -> n0x.control.v1.ReportStateRequest
-	33,  // 105: n0x.control.v1.NodeControlService.ReportFlows:input_type -> n0x.control.v1.ReportFlowsRequest
-	101, // 106: n0x.control.v1.NodeControlService.RegisterWorkloadFromHost:input_type -> n0x.control.v1.RegisterWorkloadFromHostRequest
-	38,  // 107: n0x.control.v1.NodeControlService.AnswerNodeQuery:input_type -> n0x.control.v1.AnswerNodeQueryRequest
-	42,  // 108: n0x.control.v1.AuthorityControlService.PublishConfiguration:input_type -> n0x.control.v1.PublishConfigurationRequest
-	44,  // 109: n0x.control.v1.AuthorityControlService.AcquireAuthorityGrant:input_type -> n0x.control.v1.AcquireAuthorityGrantRequest
-	46,  // 110: n0x.control.v1.AuthorityStoreService.CommitRecovery:input_type -> n0x.control.v1.CommitRecoveryRequest
-	48,  // 111: n0x.control.v1.AuthorityStoreService.MarkEmissionDelivered:input_type -> n0x.control.v1.MarkEmissionDeliveredRequest
-	50,  // 112: n0x.control.v1.AuthorityStoreService.ReadEmission:input_type -> n0x.control.v1.ReadEmissionRequest
-	52,  // 113: n0x.control.v1.AuthorityStoreService.CommitEmission:input_type -> n0x.control.v1.CommitEmissionRequest
-	54,  // 114: n0x.control.v1.AuthorityStoreService.CommitAck:input_type -> n0x.control.v1.CommitAckRequest
-	56,  // 115: n0x.control.v1.AuthorityStoreService.ReadScope:input_type -> n0x.control.v1.ReadScopeRequest
-	58,  // 116: n0x.control.v1.AuthorityStoreService.ReadConfiguration:input_type -> n0x.control.v1.ReadConfigurationRequest
-	60,  // 117: n0x.control.v1.AuthorityStoreService.ReadActivation:input_type -> n0x.control.v1.ReadActivationRequest
-	62,  // 118: n0x.control.v1.AuthorityStoreService.CommitActivation:input_type -> n0x.control.v1.CommitActivationRequest
-	64,  // 119: n0x.control.v1.BrokerStoreService.ReadBrokerConfiguration:input_type -> n0x.control.v1.ReadBrokerConfigurationRequest
-	66,  // 120: n0x.control.v1.BrokerStoreService.ReadBrokerScope:input_type -> n0x.control.v1.ReadBrokerScopeRequest
-	68,  // 121: n0x.control.v1.BrokerStoreService.ReadBrokerActivation:input_type -> n0x.control.v1.ReadBrokerActivationRequest
-	70,  // 122: n0x.control.v1.OwnershipCandidateService.GetCandidate:input_type -> n0x.control.v1.GetCandidateRequest
-	72,  // 123: n0x.control.v1.OwnershipAdminService.ChangeOwner:input_type -> n0x.control.v1.ChangeOwnerRequest
-	74,  // 124: n0x.control.v1.ControlObservationsService.ReadProjection:input_type -> n0x.control.v1.ReadProjectionRequest
-	104, // 125: n0x.control.v1.ControlObservationsService.ReadFlowEvents:input_type -> n0x.control.v1.ReadFlowEventsRequest
-	76,  // 126: n0x.control.v1.ControlObservationsService.QueryNodeMetrics:input_type -> n0x.control.v1.QueryNodeMetricsRequest
-	78,  // 127: n0x.control.v1.OwnershipAutomaticService.ClaimOwner:input_type -> n0x.control.v1.ClaimOwnerRequest
-	80,  // 128: n0x.control.v1.OwnershipAutomaticService.ClaimableScopes:input_type -> n0x.control.v1.ClaimableScopesRequest
-	82,  // 129: n0x.control.v1.OwnershipAutomaticService.Handoff:input_type -> n0x.control.v1.HandoffRequest
-	84,  // 130: n0x.control.v1.ControllerDrainService.Drain:input_type -> n0x.control.v1.DrainRequest
-	86,  // 131: n0x.control.v1.OwnerRouteCandidateService.GetRouteCandidate:input_type -> n0x.control.v1.GetRouteCandidateRequest
-	88,  // 132: n0x.control.v1.OwnerRoutesService.ReadRoute:input_type -> n0x.control.v1.ReadRouteRequest
-	90,  // 133: n0x.control.v1.ConnectivityControlService.Admit:input_type -> n0x.control.v1.AdmitRequest
-	99,  // 134: n0x.control.v1.ConnectivityControlService.AdmitWorkloadOffer:input_type -> n0x.control.v1.AdmitWorkloadOfferRequest
-	100, // 135: n0x.control.v1.ConnectivityControlService.RenewWorkloadOffer:input_type -> n0x.control.v1.RenewWorkloadOfferRequest
-	92,  // 136: n0x.control.v1.NodeDiscoveryService.LocateScope:input_type -> n0x.control.v1.LocateScopeRequest
-	94,  // 137: n0x.control.v1.AlertEvaluationService.ListAlertRules:input_type -> n0x.control.v1.ListAlertRulesRequest
-	97,  // 138: n0x.control.v1.AlertEvaluationService.RecordAlertTransitions:input_type -> n0x.control.v1.RecordAlertTransitionsRequest
-	102, // 139: n0x.control.v1.NodeWorkloadRegistrationService.RegisterNodeWorkload:input_type -> n0x.control.v1.RegisterNodeWorkloadRequest
-	16,  // 140: n0x.control.v1.NodeControlService.BeginActivation:output_type -> n0x.control.v1.BeginActivationResponse
-	18,  // 141: n0x.control.v1.NodeControlService.ActivateNode:output_type -> n0x.control.v1.ActivateNodeResponse
-	20,  // 142: n0x.control.v1.NodeControlService.RecoverSession:output_type -> n0x.control.v1.RecoverSessionResponse
-	22,  // 143: n0x.control.v1.NodeControlService.GetSnapshot:output_type -> n0x.control.v1.GetSnapshotResponse
-	24,  // 144: n0x.control.v1.NodeControlService.RenewLease:output_type -> n0x.control.v1.RenewLeaseResponse
-	26,  // 145: n0x.control.v1.NodeControlService.ReportState:output_type -> n0x.control.v1.ReportStateResponse
-	34,  // 146: n0x.control.v1.NodeControlService.ReportFlows:output_type -> n0x.control.v1.ReportFlowsResponse
-	109, // 147: n0x.control.v1.NodeControlService.RegisterWorkloadFromHost:output_type -> n0x.control.v1.RegisterWorkloadFromHostResponse
-	39,  // 148: n0x.control.v1.NodeControlService.AnswerNodeQuery:output_type -> n0x.control.v1.AnswerNodeQueryResponse
-	43,  // 149: n0x.control.v1.AuthorityControlService.PublishConfiguration:output_type -> n0x.control.v1.PublishConfigurationResponse
-	45,  // 150: n0x.control.v1.AuthorityControlService.AcquireAuthorityGrant:output_type -> n0x.control.v1.AcquireAuthorityGrantResponse
-	47,  // 151: n0x.control.v1.AuthorityStoreService.CommitRecovery:output_type -> n0x.control.v1.CommitRecoveryResponse
-	49,  // 152: n0x.control.v1.AuthorityStoreService.MarkEmissionDelivered:output_type -> n0x.control.v1.MarkEmissionDeliveredResponse
-	51,  // 153: n0x.control.v1.AuthorityStoreService.ReadEmission:output_type -> n0x.control.v1.ReadEmissionResponse
-	53,  // 154: n0x.control.v1.AuthorityStoreService.CommitEmission:output_type -> n0x.control.v1.CommitEmissionResponse
-	55,  // 155: n0x.control.v1.AuthorityStoreService.CommitAck:output_type -> n0x.control.v1.CommitAckResponse
-	57,  // 156: n0x.control.v1.AuthorityStoreService.ReadScope:output_type -> n0x.control.v1.ReadScopeResponse
-	59,  // 157: n0x.control.v1.AuthorityStoreService.ReadConfiguration:output_type -> n0x.control.v1.ReadConfigurationResponse
-	61,  // 158: n0x.control.v1.AuthorityStoreService.ReadActivation:output_type -> n0x.control.v1.ReadActivationResponse
-	63,  // 159: n0x.control.v1.AuthorityStoreService.CommitActivation:output_type -> n0x.control.v1.CommitActivationResponse
-	65,  // 160: n0x.control.v1.BrokerStoreService.ReadBrokerConfiguration:output_type -> n0x.control.v1.ReadBrokerConfigurationResponse
-	67,  // 161: n0x.control.v1.BrokerStoreService.ReadBrokerScope:output_type -> n0x.control.v1.ReadBrokerScopeResponse
-	69,  // 162: n0x.control.v1.BrokerStoreService.ReadBrokerActivation:output_type -> n0x.control.v1.ReadBrokerActivationResponse
-	71,  // 163: n0x.control.v1.OwnershipCandidateService.GetCandidate:output_type -> n0x.control.v1.GetCandidateResponse
-	73,  // 164: n0x.control.v1.OwnershipAdminService.ChangeOwner:output_type -> n0x.control.v1.ChangeOwnerResponse
-	75,  // 165: n0x.control.v1.ControlObservationsService.ReadProjection:output_type -> n0x.control.v1.ReadProjectionResponse
-	106, // 166: n0x.control.v1.ControlObservationsService.ReadFlowEvents:output_type -> n0x.control.v1.ReadFlowEventsResponse
-	77,  // 167: n0x.control.v1.ControlObservationsService.QueryNodeMetrics:output_type -> n0x.control.v1.QueryNodeMetricsResponse
-	79,  // 168: n0x.control.v1.OwnershipAutomaticService.ClaimOwner:output_type -> n0x.control.v1.ClaimOwnerResponse
-	81,  // 169: n0x.control.v1.OwnershipAutomaticService.ClaimableScopes:output_type -> n0x.control.v1.ClaimableScopesResponse
-	83,  // 170: n0x.control.v1.OwnershipAutomaticService.Handoff:output_type -> n0x.control.v1.HandoffResponse
-	85,  // 171: n0x.control.v1.ControllerDrainService.Drain:output_type -> n0x.control.v1.DrainResponse
-	87,  // 172: n0x.control.v1.OwnerRouteCandidateService.GetRouteCandidate:output_type -> n0x.control.v1.GetRouteCandidateResponse
-	89,  // 173: n0x.control.v1.OwnerRoutesService.ReadRoute:output_type -> n0x.control.v1.ReadRouteResponse
-	91,  // 174: n0x.control.v1.ConnectivityControlService.Admit:output_type -> n0x.control.v1.AdmitResponse
-	107, // 175: n0x.control.v1.ConnectivityControlService.AdmitWorkloadOffer:output_type -> n0x.control.v1.AdmitWorkloadOfferResponse
-	108, // 176: n0x.control.v1.ConnectivityControlService.RenewWorkloadOffer:output_type -> n0x.control.v1.RenewWorkloadOfferResponse
-	93,  // 177: n0x.control.v1.NodeDiscoveryService.LocateScope:output_type -> n0x.control.v1.LocateScopeResponse
-	95,  // 178: n0x.control.v1.AlertEvaluationService.ListAlertRules:output_type -> n0x.control.v1.ListAlertRulesResponse
-	98,  // 179: n0x.control.v1.AlertEvaluationService.RecordAlertTransitions:output_type -> n0x.control.v1.RecordAlertTransitionsResponse
-	103, // 180: n0x.control.v1.NodeWorkloadRegistrationService.RegisterNodeWorkload:output_type -> n0x.control.v1.RegisterNodeWorkloadResponse
-	140, // [140:181] is the sub-list for method output_type
-	99,  // [99:140] is the sub-list for method input_type
-	99,  // [99:99] is the sub-list for extension type_name
-	99,  // [99:99] is the sub-list for extension extendee
-	0,   // [0:99] is the sub-list for field type_name
+	3,   // 0: n0x.control.v1.ScopeState.ha_policy:type_name -> n0x.control.v1.HaPolicy
+	10,  // 1: n0x.control.v1.ScopeState.scope:type_name -> n0x.control.v1.Scope
+	10,  // 2: n0x.control.v1.Activation.scope:type_name -> n0x.control.v1.Scope
+	10,  // 3: n0x.control.v1.Emission.scope:type_name -> n0x.control.v1.Scope
+	120, // 4: n0x.control.v1.AckRequest.report:type_name -> n0x.signed.v1.NodeReport
+	10,  // 5: n0x.control.v1.RecoveryCommit.scope:type_name -> n0x.control.v1.Scope
+	32,  // 6: n0x.control.v1.ObservationView.telemetry:type_name -> n0x.control.v1.FlowTelemetry
+	10,  // 7: n0x.control.v1.Route.scope:type_name -> n0x.control.v1.Scope
+	9,   // 8: n0x.control.v1.ProjectionSnapshot.views:type_name -> n0x.control.v1.ObservationView
+	4,   // 9: n0x.control.v1.ClaimableSnapshot.scopes:type_name -> n0x.control.v1.ScopeState
+	10,  // 10: n0x.control.v1.DrainResult.drained:type_name -> n0x.control.v1.Scope
+	10,  // 11: n0x.control.v1.DrainResult.failed:type_name -> n0x.control.v1.Scope
+	10,  // 12: n0x.control.v1.OwnerCandidate.scope:type_name -> n0x.control.v1.Scope
+	10,  // 13: n0x.control.v1.BeginActivationRequest.scope:type_name -> n0x.control.v1.Scope
+	24,  // 14: n0x.control.v1.RecoverSessionRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
+	10,  // 15: n0x.control.v1.GetSnapshotRequest.scope:type_name -> n0x.control.v1.Scope
+	10,  // 16: n0x.control.v1.RenewLeaseRequest.scope:type_name -> n0x.control.v1.Scope
+	28,  // 17: n0x.control.v1.FlowEvent.flow:type_name -> n0x.control.v1.FlowRecord
+	121, // 18: n0x.control.v1.ListeningPortsObservation.listening_ports:type_name -> n0x.workloads.v1.ListeningPort
+	28,  // 19: n0x.control.v1.FlowTelemetry.flows:type_name -> n0x.control.v1.FlowRecord
+	29,  // 20: n0x.control.v1.FlowTelemetry.events:type_name -> n0x.control.v1.FlowEvent
+	30,  // 21: n0x.control.v1.FlowTelemetry.host:type_name -> n0x.control.v1.HostTelemetry
+	31,  // 22: n0x.control.v1.FlowTelemetry.listening_ports:type_name -> n0x.control.v1.ListeningPortsObservation
+	33,  // 23: n0x.control.v1.FlowTelemetry.counters:type_name -> n0x.control.v1.FlowCounters
+	10,  // 24: n0x.control.v1.ReportFlowsRequest.scope:type_name -> n0x.control.v1.Scope
+	32,  // 25: n0x.control.v1.ReportFlowsRequest.telemetry:type_name -> n0x.control.v1.FlowTelemetry
+	118, // 26: n0x.control.v1.MetricsDocument.gauges:type_name -> n0x.control.v1.MetricsDocument.GaugesEntry
+	119, // 27: n0x.control.v1.MetricsDocument.counters:type_name -> n0x.control.v1.MetricsDocument.CountersEntry
+	38,  // 28: n0x.control.v1.MetricsDocument.latency:type_name -> n0x.control.v1.LatencyHistogram
+	24,  // 29: n0x.control.v1.AnswerNodeQueryRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
+	41,  // 30: n0x.control.v1.AnswerNodeQueryRequest.metrics:type_name -> n0x.control.v1.NodeMetricsAnswer
+	42,  // 31: n0x.control.v1.AnswerNodeQueryRequest.error:type_name -> n0x.control.v1.NodeQueryError
+	111, // 32: n0x.control.v1.AnswerNodeQueryRequest.probe:type_name -> n0x.control.v1.NodeProbeAnswer
+	113, // 33: n0x.control.v1.AnswerNodeQueryRequest.flow_tap:type_name -> n0x.control.v1.NodeFlowTapAnswer
+	36,  // 34: n0x.control.v1.NodeMetricsAnswer.documents:type_name -> n0x.control.v1.MetricsDocument
+	0,   // 35: n0x.control.v1.NodeQueryError.code:type_name -> n0x.control.v1.NodeQueryErrorCode
+	10,  // 36: n0x.control.v1.AcquireAuthorityGrantRequest.scope:type_name -> n0x.control.v1.Scope
+	8,   // 37: n0x.control.v1.CommitRecoveryRequest.request:type_name -> n0x.control.v1.RecoveryCommit
+	5,   // 38: n0x.control.v1.CommitRecoveryResponse.activation:type_name -> n0x.control.v1.Activation
+	10,  // 39: n0x.control.v1.MarkEmissionDeliveredRequest.scope:type_name -> n0x.control.v1.Scope
+	10,  // 40: n0x.control.v1.ReadEmissionRequest.scope:type_name -> n0x.control.v1.Scope
+	6,   // 41: n0x.control.v1.ReadEmissionResponse.emission:type_name -> n0x.control.v1.Emission
+	6,   // 42: n0x.control.v1.CommitEmissionRequest.emission:type_name -> n0x.control.v1.Emission
+	7,   // 43: n0x.control.v1.CommitAckRequest.request:type_name -> n0x.control.v1.AckRequest
+	10,  // 44: n0x.control.v1.ReadScopeRequest.scope:type_name -> n0x.control.v1.Scope
+	4,   // 45: n0x.control.v1.ReadScopeResponse.state:type_name -> n0x.control.v1.ScopeState
+	10,  // 46: n0x.control.v1.ReadConfigurationRequest.scope:type_name -> n0x.control.v1.Scope
+	10,  // 47: n0x.control.v1.ReadActivationRequest.scope:type_name -> n0x.control.v1.Scope
+	5,   // 48: n0x.control.v1.ReadActivationResponse.activation:type_name -> n0x.control.v1.Activation
+	10,  // 49: n0x.control.v1.CommitActivationRequest.scope:type_name -> n0x.control.v1.Scope
+	5,   // 50: n0x.control.v1.CommitActivationResponse.activation:type_name -> n0x.control.v1.Activation
+	10,  // 51: n0x.control.v1.ReadBrokerConfigurationRequest.scope:type_name -> n0x.control.v1.Scope
+	10,  // 52: n0x.control.v1.ReadBrokerScopeRequest.scope:type_name -> n0x.control.v1.Scope
+	4,   // 53: n0x.control.v1.ReadBrokerScopeResponse.state:type_name -> n0x.control.v1.ScopeState
+	10,  // 54: n0x.control.v1.ReadBrokerActivationRequest.scope:type_name -> n0x.control.v1.Scope
+	5,   // 55: n0x.control.v1.ReadBrokerActivationResponse.activation:type_name -> n0x.control.v1.Activation
+	15,  // 56: n0x.control.v1.GetCandidateResponse.candidate:type_name -> n0x.control.v1.OwnerCandidate
+	10,  // 57: n0x.control.v1.ChangeOwnerRequest.scope:type_name -> n0x.control.v1.Scope
+	15,  // 58: n0x.control.v1.ChangeOwnerRequest.candidate:type_name -> n0x.control.v1.OwnerCandidate
+	4,   // 59: n0x.control.v1.ChangeOwnerResponse.state:type_name -> n0x.control.v1.ScopeState
+	10,  // 60: n0x.control.v1.ReadProjectionRequest.scope:type_name -> n0x.control.v1.Scope
+	12,  // 61: n0x.control.v1.ReadProjectionResponse.snapshot:type_name -> n0x.control.v1.ProjectionSnapshot
+	10,  // 62: n0x.control.v1.QueryNodeMetricsRequest.scope:type_name -> n0x.control.v1.Scope
+	122, // 63: n0x.control.v1.QueryNodeMetricsRequest.query:type_name -> n0x.signed.v1.NodeMetricsQuery
+	1,   // 64: n0x.control.v1.QueryNodeMetricsResponse.status:type_name -> n0x.control.v1.NodeQueryStatus
+	36,  // 65: n0x.control.v1.QueryNodeMetricsResponse.documents:type_name -> n0x.control.v1.MetricsDocument
+	0,   // 66: n0x.control.v1.QueryNodeMetricsResponse.error:type_name -> n0x.control.v1.NodeQueryErrorCode
+	10,  // 67: n0x.control.v1.ClaimOwnerRequest.scope:type_name -> n0x.control.v1.Scope
+	4,   // 68: n0x.control.v1.ClaimOwnerResponse.state:type_name -> n0x.control.v1.ScopeState
+	13,  // 69: n0x.control.v1.ClaimableScopesResponse.snapshot:type_name -> n0x.control.v1.ClaimableSnapshot
+	10,  // 70: n0x.control.v1.HandoffRequest.scope:type_name -> n0x.control.v1.Scope
+	4,   // 71: n0x.control.v1.HandoffResponse.state:type_name -> n0x.control.v1.ScopeState
+	14,  // 72: n0x.control.v1.DrainResponse.result:type_name -> n0x.control.v1.DrainResult
+	10,  // 73: n0x.control.v1.GetRouteCandidateRequest.scope:type_name -> n0x.control.v1.Scope
+	10,  // 74: n0x.control.v1.GetRouteCandidateResponse.scope:type_name -> n0x.control.v1.Scope
+	10,  // 75: n0x.control.v1.ReadRouteRequest.scope:type_name -> n0x.control.v1.Scope
+	11,  // 76: n0x.control.v1.ReadRouteResponse.route:type_name -> n0x.control.v1.Route
+	24,  // 77: n0x.control.v1.AdmitRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
+	123, // 78: n0x.control.v1.AdmitResponse.result:type_name -> n0x.connectivity.v1.AdmitResult
+	10,  // 79: n0x.control.v1.LocateScopeRequest.scope:type_name -> n0x.control.v1.Scope
+	10,  // 80: n0x.control.v1.ListAlertRulesRequest.scope:type_name -> n0x.control.v1.Scope
+	124, // 81: n0x.control.v1.ListAlertRulesResponse.rules:type_name -> n0x.alerts.v1.Rule
+	125, // 82: n0x.control.v1.ListAlertRulesResponse.firing:type_name -> n0x.alerts.v1.Alert
+	10,  // 83: n0x.control.v1.RecordAlertTransitionsRequest.scope:type_name -> n0x.control.v1.Scope
+	97,  // 84: n0x.control.v1.RecordAlertTransitionsRequest.transitions:type_name -> n0x.control.v1.AlertTransition
+	24,  // 85: n0x.control.v1.AdmitWorkloadOfferRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
+	126, // 86: n0x.control.v1.AdmitWorkloadOfferRequest.request:type_name -> n0x.connectivity.v1.AdmitWorkloadOfferRequest
+	24,  // 87: n0x.control.v1.RenewWorkloadOfferRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
+	127, // 88: n0x.control.v1.RenewWorkloadOfferRequest.request:type_name -> n0x.connectivity.v1.RenewWorkloadOfferRequest
+	24,  // 89: n0x.control.v1.RegisterWorkloadFromHostRequest.session:type_name -> n0x.control.v1.RenewLeaseRequest
+	128, // 90: n0x.control.v1.RegisterWorkloadFromHostRequest.request:type_name -> n0x.workloads.v1.RegisterWorkloadFromHostRequest
+	10,  // 91: n0x.control.v1.RegisterNodeWorkloadRequest.scope:type_name -> n0x.control.v1.Scope
+	128, // 92: n0x.control.v1.RegisterNodeWorkloadRequest.request:type_name -> n0x.workloads.v1.RegisterWorkloadFromHostRequest
+	129, // 93: n0x.control.v1.RegisterNodeWorkloadResponse.response:type_name -> n0x.workloads.v1.RegisterWorkloadFromHostResponse
+	10,  // 94: n0x.control.v1.ReadFlowEventsRequest.scope:type_name -> n0x.control.v1.Scope
+	29,  // 95: n0x.control.v1.FlowEventEntry.event:type_name -> n0x.control.v1.FlowEvent
+	106, // 96: n0x.control.v1.ReadFlowEventsResponse.entries:type_name -> n0x.control.v1.FlowEventEntry
+	130, // 97: n0x.control.v1.AdmitWorkloadOfferResponse.response:type_name -> n0x.connectivity.v1.AdmitWorkloadOfferResponse
+	131, // 98: n0x.control.v1.RenewWorkloadOfferResponse.response:type_name -> n0x.connectivity.v1.RenewWorkloadOfferResponse
+	129, // 99: n0x.control.v1.RegisterWorkloadFromHostResponse.response:type_name -> n0x.workloads.v1.RegisterWorkloadFromHostResponse
+	2,   // 100: n0x.control.v1.NodeProbeAnswer.verdict:type_name -> n0x.control.v1.NodeProbeVerdict
+	112, // 101: n0x.control.v1.NodeFlowTapAnswer.samples:type_name -> n0x.control.v1.PairFlowSample
+	10,  // 102: n0x.control.v1.QueryNodeProbeRequest.scope:type_name -> n0x.control.v1.Scope
+	132, // 103: n0x.control.v1.QueryNodeProbeRequest.query:type_name -> n0x.signed.v1.NodeProbeQuery
+	1,   // 104: n0x.control.v1.QueryNodeProbeResponse.status:type_name -> n0x.control.v1.NodeQueryStatus
+	111, // 105: n0x.control.v1.QueryNodeProbeResponse.answer:type_name -> n0x.control.v1.NodeProbeAnswer
+	0,   // 106: n0x.control.v1.QueryNodeProbeResponse.error:type_name -> n0x.control.v1.NodeQueryErrorCode
+	10,  // 107: n0x.control.v1.QueryNodeFlowTapRequest.scope:type_name -> n0x.control.v1.Scope
+	133, // 108: n0x.control.v1.QueryNodeFlowTapRequest.query:type_name -> n0x.signed.v1.NodeFlowTapQuery
+	1,   // 109: n0x.control.v1.QueryNodeFlowTapResponse.status:type_name -> n0x.control.v1.NodeQueryStatus
+	113, // 110: n0x.control.v1.QueryNodeFlowTapResponse.answer:type_name -> n0x.control.v1.NodeFlowTapAnswer
+	0,   // 111: n0x.control.v1.QueryNodeFlowTapResponse.error:type_name -> n0x.control.v1.NodeQueryErrorCode
+	37,  // 112: n0x.control.v1.MetricsDocument.GaugesEntry.value:type_name -> n0x.control.v1.GaugeAggregate
+	16,  // 113: n0x.control.v1.NodeControlService.BeginActivation:input_type -> n0x.control.v1.BeginActivationRequest
+	18,  // 114: n0x.control.v1.NodeControlService.ActivateNode:input_type -> n0x.control.v1.ActivateNodeRequest
+	20,  // 115: n0x.control.v1.NodeControlService.RecoverSession:input_type -> n0x.control.v1.RecoverSessionRequest
+	22,  // 116: n0x.control.v1.NodeControlService.GetSnapshot:input_type -> n0x.control.v1.GetSnapshotRequest
+	24,  // 117: n0x.control.v1.NodeControlService.RenewLease:input_type -> n0x.control.v1.RenewLeaseRequest
+	26,  // 118: n0x.control.v1.NodeControlService.ReportState:input_type -> n0x.control.v1.ReportStateRequest
+	34,  // 119: n0x.control.v1.NodeControlService.ReportFlows:input_type -> n0x.control.v1.ReportFlowsRequest
+	102, // 120: n0x.control.v1.NodeControlService.RegisterWorkloadFromHost:input_type -> n0x.control.v1.RegisterWorkloadFromHostRequest
+	39,  // 121: n0x.control.v1.NodeControlService.AnswerNodeQuery:input_type -> n0x.control.v1.AnswerNodeQueryRequest
+	43,  // 122: n0x.control.v1.AuthorityControlService.PublishConfiguration:input_type -> n0x.control.v1.PublishConfigurationRequest
+	45,  // 123: n0x.control.v1.AuthorityControlService.AcquireAuthorityGrant:input_type -> n0x.control.v1.AcquireAuthorityGrantRequest
+	47,  // 124: n0x.control.v1.AuthorityStoreService.CommitRecovery:input_type -> n0x.control.v1.CommitRecoveryRequest
+	49,  // 125: n0x.control.v1.AuthorityStoreService.MarkEmissionDelivered:input_type -> n0x.control.v1.MarkEmissionDeliveredRequest
+	51,  // 126: n0x.control.v1.AuthorityStoreService.ReadEmission:input_type -> n0x.control.v1.ReadEmissionRequest
+	53,  // 127: n0x.control.v1.AuthorityStoreService.CommitEmission:input_type -> n0x.control.v1.CommitEmissionRequest
+	55,  // 128: n0x.control.v1.AuthorityStoreService.CommitAck:input_type -> n0x.control.v1.CommitAckRequest
+	57,  // 129: n0x.control.v1.AuthorityStoreService.ReadScope:input_type -> n0x.control.v1.ReadScopeRequest
+	59,  // 130: n0x.control.v1.AuthorityStoreService.ReadConfiguration:input_type -> n0x.control.v1.ReadConfigurationRequest
+	61,  // 131: n0x.control.v1.AuthorityStoreService.ReadActivation:input_type -> n0x.control.v1.ReadActivationRequest
+	63,  // 132: n0x.control.v1.AuthorityStoreService.CommitActivation:input_type -> n0x.control.v1.CommitActivationRequest
+	65,  // 133: n0x.control.v1.BrokerStoreService.ReadBrokerConfiguration:input_type -> n0x.control.v1.ReadBrokerConfigurationRequest
+	67,  // 134: n0x.control.v1.BrokerStoreService.ReadBrokerScope:input_type -> n0x.control.v1.ReadBrokerScopeRequest
+	69,  // 135: n0x.control.v1.BrokerStoreService.ReadBrokerActivation:input_type -> n0x.control.v1.ReadBrokerActivationRequest
+	71,  // 136: n0x.control.v1.OwnershipCandidateService.GetCandidate:input_type -> n0x.control.v1.GetCandidateRequest
+	73,  // 137: n0x.control.v1.OwnershipAdminService.ChangeOwner:input_type -> n0x.control.v1.ChangeOwnerRequest
+	75,  // 138: n0x.control.v1.ControlObservationsService.ReadProjection:input_type -> n0x.control.v1.ReadProjectionRequest
+	105, // 139: n0x.control.v1.ControlObservationsService.ReadFlowEvents:input_type -> n0x.control.v1.ReadFlowEventsRequest
+	77,  // 140: n0x.control.v1.ControlObservationsService.QueryNodeMetrics:input_type -> n0x.control.v1.QueryNodeMetricsRequest
+	114, // 141: n0x.control.v1.ControlObservationsService.QueryNodeProbe:input_type -> n0x.control.v1.QueryNodeProbeRequest
+	116, // 142: n0x.control.v1.ControlObservationsService.QueryNodeFlowTap:input_type -> n0x.control.v1.QueryNodeFlowTapRequest
+	79,  // 143: n0x.control.v1.OwnershipAutomaticService.ClaimOwner:input_type -> n0x.control.v1.ClaimOwnerRequest
+	81,  // 144: n0x.control.v1.OwnershipAutomaticService.ClaimableScopes:input_type -> n0x.control.v1.ClaimableScopesRequest
+	83,  // 145: n0x.control.v1.OwnershipAutomaticService.Handoff:input_type -> n0x.control.v1.HandoffRequest
+	85,  // 146: n0x.control.v1.ControllerDrainService.Drain:input_type -> n0x.control.v1.DrainRequest
+	87,  // 147: n0x.control.v1.OwnerRouteCandidateService.GetRouteCandidate:input_type -> n0x.control.v1.GetRouteCandidateRequest
+	89,  // 148: n0x.control.v1.OwnerRoutesService.ReadRoute:input_type -> n0x.control.v1.ReadRouteRequest
+	91,  // 149: n0x.control.v1.ConnectivityControlService.Admit:input_type -> n0x.control.v1.AdmitRequest
+	100, // 150: n0x.control.v1.ConnectivityControlService.AdmitWorkloadOffer:input_type -> n0x.control.v1.AdmitWorkloadOfferRequest
+	101, // 151: n0x.control.v1.ConnectivityControlService.RenewWorkloadOffer:input_type -> n0x.control.v1.RenewWorkloadOfferRequest
+	93,  // 152: n0x.control.v1.NodeDiscoveryService.LocateScope:input_type -> n0x.control.v1.LocateScopeRequest
+	95,  // 153: n0x.control.v1.AlertEvaluationService.ListAlertRules:input_type -> n0x.control.v1.ListAlertRulesRequest
+	98,  // 154: n0x.control.v1.AlertEvaluationService.RecordAlertTransitions:input_type -> n0x.control.v1.RecordAlertTransitionsRequest
+	103, // 155: n0x.control.v1.NodeWorkloadRegistrationService.RegisterNodeWorkload:input_type -> n0x.control.v1.RegisterNodeWorkloadRequest
+	17,  // 156: n0x.control.v1.NodeControlService.BeginActivation:output_type -> n0x.control.v1.BeginActivationResponse
+	19,  // 157: n0x.control.v1.NodeControlService.ActivateNode:output_type -> n0x.control.v1.ActivateNodeResponse
+	21,  // 158: n0x.control.v1.NodeControlService.RecoverSession:output_type -> n0x.control.v1.RecoverSessionResponse
+	23,  // 159: n0x.control.v1.NodeControlService.GetSnapshot:output_type -> n0x.control.v1.GetSnapshotResponse
+	25,  // 160: n0x.control.v1.NodeControlService.RenewLease:output_type -> n0x.control.v1.RenewLeaseResponse
+	27,  // 161: n0x.control.v1.NodeControlService.ReportState:output_type -> n0x.control.v1.ReportStateResponse
+	35,  // 162: n0x.control.v1.NodeControlService.ReportFlows:output_type -> n0x.control.v1.ReportFlowsResponse
+	110, // 163: n0x.control.v1.NodeControlService.RegisterWorkloadFromHost:output_type -> n0x.control.v1.RegisterWorkloadFromHostResponse
+	40,  // 164: n0x.control.v1.NodeControlService.AnswerNodeQuery:output_type -> n0x.control.v1.AnswerNodeQueryResponse
+	44,  // 165: n0x.control.v1.AuthorityControlService.PublishConfiguration:output_type -> n0x.control.v1.PublishConfigurationResponse
+	46,  // 166: n0x.control.v1.AuthorityControlService.AcquireAuthorityGrant:output_type -> n0x.control.v1.AcquireAuthorityGrantResponse
+	48,  // 167: n0x.control.v1.AuthorityStoreService.CommitRecovery:output_type -> n0x.control.v1.CommitRecoveryResponse
+	50,  // 168: n0x.control.v1.AuthorityStoreService.MarkEmissionDelivered:output_type -> n0x.control.v1.MarkEmissionDeliveredResponse
+	52,  // 169: n0x.control.v1.AuthorityStoreService.ReadEmission:output_type -> n0x.control.v1.ReadEmissionResponse
+	54,  // 170: n0x.control.v1.AuthorityStoreService.CommitEmission:output_type -> n0x.control.v1.CommitEmissionResponse
+	56,  // 171: n0x.control.v1.AuthorityStoreService.CommitAck:output_type -> n0x.control.v1.CommitAckResponse
+	58,  // 172: n0x.control.v1.AuthorityStoreService.ReadScope:output_type -> n0x.control.v1.ReadScopeResponse
+	60,  // 173: n0x.control.v1.AuthorityStoreService.ReadConfiguration:output_type -> n0x.control.v1.ReadConfigurationResponse
+	62,  // 174: n0x.control.v1.AuthorityStoreService.ReadActivation:output_type -> n0x.control.v1.ReadActivationResponse
+	64,  // 175: n0x.control.v1.AuthorityStoreService.CommitActivation:output_type -> n0x.control.v1.CommitActivationResponse
+	66,  // 176: n0x.control.v1.BrokerStoreService.ReadBrokerConfiguration:output_type -> n0x.control.v1.ReadBrokerConfigurationResponse
+	68,  // 177: n0x.control.v1.BrokerStoreService.ReadBrokerScope:output_type -> n0x.control.v1.ReadBrokerScopeResponse
+	70,  // 178: n0x.control.v1.BrokerStoreService.ReadBrokerActivation:output_type -> n0x.control.v1.ReadBrokerActivationResponse
+	72,  // 179: n0x.control.v1.OwnershipCandidateService.GetCandidate:output_type -> n0x.control.v1.GetCandidateResponse
+	74,  // 180: n0x.control.v1.OwnershipAdminService.ChangeOwner:output_type -> n0x.control.v1.ChangeOwnerResponse
+	76,  // 181: n0x.control.v1.ControlObservationsService.ReadProjection:output_type -> n0x.control.v1.ReadProjectionResponse
+	107, // 182: n0x.control.v1.ControlObservationsService.ReadFlowEvents:output_type -> n0x.control.v1.ReadFlowEventsResponse
+	78,  // 183: n0x.control.v1.ControlObservationsService.QueryNodeMetrics:output_type -> n0x.control.v1.QueryNodeMetricsResponse
+	115, // 184: n0x.control.v1.ControlObservationsService.QueryNodeProbe:output_type -> n0x.control.v1.QueryNodeProbeResponse
+	117, // 185: n0x.control.v1.ControlObservationsService.QueryNodeFlowTap:output_type -> n0x.control.v1.QueryNodeFlowTapResponse
+	80,  // 186: n0x.control.v1.OwnershipAutomaticService.ClaimOwner:output_type -> n0x.control.v1.ClaimOwnerResponse
+	82,  // 187: n0x.control.v1.OwnershipAutomaticService.ClaimableScopes:output_type -> n0x.control.v1.ClaimableScopesResponse
+	84,  // 188: n0x.control.v1.OwnershipAutomaticService.Handoff:output_type -> n0x.control.v1.HandoffResponse
+	86,  // 189: n0x.control.v1.ControllerDrainService.Drain:output_type -> n0x.control.v1.DrainResponse
+	88,  // 190: n0x.control.v1.OwnerRouteCandidateService.GetRouteCandidate:output_type -> n0x.control.v1.GetRouteCandidateResponse
+	90,  // 191: n0x.control.v1.OwnerRoutesService.ReadRoute:output_type -> n0x.control.v1.ReadRouteResponse
+	92,  // 192: n0x.control.v1.ConnectivityControlService.Admit:output_type -> n0x.control.v1.AdmitResponse
+	108, // 193: n0x.control.v1.ConnectivityControlService.AdmitWorkloadOffer:output_type -> n0x.control.v1.AdmitWorkloadOfferResponse
+	109, // 194: n0x.control.v1.ConnectivityControlService.RenewWorkloadOffer:output_type -> n0x.control.v1.RenewWorkloadOfferResponse
+	94,  // 195: n0x.control.v1.NodeDiscoveryService.LocateScope:output_type -> n0x.control.v1.LocateScopeResponse
+	96,  // 196: n0x.control.v1.AlertEvaluationService.ListAlertRules:output_type -> n0x.control.v1.ListAlertRulesResponse
+	99,  // 197: n0x.control.v1.AlertEvaluationService.RecordAlertTransitions:output_type -> n0x.control.v1.RecordAlertTransitionsResponse
+	104, // 198: n0x.control.v1.NodeWorkloadRegistrationService.RegisterNodeWorkload:output_type -> n0x.control.v1.RegisterNodeWorkloadResponse
+	156, // [156:199] is the sub-list for method output_type
+	113, // [113:156] is the sub-list for method input_type
+	113, // [113:113] is the sub-list for extension type_name
+	113, // [113:113] is the sub-list for extension extendee
+	0,   // [0:113] is the sub-list for field type_name
 }
 
 func init() { file_n0x_control_v1_control_proto_init() }
@@ -7942,6 +8559,8 @@ func file_n0x_control_v1_control_proto_init() {
 	file_n0x_control_v1_control_proto_msgTypes[36].OneofWrappers = []any{
 		(*AnswerNodeQueryRequest_Metrics)(nil),
 		(*AnswerNodeQueryRequest_Error)(nil),
+		(*AnswerNodeQueryRequest_Probe)(nil),
+		(*AnswerNodeQueryRequest_FlowTap)(nil),
 	}
 	file_n0x_control_v1_control_proto_msgTypes[100].OneofWrappers = []any{}
 	file_n0x_control_v1_control_proto_msgTypes[102].OneofWrappers = []any{}
@@ -7952,8 +8571,8 @@ func file_n0x_control_v1_control_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_control_v1_control_proto_rawDesc), len(file_n0x_control_v1_control_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   110,
+			NumEnums:      3,
+			NumMessages:   117,
 			NumExtensions: 0,
 			NumServices:   15,
 		},

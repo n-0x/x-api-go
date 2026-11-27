@@ -38,6 +38,8 @@ const (
 	NetworkPolicyService_CreatePolicyTest_FullMethodName      = "/n0x.policy.v1.NetworkPolicyService/CreatePolicyTest"
 	NetworkPolicyService_UpdatePolicyTest_FullMethodName      = "/n0x.policy.v1.NetworkPolicyService/UpdatePolicyTest"
 	NetworkPolicyService_RemovePolicyTest_FullMethodName      = "/n0x.policy.v1.NetworkPolicyService/RemovePolicyTest"
+	NetworkPolicyService_RunConnectivityProbe_FullMethodName  = "/n0x.policy.v1.NetworkPolicyService/RunConnectivityProbe"
+	NetworkPolicyService_WatchPairFlow_FullMethodName         = "/n0x.policy.v1.NetworkPolicyService/WatchPairFlow"
 )
 
 // NetworkPolicyServiceClient is the client API for NetworkPolicyService service.
@@ -69,6 +71,8 @@ type NetworkPolicyServiceClient interface {
 	UpdatePolicyTest(ctx context.Context, in *UpdatePolicyTestRequest, opts ...grpc.CallOption) (*UpdatePolicyTestResponse, error)
 	// Removing a test cannot exempt its active assertion from the gate.
 	RemovePolicyTest(ctx context.Context, in *RemovePolicyTestRequest, opts ...grpc.CallOption) (*RemovePolicyTestResponse, error)
+	RunConnectivityProbe(ctx context.Context, in *RunConnectivityProbeRequest, opts ...grpc.CallOption) (*RunConnectivityProbeResponse, error)
+	WatchPairFlow(ctx context.Context, in *WatchPairFlowRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WatchPairFlowResponse], error)
 }
 
 type networkPolicyServiceClient struct {
@@ -269,6 +273,35 @@ func (c *networkPolicyServiceClient) RemovePolicyTest(ctx context.Context, in *R
 	return out, nil
 }
 
+func (c *networkPolicyServiceClient) RunConnectivityProbe(ctx context.Context, in *RunConnectivityProbeRequest, opts ...grpc.CallOption) (*RunConnectivityProbeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RunConnectivityProbeResponse)
+	err := c.cc.Invoke(ctx, NetworkPolicyService_RunConnectivityProbe_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkPolicyServiceClient) WatchPairFlow(ctx context.Context, in *WatchPairFlowRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WatchPairFlowResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &NetworkPolicyService_ServiceDesc.Streams[0], NetworkPolicyService_WatchPairFlow_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[WatchPairFlowRequest, WatchPairFlowResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type NetworkPolicyService_WatchPairFlowClient = grpc.ServerStreamingClient[WatchPairFlowResponse]
+
 // NetworkPolicyServiceServer is the server API for NetworkPolicyService service.
 // All implementations must embed UnimplementedNetworkPolicyServiceServer
 // for forward compatibility.
@@ -298,6 +331,8 @@ type NetworkPolicyServiceServer interface {
 	UpdatePolicyTest(context.Context, *UpdatePolicyTestRequest) (*UpdatePolicyTestResponse, error)
 	// Removing a test cannot exempt its active assertion from the gate.
 	RemovePolicyTest(context.Context, *RemovePolicyTestRequest) (*RemovePolicyTestResponse, error)
+	RunConnectivityProbe(context.Context, *RunConnectivityProbeRequest) (*RunConnectivityProbeResponse, error)
+	WatchPairFlow(*WatchPairFlowRequest, grpc.ServerStreamingServer[WatchPairFlowResponse]) error
 	mustEmbedUnimplementedNetworkPolicyServiceServer()
 }
 
@@ -364,6 +399,12 @@ func (UnimplementedNetworkPolicyServiceServer) UpdatePolicyTest(context.Context,
 }
 func (UnimplementedNetworkPolicyServiceServer) RemovePolicyTest(context.Context, *RemovePolicyTestRequest) (*RemovePolicyTestResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemovePolicyTest not implemented")
+}
+func (UnimplementedNetworkPolicyServiceServer) RunConnectivityProbe(context.Context, *RunConnectivityProbeRequest) (*RunConnectivityProbeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RunConnectivityProbe not implemented")
+}
+func (UnimplementedNetworkPolicyServiceServer) WatchPairFlow(*WatchPairFlowRequest, grpc.ServerStreamingServer[WatchPairFlowResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method WatchPairFlow not implemented")
 }
 func (UnimplementedNetworkPolicyServiceServer) mustEmbedUnimplementedNetworkPolicyServiceServer() {}
 func (UnimplementedNetworkPolicyServiceServer) testEmbeddedByValue()                              {}
@@ -728,6 +769,35 @@ func _NetworkPolicyService_RemovePolicyTest_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NetworkPolicyService_RunConnectivityProbe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RunConnectivityProbeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkPolicyServiceServer).RunConnectivityProbe(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkPolicyService_RunConnectivityProbe_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkPolicyServiceServer).RunConnectivityProbe(ctx, req.(*RunConnectivityProbeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkPolicyService_WatchPairFlow_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(WatchPairFlowRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(NetworkPolicyServiceServer).WatchPairFlow(m, &grpc.GenericServerStream[WatchPairFlowRequest, WatchPairFlowResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type NetworkPolicyService_WatchPairFlowServer = grpc.ServerStreamingServer[WatchPairFlowResponse]
+
 // NetworkPolicyService_ServiceDesc is the grpc.ServiceDesc for NetworkPolicyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -811,7 +881,17 @@ var NetworkPolicyService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "RemovePolicyTest",
 			Handler:    _NetworkPolicyService_RemovePolicyTest_Handler,
 		},
+		{
+			MethodName: "RunConnectivityProbe",
+			Handler:    _NetworkPolicyService_RunConnectivityProbe_Handler,
+		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "WatchPairFlow",
+			Handler:       _NetworkPolicyService_WatchPairFlow_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "n0x/policy/v1/policy.proto",
 }

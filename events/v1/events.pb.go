@@ -346,9 +346,11 @@ type EventActor struct {
 	// An assignment uses its instance's service-account identity, not runtime SVID.
 	IdentityId string `protobuf:"bytes,2,opt,name=identity_id,json=identityId,proto3" json:"identity_id,omitempty"`
 	// Required with ASSIGNMENT, alongside its service-account identity_id.
-	InstanceId    string `protobuf:"bytes,3,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	InstanceId     string `protobuf:"bytes,3,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	ConversationId string `protobuf:"bytes,4,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	TurnId         string `protobuf:"bytes,5,opt,name=turn_id,json=turnId,proto3" json:"turn_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *EventActor) Reset() {
@@ -398,6 +400,20 @@ func (x *EventActor) GetIdentityId() string {
 func (x *EventActor) GetInstanceId() string {
 	if x != nil {
 		return x.InstanceId
+	}
+	return ""
+}
+
+func (x *EventActor) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
+}
+
+func (x *EventActor) GetTurnId() string {
+	if x != nil {
+		return x.TurnId
 	}
 	return ""
 }
@@ -1299,14 +1315,16 @@ var File_n0x_events_v1_events_proto protoreflect.FileDescriptor
 
 const file_n0x_events_v1_events_proto_rawDesc = "" +
 	"\n" +
-	"\x1an0x/events/v1/events.proto\x12\rn0x.events.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cn0x/catalog/v1/catalog.proto\x1a\"n0x/identities/v1/identities.proto\"\x81\x01\n" +
+	"\x1an0x/events/v1/events.proto\x12\rn0x.events.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cn0x/catalog/v1/catalog.proto\x1a\"n0x/identities/v1/identities.proto\"\xc3\x01\n" +
 	"\n" +
 	"EventActor\x121\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x1d.n0x.events.v1.EventActorTypeR\x04type\x12\x1f\n" +
 	"\videntity_id\x18\x02 \x01(\tR\n" +
 	"identityId\x12\x1f\n" +
 	"\vinstance_id\x18\x03 \x01(\tR\n" +
-	"instanceId\"\xed\x01\n" +
+	"instanceId\x12'\n" +
+	"\x0fconversation_id\x18\x04 \x01(\tR\x0econversationId\x12\x17\n" +
+	"\aturn_id\x18\x05 \x01(\tR\x06turnId\"\xed\x01\n" +
 	"\vEventObject\x122\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x1e.n0x.events.v1.EventObjectTypeR\x04type\x12\x1d\n" +
 	"\tobject_id\x18\x02 \x01(\tH\x00R\bobjectId\x12)\n" +

@@ -4023,7 +4023,7 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\x15IDENTITY_STATE_ACTIVE\x10\x01\x12\x1a\n" +
 	"\x16IDENTITY_STATE_EXPIRED\x10\x02\x12\x1e\n" +
 	"\x1aIDENTITY_STATE_QUARANTINED\x10\x03\x12\x1e\n" +
-	"\x1aIDENTITY_STATE_DEACTIVATED\x10\x042\x98\x1b\n" +
+	"\x1aIDENTITY_STATE_DEACTIVATED\x10\x042\xd2\x1b\n" +
 	"\x11IdentitiesService\x12\xe1\x01\n" +
 	"\x0eListIdentities\x12(.n0x.identities.v1.ListIdentitiesRequest\x1a).n0x.identities.v1.ListIdentitiesResponse\"z\xb2\xe1\x18v\b\x01\x12\biam.read\x1ahList the people, nodes, service accounts and groups of the tenant, optionally filtered by type or state.\x12\xd2\x01\n" +
 	"\vGetIdentity\x12%.n0x.identities.v1.GetIdentityRequest\x1a&.n0x.identities.v1.GetIdentityResponse\"t\xb2\xe1\x18p\b\x01\x12\biam.read\x1abGet the details of one identity: a person, node or service account, with its state and expiration.\x12\xa1\x01\n" +
@@ -4036,8 +4036,8 @@ const file_n0x_identities_v1_identities_proto_rawDesc = "" +
 	"\x0eUpdateIdentity\x12(.n0x.identities.v1.UpdateIdentityRequest\x1a).n0x.identities.v1.UpdateIdentityResponse\"`\xb2\xe1\x18\\\b\x02\x12\tiam.write\x1aMChange the name, description, responsible owner or expiration of an identity.\x12\xcd\x01\n" +
 	"\x11SetIdentityLabels\x12+.n0x.identities.v1.SetIdentityLabelsRequest\x1a,.n0x.identities.v1.SetIdentityLabelsResponse\"]\xb2\xe1\x18Y\b\x02\x12\tiam.write\x1aJReplace the labels of an identity or group and reconcile network policies.\x12\x8d\x01\n" +
 	"\x15SetIdentityProtection\x12/.n0x.identities.v1.SetIdentityProtectionRequest\x1a0.n0x.identities.v1.SetIdentityProtectionResponse\"\x11\xb2\xe1\x18\r\b\x04\x12\tiam.write\x12\xe4\x01\n" +
-	"\x12QuarantineIdentity\x12,.n0x.identities.v1.QuarantineIdentityRequest\x1a-.n0x.identities.v1.QuarantineIdentityResponse\"q\xb2\xe1\x18m\b\x03\x12\x15identities.quarantine\x1aRQuarantine an identity: cut all its access immediately until a person releases it.\x12\xa5\x01\n" +
-	"\x19ReleaseIdentityQuarantine\x123.n0x.identities.v1.ReleaseIdentityQuarantineRequest\x1a4.n0x.identities.v1.ReleaseIdentityQuarantineResponse\"\x1d\xb2\xe1\x18\x19\b\x04\x12\x15identities.quarantine\x12\xdd\x01\n" +
+	"\x12QuarantineIdentity\x12,.n0x.identities.v1.QuarantineIdentityRequest\x1a-.n0x.identities.v1.QuarantineIdentityResponse\"q\xb2\xe1\x18m\b\x03\x12\x15identities.quarantine\x1aRQuarantine an identity: cut all its access immediately until a person releases it.\x12\xdf\x01\n" +
+	"\x19ReleaseIdentityQuarantine\x123.n0x.identities.v1.ReleaseIdentityQuarantineRequest\x1a4.n0x.identities.v1.ReleaseIdentityQuarantineResponse\"W\xb2\xe1\x18S\b\x03\x12\x15identities.quarantine\x1a8Release an identity from active quarantine restrictions.\x12\xdd\x01\n" +
 	"\x12DeactivateIdentity\x12,.n0x.identities.v1.DeactivateIdentityRequest\x1a-.n0x.identities.v1.DeactivateIdentityResponse\"j\xb2\xe1\x18f\b\x02\x12\tiam.write\x1aWDeactivate an identity permanently; it can no longer connect and this cannot be undone.\x12\x99\x01\n" +
 	"\n" +
 	"ListGroups\x12$.n0x.identities.v1.ListGroupsRequest\x1a%.n0x.identities.v1.ListGroupsResponse\">\xb2\xe1\x18:\b\x01\x12\biam.read\x1a,List the groups of identities in the tenant.\x12\x84\x01\n" +

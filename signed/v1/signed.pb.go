@@ -1167,6 +1167,8 @@ type NodeQuery struct {
 	// Types that are valid to be assigned to Body:
 	//
 	//	*NodeQuery_Metrics
+	//	*NodeQuery_Probe
+	//	*NodeQuery_FlowTap
 	Body          isNodeQuery_Body `protobuf_oneof:"body"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1295,6 +1297,24 @@ func (x *NodeQuery) GetMetrics() *NodeMetricsQuery {
 	return nil
 }
 
+func (x *NodeQuery) GetProbe() *NodeProbeQuery {
+	if x != nil {
+		if x, ok := x.Body.(*NodeQuery_Probe); ok {
+			return x.Probe
+		}
+	}
+	return nil
+}
+
+func (x *NodeQuery) GetFlowTap() *NodeFlowTapQuery {
+	if x != nil {
+		if x, ok := x.Body.(*NodeQuery_FlowTap); ok {
+			return x.FlowTap
+		}
+	}
+	return nil
+}
+
 type isNodeQuery_Body interface {
 	isNodeQuery_Body()
 }
@@ -1303,7 +1323,19 @@ type NodeQuery_Metrics struct {
 	Metrics *NodeMetricsQuery `protobuf:"bytes,12,opt,name=metrics,proto3,oneof"`
 }
 
+type NodeQuery_Probe struct {
+	Probe *NodeProbeQuery `protobuf:"bytes,13,opt,name=probe,proto3,oneof"`
+}
+
+type NodeQuery_FlowTap struct {
+	FlowTap *NodeFlowTapQuery `protobuf:"bytes,14,opt,name=flow_tap,json=flowTap,proto3,oneof"`
+}
+
 func (*NodeQuery_Metrics) isNodeQuery_Body() {}
+
+func (*NodeQuery_Probe) isNodeQuery_Body() {}
+
+func (*NodeQuery_FlowTap) isNodeQuery_Body() {}
 
 // Lectura del almacen local de metricas del nodo; no admite otras lecturas.
 // Vive en signed/v1 porque este fichero no importa otros; control/v1 la usa
@@ -1648,6 +1680,150 @@ func (x *FingerprintValue) GetNil() bool {
 	return false
 }
 
+type NodeProbeQuery struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProbeId       string                 `protobuf:"bytes,1,opt,name=probe_id,json=probeId,proto3" json:"probe_id,omitempty"`
+	TargetIp      string                 `protobuf:"bytes,2,opt,name=target_ip,json=targetIp,proto3" json:"target_ip,omitempty"`
+	Protocol      string                 `protobuf:"bytes,3,opt,name=protocol,proto3" json:"protocol,omitempty"`
+	Port          uint32                 `protobuf:"varint,4,opt,name=port,proto3" json:"port,omitempty"`
+	TimeoutMs     uint32                 `protobuf:"varint,5,opt,name=timeout_ms,json=timeoutMs,proto3" json:"timeout_ms,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NodeProbeQuery) Reset() {
+	*x = NodeProbeQuery{}
+	mi := &file_n0x_signed_v1_signed_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodeProbeQuery) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeProbeQuery) ProtoMessage() {}
+
+func (x *NodeProbeQuery) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_signed_v1_signed_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeProbeQuery.ProtoReflect.Descriptor instead.
+func (*NodeProbeQuery) Descriptor() ([]byte, []int) {
+	return file_n0x_signed_v1_signed_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *NodeProbeQuery) GetProbeId() string {
+	if x != nil {
+		return x.ProbeId
+	}
+	return ""
+}
+
+func (x *NodeProbeQuery) GetTargetIp() string {
+	if x != nil {
+		return x.TargetIp
+	}
+	return ""
+}
+
+func (x *NodeProbeQuery) GetProtocol() string {
+	if x != nil {
+		return x.Protocol
+	}
+	return ""
+}
+
+func (x *NodeProbeQuery) GetPort() uint32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *NodeProbeQuery) GetTimeoutMs() uint32 {
+	if x != nil {
+		return x.TimeoutMs
+	}
+	return 0
+}
+
+type NodeFlowTapQuery struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	PeerIdentityId string                 `protobuf:"bytes,1,opt,name=peer_identity_id,json=peerIdentityId,proto3" json:"peer_identity_id,omitempty"`
+	WorkloadId     string                 `protobuf:"bytes,2,opt,name=workload_id,json=workloadId,proto3" json:"workload_id,omitempty"`
+	SinceUnixMs    int64                  `protobuf:"varint,3,opt,name=since_unix_ms,json=sinceUnixMs,proto3" json:"since_unix_ms,omitempty"`
+	Limit          uint32                 `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *NodeFlowTapQuery) Reset() {
+	*x = NodeFlowTapQuery{}
+	mi := &file_n0x_signed_v1_signed_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodeFlowTapQuery) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeFlowTapQuery) ProtoMessage() {}
+
+func (x *NodeFlowTapQuery) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_signed_v1_signed_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeFlowTapQuery.ProtoReflect.Descriptor instead.
+func (*NodeFlowTapQuery) Descriptor() ([]byte, []int) {
+	return file_n0x_signed_v1_signed_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *NodeFlowTapQuery) GetPeerIdentityId() string {
+	if x != nil {
+		return x.PeerIdentityId
+	}
+	return ""
+}
+
+func (x *NodeFlowTapQuery) GetWorkloadId() string {
+	if x != nil {
+		return x.WorkloadId
+	}
+	return ""
+}
+
+func (x *NodeFlowTapQuery) GetSinceUnixMs() int64 {
+	if x != nil {
+		return x.SinceUnixMs
+	}
+	return 0
+}
+
+func (x *NodeFlowTapQuery) GetLimit() uint32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
 var File_n0x_signed_v1_signed_proto protoreflect.FileDescriptor
 
 const file_n0x_signed_v1_signed_proto_rawDesc = "" +
@@ -1773,7 +1949,7 @@ const file_n0x_signed_v1_signed_proto_rawDesc = "" +
 	"\n" +
 	"not_before\x18\x10 \x01(\x03R\tnotBefore\x12\x1d\n" +
 	"\n" +
-	"expires_at\x18\x11 \x01(\x03R\texpiresAt\"\xd1\x03\n" +
+	"expires_at\x18\x11 \x01(\x03R\texpiresAt\"\xc6\x04\n" +
 	"\tNodeQuery\x12%\n" +
 	"\x0eschema_version\x18\x01 \x01(\x05R\rschemaVersion\x12*\n" +
 	"\x05scope\x18\x02 \x01(\v2\x14.n0x.signed.v1.ScopeR\x05scope\x12%\n" +
@@ -1790,7 +1966,9 @@ const file_n0x_signed_v1_signed_proto_rawDesc = "" +
 	" \x01(\x03R\tnotBefore\x12\x1d\n" +
 	"\n" +
 	"expires_at\x18\v \x01(\x03R\texpiresAt\x12;\n" +
-	"\ametrics\x18\f \x01(\v2\x1f.n0x.signed.v1.NodeMetricsQueryH\x00R\ametricsB\x06\n" +
+	"\ametrics\x18\f \x01(\v2\x1f.n0x.signed.v1.NodeMetricsQueryH\x00R\ametrics\x125\n" +
+	"\x05probe\x18\r \x01(\v2\x1d.n0x.signed.v1.NodeProbeQueryH\x00R\x05probe\x12<\n" +
+	"\bflow_tap\x18\x0e \x01(\v2\x1f.n0x.signed.v1.NodeFlowTapQueryH\x00R\aflowTapB\x06\n" +
 	"\x04body\"~\n" +
 	"\x10NodeMetricsQuery\x12\x1f\n" +
 	"\vworkload_id\x18\x01 \x01(\tR\n" +
@@ -1832,7 +2010,20 @@ const file_n0x_signed_v1_signed_proto_rawDesc = "" +
 	"\x03nil\x18\x06 \x01(\bR\x03nil\x1aZ\n" +
 	"\vFieldsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x125\n" +
-	"\x05value\x18\x02 \x01(\v2\x1f.n0x.signed.v1.FingerprintValueR\x05value:\x028\x01B-Z+github.com/n-0x/x-api-go/signed/v1;signedv1b\x06proto3"
+	"\x05value\x18\x02 \x01(\v2\x1f.n0x.signed.v1.FingerprintValueR\x05value:\x028\x01\"\x97\x01\n" +
+	"\x0eNodeProbeQuery\x12\x19\n" +
+	"\bprobe_id\x18\x01 \x01(\tR\aprobeId\x12\x1b\n" +
+	"\ttarget_ip\x18\x02 \x01(\tR\btargetIp\x12\x1a\n" +
+	"\bprotocol\x18\x03 \x01(\tR\bprotocol\x12\x12\n" +
+	"\x04port\x18\x04 \x01(\rR\x04port\x12\x1d\n" +
+	"\n" +
+	"timeout_ms\x18\x05 \x01(\rR\ttimeoutMs\"\x97\x01\n" +
+	"\x10NodeFlowTapQuery\x12(\n" +
+	"\x10peer_identity_id\x18\x01 \x01(\tR\x0epeerIdentityId\x12\x1f\n" +
+	"\vworkload_id\x18\x02 \x01(\tR\n" +
+	"workloadId\x12\"\n" +
+	"\rsince_unix_ms\x18\x03 \x01(\x03R\vsinceUnixMs\x12\x14\n" +
+	"\x05limit\x18\x04 \x01(\rR\x05limitB-Z+github.com/n-0x/x-api-go/signed/v1;signedv1b\x06proto3"
 
 var (
 	file_n0x_signed_v1_signed_proto_rawDescOnce sync.Once
@@ -1846,7 +2037,7 @@ func file_n0x_signed_v1_signed_proto_rawDescGZIP() []byte {
 	return file_n0x_signed_v1_signed_proto_rawDescData
 }
 
-var file_n0x_signed_v1_signed_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_n0x_signed_v1_signed_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_n0x_signed_v1_signed_proto_goTypes = []any{
 	(*Scope)(nil),               // 0: n0x.signed.v1.Scope
 	(*Member)(nil),              // 1: n0x.signed.v1.Member
@@ -1863,7 +2054,9 @@ var file_n0x_signed_v1_signed_proto_goTypes = []any{
 	(*NodeMetricsQuery)(nil),    // 12: n0x.signed.v1.NodeMetricsQuery
 	(*NodeReport)(nil),          // 13: n0x.signed.v1.NodeReport
 	(*FingerprintValue)(nil),    // 14: n0x.signed.v1.FingerprintValue
-	nil,                         // 15: n0x.signed.v1.FingerprintValue.FieldsEntry
+	(*NodeProbeQuery)(nil),      // 15: n0x.signed.v1.NodeProbeQuery
+	(*NodeFlowTapQuery)(nil),    // 16: n0x.signed.v1.NodeFlowTapQuery
+	nil,                         // 17: n0x.signed.v1.FingerprintValue.FieldsEntry
 }
 var file_n0x_signed_v1_signed_proto_depIdxs = []int32{
 	0,  // 0: n0x.signed.v1.ConfigDocument.scope:type_name -> n0x.signed.v1.Scope
@@ -1880,15 +2073,17 @@ var file_n0x_signed_v1_signed_proto_depIdxs = []int32{
 	6,  // 11: n0x.signed.v1.NodeLease.request_binding:type_name -> n0x.signed.v1.RequestBinding
 	0,  // 12: n0x.signed.v1.NodeQuery.scope:type_name -> n0x.signed.v1.Scope
 	12, // 13: n0x.signed.v1.NodeQuery.metrics:type_name -> n0x.signed.v1.NodeMetricsQuery
-	0,  // 14: n0x.signed.v1.NodeReport.scope:type_name -> n0x.signed.v1.Scope
-	15, // 15: n0x.signed.v1.FingerprintValue.fields:type_name -> n0x.signed.v1.FingerprintValue.FieldsEntry
-	14, // 16: n0x.signed.v1.FingerprintValue.items:type_name -> n0x.signed.v1.FingerprintValue
-	14, // 17: n0x.signed.v1.FingerprintValue.FieldsEntry.value:type_name -> n0x.signed.v1.FingerprintValue
-	18, // [18:18] is the sub-list for method output_type
-	18, // [18:18] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	15, // 14: n0x.signed.v1.NodeQuery.probe:type_name -> n0x.signed.v1.NodeProbeQuery
+	16, // 15: n0x.signed.v1.NodeQuery.flow_tap:type_name -> n0x.signed.v1.NodeFlowTapQuery
+	0,  // 16: n0x.signed.v1.NodeReport.scope:type_name -> n0x.signed.v1.Scope
+	17, // 17: n0x.signed.v1.FingerprintValue.fields:type_name -> n0x.signed.v1.FingerprintValue.FieldsEntry
+	14, // 18: n0x.signed.v1.FingerprintValue.items:type_name -> n0x.signed.v1.FingerprintValue
+	14, // 19: n0x.signed.v1.FingerprintValue.FieldsEntry.value:type_name -> n0x.signed.v1.FingerprintValue
+	20, // [20:20] is the sub-list for method output_type
+	20, // [20:20] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_n0x_signed_v1_signed_proto_init() }
@@ -1898,6 +2093,8 @@ func file_n0x_signed_v1_signed_proto_init() {
 	}
 	file_n0x_signed_v1_signed_proto_msgTypes[11].OneofWrappers = []any{
 		(*NodeQuery_Metrics)(nil),
+		(*NodeQuery_Probe)(nil),
+		(*NodeQuery_FlowTap)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1905,7 +2102,7 @@ func file_n0x_signed_v1_signed_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_signed_v1_signed_proto_rawDesc), len(file_n0x_signed_v1_signed_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

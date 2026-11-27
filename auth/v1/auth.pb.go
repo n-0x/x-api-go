@@ -705,10 +705,11 @@ type DelegatedActor struct {
 	// admite metodos con (n0x.catalog.v1.operation).kind = OPERATION_KIND_READ
 	// en servicios expuestos; cualquier otro, incluido uno sin la opcion,
 	// devuelve PermissionDenied aunque el techo de permisos lo cubra.
-	ConversationId string `protobuf:"bytes,4,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
-	TurnId         string `protobuf:"bytes,5,opt,name=turn_id,json=turnId,proto3" json:"turn_id,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	ConversationId  string `protobuf:"bytes,4,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	TurnId          string `protobuf:"bytes,5,opt,name=turn_id,json=turnId,proto3" json:"turn_id,omitempty"`
+	AutonomyGrantId string `protobuf:"bytes,6,opt,name=autonomy_grant_id,json=autonomyGrantId,proto3" json:"autonomy_grant_id,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *DelegatedActor) Reset() {
@@ -772,6 +773,13 @@ func (x *DelegatedActor) GetConversationId() string {
 func (x *DelegatedActor) GetTurnId() string {
 	if x != nil {
 		return x.TurnId
+	}
+	return ""
+}
+
+func (x *DelegatedActor) GetAutonomyGrantId() string {
+	if x != nil {
+		return x.AutonomyGrantId
 	}
 	return ""
 }
@@ -2637,14 +2645,15 @@ const file_n0x_auth_v1_auth_proto_rawDesc = "" +
 	"\vpermissions\x18\x0f \x03(\tR\vpermissions\x121\n" +
 	"\x05scope\x18\x10 \x01(\v2\x1b.n0x.auth.v1.DelegatedScopeR\x05scope\x12\x1d\n" +
 	"\n" +
-	"parent_jti\x18\x11 \x01(\tR\tparentJti\"\x9c\x01\n" +
+	"parent_jti\x18\x11 \x01(\tR\tparentJti\"\xc8\x01\n" +
 	"\x0eDelegatedActor\x12\x12\n" +
 	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x1d\n" +
 	"\n" +
 	"routine_id\x18\x02 \x01(\tR\troutineId\x12\x15\n" +
 	"\x06run_id\x18\x03 \x01(\tR\x05runId\x12'\n" +
 	"\x0fconversation_id\x18\x04 \x01(\tR\x0econversationId\x12\x17\n" +
-	"\aturn_id\x18\x05 \x01(\tR\x06turnId\"V\n" +
+	"\aturn_id\x18\x05 \x01(\tR\x06turnId\x12*\n" +
+	"\x11autonomy_grant_id\x18\x06 \x01(\tR\x0fautonomyGrantId\"V\n" +
 	"\x0eDelegatedScope\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12'\n" +
 	"\x0fincarnation_ids\x18\x02 \x03(\tR\x0eincarnationIds\"n\n" +

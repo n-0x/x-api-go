@@ -3481,6 +3481,194 @@ func (x *RenewAssignmentInstanceTokenResponse) GetExpiresAt() *timestamppb.Times
 	return nil
 }
 
+type AutonomyGrantRecord struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	GrantId        string                 `protobuf:"bytes,1,opt,name=grant_id,json=grantId,proto3" json:"grant_id,omitempty"`
+	AccountId      string                 `protobuf:"bytes,2,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	TenantId       string                 `protobuf:"bytes,3,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	UserId         string                 `protobuf:"bytes,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ConversationId string                 `protobuf:"bytes,5,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	Active         bool                   `protobuf:"varint,6,opt,name=active,proto3" json:"active,omitempty"`
+	ExpiresAt      *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	RevokedAt      *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=revoked_at,json=revokedAt,proto3" json:"revoked_at,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *AutonomyGrantRecord) Reset() {
+	*x = AutonomyGrantRecord{}
+	mi := &file_n0x_internal_v1_internal_proto_msgTypes[58]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AutonomyGrantRecord) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AutonomyGrantRecord) ProtoMessage() {}
+
+func (x *AutonomyGrantRecord) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_internal_v1_internal_proto_msgTypes[58]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AutonomyGrantRecord.ProtoReflect.Descriptor instead.
+func (*AutonomyGrantRecord) Descriptor() ([]byte, []int) {
+	return file_n0x_internal_v1_internal_proto_rawDescGZIP(), []int{58}
+}
+
+func (x *AutonomyGrantRecord) GetGrantId() string {
+	if x != nil {
+		return x.GrantId
+	}
+	return ""
+}
+
+func (x *AutonomyGrantRecord) GetAccountId() string {
+	if x != nil {
+		return x.AccountId
+	}
+	return ""
+}
+
+func (x *AutonomyGrantRecord) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *AutonomyGrantRecord) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *AutonomyGrantRecord) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
+}
+
+func (x *AutonomyGrantRecord) GetActive() bool {
+	if x != nil {
+		return x.Active
+	}
+	return false
+}
+
+func (x *AutonomyGrantRecord) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+func (x *AutonomyGrantRecord) GetRevokedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.RevokedAt
+	}
+	return nil
+}
+
+type SyncAutonomyGrantRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Grant         *AutonomyGrantRecord   `protobuf:"bytes,1,opt,name=grant,proto3" json:"grant,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SyncAutonomyGrantRequest) Reset() {
+	*x = SyncAutonomyGrantRequest{}
+	mi := &file_n0x_internal_v1_internal_proto_msgTypes[59]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SyncAutonomyGrantRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SyncAutonomyGrantRequest) ProtoMessage() {}
+
+func (x *SyncAutonomyGrantRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_internal_v1_internal_proto_msgTypes[59]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SyncAutonomyGrantRequest.ProtoReflect.Descriptor instead.
+func (*SyncAutonomyGrantRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_internal_v1_internal_proto_rawDescGZIP(), []int{59}
+}
+
+func (x *SyncAutonomyGrantRequest) GetGrant() *AutonomyGrantRecord {
+	if x != nil {
+		return x.Grant
+	}
+	return nil
+}
+
+type SyncAutonomyGrantResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Grant         *AutonomyGrantRecord   `protobuf:"bytes,1,opt,name=grant,proto3" json:"grant,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SyncAutonomyGrantResponse) Reset() {
+	*x = SyncAutonomyGrantResponse{}
+	mi := &file_n0x_internal_v1_internal_proto_msgTypes[60]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SyncAutonomyGrantResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SyncAutonomyGrantResponse) ProtoMessage() {}
+
+func (x *SyncAutonomyGrantResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_internal_v1_internal_proto_msgTypes[60]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SyncAutonomyGrantResponse.ProtoReflect.Descriptor instead.
+func (*SyncAutonomyGrantResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_internal_v1_internal_proto_rawDescGZIP(), []int{60}
+}
+
+func (x *SyncAutonomyGrantResponse) GetGrant() *AutonomyGrantRecord {
+	if x != nil {
+		return x.Grant
+	}
+	return nil
+}
+
 var File_n0x_internal_v1_internal_proto protoreflect.FileDescriptor
 
 const file_n0x_internal_v1_internal_proto_rawDesc = "" +
@@ -3767,18 +3955,35 @@ const file_n0x_internal_v1_internal_proto_rawDesc = "" +
 	"\x05token\x18\x01 \x01(\tH\x00R\x05token\x88\x01\x01\x129\n" +
 	"\n" +
 	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAtB\b\n" +
-	"\x06_token*\xb5\x01\n" +
+	"\x06_token\"\xbc\x02\n" +
+	"\x13AutonomyGrantRecord\x12\x19\n" +
+	"\bgrant_id\x18\x01 \x01(\tR\agrantId\x12\x1d\n" +
+	"\n" +
+	"account_id\x18\x02 \x01(\tR\taccountId\x12\x1b\n" +
+	"\ttenant_id\x18\x03 \x01(\tR\btenantId\x12\x17\n" +
+	"\auser_id\x18\x04 \x01(\tR\x06userId\x12'\n" +
+	"\x0fconversation_id\x18\x05 \x01(\tR\x0econversationId\x12\x16\n" +
+	"\x06active\x18\x06 \x01(\bR\x06active\x129\n" +
+	"\n" +
+	"expires_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x129\n" +
+	"\n" +
+	"revoked_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\trevokedAt\"V\n" +
+	"\x18SyncAutonomyGrantRequest\x12:\n" +
+	"\x05grant\x18\x01 \x01(\v2$.n0x.internal.v1.AutonomyGrantRecordR\x05grant\"W\n" +
+	"\x19SyncAutonomyGrantResponse\x12:\n" +
+	"\x05grant\x18\x01 \x01(\v2$.n0x.internal.v1.AutonomyGrantRecordR\x05grant*\xb5\x01\n" +
 	"\x1dServiceAccountBootstrapSource\x120\n" +
 	",SERVICE_ACCOUNT_BOOTSTRAP_SOURCE_UNSPECIFIED\x10\x00\x124\n" +
 	"0SERVICE_ACCOUNT_BOOTSTRAP_SOURCE_IDENTITY_SECRET\x10\x01\x12,\n" +
-	"(SERVICE_ACCOUNT_BOOTSTRAP_SOURCE_API_KEY\x10\x022\xe7\x04\n" +
+	"(SERVICE_ACCOUNT_BOOTSTRAP_SOURCE_API_KEY\x10\x022\xd3\x05\n" +
 	"\x10AuthorityService\x12p\n" +
 	"\x13BootstrapMembership\x12+.n0x.internal.v1.BootstrapMembershipRequest\x1a,.n0x.internal.v1.BootstrapMembershipResponse\x12g\n" +
 	"\x10UpdateMembership\x12(.n0x.internal.v1.UpdateMembershipRequest\x1a).n0x.internal.v1.UpdateMembershipResponse\x12a\n" +
 	"\x0eGetAccessState\x12&.n0x.internal.v1.GetAccessStateRequest\x1a'.n0x.internal.v1.GetAccessStateResponse\x12[\n" +
 	"\fListBindings\x12$.n0x.internal.v1.ListBindingsRequest\x1a%.n0x.internal.v1.ListBindingsResponse\x12O\n" +
 	"\bActivate\x12 .n0x.internal.v1.ActivateRequest\x1a!.n0x.internal.v1.ActivateResponse\x12g\n" +
-	"\x10UpdateCommercial\x12(.n0x.internal.v1.UpdateCommercialRequest\x1a).n0x.internal.v1.UpdateCommercialResponse2\xb3\x02\n" +
+	"\x10UpdateCommercial\x12(.n0x.internal.v1.UpdateCommercialRequest\x1a).n0x.internal.v1.UpdateCommercialResponse\x12j\n" +
+	"\x11SyncAutonomyGrant\x12).n0x.internal.v1.SyncAutonomyGrantRequest\x1a*.n0x.internal.v1.SyncAutonomyGrantResponse2\xb3\x02\n" +
 	"\x0eCatalogService\x12s\n" +
 	"\x14ConnectivityServices\x12,.n0x.internal.v1.ConnectivityServicesRequest\x1a-.n0x.internal.v1.ConnectivityServicesResponse\x12R\n" +
 	"\tLocations\x12!.n0x.internal.v1.LocationsRequest\x1a\".n0x.internal.v1.LocationsResponse\x12X\n" +
@@ -3810,7 +4015,7 @@ func file_n0x_internal_v1_internal_proto_rawDescGZIP() []byte {
 }
 
 var file_n0x_internal_v1_internal_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_n0x_internal_v1_internal_proto_msgTypes = make([]protoimpl.MessageInfo, 58)
+var file_n0x_internal_v1_internal_proto_msgTypes = make([]protoimpl.MessageInfo, 61)
 var file_n0x_internal_v1_internal_proto_goTypes = []any{
 	(ServiceAccountBootstrapSource)(0),           // 0: n0x.internal.v1.ServiceAccountBootstrapSource
 	(*Restrictions)(nil),                         // 1: n0x.internal.v1.Restrictions
@@ -3871,26 +4076,29 @@ var file_n0x_internal_v1_internal_proto_goTypes = []any{
 	(*ClaimAssignmentRunResponse)(nil),           // 56: n0x.internal.v1.ClaimAssignmentRunResponse
 	(*RenewAssignmentInstanceTokenRequest)(nil),  // 57: n0x.internal.v1.RenewAssignmentInstanceTokenRequest
 	(*RenewAssignmentInstanceTokenResponse)(nil), // 58: n0x.internal.v1.RenewAssignmentInstanceTokenResponse
-	(*v1.Binding)(nil),                           // 59: n0x.auth.v1.Binding
-	(*v1.Scope)(nil),                             // 60: n0x.auth.v1.Scope
-	(*timestamppb.Timestamp)(nil),                // 61: google.protobuf.Timestamp
+	(*AutonomyGrantRecord)(nil),                  // 59: n0x.internal.v1.AutonomyGrantRecord
+	(*SyncAutonomyGrantRequest)(nil),             // 60: n0x.internal.v1.SyncAutonomyGrantRequest
+	(*SyncAutonomyGrantResponse)(nil),            // 61: n0x.internal.v1.SyncAutonomyGrantResponse
+	(*v1.Binding)(nil),                           // 62: n0x.auth.v1.Binding
+	(*v1.Scope)(nil),                             // 63: n0x.auth.v1.Scope
+	(*timestamppb.Timestamp)(nil),                // 64: google.protobuf.Timestamp
 }
 var file_n0x_internal_v1_internal_proto_depIdxs = []int32{
-	59, // 0: n0x.internal.v1.BindingRecord.binding:type_name -> n0x.auth.v1.Binding
-	60, // 1: n0x.internal.v1.BindingRecord.scopes:type_name -> n0x.auth.v1.Scope
+	62, // 0: n0x.internal.v1.BindingRecord.binding:type_name -> n0x.auth.v1.Binding
+	63, // 1: n0x.internal.v1.BindingRecord.scopes:type_name -> n0x.auth.v1.Scope
 	1,  // 2: n0x.internal.v1.BindingRecord.restrictions:type_name -> n0x.internal.v1.Restrictions
-	59, // 3: n0x.internal.v1.AccessState.binding:type_name -> n0x.auth.v1.Binding
-	60, // 4: n0x.internal.v1.AccessState.scopes:type_name -> n0x.auth.v1.Scope
+	62, // 3: n0x.internal.v1.AccessState.binding:type_name -> n0x.auth.v1.Binding
+	63, // 4: n0x.internal.v1.AccessState.scopes:type_name -> n0x.auth.v1.Scope
 	1,  // 5: n0x.internal.v1.AccessState.restrictions:type_name -> n0x.internal.v1.Restrictions
 	3,  // 6: n0x.internal.v1.AccessState.trust:type_name -> n0x.internal.v1.TrustStatus
-	59, // 7: n0x.internal.v1.MembershipUpdate.binding:type_name -> n0x.auth.v1.Binding
-	59, // 8: n0x.internal.v1.MembershipSnapshot.binding:type_name -> n0x.auth.v1.Binding
+	62, // 7: n0x.internal.v1.MembershipUpdate.binding:type_name -> n0x.auth.v1.Binding
+	62, // 8: n0x.internal.v1.MembershipSnapshot.binding:type_name -> n0x.auth.v1.Binding
 	5,  // 9: n0x.internal.v1.MembershipSnapshot.members:type_name -> n0x.internal.v1.MembershipUpdate
-	59, // 10: n0x.internal.v1.CommercialUpdate.binding:type_name -> n0x.auth.v1.Binding
+	62, // 10: n0x.internal.v1.CommercialUpdate.binding:type_name -> n0x.auth.v1.Binding
 	1,  // 11: n0x.internal.v1.CommercialUpdate.restrictions:type_name -> n0x.internal.v1.Restrictions
 	6,  // 12: n0x.internal.v1.BootstrapMembershipRequest.snapshot:type_name -> n0x.internal.v1.MembershipSnapshot
 	5,  // 13: n0x.internal.v1.UpdateMembershipRequest.update:type_name -> n0x.internal.v1.MembershipUpdate
-	59, // 14: n0x.internal.v1.GetAccessStateRequest.binding:type_name -> n0x.auth.v1.Binding
+	62, // 14: n0x.internal.v1.GetAccessStateRequest.binding:type_name -> n0x.auth.v1.Binding
 	4,  // 15: n0x.internal.v1.GetAccessStateResponse.state:type_name -> n0x.internal.v1.AccessState
 	2,  // 16: n0x.internal.v1.ListBindingsResponse.bindings:type_name -> n0x.internal.v1.BindingRecord
 	2,  // 17: n0x.internal.v1.ActivateRequest.binding:type_name -> n0x.internal.v1.BindingRecord
@@ -3919,56 +4127,62 @@ var file_n0x_internal_v1_internal_proto_depIdxs = []int32{
 	32, // 40: n0x.internal.v1.ObserveRequest.node:type_name -> n0x.internal.v1.NodeSpec
 	34, // 41: n0x.internal.v1.ObserveRequest.resources:type_name -> n0x.internal.v1.Resources
 	35, // 42: n0x.internal.v1.ObserveResponse.observation:type_name -> n0x.internal.v1.Observation
-	59, // 43: n0x.internal.v1.CommercialDeliveryKey.binding:type_name -> n0x.auth.v1.Binding
+	62, // 43: n0x.internal.v1.CommercialDeliveryKey.binding:type_name -> n0x.auth.v1.Binding
 	0,  // 44: n0x.internal.v1.ServiceAccountSpec.bootstrap_source:type_name -> n0x.internal.v1.ServiceAccountBootstrapSource
 	52, // 45: n0x.internal.v1.IssueServiceAccountSVIDRequest.spec:type_name -> n0x.internal.v1.ServiceAccountSpec
-	61, // 46: n0x.internal.v1.IssueServiceAccountSVIDResponse.expires_at:type_name -> google.protobuf.Timestamp
-	61, // 47: n0x.internal.v1.IssueServiceAccountSVIDResponse.renew_after:type_name -> google.protobuf.Timestamp
-	61, // 48: n0x.internal.v1.ClaimAssignmentRunResponse.expires_at:type_name -> google.protobuf.Timestamp
-	61, // 49: n0x.internal.v1.RenewAssignmentInstanceTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
-	8,  // 50: n0x.internal.v1.AuthorityService.BootstrapMembership:input_type -> n0x.internal.v1.BootstrapMembershipRequest
-	10, // 51: n0x.internal.v1.AuthorityService.UpdateMembership:input_type -> n0x.internal.v1.UpdateMembershipRequest
-	12, // 52: n0x.internal.v1.AuthorityService.GetAccessState:input_type -> n0x.internal.v1.GetAccessStateRequest
-	14, // 53: n0x.internal.v1.AuthorityService.ListBindings:input_type -> n0x.internal.v1.ListBindingsRequest
-	16, // 54: n0x.internal.v1.AuthorityService.Activate:input_type -> n0x.internal.v1.ActivateRequest
-	18, // 55: n0x.internal.v1.AuthorityService.UpdateCommercial:input_type -> n0x.internal.v1.UpdateCommercialRequest
-	24, // 56: n0x.internal.v1.CatalogService.ConnectivityServices:input_type -> n0x.internal.v1.ConnectivityServicesRequest
-	26, // 57: n0x.internal.v1.CatalogService.Locations:input_type -> n0x.internal.v1.LocationsRequest
-	28, // 58: n0x.internal.v1.CatalogService.Federations:input_type -> n0x.internal.v1.FederationsRequest
-	30, // 59: n0x.internal.v1.PasswordService.SetPassword:input_type -> n0x.internal.v1.SetPasswordRequest
-	38, // 60: n0x.internal.v1.ProvisionService.Reserve:input_type -> n0x.internal.v1.ReserveRequest
-	40, // 61: n0x.internal.v1.ProvisionService.EnrollmentStatus:input_type -> n0x.internal.v1.EnrollmentStatusRequest
-	42, // 62: n0x.internal.v1.ProvisionService.EnrollmentBootstrap:input_type -> n0x.internal.v1.EnrollmentBootstrapRequest
-	44, // 63: n0x.internal.v1.ProvisionService.Prepare:input_type -> n0x.internal.v1.PrepareRequest
-	46, // 64: n0x.internal.v1.ProvisionService.Apply:input_type -> n0x.internal.v1.ApplyRequest
-	48, // 65: n0x.internal.v1.ProvisionService.Observe:input_type -> n0x.internal.v1.ObserveRequest
-	53, // 66: n0x.internal.v1.ProvisionService.IssueServiceAccountSVID:input_type -> n0x.internal.v1.IssueServiceAccountSVIDRequest
-	55, // 67: n0x.internal.v1.AssignmentsRuntimeService.ClaimAssignmentRun:input_type -> n0x.internal.v1.ClaimAssignmentRunRequest
-	57, // 68: n0x.internal.v1.AssignmentsRuntimeService.RenewAssignmentInstanceToken:input_type -> n0x.internal.v1.RenewAssignmentInstanceTokenRequest
-	9,  // 69: n0x.internal.v1.AuthorityService.BootstrapMembership:output_type -> n0x.internal.v1.BootstrapMembershipResponse
-	11, // 70: n0x.internal.v1.AuthorityService.UpdateMembership:output_type -> n0x.internal.v1.UpdateMembershipResponse
-	13, // 71: n0x.internal.v1.AuthorityService.GetAccessState:output_type -> n0x.internal.v1.GetAccessStateResponse
-	15, // 72: n0x.internal.v1.AuthorityService.ListBindings:output_type -> n0x.internal.v1.ListBindingsResponse
-	17, // 73: n0x.internal.v1.AuthorityService.Activate:output_type -> n0x.internal.v1.ActivateResponse
-	19, // 74: n0x.internal.v1.AuthorityService.UpdateCommercial:output_type -> n0x.internal.v1.UpdateCommercialResponse
-	25, // 75: n0x.internal.v1.CatalogService.ConnectivityServices:output_type -> n0x.internal.v1.ConnectivityServicesResponse
-	27, // 76: n0x.internal.v1.CatalogService.Locations:output_type -> n0x.internal.v1.LocationsResponse
-	29, // 77: n0x.internal.v1.CatalogService.Federations:output_type -> n0x.internal.v1.FederationsResponse
-	31, // 78: n0x.internal.v1.PasswordService.SetPassword:output_type -> n0x.internal.v1.SetPasswordResponse
-	39, // 79: n0x.internal.v1.ProvisionService.Reserve:output_type -> n0x.internal.v1.ReserveResponse
-	41, // 80: n0x.internal.v1.ProvisionService.EnrollmentStatus:output_type -> n0x.internal.v1.EnrollmentStatusResponse
-	43, // 81: n0x.internal.v1.ProvisionService.EnrollmentBootstrap:output_type -> n0x.internal.v1.EnrollmentBootstrapResponse
-	45, // 82: n0x.internal.v1.ProvisionService.Prepare:output_type -> n0x.internal.v1.PrepareResponse
-	47, // 83: n0x.internal.v1.ProvisionService.Apply:output_type -> n0x.internal.v1.ApplyResponse
-	49, // 84: n0x.internal.v1.ProvisionService.Observe:output_type -> n0x.internal.v1.ObserveResponse
-	54, // 85: n0x.internal.v1.ProvisionService.IssueServiceAccountSVID:output_type -> n0x.internal.v1.IssueServiceAccountSVIDResponse
-	56, // 86: n0x.internal.v1.AssignmentsRuntimeService.ClaimAssignmentRun:output_type -> n0x.internal.v1.ClaimAssignmentRunResponse
-	58, // 87: n0x.internal.v1.AssignmentsRuntimeService.RenewAssignmentInstanceToken:output_type -> n0x.internal.v1.RenewAssignmentInstanceTokenResponse
-	69, // [69:88] is the sub-list for method output_type
-	50, // [50:69] is the sub-list for method input_type
-	50, // [50:50] is the sub-list for extension type_name
-	50, // [50:50] is the sub-list for extension extendee
-	0,  // [0:50] is the sub-list for field type_name
+	64, // 46: n0x.internal.v1.IssueServiceAccountSVIDResponse.expires_at:type_name -> google.protobuf.Timestamp
+	64, // 47: n0x.internal.v1.IssueServiceAccountSVIDResponse.renew_after:type_name -> google.protobuf.Timestamp
+	64, // 48: n0x.internal.v1.ClaimAssignmentRunResponse.expires_at:type_name -> google.protobuf.Timestamp
+	64, // 49: n0x.internal.v1.RenewAssignmentInstanceTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
+	64, // 50: n0x.internal.v1.AutonomyGrantRecord.expires_at:type_name -> google.protobuf.Timestamp
+	64, // 51: n0x.internal.v1.AutonomyGrantRecord.revoked_at:type_name -> google.protobuf.Timestamp
+	59, // 52: n0x.internal.v1.SyncAutonomyGrantRequest.grant:type_name -> n0x.internal.v1.AutonomyGrantRecord
+	59, // 53: n0x.internal.v1.SyncAutonomyGrantResponse.grant:type_name -> n0x.internal.v1.AutonomyGrantRecord
+	8,  // 54: n0x.internal.v1.AuthorityService.BootstrapMembership:input_type -> n0x.internal.v1.BootstrapMembershipRequest
+	10, // 55: n0x.internal.v1.AuthorityService.UpdateMembership:input_type -> n0x.internal.v1.UpdateMembershipRequest
+	12, // 56: n0x.internal.v1.AuthorityService.GetAccessState:input_type -> n0x.internal.v1.GetAccessStateRequest
+	14, // 57: n0x.internal.v1.AuthorityService.ListBindings:input_type -> n0x.internal.v1.ListBindingsRequest
+	16, // 58: n0x.internal.v1.AuthorityService.Activate:input_type -> n0x.internal.v1.ActivateRequest
+	18, // 59: n0x.internal.v1.AuthorityService.UpdateCommercial:input_type -> n0x.internal.v1.UpdateCommercialRequest
+	60, // 60: n0x.internal.v1.AuthorityService.SyncAutonomyGrant:input_type -> n0x.internal.v1.SyncAutonomyGrantRequest
+	24, // 61: n0x.internal.v1.CatalogService.ConnectivityServices:input_type -> n0x.internal.v1.ConnectivityServicesRequest
+	26, // 62: n0x.internal.v1.CatalogService.Locations:input_type -> n0x.internal.v1.LocationsRequest
+	28, // 63: n0x.internal.v1.CatalogService.Federations:input_type -> n0x.internal.v1.FederationsRequest
+	30, // 64: n0x.internal.v1.PasswordService.SetPassword:input_type -> n0x.internal.v1.SetPasswordRequest
+	38, // 65: n0x.internal.v1.ProvisionService.Reserve:input_type -> n0x.internal.v1.ReserveRequest
+	40, // 66: n0x.internal.v1.ProvisionService.EnrollmentStatus:input_type -> n0x.internal.v1.EnrollmentStatusRequest
+	42, // 67: n0x.internal.v1.ProvisionService.EnrollmentBootstrap:input_type -> n0x.internal.v1.EnrollmentBootstrapRequest
+	44, // 68: n0x.internal.v1.ProvisionService.Prepare:input_type -> n0x.internal.v1.PrepareRequest
+	46, // 69: n0x.internal.v1.ProvisionService.Apply:input_type -> n0x.internal.v1.ApplyRequest
+	48, // 70: n0x.internal.v1.ProvisionService.Observe:input_type -> n0x.internal.v1.ObserveRequest
+	53, // 71: n0x.internal.v1.ProvisionService.IssueServiceAccountSVID:input_type -> n0x.internal.v1.IssueServiceAccountSVIDRequest
+	55, // 72: n0x.internal.v1.AssignmentsRuntimeService.ClaimAssignmentRun:input_type -> n0x.internal.v1.ClaimAssignmentRunRequest
+	57, // 73: n0x.internal.v1.AssignmentsRuntimeService.RenewAssignmentInstanceToken:input_type -> n0x.internal.v1.RenewAssignmentInstanceTokenRequest
+	9,  // 74: n0x.internal.v1.AuthorityService.BootstrapMembership:output_type -> n0x.internal.v1.BootstrapMembershipResponse
+	11, // 75: n0x.internal.v1.AuthorityService.UpdateMembership:output_type -> n0x.internal.v1.UpdateMembershipResponse
+	13, // 76: n0x.internal.v1.AuthorityService.GetAccessState:output_type -> n0x.internal.v1.GetAccessStateResponse
+	15, // 77: n0x.internal.v1.AuthorityService.ListBindings:output_type -> n0x.internal.v1.ListBindingsResponse
+	17, // 78: n0x.internal.v1.AuthorityService.Activate:output_type -> n0x.internal.v1.ActivateResponse
+	19, // 79: n0x.internal.v1.AuthorityService.UpdateCommercial:output_type -> n0x.internal.v1.UpdateCommercialResponse
+	61, // 80: n0x.internal.v1.AuthorityService.SyncAutonomyGrant:output_type -> n0x.internal.v1.SyncAutonomyGrantResponse
+	25, // 81: n0x.internal.v1.CatalogService.ConnectivityServices:output_type -> n0x.internal.v1.ConnectivityServicesResponse
+	27, // 82: n0x.internal.v1.CatalogService.Locations:output_type -> n0x.internal.v1.LocationsResponse
+	29, // 83: n0x.internal.v1.CatalogService.Federations:output_type -> n0x.internal.v1.FederationsResponse
+	31, // 84: n0x.internal.v1.PasswordService.SetPassword:output_type -> n0x.internal.v1.SetPasswordResponse
+	39, // 85: n0x.internal.v1.ProvisionService.Reserve:output_type -> n0x.internal.v1.ReserveResponse
+	41, // 86: n0x.internal.v1.ProvisionService.EnrollmentStatus:output_type -> n0x.internal.v1.EnrollmentStatusResponse
+	43, // 87: n0x.internal.v1.ProvisionService.EnrollmentBootstrap:output_type -> n0x.internal.v1.EnrollmentBootstrapResponse
+	45, // 88: n0x.internal.v1.ProvisionService.Prepare:output_type -> n0x.internal.v1.PrepareResponse
+	47, // 89: n0x.internal.v1.ProvisionService.Apply:output_type -> n0x.internal.v1.ApplyResponse
+	49, // 90: n0x.internal.v1.ProvisionService.Observe:output_type -> n0x.internal.v1.ObserveResponse
+	54, // 91: n0x.internal.v1.ProvisionService.IssueServiceAccountSVID:output_type -> n0x.internal.v1.IssueServiceAccountSVIDResponse
+	56, // 92: n0x.internal.v1.AssignmentsRuntimeService.ClaimAssignmentRun:output_type -> n0x.internal.v1.ClaimAssignmentRunResponse
+	58, // 93: n0x.internal.v1.AssignmentsRuntimeService.RenewAssignmentInstanceToken:output_type -> n0x.internal.v1.RenewAssignmentInstanceTokenResponse
+	74, // [74:94] is the sub-list for method output_type
+	54, // [54:74] is the sub-list for method input_type
+	54, // [54:54] is the sub-list for extension type_name
+	54, // [54:54] is the sub-list for extension extendee
+	0,  // [0:54] is the sub-list for field type_name
 }
 
 func init() { file_n0x_internal_v1_internal_proto_init() }
@@ -3988,7 +4202,7 @@ func file_n0x_internal_v1_internal_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_internal_v1_internal_proto_rawDesc), len(file_n0x_internal_v1_internal_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   58,
+			NumMessages:   61,
 			NumExtensions: 0,
 			NumServices:   5,
 		},

@@ -867,6 +867,110 @@ func (SynthesisConflictCode) EnumDescriptor() ([]byte, []int) {
 	return file_n0x_policy_v1_policy_proto_rawDescGZIP(), []int{14}
 }
 
+type ConnectivityProbeVerdict int32
+
+const (
+	ConnectivityProbeVerdict_CONNECTIVITY_PROBE_VERDICT_UNSPECIFIED  ConnectivityProbeVerdict = 0
+	ConnectivityProbeVerdict_CONNECTIVITY_PROBE_VERDICT_REACHABLE    ConnectivityProbeVerdict = 1
+	ConnectivityProbeVerdict_CONNECTIVITY_PROBE_VERDICT_BLOCKED      ConnectivityProbeVerdict = 2
+	ConnectivityProbeVerdict_CONNECTIVITY_PROBE_VERDICT_INCONCLUSIVE ConnectivityProbeVerdict = 3
+)
+
+// Enum value maps for ConnectivityProbeVerdict.
+var (
+	ConnectivityProbeVerdict_name = map[int32]string{
+		0: "CONNECTIVITY_PROBE_VERDICT_UNSPECIFIED",
+		1: "CONNECTIVITY_PROBE_VERDICT_REACHABLE",
+		2: "CONNECTIVITY_PROBE_VERDICT_BLOCKED",
+		3: "CONNECTIVITY_PROBE_VERDICT_INCONCLUSIVE",
+	}
+	ConnectivityProbeVerdict_value = map[string]int32{
+		"CONNECTIVITY_PROBE_VERDICT_UNSPECIFIED":  0,
+		"CONNECTIVITY_PROBE_VERDICT_REACHABLE":    1,
+		"CONNECTIVITY_PROBE_VERDICT_BLOCKED":      2,
+		"CONNECTIVITY_PROBE_VERDICT_INCONCLUSIVE": 3,
+	}
+)
+
+func (x ConnectivityProbeVerdict) Enum() *ConnectivityProbeVerdict {
+	p := new(ConnectivityProbeVerdict)
+	*p = x
+	return p
+}
+
+func (x ConnectivityProbeVerdict) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ConnectivityProbeVerdict) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_policy_v1_policy_proto_enumTypes[15].Descriptor()
+}
+
+func (ConnectivityProbeVerdict) Type() protoreflect.EnumType {
+	return &file_n0x_policy_v1_policy_proto_enumTypes[15]
+}
+
+func (x ConnectivityProbeVerdict) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ConnectivityProbeVerdict.Descriptor instead.
+func (ConnectivityProbeVerdict) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_policy_v1_policy_proto_rawDescGZIP(), []int{15}
+}
+
+type PairFlowVerdict int32
+
+const (
+	PairFlowVerdict_PAIR_FLOW_VERDICT_UNSPECIFIED         PairFlowVerdict = 0
+	PairFlowVerdict_PAIR_FLOW_VERDICT_ALLOWED             PairFlowVerdict = 1
+	PairFlowVerdict_PAIR_FLOW_VERDICT_DENIED              PairFlowVerdict = 2
+	PairFlowVerdict_PAIR_FLOW_VERDICT_NO_BASELINE_TRAFFIC PairFlowVerdict = 3
+)
+
+// Enum value maps for PairFlowVerdict.
+var (
+	PairFlowVerdict_name = map[int32]string{
+		0: "PAIR_FLOW_VERDICT_UNSPECIFIED",
+		1: "PAIR_FLOW_VERDICT_ALLOWED",
+		2: "PAIR_FLOW_VERDICT_DENIED",
+		3: "PAIR_FLOW_VERDICT_NO_BASELINE_TRAFFIC",
+	}
+	PairFlowVerdict_value = map[string]int32{
+		"PAIR_FLOW_VERDICT_UNSPECIFIED":         0,
+		"PAIR_FLOW_VERDICT_ALLOWED":             1,
+		"PAIR_FLOW_VERDICT_DENIED":              2,
+		"PAIR_FLOW_VERDICT_NO_BASELINE_TRAFFIC": 3,
+	}
+)
+
+func (x PairFlowVerdict) Enum() *PairFlowVerdict {
+	p := new(PairFlowVerdict)
+	*p = x
+	return p
+}
+
+func (x PairFlowVerdict) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PairFlowVerdict) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_policy_v1_policy_proto_enumTypes[16].Descriptor()
+}
+
+func (PairFlowVerdict) Type() protoreflect.EnumType {
+	return &file_n0x_policy_v1_policy_proto_enumTypes[16]
+}
+
+func (x PairFlowVerdict) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PairFlowVerdict.Descriptor instead.
+func (PairFlowVerdict) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_policy_v1_policy_proto_rawDescGZIP(), []int{16}
+}
+
 type PortRange struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Start         uint32                 `protobuf:"varint,1,opt,name=start,proto3" json:"start,omitempty"`
@@ -1811,6 +1915,9 @@ type RevisionOrigin struct {
 	RunId            string                 `protobuf:"bytes,2,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
 	StepId           string                 `protobuf:"bytes,3,opt,name=step_id,json=stepId,proto3" json:"step_id,omitempty"`
 	RecommendationId string                 `protobuf:"bytes,4,opt,name=recommendation_id,json=recommendationId,proto3" json:"recommendation_id,omitempty"`
+	ConversationId   string                 `protobuf:"bytes,5,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	TurnId           string                 `protobuf:"bytes,6,opt,name=turn_id,json=turnId,proto3" json:"turn_id,omitempty"`
+	AutonomyGrantId  string                 `protobuf:"bytes,7,opt,name=autonomy_grant_id,json=autonomyGrantId,proto3" json:"autonomy_grant_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -1869,6 +1976,27 @@ func (x *RevisionOrigin) GetStepId() string {
 func (x *RevisionOrigin) GetRecommendationId() string {
 	if x != nil {
 		return x.RecommendationId
+	}
+	return ""
+}
+
+func (x *RevisionOrigin) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
+}
+
+func (x *RevisionOrigin) GetTurnId() string {
+	if x != nil {
+		return x.TurnId
+	}
+	return ""
+}
+
+func (x *RevisionOrigin) GetAutonomyGrantId() string {
+	if x != nil {
+		return x.AutonomyGrantId
 	}
 	return ""
 }
@@ -6275,6 +6403,450 @@ func (x *RemovePolicyTestResponse) GetRevisionNumber() uint64 {
 	return 0
 }
 
+type RunConnectivityProbeRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	AccountId        string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	TenantId         string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	SourceIdentityId string                 `protobuf:"bytes,3,opt,name=source_identity_id,json=sourceIdentityId,proto3" json:"source_identity_id,omitempty"`
+	TargetIdentityId string                 `protobuf:"bytes,4,opt,name=target_identity_id,json=targetIdentityId,proto3" json:"target_identity_id,omitempty"`
+	Protocol         NetworkProtocol        `protobuf:"varint,5,opt,name=protocol,proto3,enum=n0x.policy.v1.NetworkProtocol" json:"protocol,omitempty"`
+	Port             uint32                 `protobuf:"varint,6,opt,name=port,proto3" json:"port,omitempty"`
+	TimeoutMs        uint32                 `protobuf:"varint,7,opt,name=timeout_ms,json=timeoutMs,proto3" json:"timeout_ms,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *RunConnectivityProbeRequest) Reset() {
+	*x = RunConnectivityProbeRequest{}
+	mi := &file_n0x_policy_v1_policy_proto_msgTypes[73]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunConnectivityProbeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunConnectivityProbeRequest) ProtoMessage() {}
+
+func (x *RunConnectivityProbeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_policy_v1_policy_proto_msgTypes[73]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunConnectivityProbeRequest.ProtoReflect.Descriptor instead.
+func (*RunConnectivityProbeRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_policy_v1_policy_proto_rawDescGZIP(), []int{73}
+}
+
+func (x *RunConnectivityProbeRequest) GetAccountId() string {
+	if x != nil {
+		return x.AccountId
+	}
+	return ""
+}
+
+func (x *RunConnectivityProbeRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *RunConnectivityProbeRequest) GetSourceIdentityId() string {
+	if x != nil {
+		return x.SourceIdentityId
+	}
+	return ""
+}
+
+func (x *RunConnectivityProbeRequest) GetTargetIdentityId() string {
+	if x != nil {
+		return x.TargetIdentityId
+	}
+	return ""
+}
+
+func (x *RunConnectivityProbeRequest) GetProtocol() NetworkProtocol {
+	if x != nil {
+		return x.Protocol
+	}
+	return NetworkProtocol_NETWORK_PROTOCOL_UNSPECIFIED
+}
+
+func (x *RunConnectivityProbeRequest) GetPort() uint32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *RunConnectivityProbeRequest) GetTimeoutMs() uint32 {
+	if x != nil {
+		return x.TimeoutMs
+	}
+	return 0
+}
+
+type RunConnectivityProbeResponse struct {
+	state             protoimpl.MessageState   `protogen:"open.v1"`
+	ProbeId           string                   `protobuf:"bytes,1,opt,name=probe_id,json=probeId,proto3" json:"probe_id,omitempty"`
+	Verdict           ConnectivityProbeVerdict `protobuf:"varint,2,opt,name=verdict,proto3,enum=n0x.policy.v1.ConnectivityProbeVerdict" json:"verdict,omitempty"`
+	RttMs             uint32                   `protobuf:"varint,3,opt,name=rtt_ms,json=rttMs,proto3" json:"rtt_ms,omitempty"`
+	DenialEventId     string                   `protobuf:"bytes,4,opt,name=denial_event_id,json=denialEventId,proto3" json:"denial_event_id,omitempty"`
+	EnforcementPoints []*EnforcementPoint      `protobuf:"bytes,5,rep,name=enforcement_points,json=enforcementPoints,proto3" json:"enforcement_points,omitempty"`
+	CompletedAt       *timestamppb.Timestamp   `protobuf:"bytes,6,opt,name=completed_at,json=completedAt,proto3" json:"completed_at,omitempty"`
+	Detail            string                   `protobuf:"bytes,7,opt,name=detail,proto3" json:"detail,omitempty"`
+	AppliedRevision   string                   `protobuf:"bytes,8,opt,name=applied_revision,json=appliedRevision,proto3" json:"applied_revision,omitempty"`
+	FirewallReason    string                   `protobuf:"bytes,9,opt,name=firewall_reason,json=firewallReason,proto3" json:"firewall_reason,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *RunConnectivityProbeResponse) Reset() {
+	*x = RunConnectivityProbeResponse{}
+	mi := &file_n0x_policy_v1_policy_proto_msgTypes[74]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunConnectivityProbeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunConnectivityProbeResponse) ProtoMessage() {}
+
+func (x *RunConnectivityProbeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_policy_v1_policy_proto_msgTypes[74]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunConnectivityProbeResponse.ProtoReflect.Descriptor instead.
+func (*RunConnectivityProbeResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_policy_v1_policy_proto_rawDescGZIP(), []int{74}
+}
+
+func (x *RunConnectivityProbeResponse) GetProbeId() string {
+	if x != nil {
+		return x.ProbeId
+	}
+	return ""
+}
+
+func (x *RunConnectivityProbeResponse) GetVerdict() ConnectivityProbeVerdict {
+	if x != nil {
+		return x.Verdict
+	}
+	return ConnectivityProbeVerdict_CONNECTIVITY_PROBE_VERDICT_UNSPECIFIED
+}
+
+func (x *RunConnectivityProbeResponse) GetRttMs() uint32 {
+	if x != nil {
+		return x.RttMs
+	}
+	return 0
+}
+
+func (x *RunConnectivityProbeResponse) GetDenialEventId() string {
+	if x != nil {
+		return x.DenialEventId
+	}
+	return ""
+}
+
+func (x *RunConnectivityProbeResponse) GetEnforcementPoints() []*EnforcementPoint {
+	if x != nil {
+		return x.EnforcementPoints
+	}
+	return nil
+}
+
+func (x *RunConnectivityProbeResponse) GetCompletedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CompletedAt
+	}
+	return nil
+}
+
+func (x *RunConnectivityProbeResponse) GetDetail() string {
+	if x != nil {
+		return x.Detail
+	}
+	return ""
+}
+
+func (x *RunConnectivityProbeResponse) GetAppliedRevision() string {
+	if x != nil {
+		return x.AppliedRevision
+	}
+	return ""
+}
+
+func (x *RunConnectivityProbeResponse) GetFirewallReason() string {
+	if x != nil {
+		return x.FirewallReason
+	}
+	return ""
+}
+
+type WatchPairFlowRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	AccountId        string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	TenantId         string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	SourceIdentityId string                 `protobuf:"bytes,3,opt,name=source_identity_id,json=sourceIdentityId,proto3" json:"source_identity_id,omitempty"`
+	TargetIdentityId string                 `protobuf:"bytes,4,opt,name=target_identity_id,json=targetIdentityId,proto3" json:"target_identity_id,omitempty"`
+	Protocol         NetworkProtocol        `protobuf:"varint,5,opt,name=protocol,proto3,enum=n0x.policy.v1.NetworkProtocol" json:"protocol,omitempty"`
+	Port             uint32                 `protobuf:"varint,6,opt,name=port,proto3" json:"port,omitempty"`
+	Cursor           string                 `protobuf:"bytes,7,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	TtlSeconds       uint32                 `protobuf:"varint,8,opt,name=ttl_seconds,json=ttlSeconds,proto3" json:"ttl_seconds,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *WatchPairFlowRequest) Reset() {
+	*x = WatchPairFlowRequest{}
+	mi := &file_n0x_policy_v1_policy_proto_msgTypes[75]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WatchPairFlowRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WatchPairFlowRequest) ProtoMessage() {}
+
+func (x *WatchPairFlowRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_policy_v1_policy_proto_msgTypes[75]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WatchPairFlowRequest.ProtoReflect.Descriptor instead.
+func (*WatchPairFlowRequest) Descriptor() ([]byte, []int) {
+	return file_n0x_policy_v1_policy_proto_rawDescGZIP(), []int{75}
+}
+
+func (x *WatchPairFlowRequest) GetAccountId() string {
+	if x != nil {
+		return x.AccountId
+	}
+	return ""
+}
+
+func (x *WatchPairFlowRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *WatchPairFlowRequest) GetSourceIdentityId() string {
+	if x != nil {
+		return x.SourceIdentityId
+	}
+	return ""
+}
+
+func (x *WatchPairFlowRequest) GetTargetIdentityId() string {
+	if x != nil {
+		return x.TargetIdentityId
+	}
+	return ""
+}
+
+func (x *WatchPairFlowRequest) GetProtocol() NetworkProtocol {
+	if x != nil {
+		return x.Protocol
+	}
+	return NetworkProtocol_NETWORK_PROTOCOL_UNSPECIFIED
+}
+
+func (x *WatchPairFlowRequest) GetPort() uint32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *WatchPairFlowRequest) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
+func (x *WatchPairFlowRequest) GetTtlSeconds() uint32 {
+	if x != nil {
+		return x.TtlSeconds
+	}
+	return 0
+}
+
+type LivePairFlowSample struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	ObservedAt        *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=observed_at,json=observedAt,proto3" json:"observed_at,omitempty"`
+	AllowedPackets    uint64                 `protobuf:"varint,2,opt,name=allowed_packets,json=allowedPackets,proto3" json:"allowed_packets,omitempty"`
+	DeniedPackets     uint64                 `protobuf:"varint,3,opt,name=denied_packets,json=deniedPackets,proto3" json:"denied_packets,omitempty"`
+	Bytes             uint64                 `protobuf:"varint,4,opt,name=bytes,proto3" json:"bytes,omitempty"`
+	Verdict           PairFlowVerdict        `protobuf:"varint,5,opt,name=verdict,proto3,enum=n0x.policy.v1.PairFlowVerdict" json:"verdict,omitempty"`
+	CorrelatedEventId string                 `protobuf:"bytes,6,opt,name=correlated_event_id,json=correlatedEventId,proto3" json:"correlated_event_id,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *LivePairFlowSample) Reset() {
+	*x = LivePairFlowSample{}
+	mi := &file_n0x_policy_v1_policy_proto_msgTypes[76]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LivePairFlowSample) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LivePairFlowSample) ProtoMessage() {}
+
+func (x *LivePairFlowSample) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_policy_v1_policy_proto_msgTypes[76]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LivePairFlowSample.ProtoReflect.Descriptor instead.
+func (*LivePairFlowSample) Descriptor() ([]byte, []int) {
+	return file_n0x_policy_v1_policy_proto_rawDescGZIP(), []int{76}
+}
+
+func (x *LivePairFlowSample) GetObservedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ObservedAt
+	}
+	return nil
+}
+
+func (x *LivePairFlowSample) GetAllowedPackets() uint64 {
+	if x != nil {
+		return x.AllowedPackets
+	}
+	return 0
+}
+
+func (x *LivePairFlowSample) GetDeniedPackets() uint64 {
+	if x != nil {
+		return x.DeniedPackets
+	}
+	return 0
+}
+
+func (x *LivePairFlowSample) GetBytes() uint64 {
+	if x != nil {
+		return x.Bytes
+	}
+	return 0
+}
+
+func (x *LivePairFlowSample) GetVerdict() PairFlowVerdict {
+	if x != nil {
+		return x.Verdict
+	}
+	return PairFlowVerdict_PAIR_FLOW_VERDICT_UNSPECIFIED
+}
+
+func (x *LivePairFlowSample) GetCorrelatedEventId() string {
+	if x != nil {
+		return x.CorrelatedEventId
+	}
+	return ""
+}
+
+type WatchPairFlowResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Samples       []*LivePairFlowSample  `protobuf:"bytes,1,rep,name=samples,proto3" json:"samples,omitempty"`
+	Cursor        string                 `protobuf:"bytes,2,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	CheckpointAt  *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=checkpoint_at,json=checkpointAt,proto3" json:"checkpoint_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WatchPairFlowResponse) Reset() {
+	*x = WatchPairFlowResponse{}
+	mi := &file_n0x_policy_v1_policy_proto_msgTypes[77]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WatchPairFlowResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WatchPairFlowResponse) ProtoMessage() {}
+
+func (x *WatchPairFlowResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_policy_v1_policy_proto_msgTypes[77]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WatchPairFlowResponse.ProtoReflect.Descriptor instead.
+func (*WatchPairFlowResponse) Descriptor() ([]byte, []int) {
+	return file_n0x_policy_v1_policy_proto_rawDescGZIP(), []int{77}
+}
+
+func (x *WatchPairFlowResponse) GetSamples() []*LivePairFlowSample {
+	if x != nil {
+		return x.Samples
+	}
+	return nil
+}
+
+func (x *WatchPairFlowResponse) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
+func (x *WatchPairFlowResponse) GetCheckpointAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CheckpointAt
+	}
+	return nil
+}
+
 var File_n0x_policy_v1_policy_proto protoreflect.FileDescriptor
 
 const file_n0x_policy_v1_policy_proto_rawDesc = "" +
@@ -6368,13 +6940,16 @@ const file_n0x_policy_v1_policy_proto_rawDesc = "" +
 	"\x0eRevisionAuthor\x12\x1f\n" +
 	"\videntity_id\x18\x01 \x01(\tR\n" +
 	"identityId\x125\n" +
-	"\x04kind\x18\x02 \x01(\x0e2!.n0x.policy.v1.RevisionAuthorKindR\x04kind\"\x8e\x01\n" +
+	"\x04kind\x18\x02 \x01(\x0e2!.n0x.policy.v1.RevisionAuthorKindR\x04kind\"\xfc\x01\n" +
 	"\x0eRevisionOrigin\x12\x1f\n" +
 	"\vinstance_id\x18\x01 \x01(\tR\n" +
 	"instanceId\x12\x15\n" +
 	"\x06run_id\x18\x02 \x01(\tR\x05runId\x12\x17\n" +
 	"\astep_id\x18\x03 \x01(\tR\x06stepId\x12+\n" +
-	"\x11recommendation_id\x18\x04 \x01(\tR\x10recommendationId\"\xea\x03\n" +
+	"\x11recommendation_id\x18\x04 \x01(\tR\x10recommendationId\x12'\n" +
+	"\x0fconversation_id\x18\x05 \x01(\tR\x0econversationId\x12\x17\n" +
+	"\aturn_id\x18\x06 \x01(\tR\x06turnId\x12*\n" +
+	"\x11autonomy_grant_id\x18\a \x01(\tR\x0fautonomyGrantId\"\xea\x03\n" +
 	"\x0eRevisionChange\x12\x1b\n" +
 	"\tchange_id\x18\x01 \x01(\tR\bchangeId\x12B\n" +
 	"\vobject_type\x18\x02 \x01(\x0e2!.n0x.policy.v1.RevisionObjectTypeR\n" +
@@ -6780,7 +7355,50 @@ const file_n0x_policy_v1_policy_proto_rawDesc = "" +
 	"\x06origin\x18\b \x01(\v2\x1d.n0x.policy.v1.RevisionOriginR\x06originB\x18\n" +
 	"\x16_draft_revision_number\"C\n" +
 	"\x18RemovePolicyTestResponse\x12'\n" +
-	"\x0frevision_number\x18\x01 \x01(\x04R\x0erevisionNumber*^\n" +
+	"\x0frevision_number\x18\x01 \x01(\x04R\x0erevisionNumber\"\xa4\x02\n" +
+	"\x1bRunConnectivityProbeRequest\x12\x1d\n" +
+	"\n" +
+	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
+	"\ttenant_id\x18\x02 \x01(\tR\btenantId\x12,\n" +
+	"\x12source_identity_id\x18\x03 \x01(\tR\x10sourceIdentityId\x12,\n" +
+	"\x12target_identity_id\x18\x04 \x01(\tR\x10targetIdentityId\x12:\n" +
+	"\bprotocol\x18\x05 \x01(\x0e2\x1e.n0x.policy.v1.NetworkProtocolR\bprotocol\x12\x12\n" +
+	"\x04port\x18\x06 \x01(\rR\x04port\x12\x1d\n" +
+	"\n" +
+	"timeout_ms\x18\a \x01(\rR\ttimeoutMs\"\xb6\x03\n" +
+	"\x1cRunConnectivityProbeResponse\x12\x19\n" +
+	"\bprobe_id\x18\x01 \x01(\tR\aprobeId\x12A\n" +
+	"\averdict\x18\x02 \x01(\x0e2'.n0x.policy.v1.ConnectivityProbeVerdictR\averdict\x12\x15\n" +
+	"\x06rtt_ms\x18\x03 \x01(\rR\x05rttMs\x12&\n" +
+	"\x0fdenial_event_id\x18\x04 \x01(\tR\rdenialEventId\x12N\n" +
+	"\x12enforcement_points\x18\x05 \x03(\v2\x1f.n0x.policy.v1.EnforcementPointR\x11enforcementPoints\x12=\n" +
+	"\fcompleted_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\vcompletedAt\x12\x16\n" +
+	"\x06detail\x18\a \x01(\tR\x06detail\x12)\n" +
+	"\x10applied_revision\x18\b \x01(\tR\x0fappliedRevision\x12'\n" +
+	"\x0ffirewall_reason\x18\t \x01(\tR\x0efirewallReason\"\xb7\x02\n" +
+	"\x14WatchPairFlowRequest\x12\x1d\n" +
+	"\n" +
+	"account_id\x18\x01 \x01(\tR\taccountId\x12\x1b\n" +
+	"\ttenant_id\x18\x02 \x01(\tR\btenantId\x12,\n" +
+	"\x12source_identity_id\x18\x03 \x01(\tR\x10sourceIdentityId\x12,\n" +
+	"\x12target_identity_id\x18\x04 \x01(\tR\x10targetIdentityId\x12:\n" +
+	"\bprotocol\x18\x05 \x01(\x0e2\x1e.n0x.policy.v1.NetworkProtocolR\bprotocol\x12\x12\n" +
+	"\x04port\x18\x06 \x01(\rR\x04port\x12\x16\n" +
+	"\x06cursor\x18\a \x01(\tR\x06cursor\x12\x1f\n" +
+	"\vttl_seconds\x18\b \x01(\rR\n" +
+	"ttlSeconds\"\xa1\x02\n" +
+	"\x12LivePairFlowSample\x12;\n" +
+	"\vobserved_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"observedAt\x12'\n" +
+	"\x0fallowed_packets\x18\x02 \x01(\x04R\x0eallowedPackets\x12%\n" +
+	"\x0edenied_packets\x18\x03 \x01(\x04R\rdeniedPackets\x12\x14\n" +
+	"\x05bytes\x18\x04 \x01(\x04R\x05bytes\x128\n" +
+	"\averdict\x18\x05 \x01(\x0e2\x1e.n0x.policy.v1.PairFlowVerdictR\averdict\x12.\n" +
+	"\x13correlated_event_id\x18\x06 \x01(\tR\x11correlatedEventId\"\xad\x01\n" +
+	"\x15WatchPairFlowResponse\x12;\n" +
+	"\asamples\x18\x01 \x03(\v2!.n0x.policy.v1.LivePairFlowSampleR\asamples\x12\x16\n" +
+	"\x06cursor\x18\x02 \x01(\tR\x06cursor\x12?\n" +
+	"\rcheckpoint_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\fcheckpointAt*^\n" +
 	"\fPolicyEffect\x12\x1d\n" +
 	"\x19POLICY_EFFECT_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13POLICY_EFFECT_ALLOW\x10\x01\x12\x16\n" +
@@ -6877,7 +7495,17 @@ const file_n0x_policy_v1_policy_proto_rawDesc = "" +
 	")SYNTHESIS_CONFLICT_CODE_UNSUPPORTED_LAYER\x10\x03\x120\n" +
 	",SYNTHESIS_CONFLICT_CODE_IDENTITY_QUARANTINED\x10\x04\x12-\n" +
 	")SYNTHESIS_CONFLICT_CODE_IDENTITY_INACTIVE\x10\x05\x121\n" +
-	"-SYNTHESIS_CONFLICT_CODE_UNREPRESENTABLE_PROBE\x10\x062\xdb\x18\n" +
+	"-SYNTHESIS_CONFLICT_CODE_UNREPRESENTABLE_PROBE\x10\x06*\xc5\x01\n" +
+	"\x18ConnectivityProbeVerdict\x12*\n" +
+	"&CONNECTIVITY_PROBE_VERDICT_UNSPECIFIED\x10\x00\x12(\n" +
+	"$CONNECTIVITY_PROBE_VERDICT_REACHABLE\x10\x01\x12&\n" +
+	"\"CONNECTIVITY_PROBE_VERDICT_BLOCKED\x10\x02\x12+\n" +
+	"'CONNECTIVITY_PROBE_VERDICT_INCONCLUSIVE\x10\x03*\x9c\x01\n" +
+	"\x0fPairFlowVerdict\x12!\n" +
+	"\x1dPAIR_FLOW_VERDICT_UNSPECIFIED\x10\x00\x12\x1d\n" +
+	"\x19PAIR_FLOW_VERDICT_ALLOWED\x10\x01\x12\x1c\n" +
+	"\x18PAIR_FLOW_VERDICT_DENIED\x10\x02\x12)\n" +
+	"%PAIR_FLOW_VERDICT_NO_BASELINE_TRAFFIC\x10\x032\x90\x1d\n" +
 	"\x14NetworkPolicyService\x12\xce\x01\n" +
 	"\fListPolicies\x12\".n0x.policy.v1.ListPoliciesRequest\x1a#.n0x.policy.v1.ListPoliciesResponse\"u\xb2\xe1\x18q\b\x01\x12\rpolicies.read\x1a^List network and guardrail policies, optionally filtered by effect or including an open draft.\x12\xb4\x01\n" +
 	"\tGetPolicy\x12\x1f.n0x.policy.v1.GetPolicyRequest\x1a .n0x.policy.v1.GetPolicyResponse\"d\xb2\xe1\x18`\b\x01\x12\rpolicies.read\x1aMGet one network or guardrail policy with its rules, selectors and conditions.\x12\xca\x01\n" +
@@ -6886,18 +7514,20 @@ const file_n0x_policy_v1_policy_proto_rawDesc = "" +
 	"\fRemovePolicy\x12\".n0x.policy.v1.RemovePolicyRequest\x1a#.n0x.policy.v1.RemovePolicyResponse\"Z\xb2\xe1\x18V\b\x02\x12\x0epolicies.write\x1aBRemove a network or guardrail policy so its rules no longer apply.\x12\x84\x01\n" +
 	"\x13SetPolicyProtection\x12).n0x.policy.v1.SetPolicyProtectionRequest\x1a*.n0x.policy.v1.SetPolicyProtectionResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.write\x12\xd0\x01\n" +
 	"\rListRevisions\x12#.n0x.policy.v1.ListRevisionsRequest\x1a$.n0x.policy.v1.ListRevisionsResponse\"t\xb2\xe1\x18p\b\x01\x12\rpolicies.read\x1a]List configuration revisions, drafts and published changes with author and enforcement state.\x12\xc3\x01\n" +
-	"\vGetRevision\x12!.n0x.policy.v1.GetRevisionRequest\x1a\".n0x.policy.v1.GetRevisionResponse\"m\xb2\xe1\x18i\b\x01\x12\rpolicies.read\x1aVGet one revision with its changes, warnings and enforcement status per node and proxy.\x12l\n" +
-	"\vCreateDraft\x12!.n0x.policy.v1.CreateDraftRequest\x1a\".n0x.policy.v1.CreateDraftResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.write\x12o\n" +
-	"\fPublishDraft\x12\".n0x.policy.v1.PublishDraftRequest\x1a#.n0x.policy.v1.PublishDraftResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.write\x12o\n" +
-	"\fDiscardDraft\x12\".n0x.policy.v1.DiscardDraftRequest\x1a#.n0x.policy.v1.DiscardDraftResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.write\x12]\n" +
-	"\x06Revert\x12\x1c.n0x.policy.v1.RevertRequest\x1a\x1d.n0x.policy.v1.RevertResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.write\x12\xb4\x01\n" +
+	"\vGetRevision\x12!.n0x.policy.v1.GetRevisionRequest\x1a\".n0x.policy.v1.GetRevisionResponse\"m\xb2\xe1\x18i\b\x01\x12\rpolicies.read\x1aVGet one revision with its changes, warnings and enforcement status per node and proxy.\x12\x9f\x01\n" +
+	"\vCreateDraft\x12!.n0x.policy.v1.CreateDraftRequest\x1a\".n0x.policy.v1.CreateDraftResponse\"I\xb2\xe1\x18E\b\x03\x12\x0epolicies.write\x1a1Create a candidate network policy draft revision.\x12o\n" +
+	"\fPublishDraft\x12\".n0x.policy.v1.PublishDraftRequest\x1a#.n0x.policy.v1.PublishDraftResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.write\x12\xa7\x01\n" +
+	"\fDiscardDraft\x12\".n0x.policy.v1.DiscardDraftRequest\x1a#.n0x.policy.v1.DiscardDraftResponse\"N\xb2\xe1\x18J\b\x02\x12\x0epolicies.write\x1a6Discard pending changes in the candidate policy draft.\x12\x98\x01\n" +
+	"\x06Revert\x12\x1c.n0x.policy.v1.RevertRequest\x1a\x1d.n0x.policy.v1.RevertResponse\"Q\xb2\xe1\x18M\b\x02\x12\x0epolicies.write\x1a9Stage a candidate policy revert from an earlier revision.\x12\xb4\x01\n" +
 	"\aCompare\x12\x1d.n0x.policy.v1.CompareRequest\x1a\x1e.n0x.policy.v1.CompareResponse\"j\xb2\xe1\x18f\b\x01\x12\rpolicies.read\x1aSCompare two revisions and list what policies, labels or tests changed between them.\x12\xcc\x01\n" +
-	"\x0eSimulatePolicy\x12$.n0x.policy.v1.SimulatePolicyRequest\x1a%.n0x.policy.v1.SimulatePolicyResponse\"m\xb2\xe1\x18i\b\x01\x12\rpolicies.read\x1aVSimulate one or more connectivity probes against compiled published or draft policies.\x12\x8a\x01\n" +
-	"\x15SynthesizePolicyDraft\x12+.n0x.policy.v1.SynthesizePolicyDraftRequest\x1a,.n0x.policy.v1.SynthesizePolicyDraftResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.write\x12\xc3\x01\n" +
+	"\x0eSimulatePolicy\x12$.n0x.policy.v1.SimulatePolicyRequest\x1a%.n0x.policy.v1.SimulatePolicyResponse\"m\xb2\xe1\x18i\b\x01\x12\rpolicies.read\x1aVSimulate one or more connectivity probes against compiled published or draft policies.\x12\xcd\x01\n" +
+	"\x15SynthesizePolicyDraft\x12+.n0x.policy.v1.SynthesizePolicyDraftRequest\x1a,.n0x.policy.v1.SynthesizePolicyDraftResponse\"Y\xb2\xe1\x18U\b\x02\x12\x0epolicies.write\x1aASynthesize candidate policy draft rules from connectivity probes.\x12\xc3\x01\n" +
 	"\x0fListPolicyTests\x12%.n0x.policy.v1.ListPolicyTestsRequest\x1a&.n0x.policy.v1.ListPolicyTestsResponse\"a\xb2\xe1\x18]\b\x01\x12\rpolicies.read\x1aJList persistent policy test assertions enforced before publishing changes.\x12\xcb\x01\n" +
 	"\x10CreatePolicyTest\x12&.n0x.policy.v1.CreatePolicyTestRequest\x1a'.n0x.policy.v1.CreatePolicyTestResponse\"f\xb2\xe1\x18b\b\x02\x12\x0epolicies.write\x1aNAdd a persistent allow or deny test assertion to the tenant policy test suite.\x12{\n" +
 	"\x10UpdatePolicyTest\x12&.n0x.policy.v1.UpdatePolicyTestRequest\x1a'.n0x.policy.v1.UpdatePolicyTestResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.write\x12{\n" +
-	"\x10RemovePolicyTest\x12&.n0x.policy.v1.RemovePolicyTestRequest\x1a'.n0x.policy.v1.RemovePolicyTestResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.writeB-Z+github.com/n-0x/x-api-go/policy/v1;policyv1b\x06proto3"
+	"\x10RemovePolicyTest\x12&.n0x.policy.v1.RemovePolicyTestRequest\x1a'.n0x.policy.v1.RemovePolicyTestResponse\"\x16\xb2\xe1\x18\x12\b\x04\x12\x0epolicies.write\x12\xd3\x01\n" +
+	"\x14RunConnectivityProbe\x12*.n0x.policy.v1.RunConnectivityProbeRequest\x1a+.n0x.policy.v1.RunConnectivityProbeResponse\"b\xb2\xe1\x18^\b\x01\x12\rpolicies.read\x1aKRun an active bounded connectivity probe between two same-scope identities.\x12q\n" +
+	"\rWatchPairFlow\x12#.n0x.policy.v1.WatchPairFlowRequest\x1a$.n0x.policy.v1.WatchPairFlowResponse\"\x13\xb2\xe1\x18\x0f\b\x05\x12\vevents.read0\x01B-Z+github.com/n-0x/x-api-go/policy/v1;policyv1b\x06proto3"
 
 var (
 	file_n0x_policy_v1_policy_proto_rawDescOnce sync.Once
@@ -6911,8 +7541,8 @@ func file_n0x_policy_v1_policy_proto_rawDescGZIP() []byte {
 	return file_n0x_policy_v1_policy_proto_rawDescData
 }
 
-var file_n0x_policy_v1_policy_proto_enumTypes = make([]protoimpl.EnumInfo, 15)
-var file_n0x_policy_v1_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 77)
+var file_n0x_policy_v1_policy_proto_enumTypes = make([]protoimpl.EnumInfo, 17)
+var file_n0x_policy_v1_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 82)
 var file_n0x_policy_v1_policy_proto_goTypes = []any{
 	(PolicyEffect)(0),                     // 0: n0x.policy.v1.PolicyEffect
 	(AccessLayer)(0),                      // 1: n0x.policy.v1.AccessLayer
@@ -6929,250 +7559,270 @@ var file_n0x_policy_v1_policy_proto_goTypes = []any{
 	(ExpectedVerdict)(0),                  // 12: n0x.policy.v1.ExpectedVerdict
 	(SynthesisStrategy)(0),                // 13: n0x.policy.v1.SynthesisStrategy
 	(SynthesisConflictCode)(0),            // 14: n0x.policy.v1.SynthesisConflictCode
-	(*PortRange)(nil),                     // 15: n0x.policy.v1.PortRange
-	(*NetworkService)(nil),                // 16: n0x.policy.v1.NetworkService
-	(*HttpMatch)(nil),                     // 17: n0x.policy.v1.HttpMatch
-	(*IdentityExclusion)(nil),             // 18: n0x.policy.v1.IdentityExclusion
-	(*IdentitySelector)(nil),              // 19: n0x.policy.v1.IdentitySelector
-	(*WorkloadExclusion)(nil),             // 20: n0x.policy.v1.WorkloadExclusion
-	(*WorkloadSelector)(nil),              // 21: n0x.policy.v1.WorkloadSelector
-	(*NodeDestination)(nil),               // 22: n0x.policy.v1.NodeDestination
-	(*WorkloadDestination)(nil),           // 23: n0x.policy.v1.WorkloadDestination
-	(*PolicyConditions)(nil),              // 24: n0x.policy.v1.PolicyConditions
-	(*PolicyRule)(nil),                    // 25: n0x.policy.v1.PolicyRule
-	(*NetworkPolicy)(nil),                 // 26: n0x.policy.v1.NetworkPolicy
-	(*RevisionAuthor)(nil),                // 27: n0x.policy.v1.RevisionAuthor
-	(*RevisionOrigin)(nil),                // 28: n0x.policy.v1.RevisionOrigin
-	(*RevisionChange)(nil),                // 29: n0x.policy.v1.RevisionChange
-	(*EnforcementPoint)(nil),              // 30: n0x.policy.v1.EnforcementPoint
-	(*TestSuiteOverride)(nil),             // 31: n0x.policy.v1.TestSuiteOverride
-	(*Revision)(nil),                      // 32: n0x.policy.v1.Revision
-	(*PolicyWarning)(nil),                 // 33: n0x.policy.v1.PolicyWarning
-	(*LayerRecommendation)(nil),           // 34: n0x.policy.v1.LayerRecommendation
-	(*AccessMissing)(nil),                 // 35: n0x.policy.v1.AccessMissing
-	(*AccessDenial)(nil),                  // 36: n0x.policy.v1.AccessDenial
-	(*NodeProbeTarget)(nil),               // 37: n0x.policy.v1.NodeProbeTarget
-	(*WorkloadProbeTarget)(nil),           // 38: n0x.policy.v1.WorkloadProbeTarget
-	(*PolicyProbe)(nil),                   // 39: n0x.policy.v1.PolicyProbe
-	(*PolicyMatchRef)(nil),                // 40: n0x.policy.v1.PolicyMatchRef
-	(*PolicySimulationResult)(nil),        // 41: n0x.policy.v1.PolicySimulationResult
-	(*PolicyTestCase)(nil),                // 42: n0x.policy.v1.PolicyTestCase
-	(*PolicyTestFailure)(nil),             // 43: n0x.policy.v1.PolicyTestFailure
-	(*SynthesisProbe)(nil),                // 44: n0x.policy.v1.SynthesisProbe
-	(*BlastRadiusPair)(nil),               // 45: n0x.policy.v1.BlastRadiusPair
-	(*BlastRadiusReport)(nil),             // 46: n0x.policy.v1.BlastRadiusReport
-	(*SynthesisConflict)(nil),             // 47: n0x.policy.v1.SynthesisConflict
-	(*SynthesisCandidate)(nil),            // 48: n0x.policy.v1.SynthesisCandidate
-	(*ListPoliciesRequest)(nil),           // 49: n0x.policy.v1.ListPoliciesRequest
-	(*ListPoliciesResponse)(nil),          // 50: n0x.policy.v1.ListPoliciesResponse
-	(*GetPolicyRequest)(nil),              // 51: n0x.policy.v1.GetPolicyRequest
-	(*GetPolicyResponse)(nil),             // 52: n0x.policy.v1.GetPolicyResponse
-	(*CreatePolicyRequest)(nil),           // 53: n0x.policy.v1.CreatePolicyRequest
-	(*CreatePolicyResponse)(nil),          // 54: n0x.policy.v1.CreatePolicyResponse
-	(*UpdatePolicyRequest)(nil),           // 55: n0x.policy.v1.UpdatePolicyRequest
-	(*UpdatePolicyResponse)(nil),          // 56: n0x.policy.v1.UpdatePolicyResponse
-	(*RemovePolicyRequest)(nil),           // 57: n0x.policy.v1.RemovePolicyRequest
-	(*RemovePolicyResponse)(nil),          // 58: n0x.policy.v1.RemovePolicyResponse
-	(*SetPolicyProtectionRequest)(nil),    // 59: n0x.policy.v1.SetPolicyProtectionRequest
-	(*SetPolicyProtectionResponse)(nil),   // 60: n0x.policy.v1.SetPolicyProtectionResponse
-	(*ListRevisionsRequest)(nil),          // 61: n0x.policy.v1.ListRevisionsRequest
-	(*ListRevisionsResponse)(nil),         // 62: n0x.policy.v1.ListRevisionsResponse
-	(*GetRevisionRequest)(nil),            // 63: n0x.policy.v1.GetRevisionRequest
-	(*GetRevisionResponse)(nil),           // 64: n0x.policy.v1.GetRevisionResponse
-	(*CreateDraftRequest)(nil),            // 65: n0x.policy.v1.CreateDraftRequest
-	(*CreateDraftResponse)(nil),           // 66: n0x.policy.v1.CreateDraftResponse
-	(*PublishDraftRequest)(nil),           // 67: n0x.policy.v1.PublishDraftRequest
-	(*PublishDraftResponse)(nil),          // 68: n0x.policy.v1.PublishDraftResponse
-	(*DiscardDraftRequest)(nil),           // 69: n0x.policy.v1.DiscardDraftRequest
-	(*DiscardDraftResponse)(nil),          // 70: n0x.policy.v1.DiscardDraftResponse
-	(*RevisionChangeReference)(nil),       // 71: n0x.policy.v1.RevisionChangeReference
-	(*RevertRequest)(nil),                 // 72: n0x.policy.v1.RevertRequest
-	(*RevertResponse)(nil),                // 73: n0x.policy.v1.RevertResponse
-	(*CompareRequest)(nil),                // 74: n0x.policy.v1.CompareRequest
-	(*CompareResponse)(nil),               // 75: n0x.policy.v1.CompareResponse
-	(*SimulatePolicyRequest)(nil),         // 76: n0x.policy.v1.SimulatePolicyRequest
-	(*SimulatePolicyResponse)(nil),        // 77: n0x.policy.v1.SimulatePolicyResponse
-	(*SynthesizePolicyDraftRequest)(nil),  // 78: n0x.policy.v1.SynthesizePolicyDraftRequest
-	(*SynthesizePolicyDraftResponse)(nil), // 79: n0x.policy.v1.SynthesizePolicyDraftResponse
-	(*ListPolicyTestsRequest)(nil),        // 80: n0x.policy.v1.ListPolicyTestsRequest
-	(*ListPolicyTestsResponse)(nil),       // 81: n0x.policy.v1.ListPolicyTestsResponse
-	(*CreatePolicyTestRequest)(nil),       // 82: n0x.policy.v1.CreatePolicyTestRequest
-	(*CreatePolicyTestResponse)(nil),      // 83: n0x.policy.v1.CreatePolicyTestResponse
-	(*UpdatePolicyTestRequest)(nil),       // 84: n0x.policy.v1.UpdatePolicyTestRequest
-	(*UpdatePolicyTestResponse)(nil),      // 85: n0x.policy.v1.UpdatePolicyTestResponse
-	(*RemovePolicyTestRequest)(nil),       // 86: n0x.policy.v1.RemovePolicyTestRequest
-	(*RemovePolicyTestResponse)(nil),      // 87: n0x.policy.v1.RemovePolicyTestResponse
-	nil,                                   // 88: n0x.policy.v1.IdentityExclusion.MatchLabelsEntry
-	nil,                                   // 89: n0x.policy.v1.IdentitySelector.MatchLabelsEntry
-	nil,                                   // 90: n0x.policy.v1.WorkloadExclusion.MatchLabelsEntry
-	nil,                                   // 91: n0x.policy.v1.WorkloadSelector.MatchLabelsEntry
-	(*timestamppb.Timestamp)(nil),         // 92: google.protobuf.Timestamp
+	(ConnectivityProbeVerdict)(0),         // 15: n0x.policy.v1.ConnectivityProbeVerdict
+	(PairFlowVerdict)(0),                  // 16: n0x.policy.v1.PairFlowVerdict
+	(*PortRange)(nil),                     // 17: n0x.policy.v1.PortRange
+	(*NetworkService)(nil),                // 18: n0x.policy.v1.NetworkService
+	(*HttpMatch)(nil),                     // 19: n0x.policy.v1.HttpMatch
+	(*IdentityExclusion)(nil),             // 20: n0x.policy.v1.IdentityExclusion
+	(*IdentitySelector)(nil),              // 21: n0x.policy.v1.IdentitySelector
+	(*WorkloadExclusion)(nil),             // 22: n0x.policy.v1.WorkloadExclusion
+	(*WorkloadSelector)(nil),              // 23: n0x.policy.v1.WorkloadSelector
+	(*NodeDestination)(nil),               // 24: n0x.policy.v1.NodeDestination
+	(*WorkloadDestination)(nil),           // 25: n0x.policy.v1.WorkloadDestination
+	(*PolicyConditions)(nil),              // 26: n0x.policy.v1.PolicyConditions
+	(*PolicyRule)(nil),                    // 27: n0x.policy.v1.PolicyRule
+	(*NetworkPolicy)(nil),                 // 28: n0x.policy.v1.NetworkPolicy
+	(*RevisionAuthor)(nil),                // 29: n0x.policy.v1.RevisionAuthor
+	(*RevisionOrigin)(nil),                // 30: n0x.policy.v1.RevisionOrigin
+	(*RevisionChange)(nil),                // 31: n0x.policy.v1.RevisionChange
+	(*EnforcementPoint)(nil),              // 32: n0x.policy.v1.EnforcementPoint
+	(*TestSuiteOverride)(nil),             // 33: n0x.policy.v1.TestSuiteOverride
+	(*Revision)(nil),                      // 34: n0x.policy.v1.Revision
+	(*PolicyWarning)(nil),                 // 35: n0x.policy.v1.PolicyWarning
+	(*LayerRecommendation)(nil),           // 36: n0x.policy.v1.LayerRecommendation
+	(*AccessMissing)(nil),                 // 37: n0x.policy.v1.AccessMissing
+	(*AccessDenial)(nil),                  // 38: n0x.policy.v1.AccessDenial
+	(*NodeProbeTarget)(nil),               // 39: n0x.policy.v1.NodeProbeTarget
+	(*WorkloadProbeTarget)(nil),           // 40: n0x.policy.v1.WorkloadProbeTarget
+	(*PolicyProbe)(nil),                   // 41: n0x.policy.v1.PolicyProbe
+	(*PolicyMatchRef)(nil),                // 42: n0x.policy.v1.PolicyMatchRef
+	(*PolicySimulationResult)(nil),        // 43: n0x.policy.v1.PolicySimulationResult
+	(*PolicyTestCase)(nil),                // 44: n0x.policy.v1.PolicyTestCase
+	(*PolicyTestFailure)(nil),             // 45: n0x.policy.v1.PolicyTestFailure
+	(*SynthesisProbe)(nil),                // 46: n0x.policy.v1.SynthesisProbe
+	(*BlastRadiusPair)(nil),               // 47: n0x.policy.v1.BlastRadiusPair
+	(*BlastRadiusReport)(nil),             // 48: n0x.policy.v1.BlastRadiusReport
+	(*SynthesisConflict)(nil),             // 49: n0x.policy.v1.SynthesisConflict
+	(*SynthesisCandidate)(nil),            // 50: n0x.policy.v1.SynthesisCandidate
+	(*ListPoliciesRequest)(nil),           // 51: n0x.policy.v1.ListPoliciesRequest
+	(*ListPoliciesResponse)(nil),          // 52: n0x.policy.v1.ListPoliciesResponse
+	(*GetPolicyRequest)(nil),              // 53: n0x.policy.v1.GetPolicyRequest
+	(*GetPolicyResponse)(nil),             // 54: n0x.policy.v1.GetPolicyResponse
+	(*CreatePolicyRequest)(nil),           // 55: n0x.policy.v1.CreatePolicyRequest
+	(*CreatePolicyResponse)(nil),          // 56: n0x.policy.v1.CreatePolicyResponse
+	(*UpdatePolicyRequest)(nil),           // 57: n0x.policy.v1.UpdatePolicyRequest
+	(*UpdatePolicyResponse)(nil),          // 58: n0x.policy.v1.UpdatePolicyResponse
+	(*RemovePolicyRequest)(nil),           // 59: n0x.policy.v1.RemovePolicyRequest
+	(*RemovePolicyResponse)(nil),          // 60: n0x.policy.v1.RemovePolicyResponse
+	(*SetPolicyProtectionRequest)(nil),    // 61: n0x.policy.v1.SetPolicyProtectionRequest
+	(*SetPolicyProtectionResponse)(nil),   // 62: n0x.policy.v1.SetPolicyProtectionResponse
+	(*ListRevisionsRequest)(nil),          // 63: n0x.policy.v1.ListRevisionsRequest
+	(*ListRevisionsResponse)(nil),         // 64: n0x.policy.v1.ListRevisionsResponse
+	(*GetRevisionRequest)(nil),            // 65: n0x.policy.v1.GetRevisionRequest
+	(*GetRevisionResponse)(nil),           // 66: n0x.policy.v1.GetRevisionResponse
+	(*CreateDraftRequest)(nil),            // 67: n0x.policy.v1.CreateDraftRequest
+	(*CreateDraftResponse)(nil),           // 68: n0x.policy.v1.CreateDraftResponse
+	(*PublishDraftRequest)(nil),           // 69: n0x.policy.v1.PublishDraftRequest
+	(*PublishDraftResponse)(nil),          // 70: n0x.policy.v1.PublishDraftResponse
+	(*DiscardDraftRequest)(nil),           // 71: n0x.policy.v1.DiscardDraftRequest
+	(*DiscardDraftResponse)(nil),          // 72: n0x.policy.v1.DiscardDraftResponse
+	(*RevisionChangeReference)(nil),       // 73: n0x.policy.v1.RevisionChangeReference
+	(*RevertRequest)(nil),                 // 74: n0x.policy.v1.RevertRequest
+	(*RevertResponse)(nil),                // 75: n0x.policy.v1.RevertResponse
+	(*CompareRequest)(nil),                // 76: n0x.policy.v1.CompareRequest
+	(*CompareResponse)(nil),               // 77: n0x.policy.v1.CompareResponse
+	(*SimulatePolicyRequest)(nil),         // 78: n0x.policy.v1.SimulatePolicyRequest
+	(*SimulatePolicyResponse)(nil),        // 79: n0x.policy.v1.SimulatePolicyResponse
+	(*SynthesizePolicyDraftRequest)(nil),  // 80: n0x.policy.v1.SynthesizePolicyDraftRequest
+	(*SynthesizePolicyDraftResponse)(nil), // 81: n0x.policy.v1.SynthesizePolicyDraftResponse
+	(*ListPolicyTestsRequest)(nil),        // 82: n0x.policy.v1.ListPolicyTestsRequest
+	(*ListPolicyTestsResponse)(nil),       // 83: n0x.policy.v1.ListPolicyTestsResponse
+	(*CreatePolicyTestRequest)(nil),       // 84: n0x.policy.v1.CreatePolicyTestRequest
+	(*CreatePolicyTestResponse)(nil),      // 85: n0x.policy.v1.CreatePolicyTestResponse
+	(*UpdatePolicyTestRequest)(nil),       // 86: n0x.policy.v1.UpdatePolicyTestRequest
+	(*UpdatePolicyTestResponse)(nil),      // 87: n0x.policy.v1.UpdatePolicyTestResponse
+	(*RemovePolicyTestRequest)(nil),       // 88: n0x.policy.v1.RemovePolicyTestRequest
+	(*RemovePolicyTestResponse)(nil),      // 89: n0x.policy.v1.RemovePolicyTestResponse
+	(*RunConnectivityProbeRequest)(nil),   // 90: n0x.policy.v1.RunConnectivityProbeRequest
+	(*RunConnectivityProbeResponse)(nil),  // 91: n0x.policy.v1.RunConnectivityProbeResponse
+	(*WatchPairFlowRequest)(nil),          // 92: n0x.policy.v1.WatchPairFlowRequest
+	(*LivePairFlowSample)(nil),            // 93: n0x.policy.v1.LivePairFlowSample
+	(*WatchPairFlowResponse)(nil),         // 94: n0x.policy.v1.WatchPairFlowResponse
+	nil,                                   // 95: n0x.policy.v1.IdentityExclusion.MatchLabelsEntry
+	nil,                                   // 96: n0x.policy.v1.IdentitySelector.MatchLabelsEntry
+	nil,                                   // 97: n0x.policy.v1.WorkloadExclusion.MatchLabelsEntry
+	nil,                                   // 98: n0x.policy.v1.WorkloadSelector.MatchLabelsEntry
+	(*timestamppb.Timestamp)(nil),         // 99: google.protobuf.Timestamp
 }
 var file_n0x_policy_v1_policy_proto_depIdxs = []int32{
 	2,   // 0: n0x.policy.v1.NetworkService.protocol:type_name -> n0x.policy.v1.NetworkProtocol
-	15,  // 1: n0x.policy.v1.NetworkService.port_range:type_name -> n0x.policy.v1.PortRange
-	88,  // 2: n0x.policy.v1.IdentityExclusion.match_labels:type_name -> n0x.policy.v1.IdentityExclusion.MatchLabelsEntry
-	89,  // 3: n0x.policy.v1.IdentitySelector.match_labels:type_name -> n0x.policy.v1.IdentitySelector.MatchLabelsEntry
-	18,  // 4: n0x.policy.v1.IdentitySelector.except:type_name -> n0x.policy.v1.IdentityExclusion
-	90,  // 5: n0x.policy.v1.WorkloadExclusion.match_labels:type_name -> n0x.policy.v1.WorkloadExclusion.MatchLabelsEntry
-	91,  // 6: n0x.policy.v1.WorkloadSelector.match_labels:type_name -> n0x.policy.v1.WorkloadSelector.MatchLabelsEntry
-	20,  // 7: n0x.policy.v1.WorkloadSelector.except:type_name -> n0x.policy.v1.WorkloadExclusion
-	19,  // 8: n0x.policy.v1.NodeDestination.targets:type_name -> n0x.policy.v1.IdentitySelector
-	16,  // 9: n0x.policy.v1.NodeDestination.services:type_name -> n0x.policy.v1.NetworkService
-	21,  // 10: n0x.policy.v1.WorkloadDestination.targets:type_name -> n0x.policy.v1.WorkloadSelector
-	17,  // 11: n0x.policy.v1.WorkloadDestination.http_match:type_name -> n0x.policy.v1.HttpMatch
-	92,  // 12: n0x.policy.v1.PolicyConditions.expires_at:type_name -> google.protobuf.Timestamp
-	19,  // 13: n0x.policy.v1.PolicyRule.sources:type_name -> n0x.policy.v1.IdentitySelector
-	22,  // 14: n0x.policy.v1.PolicyRule.node:type_name -> n0x.policy.v1.NodeDestination
-	23,  // 15: n0x.policy.v1.PolicyRule.workload:type_name -> n0x.policy.v1.WorkloadDestination
+	17,  // 1: n0x.policy.v1.NetworkService.port_range:type_name -> n0x.policy.v1.PortRange
+	95,  // 2: n0x.policy.v1.IdentityExclusion.match_labels:type_name -> n0x.policy.v1.IdentityExclusion.MatchLabelsEntry
+	96,  // 3: n0x.policy.v1.IdentitySelector.match_labels:type_name -> n0x.policy.v1.IdentitySelector.MatchLabelsEntry
+	20,  // 4: n0x.policy.v1.IdentitySelector.except:type_name -> n0x.policy.v1.IdentityExclusion
+	97,  // 5: n0x.policy.v1.WorkloadExclusion.match_labels:type_name -> n0x.policy.v1.WorkloadExclusion.MatchLabelsEntry
+	98,  // 6: n0x.policy.v1.WorkloadSelector.match_labels:type_name -> n0x.policy.v1.WorkloadSelector.MatchLabelsEntry
+	22,  // 7: n0x.policy.v1.WorkloadSelector.except:type_name -> n0x.policy.v1.WorkloadExclusion
+	21,  // 8: n0x.policy.v1.NodeDestination.targets:type_name -> n0x.policy.v1.IdentitySelector
+	18,  // 9: n0x.policy.v1.NodeDestination.services:type_name -> n0x.policy.v1.NetworkService
+	23,  // 10: n0x.policy.v1.WorkloadDestination.targets:type_name -> n0x.policy.v1.WorkloadSelector
+	19,  // 11: n0x.policy.v1.WorkloadDestination.http_match:type_name -> n0x.policy.v1.HttpMatch
+	99,  // 12: n0x.policy.v1.PolicyConditions.expires_at:type_name -> google.protobuf.Timestamp
+	21,  // 13: n0x.policy.v1.PolicyRule.sources:type_name -> n0x.policy.v1.IdentitySelector
+	24,  // 14: n0x.policy.v1.PolicyRule.node:type_name -> n0x.policy.v1.NodeDestination
+	25,  // 15: n0x.policy.v1.PolicyRule.workload:type_name -> n0x.policy.v1.WorkloadDestination
 	1,   // 16: n0x.policy.v1.PolicyRule.layer:type_name -> n0x.policy.v1.AccessLayer
-	24,  // 17: n0x.policy.v1.PolicyRule.conditions:type_name -> n0x.policy.v1.PolicyConditions
+	26,  // 17: n0x.policy.v1.PolicyRule.conditions:type_name -> n0x.policy.v1.PolicyConditions
 	0,   // 18: n0x.policy.v1.NetworkPolicy.effect:type_name -> n0x.policy.v1.PolicyEffect
-	24,  // 19: n0x.policy.v1.NetworkPolicy.conditions:type_name -> n0x.policy.v1.PolicyConditions
-	25,  // 20: n0x.policy.v1.NetworkPolicy.rules:type_name -> n0x.policy.v1.PolicyRule
-	92,  // 21: n0x.policy.v1.NetworkPolicy.created_at:type_name -> google.protobuf.Timestamp
-	92,  // 22: n0x.policy.v1.NetworkPolicy.updated_at:type_name -> google.protobuf.Timestamp
+	26,  // 19: n0x.policy.v1.NetworkPolicy.conditions:type_name -> n0x.policy.v1.PolicyConditions
+	27,  // 20: n0x.policy.v1.NetworkPolicy.rules:type_name -> n0x.policy.v1.PolicyRule
+	99,  // 21: n0x.policy.v1.NetworkPolicy.created_at:type_name -> google.protobuf.Timestamp
+	99,  // 22: n0x.policy.v1.NetworkPolicy.updated_at:type_name -> google.protobuf.Timestamp
 	3,   // 23: n0x.policy.v1.RevisionAuthor.kind:type_name -> n0x.policy.v1.RevisionAuthorKind
 	4,   // 24: n0x.policy.v1.RevisionChange.object_type:type_name -> n0x.policy.v1.RevisionObjectType
 	5,   // 25: n0x.policy.v1.RevisionChange.kind:type_name -> n0x.policy.v1.RevisionChangeKind
-	92,  // 26: n0x.policy.v1.RevisionChange.before_expires_at:type_name -> google.protobuf.Timestamp
-	92,  // 27: n0x.policy.v1.RevisionChange.after_expires_at:type_name -> google.protobuf.Timestamp
-	28,  // 28: n0x.policy.v1.RevisionChange.origin:type_name -> n0x.policy.v1.RevisionOrigin
+	99,  // 26: n0x.policy.v1.RevisionChange.before_expires_at:type_name -> google.protobuf.Timestamp
+	99,  // 27: n0x.policy.v1.RevisionChange.after_expires_at:type_name -> google.protobuf.Timestamp
+	30,  // 28: n0x.policy.v1.RevisionChange.origin:type_name -> n0x.policy.v1.RevisionOrigin
 	6,   // 29: n0x.policy.v1.EnforcementPoint.kind:type_name -> n0x.policy.v1.EnforcementPointKind
 	7,   // 30: n0x.policy.v1.EnforcementPoint.status:type_name -> n0x.policy.v1.EnforcementStatus
-	92,  // 31: n0x.policy.v1.EnforcementPoint.confirmed_at:type_name -> google.protobuf.Timestamp
-	27,  // 32: n0x.policy.v1.Revision.author:type_name -> n0x.policy.v1.RevisionAuthor
-	29,  // 33: n0x.policy.v1.Revision.changes:type_name -> n0x.policy.v1.RevisionChange
-	30,  // 34: n0x.policy.v1.Revision.enforcement_points:type_name -> n0x.policy.v1.EnforcementPoint
+	99,  // 31: n0x.policy.v1.EnforcementPoint.confirmed_at:type_name -> google.protobuf.Timestamp
+	29,  // 32: n0x.policy.v1.Revision.author:type_name -> n0x.policy.v1.RevisionAuthor
+	31,  // 33: n0x.policy.v1.Revision.changes:type_name -> n0x.policy.v1.RevisionChange
+	32,  // 34: n0x.policy.v1.Revision.enforcement_points:type_name -> n0x.policy.v1.EnforcementPoint
 	8,   // 35: n0x.policy.v1.Revision.state:type_name -> n0x.policy.v1.RevisionState
-	28,  // 36: n0x.policy.v1.Revision.origin:type_name -> n0x.policy.v1.RevisionOrigin
-	92,  // 37: n0x.policy.v1.Revision.created_at:type_name -> google.protobuf.Timestamp
-	92,  // 38: n0x.policy.v1.Revision.published_at:type_name -> google.protobuf.Timestamp
-	31,  // 39: n0x.policy.v1.Revision.test_suite_override:type_name -> n0x.policy.v1.TestSuiteOverride
+	30,  // 36: n0x.policy.v1.Revision.origin:type_name -> n0x.policy.v1.RevisionOrigin
+	99,  // 37: n0x.policy.v1.Revision.created_at:type_name -> google.protobuf.Timestamp
+	99,  // 38: n0x.policy.v1.Revision.published_at:type_name -> google.protobuf.Timestamp
+	33,  // 39: n0x.policy.v1.Revision.test_suite_override:type_name -> n0x.policy.v1.TestSuiteOverride
 	9,   // 40: n0x.policy.v1.PolicyWarning.code:type_name -> n0x.policy.v1.PolicyWarningCode
 	1,   // 41: n0x.policy.v1.LayerRecommendation.recommended_layer:type_name -> n0x.policy.v1.AccessLayer
 	11,  // 42: n0x.policy.v1.AccessMissing.reason:type_name -> n0x.policy.v1.AccessMissingReason
-	92,  // 43: n0x.policy.v1.AccessMissing.expired_at:type_name -> google.protobuf.Timestamp
-	92,  // 44: n0x.policy.v1.AccessDenial.occurred_at:type_name -> google.protobuf.Timestamp
-	35,  // 45: n0x.policy.v1.AccessDenial.missing:type_name -> n0x.policy.v1.AccessMissing
+	99,  // 43: n0x.policy.v1.AccessMissing.expired_at:type_name -> google.protobuf.Timestamp
+	99,  // 44: n0x.policy.v1.AccessDenial.occurred_at:type_name -> google.protobuf.Timestamp
+	37,  // 45: n0x.policy.v1.AccessDenial.missing:type_name -> n0x.policy.v1.AccessMissing
 	2,   // 46: n0x.policy.v1.NodeProbeTarget.protocol:type_name -> n0x.policy.v1.NetworkProtocol
-	37,  // 47: n0x.policy.v1.PolicyProbe.node:type_name -> n0x.policy.v1.NodeProbeTarget
-	38,  // 48: n0x.policy.v1.PolicyProbe.workload:type_name -> n0x.policy.v1.WorkloadProbeTarget
+	39,  // 47: n0x.policy.v1.PolicyProbe.node:type_name -> n0x.policy.v1.NodeProbeTarget
+	40,  // 48: n0x.policy.v1.PolicyProbe.workload:type_name -> n0x.policy.v1.WorkloadProbeTarget
 	1,   // 49: n0x.policy.v1.PolicyProbe.layer:type_name -> n0x.policy.v1.AccessLayer
 	0,   // 50: n0x.policy.v1.PolicyMatchRef.effect:type_name -> n0x.policy.v1.PolicyEffect
 	1,   // 51: n0x.policy.v1.PolicySimulationResult.layer:type_name -> n0x.policy.v1.AccessLayer
 	10,  // 52: n0x.policy.v1.PolicySimulationResult.mechanism:type_name -> n0x.policy.v1.AccessMechanism
-	40,  // 53: n0x.policy.v1.PolicySimulationResult.matching_allow_policies:type_name -> n0x.policy.v1.PolicyMatchRef
-	40,  // 54: n0x.policy.v1.PolicySimulationResult.matching_deny_policies:type_name -> n0x.policy.v1.PolicyMatchRef
-	35,  // 55: n0x.policy.v1.PolicySimulationResult.missing:type_name -> n0x.policy.v1.AccessMissing
-	34,  // 56: n0x.policy.v1.PolicySimulationResult.layer_recommendation:type_name -> n0x.policy.v1.LayerRecommendation
-	36,  // 57: n0x.policy.v1.PolicySimulationResult.last_denial:type_name -> n0x.policy.v1.AccessDenial
-	30,  // 58: n0x.policy.v1.PolicySimulationResult.enforcement_points:type_name -> n0x.policy.v1.EnforcementPoint
-	39,  // 59: n0x.policy.v1.PolicyTestCase.probe:type_name -> n0x.policy.v1.PolicyProbe
+	42,  // 53: n0x.policy.v1.PolicySimulationResult.matching_allow_policies:type_name -> n0x.policy.v1.PolicyMatchRef
+	42,  // 54: n0x.policy.v1.PolicySimulationResult.matching_deny_policies:type_name -> n0x.policy.v1.PolicyMatchRef
+	37,  // 55: n0x.policy.v1.PolicySimulationResult.missing:type_name -> n0x.policy.v1.AccessMissing
+	36,  // 56: n0x.policy.v1.PolicySimulationResult.layer_recommendation:type_name -> n0x.policy.v1.LayerRecommendation
+	38,  // 57: n0x.policy.v1.PolicySimulationResult.last_denial:type_name -> n0x.policy.v1.AccessDenial
+	32,  // 58: n0x.policy.v1.PolicySimulationResult.enforcement_points:type_name -> n0x.policy.v1.EnforcementPoint
+	41,  // 59: n0x.policy.v1.PolicyTestCase.probe:type_name -> n0x.policy.v1.PolicyProbe
 	12,  // 60: n0x.policy.v1.PolicyTestCase.expected:type_name -> n0x.policy.v1.ExpectedVerdict
-	92,  // 61: n0x.policy.v1.PolicyTestCase.created_at:type_name -> google.protobuf.Timestamp
-	92,  // 62: n0x.policy.v1.PolicyTestCase.updated_at:type_name -> google.protobuf.Timestamp
+	99,  // 61: n0x.policy.v1.PolicyTestCase.created_at:type_name -> google.protobuf.Timestamp
+	99,  // 62: n0x.policy.v1.PolicyTestCase.updated_at:type_name -> google.protobuf.Timestamp
 	12,  // 63: n0x.policy.v1.PolicyTestFailure.expected:type_name -> n0x.policy.v1.ExpectedVerdict
-	39,  // 64: n0x.policy.v1.SynthesisProbe.probe:type_name -> n0x.policy.v1.PolicyProbe
+	41,  // 64: n0x.policy.v1.SynthesisProbe.probe:type_name -> n0x.policy.v1.PolicyProbe
 	12,  // 65: n0x.policy.v1.SynthesisProbe.expected:type_name -> n0x.policy.v1.ExpectedVerdict
-	45,  // 66: n0x.policy.v1.BlastRadiusReport.extra_pairs:type_name -> n0x.policy.v1.BlastRadiusPair
+	47,  // 66: n0x.policy.v1.BlastRadiusReport.extra_pairs:type_name -> n0x.policy.v1.BlastRadiusPair
 	14,  // 67: n0x.policy.v1.SynthesisConflict.code:type_name -> n0x.policy.v1.SynthesisConflictCode
-	34,  // 68: n0x.policy.v1.SynthesisConflict.layer_recommendation:type_name -> n0x.policy.v1.LayerRecommendation
-	26,  // 69: n0x.policy.v1.SynthesisCandidate.policy:type_name -> n0x.policy.v1.NetworkPolicy
-	46,  // 70: n0x.policy.v1.SynthesisCandidate.blast_radius:type_name -> n0x.policy.v1.BlastRadiusReport
+	36,  // 68: n0x.policy.v1.SynthesisConflict.layer_recommendation:type_name -> n0x.policy.v1.LayerRecommendation
+	28,  // 69: n0x.policy.v1.SynthesisCandidate.policy:type_name -> n0x.policy.v1.NetworkPolicy
+	48,  // 70: n0x.policy.v1.SynthesisCandidate.blast_radius:type_name -> n0x.policy.v1.BlastRadiusReport
 	0,   // 71: n0x.policy.v1.ListPoliciesRequest.effect:type_name -> n0x.policy.v1.PolicyEffect
-	26,  // 72: n0x.policy.v1.ListPoliciesResponse.policies:type_name -> n0x.policy.v1.NetworkPolicy
-	26,  // 73: n0x.policy.v1.GetPolicyResponse.policy:type_name -> n0x.policy.v1.NetworkPolicy
-	26,  // 74: n0x.policy.v1.CreatePolicyRequest.policy:type_name -> n0x.policy.v1.NetworkPolicy
-	28,  // 75: n0x.policy.v1.CreatePolicyRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
-	26,  // 76: n0x.policy.v1.CreatePolicyResponse.policy:type_name -> n0x.policy.v1.NetworkPolicy
-	33,  // 77: n0x.policy.v1.CreatePolicyResponse.warnings:type_name -> n0x.policy.v1.PolicyWarning
-	34,  // 78: n0x.policy.v1.CreatePolicyResponse.layer_recommendations:type_name -> n0x.policy.v1.LayerRecommendation
-	26,  // 79: n0x.policy.v1.UpdatePolicyRequest.policy:type_name -> n0x.policy.v1.NetworkPolicy
-	28,  // 80: n0x.policy.v1.UpdatePolicyRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
-	26,  // 81: n0x.policy.v1.UpdatePolicyResponse.policy:type_name -> n0x.policy.v1.NetworkPolicy
-	33,  // 82: n0x.policy.v1.UpdatePolicyResponse.warnings:type_name -> n0x.policy.v1.PolicyWarning
-	34,  // 83: n0x.policy.v1.UpdatePolicyResponse.layer_recommendations:type_name -> n0x.policy.v1.LayerRecommendation
-	28,  // 84: n0x.policy.v1.RemovePolicyRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
-	28,  // 85: n0x.policy.v1.SetPolicyProtectionRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
-	26,  // 86: n0x.policy.v1.SetPolicyProtectionResponse.policy:type_name -> n0x.policy.v1.NetworkPolicy
+	28,  // 72: n0x.policy.v1.ListPoliciesResponse.policies:type_name -> n0x.policy.v1.NetworkPolicy
+	28,  // 73: n0x.policy.v1.GetPolicyResponse.policy:type_name -> n0x.policy.v1.NetworkPolicy
+	28,  // 74: n0x.policy.v1.CreatePolicyRequest.policy:type_name -> n0x.policy.v1.NetworkPolicy
+	30,  // 75: n0x.policy.v1.CreatePolicyRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
+	28,  // 76: n0x.policy.v1.CreatePolicyResponse.policy:type_name -> n0x.policy.v1.NetworkPolicy
+	35,  // 77: n0x.policy.v1.CreatePolicyResponse.warnings:type_name -> n0x.policy.v1.PolicyWarning
+	36,  // 78: n0x.policy.v1.CreatePolicyResponse.layer_recommendations:type_name -> n0x.policy.v1.LayerRecommendation
+	28,  // 79: n0x.policy.v1.UpdatePolicyRequest.policy:type_name -> n0x.policy.v1.NetworkPolicy
+	30,  // 80: n0x.policy.v1.UpdatePolicyRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
+	28,  // 81: n0x.policy.v1.UpdatePolicyResponse.policy:type_name -> n0x.policy.v1.NetworkPolicy
+	35,  // 82: n0x.policy.v1.UpdatePolicyResponse.warnings:type_name -> n0x.policy.v1.PolicyWarning
+	36,  // 83: n0x.policy.v1.UpdatePolicyResponse.layer_recommendations:type_name -> n0x.policy.v1.LayerRecommendation
+	30,  // 84: n0x.policy.v1.RemovePolicyRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
+	30,  // 85: n0x.policy.v1.SetPolicyProtectionRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
+	28,  // 86: n0x.policy.v1.SetPolicyProtectionResponse.policy:type_name -> n0x.policy.v1.NetworkPolicy
 	8,   // 87: n0x.policy.v1.ListRevisionsRequest.state:type_name -> n0x.policy.v1.RevisionState
 	4,   // 88: n0x.policy.v1.ListRevisionsRequest.object_type:type_name -> n0x.policy.v1.RevisionObjectType
-	32,  // 89: n0x.policy.v1.ListRevisionsResponse.revisions:type_name -> n0x.policy.v1.Revision
-	32,  // 90: n0x.policy.v1.GetRevisionResponse.revision:type_name -> n0x.policy.v1.Revision
-	33,  // 91: n0x.policy.v1.GetRevisionResponse.warnings:type_name -> n0x.policy.v1.PolicyWarning
-	34,  // 92: n0x.policy.v1.GetRevisionResponse.layer_recommendations:type_name -> n0x.policy.v1.LayerRecommendation
-	28,  // 93: n0x.policy.v1.CreateDraftRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
-	32,  // 94: n0x.policy.v1.CreateDraftResponse.revision:type_name -> n0x.policy.v1.Revision
-	32,  // 95: n0x.policy.v1.PublishDraftResponse.revision:type_name -> n0x.policy.v1.Revision
-	33,  // 96: n0x.policy.v1.PublishDraftResponse.warnings:type_name -> n0x.policy.v1.PolicyWarning
-	34,  // 97: n0x.policy.v1.PublishDraftResponse.layer_recommendations:type_name -> n0x.policy.v1.LayerRecommendation
-	43,  // 98: n0x.policy.v1.PublishDraftResponse.failed_tests:type_name -> n0x.policy.v1.PolicyTestFailure
-	71,  // 99: n0x.policy.v1.RevertRequest.change:type_name -> n0x.policy.v1.RevisionChangeReference
-	28,  // 100: n0x.policy.v1.RevertRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
-	32,  // 101: n0x.policy.v1.RevertResponse.revision:type_name -> n0x.policy.v1.Revision
-	33,  // 102: n0x.policy.v1.RevertResponse.warnings:type_name -> n0x.policy.v1.PolicyWarning
-	34,  // 103: n0x.policy.v1.RevertResponse.layer_recommendations:type_name -> n0x.policy.v1.LayerRecommendation
-	29,  // 104: n0x.policy.v1.CompareResponse.changes:type_name -> n0x.policy.v1.RevisionChange
-	39,  // 105: n0x.policy.v1.SimulatePolicyRequest.probes:type_name -> n0x.policy.v1.PolicyProbe
-	41,  // 106: n0x.policy.v1.SimulatePolicyResponse.results:type_name -> n0x.policy.v1.PolicySimulationResult
-	44,  // 107: n0x.policy.v1.SynthesizePolicyDraftRequest.probes:type_name -> n0x.policy.v1.SynthesisProbe
+	34,  // 89: n0x.policy.v1.ListRevisionsResponse.revisions:type_name -> n0x.policy.v1.Revision
+	34,  // 90: n0x.policy.v1.GetRevisionResponse.revision:type_name -> n0x.policy.v1.Revision
+	35,  // 91: n0x.policy.v1.GetRevisionResponse.warnings:type_name -> n0x.policy.v1.PolicyWarning
+	36,  // 92: n0x.policy.v1.GetRevisionResponse.layer_recommendations:type_name -> n0x.policy.v1.LayerRecommendation
+	30,  // 93: n0x.policy.v1.CreateDraftRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
+	34,  // 94: n0x.policy.v1.CreateDraftResponse.revision:type_name -> n0x.policy.v1.Revision
+	34,  // 95: n0x.policy.v1.PublishDraftResponse.revision:type_name -> n0x.policy.v1.Revision
+	35,  // 96: n0x.policy.v1.PublishDraftResponse.warnings:type_name -> n0x.policy.v1.PolicyWarning
+	36,  // 97: n0x.policy.v1.PublishDraftResponse.layer_recommendations:type_name -> n0x.policy.v1.LayerRecommendation
+	45,  // 98: n0x.policy.v1.PublishDraftResponse.failed_tests:type_name -> n0x.policy.v1.PolicyTestFailure
+	73,  // 99: n0x.policy.v1.RevertRequest.change:type_name -> n0x.policy.v1.RevisionChangeReference
+	30,  // 100: n0x.policy.v1.RevertRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
+	34,  // 101: n0x.policy.v1.RevertResponse.revision:type_name -> n0x.policy.v1.Revision
+	35,  // 102: n0x.policy.v1.RevertResponse.warnings:type_name -> n0x.policy.v1.PolicyWarning
+	36,  // 103: n0x.policy.v1.RevertResponse.layer_recommendations:type_name -> n0x.policy.v1.LayerRecommendation
+	31,  // 104: n0x.policy.v1.CompareResponse.changes:type_name -> n0x.policy.v1.RevisionChange
+	41,  // 105: n0x.policy.v1.SimulatePolicyRequest.probes:type_name -> n0x.policy.v1.PolicyProbe
+	43,  // 106: n0x.policy.v1.SimulatePolicyResponse.results:type_name -> n0x.policy.v1.PolicySimulationResult
+	46,  // 107: n0x.policy.v1.SynthesizePolicyDraftRequest.probes:type_name -> n0x.policy.v1.SynthesisProbe
 	13,  // 108: n0x.policy.v1.SynthesizePolicyDraftRequest.strategy:type_name -> n0x.policy.v1.SynthesisStrategy
-	28,  // 109: n0x.policy.v1.SynthesizePolicyDraftRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
-	48,  // 110: n0x.policy.v1.SynthesizePolicyDraftResponse.candidates:type_name -> n0x.policy.v1.SynthesisCandidate
-	47,  // 111: n0x.policy.v1.SynthesizePolicyDraftResponse.conflicts:type_name -> n0x.policy.v1.SynthesisConflict
-	33,  // 112: n0x.policy.v1.SynthesizePolicyDraftResponse.warnings:type_name -> n0x.policy.v1.PolicyWarning
-	42,  // 113: n0x.policy.v1.ListPolicyTestsResponse.tests:type_name -> n0x.policy.v1.PolicyTestCase
-	42,  // 114: n0x.policy.v1.CreatePolicyTestRequest.test:type_name -> n0x.policy.v1.PolicyTestCase
-	28,  // 115: n0x.policy.v1.CreatePolicyTestRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
-	42,  // 116: n0x.policy.v1.CreatePolicyTestResponse.test:type_name -> n0x.policy.v1.PolicyTestCase
-	42,  // 117: n0x.policy.v1.UpdatePolicyTestRequest.test:type_name -> n0x.policy.v1.PolicyTestCase
-	28,  // 118: n0x.policy.v1.UpdatePolicyTestRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
-	42,  // 119: n0x.policy.v1.UpdatePolicyTestResponse.test:type_name -> n0x.policy.v1.PolicyTestCase
-	28,  // 120: n0x.policy.v1.RemovePolicyTestRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
-	49,  // 121: n0x.policy.v1.NetworkPolicyService.ListPolicies:input_type -> n0x.policy.v1.ListPoliciesRequest
-	51,  // 122: n0x.policy.v1.NetworkPolicyService.GetPolicy:input_type -> n0x.policy.v1.GetPolicyRequest
-	53,  // 123: n0x.policy.v1.NetworkPolicyService.CreatePolicy:input_type -> n0x.policy.v1.CreatePolicyRequest
-	55,  // 124: n0x.policy.v1.NetworkPolicyService.UpdatePolicy:input_type -> n0x.policy.v1.UpdatePolicyRequest
-	57,  // 125: n0x.policy.v1.NetworkPolicyService.RemovePolicy:input_type -> n0x.policy.v1.RemovePolicyRequest
-	59,  // 126: n0x.policy.v1.NetworkPolicyService.SetPolicyProtection:input_type -> n0x.policy.v1.SetPolicyProtectionRequest
-	61,  // 127: n0x.policy.v1.NetworkPolicyService.ListRevisions:input_type -> n0x.policy.v1.ListRevisionsRequest
-	63,  // 128: n0x.policy.v1.NetworkPolicyService.GetRevision:input_type -> n0x.policy.v1.GetRevisionRequest
-	65,  // 129: n0x.policy.v1.NetworkPolicyService.CreateDraft:input_type -> n0x.policy.v1.CreateDraftRequest
-	67,  // 130: n0x.policy.v1.NetworkPolicyService.PublishDraft:input_type -> n0x.policy.v1.PublishDraftRequest
-	69,  // 131: n0x.policy.v1.NetworkPolicyService.DiscardDraft:input_type -> n0x.policy.v1.DiscardDraftRequest
-	72,  // 132: n0x.policy.v1.NetworkPolicyService.Revert:input_type -> n0x.policy.v1.RevertRequest
-	74,  // 133: n0x.policy.v1.NetworkPolicyService.Compare:input_type -> n0x.policy.v1.CompareRequest
-	76,  // 134: n0x.policy.v1.NetworkPolicyService.SimulatePolicy:input_type -> n0x.policy.v1.SimulatePolicyRequest
-	78,  // 135: n0x.policy.v1.NetworkPolicyService.SynthesizePolicyDraft:input_type -> n0x.policy.v1.SynthesizePolicyDraftRequest
-	80,  // 136: n0x.policy.v1.NetworkPolicyService.ListPolicyTests:input_type -> n0x.policy.v1.ListPolicyTestsRequest
-	82,  // 137: n0x.policy.v1.NetworkPolicyService.CreatePolicyTest:input_type -> n0x.policy.v1.CreatePolicyTestRequest
-	84,  // 138: n0x.policy.v1.NetworkPolicyService.UpdatePolicyTest:input_type -> n0x.policy.v1.UpdatePolicyTestRequest
-	86,  // 139: n0x.policy.v1.NetworkPolicyService.RemovePolicyTest:input_type -> n0x.policy.v1.RemovePolicyTestRequest
-	50,  // 140: n0x.policy.v1.NetworkPolicyService.ListPolicies:output_type -> n0x.policy.v1.ListPoliciesResponse
-	52,  // 141: n0x.policy.v1.NetworkPolicyService.GetPolicy:output_type -> n0x.policy.v1.GetPolicyResponse
-	54,  // 142: n0x.policy.v1.NetworkPolicyService.CreatePolicy:output_type -> n0x.policy.v1.CreatePolicyResponse
-	56,  // 143: n0x.policy.v1.NetworkPolicyService.UpdatePolicy:output_type -> n0x.policy.v1.UpdatePolicyResponse
-	58,  // 144: n0x.policy.v1.NetworkPolicyService.RemovePolicy:output_type -> n0x.policy.v1.RemovePolicyResponse
-	60,  // 145: n0x.policy.v1.NetworkPolicyService.SetPolicyProtection:output_type -> n0x.policy.v1.SetPolicyProtectionResponse
-	62,  // 146: n0x.policy.v1.NetworkPolicyService.ListRevisions:output_type -> n0x.policy.v1.ListRevisionsResponse
-	64,  // 147: n0x.policy.v1.NetworkPolicyService.GetRevision:output_type -> n0x.policy.v1.GetRevisionResponse
-	66,  // 148: n0x.policy.v1.NetworkPolicyService.CreateDraft:output_type -> n0x.policy.v1.CreateDraftResponse
-	68,  // 149: n0x.policy.v1.NetworkPolicyService.PublishDraft:output_type -> n0x.policy.v1.PublishDraftResponse
-	70,  // 150: n0x.policy.v1.NetworkPolicyService.DiscardDraft:output_type -> n0x.policy.v1.DiscardDraftResponse
-	73,  // 151: n0x.policy.v1.NetworkPolicyService.Revert:output_type -> n0x.policy.v1.RevertResponse
-	75,  // 152: n0x.policy.v1.NetworkPolicyService.Compare:output_type -> n0x.policy.v1.CompareResponse
-	77,  // 153: n0x.policy.v1.NetworkPolicyService.SimulatePolicy:output_type -> n0x.policy.v1.SimulatePolicyResponse
-	79,  // 154: n0x.policy.v1.NetworkPolicyService.SynthesizePolicyDraft:output_type -> n0x.policy.v1.SynthesizePolicyDraftResponse
-	81,  // 155: n0x.policy.v1.NetworkPolicyService.ListPolicyTests:output_type -> n0x.policy.v1.ListPolicyTestsResponse
-	83,  // 156: n0x.policy.v1.NetworkPolicyService.CreatePolicyTest:output_type -> n0x.policy.v1.CreatePolicyTestResponse
-	85,  // 157: n0x.policy.v1.NetworkPolicyService.UpdatePolicyTest:output_type -> n0x.policy.v1.UpdatePolicyTestResponse
-	87,  // 158: n0x.policy.v1.NetworkPolicyService.RemovePolicyTest:output_type -> n0x.policy.v1.RemovePolicyTestResponse
-	140, // [140:159] is the sub-list for method output_type
-	121, // [121:140] is the sub-list for method input_type
-	121, // [121:121] is the sub-list for extension type_name
-	121, // [121:121] is the sub-list for extension extendee
-	0,   // [0:121] is the sub-list for field type_name
+	30,  // 109: n0x.policy.v1.SynthesizePolicyDraftRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
+	50,  // 110: n0x.policy.v1.SynthesizePolicyDraftResponse.candidates:type_name -> n0x.policy.v1.SynthesisCandidate
+	49,  // 111: n0x.policy.v1.SynthesizePolicyDraftResponse.conflicts:type_name -> n0x.policy.v1.SynthesisConflict
+	35,  // 112: n0x.policy.v1.SynthesizePolicyDraftResponse.warnings:type_name -> n0x.policy.v1.PolicyWarning
+	44,  // 113: n0x.policy.v1.ListPolicyTestsResponse.tests:type_name -> n0x.policy.v1.PolicyTestCase
+	44,  // 114: n0x.policy.v1.CreatePolicyTestRequest.test:type_name -> n0x.policy.v1.PolicyTestCase
+	30,  // 115: n0x.policy.v1.CreatePolicyTestRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
+	44,  // 116: n0x.policy.v1.CreatePolicyTestResponse.test:type_name -> n0x.policy.v1.PolicyTestCase
+	44,  // 117: n0x.policy.v1.UpdatePolicyTestRequest.test:type_name -> n0x.policy.v1.PolicyTestCase
+	30,  // 118: n0x.policy.v1.UpdatePolicyTestRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
+	44,  // 119: n0x.policy.v1.UpdatePolicyTestResponse.test:type_name -> n0x.policy.v1.PolicyTestCase
+	30,  // 120: n0x.policy.v1.RemovePolicyTestRequest.origin:type_name -> n0x.policy.v1.RevisionOrigin
+	2,   // 121: n0x.policy.v1.RunConnectivityProbeRequest.protocol:type_name -> n0x.policy.v1.NetworkProtocol
+	15,  // 122: n0x.policy.v1.RunConnectivityProbeResponse.verdict:type_name -> n0x.policy.v1.ConnectivityProbeVerdict
+	32,  // 123: n0x.policy.v1.RunConnectivityProbeResponse.enforcement_points:type_name -> n0x.policy.v1.EnforcementPoint
+	99,  // 124: n0x.policy.v1.RunConnectivityProbeResponse.completed_at:type_name -> google.protobuf.Timestamp
+	2,   // 125: n0x.policy.v1.WatchPairFlowRequest.protocol:type_name -> n0x.policy.v1.NetworkProtocol
+	99,  // 126: n0x.policy.v1.LivePairFlowSample.observed_at:type_name -> google.protobuf.Timestamp
+	16,  // 127: n0x.policy.v1.LivePairFlowSample.verdict:type_name -> n0x.policy.v1.PairFlowVerdict
+	93,  // 128: n0x.policy.v1.WatchPairFlowResponse.samples:type_name -> n0x.policy.v1.LivePairFlowSample
+	99,  // 129: n0x.policy.v1.WatchPairFlowResponse.checkpoint_at:type_name -> google.protobuf.Timestamp
+	51,  // 130: n0x.policy.v1.NetworkPolicyService.ListPolicies:input_type -> n0x.policy.v1.ListPoliciesRequest
+	53,  // 131: n0x.policy.v1.NetworkPolicyService.GetPolicy:input_type -> n0x.policy.v1.GetPolicyRequest
+	55,  // 132: n0x.policy.v1.NetworkPolicyService.CreatePolicy:input_type -> n0x.policy.v1.CreatePolicyRequest
+	57,  // 133: n0x.policy.v1.NetworkPolicyService.UpdatePolicy:input_type -> n0x.policy.v1.UpdatePolicyRequest
+	59,  // 134: n0x.policy.v1.NetworkPolicyService.RemovePolicy:input_type -> n0x.policy.v1.RemovePolicyRequest
+	61,  // 135: n0x.policy.v1.NetworkPolicyService.SetPolicyProtection:input_type -> n0x.policy.v1.SetPolicyProtectionRequest
+	63,  // 136: n0x.policy.v1.NetworkPolicyService.ListRevisions:input_type -> n0x.policy.v1.ListRevisionsRequest
+	65,  // 137: n0x.policy.v1.NetworkPolicyService.GetRevision:input_type -> n0x.policy.v1.GetRevisionRequest
+	67,  // 138: n0x.policy.v1.NetworkPolicyService.CreateDraft:input_type -> n0x.policy.v1.CreateDraftRequest
+	69,  // 139: n0x.policy.v1.NetworkPolicyService.PublishDraft:input_type -> n0x.policy.v1.PublishDraftRequest
+	71,  // 140: n0x.policy.v1.NetworkPolicyService.DiscardDraft:input_type -> n0x.policy.v1.DiscardDraftRequest
+	74,  // 141: n0x.policy.v1.NetworkPolicyService.Revert:input_type -> n0x.policy.v1.RevertRequest
+	76,  // 142: n0x.policy.v1.NetworkPolicyService.Compare:input_type -> n0x.policy.v1.CompareRequest
+	78,  // 143: n0x.policy.v1.NetworkPolicyService.SimulatePolicy:input_type -> n0x.policy.v1.SimulatePolicyRequest
+	80,  // 144: n0x.policy.v1.NetworkPolicyService.SynthesizePolicyDraft:input_type -> n0x.policy.v1.SynthesizePolicyDraftRequest
+	82,  // 145: n0x.policy.v1.NetworkPolicyService.ListPolicyTests:input_type -> n0x.policy.v1.ListPolicyTestsRequest
+	84,  // 146: n0x.policy.v1.NetworkPolicyService.CreatePolicyTest:input_type -> n0x.policy.v1.CreatePolicyTestRequest
+	86,  // 147: n0x.policy.v1.NetworkPolicyService.UpdatePolicyTest:input_type -> n0x.policy.v1.UpdatePolicyTestRequest
+	88,  // 148: n0x.policy.v1.NetworkPolicyService.RemovePolicyTest:input_type -> n0x.policy.v1.RemovePolicyTestRequest
+	90,  // 149: n0x.policy.v1.NetworkPolicyService.RunConnectivityProbe:input_type -> n0x.policy.v1.RunConnectivityProbeRequest
+	92,  // 150: n0x.policy.v1.NetworkPolicyService.WatchPairFlow:input_type -> n0x.policy.v1.WatchPairFlowRequest
+	52,  // 151: n0x.policy.v1.NetworkPolicyService.ListPolicies:output_type -> n0x.policy.v1.ListPoliciesResponse
+	54,  // 152: n0x.policy.v1.NetworkPolicyService.GetPolicy:output_type -> n0x.policy.v1.GetPolicyResponse
+	56,  // 153: n0x.policy.v1.NetworkPolicyService.CreatePolicy:output_type -> n0x.policy.v1.CreatePolicyResponse
+	58,  // 154: n0x.policy.v1.NetworkPolicyService.UpdatePolicy:output_type -> n0x.policy.v1.UpdatePolicyResponse
+	60,  // 155: n0x.policy.v1.NetworkPolicyService.RemovePolicy:output_type -> n0x.policy.v1.RemovePolicyResponse
+	62,  // 156: n0x.policy.v1.NetworkPolicyService.SetPolicyProtection:output_type -> n0x.policy.v1.SetPolicyProtectionResponse
+	64,  // 157: n0x.policy.v1.NetworkPolicyService.ListRevisions:output_type -> n0x.policy.v1.ListRevisionsResponse
+	66,  // 158: n0x.policy.v1.NetworkPolicyService.GetRevision:output_type -> n0x.policy.v1.GetRevisionResponse
+	68,  // 159: n0x.policy.v1.NetworkPolicyService.CreateDraft:output_type -> n0x.policy.v1.CreateDraftResponse
+	70,  // 160: n0x.policy.v1.NetworkPolicyService.PublishDraft:output_type -> n0x.policy.v1.PublishDraftResponse
+	72,  // 161: n0x.policy.v1.NetworkPolicyService.DiscardDraft:output_type -> n0x.policy.v1.DiscardDraftResponse
+	75,  // 162: n0x.policy.v1.NetworkPolicyService.Revert:output_type -> n0x.policy.v1.RevertResponse
+	77,  // 163: n0x.policy.v1.NetworkPolicyService.Compare:output_type -> n0x.policy.v1.CompareResponse
+	79,  // 164: n0x.policy.v1.NetworkPolicyService.SimulatePolicy:output_type -> n0x.policy.v1.SimulatePolicyResponse
+	81,  // 165: n0x.policy.v1.NetworkPolicyService.SynthesizePolicyDraft:output_type -> n0x.policy.v1.SynthesizePolicyDraftResponse
+	83,  // 166: n0x.policy.v1.NetworkPolicyService.ListPolicyTests:output_type -> n0x.policy.v1.ListPolicyTestsResponse
+	85,  // 167: n0x.policy.v1.NetworkPolicyService.CreatePolicyTest:output_type -> n0x.policy.v1.CreatePolicyTestResponse
+	87,  // 168: n0x.policy.v1.NetworkPolicyService.UpdatePolicyTest:output_type -> n0x.policy.v1.UpdatePolicyTestResponse
+	89,  // 169: n0x.policy.v1.NetworkPolicyService.RemovePolicyTest:output_type -> n0x.policy.v1.RemovePolicyTestResponse
+	91,  // 170: n0x.policy.v1.NetworkPolicyService.RunConnectivityProbe:output_type -> n0x.policy.v1.RunConnectivityProbeResponse
+	94,  // 171: n0x.policy.v1.NetworkPolicyService.WatchPairFlow:output_type -> n0x.policy.v1.WatchPairFlowResponse
+	151, // [151:172] is the sub-list for method output_type
+	130, // [130:151] is the sub-list for method input_type
+	130, // [130:130] is the sub-list for extension type_name
+	130, // [130:130] is the sub-list for extension extendee
+	0,   // [0:130] is the sub-list for field type_name
 }
 
 func init() { file_n0x_policy_v1_policy_proto_init() }
@@ -7218,8 +7868,8 @@ func file_n0x_policy_v1_policy_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_policy_v1_policy_proto_rawDesc), len(file_n0x_policy_v1_policy_proto_rawDesc)),
-			NumEnums:      15,
-			NumMessages:   77,
+			NumEnums:      17,
+			NumMessages:   82,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

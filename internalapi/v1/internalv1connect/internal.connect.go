@@ -50,6 +50,9 @@ const (
 	// AuthorityServiceUpdateCommercialProcedure is the procedure name of the AuthorityService's
 	// UpdateCommercial RPC.
 	AuthorityServiceUpdateCommercialProcedure = "/n0x.internal.v1.AuthorityService/UpdateCommercial"
+	// AuthorityServiceSyncAutonomyGrantProcedure is the procedure name of the AuthorityService's
+	// SyncAutonomyGrant RPC.
+	AuthorityServiceSyncAutonomyGrantProcedure = "/n0x.internal.v1.AuthorityService/SyncAutonomyGrant"
 	// CatalogServiceConnectivityServicesProcedure is the procedure name of the CatalogService's
 	// ConnectivityServices RPC.
 	CatalogServiceConnectivityServicesProcedure = "/n0x.internal.v1.CatalogService/ConnectivityServices"
@@ -128,6 +131,13 @@ var (
 			Procedure:  AuthorityServiceUpdateCommercialProcedure,
 		}
 	})
+	authorityServiceSyncAutonomyGrantSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_n0x_internal_v1_internal_proto.Services().ByName("AuthorityService").Methods().ByName("SyncAutonomyGrant"),
+			Procedure:  AuthorityServiceSyncAutonomyGrantProcedure,
+		}
+	})
 )
 
 // AuthorityServiceClient is a client for the n0x.internal.v1.AuthorityService service.
@@ -138,6 +148,7 @@ type AuthorityServiceClient interface {
 	ListBindings(context.Context, *v1.ListBindingsRequest) (*v1.ListBindingsResponse, error)
 	Activate(context.Context, *v1.ActivateRequest) (*v1.ActivateResponse, error)
 	UpdateCommercial(context.Context, *v1.UpdateCommercialRequest) (*v1.UpdateCommercialResponse, error)
+	SyncAutonomyGrant(context.Context, *v1.SyncAutonomyGrantRequest) (*v1.SyncAutonomyGrantResponse, error)
 }
 
 // NewAuthorityServiceClient constructs a client for the n0x.internal.v1.AuthorityService service.
@@ -154,6 +165,7 @@ type AuthorityServiceHandler interface {
 	ListBindings(context.Context, *v1.ListBindingsRequest) (*v1.ListBindingsResponse, error)
 	Activate(context.Context, *v1.ActivateRequest) (*v1.ActivateResponse, error)
 	UpdateCommercial(context.Context, *v1.UpdateCommercialRequest) (*v1.UpdateCommercialResponse, error)
+	SyncAutonomyGrant(context.Context, *v1.SyncAutonomyGrantRequest) (*v1.SyncAutonomyGrantResponse, error)
 }
 
 // RegisterAuthorityServiceHandler registers svc as the n0x.internal.v1.AuthorityService
@@ -167,6 +179,7 @@ func RegisterAuthorityServiceHandler(server *connect.Server, svc AuthorityServic
 		connect.Method{Spec: authorityServiceListBindingsSpec(), Handler: adapter.listBindings},
 		connect.Method{Spec: authorityServiceActivateSpec(), Handler: adapter.activate},
 		connect.Method{Spec: authorityServiceUpdateCommercialSpec(), Handler: adapter.updateCommercial},
+		connect.Method{Spec: authorityServiceSyncAutonomyGrantSpec(), Handler: adapter.syncAutonomyGrant},
 	)
 }
 
@@ -195,6 +208,10 @@ func (UnimplementedAuthorityServiceHandler) Activate(context.Context, *v1.Activa
 
 func (UnimplementedAuthorityServiceHandler) UpdateCommercial(context.Context, *v1.UpdateCommercialRequest) (*v1.UpdateCommercialResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.internal.v1.AuthorityService.UpdateCommercial is not implemented")
+}
+
+func (UnimplementedAuthorityServiceHandler) SyncAutonomyGrant(context.Context, *v1.SyncAutonomyGrantRequest) (*v1.SyncAutonomyGrantResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "n0x.internal.v1.AuthorityService.SyncAutonomyGrant is not implemented")
 }
 
 type authorityServiceClient struct {
@@ -244,6 +261,14 @@ func (c *authorityServiceClient) Activate(ctx context.Context, req *v1.ActivateR
 func (c *authorityServiceClient) UpdateCommercial(ctx context.Context, req *v1.UpdateCommercialRequest) (*v1.UpdateCommercialResponse, error) {
 	var res v1.UpdateCommercialResponse
 	if err := c.client.CallUnary(ctx, authorityServiceUpdateCommercialSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *authorityServiceClient) SyncAutonomyGrant(ctx context.Context, req *v1.SyncAutonomyGrantRequest) (*v1.SyncAutonomyGrantResponse, error) {
+	var res v1.SyncAutonomyGrantResponse
+	if err := c.client.CallUnary(ctx, authorityServiceSyncAutonomyGrantSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -317,6 +342,18 @@ func (h authorityServiceHandler) updateCommercial(ctx context.Context, _ connect
 		return err
 	}
 	res, err := h.svc.UpdateCommercial(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h authorityServiceHandler) syncAutonomyGrant(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SyncAutonomyGrantRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.SyncAutonomyGrant(ctx, &req)
 	if err != nil {
 		return err
 	}
