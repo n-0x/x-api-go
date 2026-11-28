@@ -132,6 +132,155 @@ func (ToolOutcome) EnumDescriptor() ([]byte, []int) {
 	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{1}
 }
 
+// Forma de spec_json para cada tipo. Los nombres de metric y range son los de
+// n0x.metrics.v1.Metric y n0x.metrics.v1.Range.
+type CanvasArtifactKind int32
+
+const (
+	CanvasArtifactKind_CANVAS_ARTIFACT_KIND_UNSPECIFIED CanvasArtifactKind = 0
+	// {"node_ids":[...],"metric":"NODE_CPU_PERCENT|...(n0x.metrics.v1.Metric name)","range":"RANGE_1H|RANGE_6H|RANGE_24H|RANGE_7D|RANGE_30D"}
+	CanvasArtifactKind_CANVAS_ARTIFACT_KIND_METRIC_SERIES CanvasArtifactKind = 1
+	// {"node_ids":[],"metric":"...","range":"..."}; node_ids vacio: todos los
+	// nodos.
+	CanvasArtifactKind_CANVAS_ARTIFACT_KIND_METRIC_COMPARISON CanvasArtifactKind = 2
+	// {"node_id":"..."}
+	CanvasArtifactKind_CANVAS_ARTIFACT_KIND_NODE_DETAIL CanvasArtifactKind = 3
+	// {"node_ids":[],"range":"...","protocol":"udp|tcp|icmp|any"}
+	CanvasArtifactKind_CANVAS_ARTIFACT_KIND_TRAFFIC_FLOWS CanvasArtifactKind = 4
+	// {"source_identity_id":"...","target_identity_id":"...","protocol":"udp|tcp|icmp","port":0}
+	CanvasArtifactKind_CANVAS_ARTIFACT_KIND_CONNECTIVITY_PROBE CanvasArtifactKind = 5
+	// {"change_id":"..."}
+	CanvasArtifactKind_CANVAS_ARTIFACT_KIND_POLICY_DIFF CanvasArtifactKind = 6
+	// {"source_identity_id":"...","target_identity_id":"...","protocol":"...","port":0,"action":"deny|allow"}
+	CanvasArtifactKind_CANVAS_ARTIFACT_KIND_POLICY_SIMULATION CanvasArtifactKind = 7
+	// {"node_ids":[...]}
+	CanvasArtifactKind_CANVAS_ARTIFACT_KIND_TOPOLOGY CanvasArtifactKind = 8
+	// {"node_ids":[...],"from":"RFC3339 or empty","kinds":[...]}
+	CanvasArtifactKind_CANVAS_ARTIFACT_KIND_EVENT_LOG CanvasArtifactKind = 9
+	// {"node_ids":[...],"metric":"... or empty"}
+	CanvasArtifactKind_CANVAS_ARTIFACT_KIND_ALERTS CanvasArtifactKind = 10
+	// {"operation":"full method name of a READ operation","request":{...},"columns":["dotted.field.path",...]}
+	CanvasArtifactKind_CANVAS_ARTIFACT_KIND_QUERY_VIEW CanvasArtifactKind = 11
+	// {"text":"plain text, at most 400 code points","tone":"info|warning"}
+	CanvasArtifactKind_CANVAS_ARTIFACT_KIND_NOTE CanvasArtifactKind = 12
+)
+
+// Enum value maps for CanvasArtifactKind.
+var (
+	CanvasArtifactKind_name = map[int32]string{
+		0:  "CANVAS_ARTIFACT_KIND_UNSPECIFIED",
+		1:  "CANVAS_ARTIFACT_KIND_METRIC_SERIES",
+		2:  "CANVAS_ARTIFACT_KIND_METRIC_COMPARISON",
+		3:  "CANVAS_ARTIFACT_KIND_NODE_DETAIL",
+		4:  "CANVAS_ARTIFACT_KIND_TRAFFIC_FLOWS",
+		5:  "CANVAS_ARTIFACT_KIND_CONNECTIVITY_PROBE",
+		6:  "CANVAS_ARTIFACT_KIND_POLICY_DIFF",
+		7:  "CANVAS_ARTIFACT_KIND_POLICY_SIMULATION",
+		8:  "CANVAS_ARTIFACT_KIND_TOPOLOGY",
+		9:  "CANVAS_ARTIFACT_KIND_EVENT_LOG",
+		10: "CANVAS_ARTIFACT_KIND_ALERTS",
+		11: "CANVAS_ARTIFACT_KIND_QUERY_VIEW",
+		12: "CANVAS_ARTIFACT_KIND_NOTE",
+	}
+	CanvasArtifactKind_value = map[string]int32{
+		"CANVAS_ARTIFACT_KIND_UNSPECIFIED":        0,
+		"CANVAS_ARTIFACT_KIND_METRIC_SERIES":      1,
+		"CANVAS_ARTIFACT_KIND_METRIC_COMPARISON":  2,
+		"CANVAS_ARTIFACT_KIND_NODE_DETAIL":        3,
+		"CANVAS_ARTIFACT_KIND_TRAFFIC_FLOWS":      4,
+		"CANVAS_ARTIFACT_KIND_CONNECTIVITY_PROBE": 5,
+		"CANVAS_ARTIFACT_KIND_POLICY_DIFF":        6,
+		"CANVAS_ARTIFACT_KIND_POLICY_SIMULATION":  7,
+		"CANVAS_ARTIFACT_KIND_TOPOLOGY":           8,
+		"CANVAS_ARTIFACT_KIND_EVENT_LOG":          9,
+		"CANVAS_ARTIFACT_KIND_ALERTS":             10,
+		"CANVAS_ARTIFACT_KIND_QUERY_VIEW":         11,
+		"CANVAS_ARTIFACT_KIND_NOTE":               12,
+	}
+)
+
+func (x CanvasArtifactKind) Enum() *CanvasArtifactKind {
+	p := new(CanvasArtifactKind)
+	*p = x
+	return p
+}
+
+func (x CanvasArtifactKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CanvasArtifactKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_assistant_v1_assistant_proto_enumTypes[2].Descriptor()
+}
+
+func (CanvasArtifactKind) Type() protoreflect.EnumType {
+	return &file_n0x_assistant_v1_assistant_proto_enumTypes[2]
+}
+
+func (x CanvasArtifactKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CanvasArtifactKind.Descriptor instead.
+func (CanvasArtifactKind) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{2}
+}
+
+type CanvasArtifactRole int32
+
+const (
+	CanvasArtifactRole_CANVAS_ARTIFACT_ROLE_UNSPECIFIED CanvasArtifactRole = 0
+	// Responde directamente a lo que pidio el usuario.
+	CanvasArtifactRole_CANVAS_ARTIFACT_ROLE_ANSWER CanvasArtifactRole = 1
+	// Prueba un cambio o una verificacion.
+	CanvasArtifactRole_CANVAS_ARTIFACT_ROLE_EVIDENCE CanvasArtifactRole = 2
+	// Lo sugiere el asistente; rationale dice por que.
+	CanvasArtifactRole_CANVAS_ARTIFACT_ROLE_PROACTIVE CanvasArtifactRole = 3
+)
+
+// Enum value maps for CanvasArtifactRole.
+var (
+	CanvasArtifactRole_name = map[int32]string{
+		0: "CANVAS_ARTIFACT_ROLE_UNSPECIFIED",
+		1: "CANVAS_ARTIFACT_ROLE_ANSWER",
+		2: "CANVAS_ARTIFACT_ROLE_EVIDENCE",
+		3: "CANVAS_ARTIFACT_ROLE_PROACTIVE",
+	}
+	CanvasArtifactRole_value = map[string]int32{
+		"CANVAS_ARTIFACT_ROLE_UNSPECIFIED": 0,
+		"CANVAS_ARTIFACT_ROLE_ANSWER":      1,
+		"CANVAS_ARTIFACT_ROLE_EVIDENCE":    2,
+		"CANVAS_ARTIFACT_ROLE_PROACTIVE":   3,
+	}
+)
+
+func (x CanvasArtifactRole) Enum() *CanvasArtifactRole {
+	p := new(CanvasArtifactRole)
+	*p = x
+	return p
+}
+
+func (x CanvasArtifactRole) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CanvasArtifactRole) Descriptor() protoreflect.EnumDescriptor {
+	return file_n0x_assistant_v1_assistant_proto_enumTypes[3].Descriptor()
+}
+
+func (CanvasArtifactRole) Type() protoreflect.EnumType {
+	return &file_n0x_assistant_v1_assistant_proto_enumTypes[3]
+}
+
+func (x CanvasArtifactRole) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CanvasArtifactRole.Descriptor instead.
+func (CanvasArtifactRole) EnumDescriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{3}
+}
+
 type ProposedChangeStatus int32
 
 const (
@@ -175,11 +324,11 @@ func (x ProposedChangeStatus) String() string {
 }
 
 func (ProposedChangeStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_n0x_assistant_v1_assistant_proto_enumTypes[2].Descriptor()
+	return file_n0x_assistant_v1_assistant_proto_enumTypes[4].Descriptor()
 }
 
 func (ProposedChangeStatus) Type() protoreflect.EnumType {
-	return &file_n0x_assistant_v1_assistant_proto_enumTypes[2]
+	return &file_n0x_assistant_v1_assistant_proto_enumTypes[4]
 }
 
 func (x ProposedChangeStatus) Number() protoreflect.EnumNumber {
@@ -188,7 +337,7 @@ func (x ProposedChangeStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProposedChangeStatus.Descriptor instead.
 func (ProposedChangeStatus) EnumDescriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{2}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{4}
 }
 
 type AutonomyMode int32
@@ -224,11 +373,11 @@ func (x AutonomyMode) String() string {
 }
 
 func (AutonomyMode) Descriptor() protoreflect.EnumDescriptor {
-	return file_n0x_assistant_v1_assistant_proto_enumTypes[3].Descriptor()
+	return file_n0x_assistant_v1_assistant_proto_enumTypes[5].Descriptor()
 }
 
 func (AutonomyMode) Type() protoreflect.EnumType {
-	return &file_n0x_assistant_v1_assistant_proto_enumTypes[3]
+	return &file_n0x_assistant_v1_assistant_proto_enumTypes[5]
 }
 
 func (x AutonomyMode) Number() protoreflect.EnumNumber {
@@ -237,7 +386,7 @@ func (x AutonomyMode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AutonomyMode.Descriptor instead.
 func (AutonomyMode) EnumDescriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{3}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{5}
 }
 
 type VerificationCheckKind int32
@@ -282,11 +431,11 @@ func (x VerificationCheckKind) String() string {
 }
 
 func (VerificationCheckKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_n0x_assistant_v1_assistant_proto_enumTypes[4].Descriptor()
+	return file_n0x_assistant_v1_assistant_proto_enumTypes[6].Descriptor()
 }
 
 func (VerificationCheckKind) Type() protoreflect.EnumType {
-	return &file_n0x_assistant_v1_assistant_proto_enumTypes[4]
+	return &file_n0x_assistant_v1_assistant_proto_enumTypes[6]
 }
 
 func (x VerificationCheckKind) Number() protoreflect.EnumNumber {
@@ -295,7 +444,7 @@ func (x VerificationCheckKind) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use VerificationCheckKind.Descriptor instead.
 func (VerificationCheckKind) EnumDescriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{4}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{6}
 }
 
 type VerificationExpectedVerdict int32
@@ -334,11 +483,11 @@ func (x VerificationExpectedVerdict) String() string {
 }
 
 func (VerificationExpectedVerdict) Descriptor() protoreflect.EnumDescriptor {
-	return file_n0x_assistant_v1_assistant_proto_enumTypes[5].Descriptor()
+	return file_n0x_assistant_v1_assistant_proto_enumTypes[7].Descriptor()
 }
 
 func (VerificationExpectedVerdict) Type() protoreflect.EnumType {
-	return &file_n0x_assistant_v1_assistant_proto_enumTypes[5]
+	return &file_n0x_assistant_v1_assistant_proto_enumTypes[7]
 }
 
 func (x VerificationExpectedVerdict) Number() protoreflect.EnumNumber {
@@ -347,7 +496,7 @@ func (x VerificationExpectedVerdict) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use VerificationExpectedVerdict.Descriptor instead.
 func (VerificationExpectedVerdict) EnumDescriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{5}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{7}
 }
 
 type VerificationStatus int32
@@ -389,11 +538,11 @@ func (x VerificationStatus) String() string {
 }
 
 func (VerificationStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_n0x_assistant_v1_assistant_proto_enumTypes[6].Descriptor()
+	return file_n0x_assistant_v1_assistant_proto_enumTypes[8].Descriptor()
 }
 
 func (VerificationStatus) Type() protoreflect.EnumType {
-	return &file_n0x_assistant_v1_assistant_proto_enumTypes[6]
+	return &file_n0x_assistant_v1_assistant_proto_enumTypes[8]
 }
 
 func (x VerificationStatus) Number() protoreflect.EnumNumber {
@@ -402,7 +551,7 @@ func (x VerificationStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use VerificationStatus.Descriptor instead.
 func (VerificationStatus) EnumDescriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{6}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{8}
 }
 
 type Conversation struct {
@@ -577,7 +726,10 @@ type Message struct {
 	// Solo en el mensaje del asistente que cierra un turno completado, en
 	// orden. El servidor nunca escribe un mensaje del asistente con text vacio,
 	// tenga o no actividad (una consola en v0.6.0 lo mostraria vacio).
-	Activity      []*ToolActivity `protobuf:"bytes,7,rep,name=activity,proto3" json:"activity,omitempty"`
+	Activity []*ToolActivity `protobuf:"bytes,7,rep,name=activity,proto3" json:"activity,omitempty"`
+	// Como activity: solo en el mensaje del asistente que cierra un turno
+	// completado, en orden.
+	Canvas        []*CanvasArtifact `protobuf:"bytes,8,rep,name=canvas,proto3" json:"canvas,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -661,6 +813,13 @@ func (x *Message) GetActivity() []*ToolActivity {
 	return nil
 }
 
+func (x *Message) GetCanvas() []*CanvasArtifact {
+	if x != nil {
+		return x.Canvas
+	}
+	return nil
+}
+
 type Turn struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
 	Id     string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -668,7 +827,10 @@ type Turn struct {
 	Error  string                 `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
 	// La del turno en curso o fallido; vacia cuando el turno se completo (esta
 	// en el mensaje).
-	Activity      []*ToolActivity `protobuf:"bytes,4,rep,name=activity,proto3" json:"activity,omitempty"`
+	Activity []*ToolActivity `protobuf:"bytes,4,rep,name=activity,proto3" json:"activity,omitempty"`
+	// Los del turno en curso o fallido; vacio cuando el turno se completo
+	// (estan en el mensaje).
+	Canvas        []*CanvasArtifact `protobuf:"bytes,5,rep,name=canvas,proto3" json:"canvas,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -727,6 +889,13 @@ func (x *Turn) GetError() string {
 func (x *Turn) GetActivity() []*ToolActivity {
 	if x != nil {
 		return x.Activity
+	}
+	return nil
+}
+
+func (x *Turn) GetCanvas() []*CanvasArtifact {
+	if x != nil {
+		return x.Canvas
 	}
 	return nil
 }
@@ -1071,6 +1240,124 @@ func (x *ToolActivity) GetError() string {
 	return ""
 }
 
+// Un artefacto del lienzo de Ask AI. Lo compone el manager; nunca lleva
+// valores leidos ni valores del modelo que el navegador deba creer.
+type CanvasArtifact struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// "<turn_id>/<n>", unico en la conversacion.
+	ArtifactId string             `protobuf:"bytes,1,opt,name=artifact_id,json=artifactId,proto3" json:"artifact_id,omitempty"`
+	TurnId     string             `protobuf:"bytes,2,opt,name=turn_id,json=turnId,proto3" json:"turn_id,omitempty"`
+	Kind       CanvasArtifactKind `protobuf:"varint,3,opt,name=kind,proto3,enum=n0x.assistant.v1.CanvasArtifactKind" json:"kind,omitempty"`
+	Role       CanvasArtifactRole `protobuf:"varint,4,opt,name=role,proto3,enum=n0x.assistant.v1.CanvasArtifactRole" json:"role,omitempty"`
+	// Texto plano, hasta 80 code points Unicode.
+	Title string `protobuf:"bytes,5,opt,name=title,proto3" json:"title,omitempty"`
+	// Texto plano, hasta 200 code points: por que se muestra.
+	Rationale string `protobuf:"bytes,6,opt,name=rationale,proto3" json:"rationale,omitempty"`
+	// Objeto JSON con la forma de kind, hasta 4096 bytes; lo valida el
+	// manager. El navegador lo vuelve a validar y lee todos los valores de x-api
+	// por si mismo: no confia en ningun valor del modelo.
+	SpecJson string `protobuf:"bytes,7,opt,name=spec_json,json=specJson,proto3" json:"spec_json,omitempty"`
+	// Nombres completos protobuf de las lecturas que lo fundamentan, como
+	// mucho 8.
+	SourceOperations []string               `protobuf:"bytes,8,rep,name=source_operations,json=sourceOperations,proto3" json:"source_operations,omitempty"`
+	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *CanvasArtifact) Reset() {
+	*x = CanvasArtifact{}
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CanvasArtifact) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CanvasArtifact) ProtoMessage() {}
+
+func (x *CanvasArtifact) ProtoReflect() protoreflect.Message {
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CanvasArtifact.ProtoReflect.Descriptor instead.
+func (*CanvasArtifact) Descriptor() ([]byte, []int) {
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CanvasArtifact) GetArtifactId() string {
+	if x != nil {
+		return x.ArtifactId
+	}
+	return ""
+}
+
+func (x *CanvasArtifact) GetTurnId() string {
+	if x != nil {
+		return x.TurnId
+	}
+	return ""
+}
+
+func (x *CanvasArtifact) GetKind() CanvasArtifactKind {
+	if x != nil {
+		return x.Kind
+	}
+	return CanvasArtifactKind_CANVAS_ARTIFACT_KIND_UNSPECIFIED
+}
+
+func (x *CanvasArtifact) GetRole() CanvasArtifactRole {
+	if x != nil {
+		return x.Role
+	}
+	return CanvasArtifactRole_CANVAS_ARTIFACT_ROLE_UNSPECIFIED
+}
+
+func (x *CanvasArtifact) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *CanvasArtifact) GetRationale() string {
+	if x != nil {
+		return x.Rationale
+	}
+	return ""
+}
+
+func (x *CanvasArtifact) GetSpecJson() string {
+	if x != nil {
+		return x.SpecJson
+	}
+	return ""
+}
+
+func (x *CanvasArtifact) GetSourceOperations() []string {
+	if x != nil {
+		return x.SourceOperations
+	}
+	return nil
+}
+
+func (x *CanvasArtifact) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
 type ProposedChange struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Lo asigna el manager; unico en la conversacion.
@@ -1109,7 +1396,7 @@ type ProposedChange struct {
 
 func (x *ProposedChange) Reset() {
 	*x = ProposedChange{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[7]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1121,7 +1408,7 @@ func (x *ProposedChange) String() string {
 func (*ProposedChange) ProtoMessage() {}
 
 func (x *ProposedChange) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[7]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1134,7 +1421,7 @@ func (x *ProposedChange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProposedChange.ProtoReflect.Descriptor instead.
 func (*ProposedChange) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{7}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ProposedChange) GetChangeId() string {
@@ -1237,7 +1524,7 @@ type ProposedChangeOutcome struct {
 
 func (x *ProposedChangeOutcome) Reset() {
 	*x = ProposedChangeOutcome{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[8]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1249,7 +1536,7 @@ func (x *ProposedChangeOutcome) String() string {
 func (*ProposedChangeOutcome) ProtoMessage() {}
 
 func (x *ProposedChangeOutcome) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[8]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1262,7 +1549,7 @@ func (x *ProposedChangeOutcome) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProposedChangeOutcome.ProtoReflect.Descriptor instead.
 func (*ProposedChangeOutcome) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{8}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ProposedChangeOutcome) GetChangeId() string {
@@ -1305,7 +1592,7 @@ type CreateConversationRequest struct {
 
 func (x *CreateConversationRequest) Reset() {
 	*x = CreateConversationRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[9]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1317,7 +1604,7 @@ func (x *CreateConversationRequest) String() string {
 func (*CreateConversationRequest) ProtoMessage() {}
 
 func (x *CreateConversationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[9]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1330,7 +1617,7 @@ func (x *CreateConversationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateConversationRequest.ProtoReflect.Descriptor instead.
 func (*CreateConversationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{9}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *CreateConversationRequest) GetAccountId() string {
@@ -1370,7 +1657,7 @@ type CreateConversationResponse struct {
 
 func (x *CreateConversationResponse) Reset() {
 	*x = CreateConversationResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[10]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1382,7 +1669,7 @@ func (x *CreateConversationResponse) String() string {
 func (*CreateConversationResponse) ProtoMessage() {}
 
 func (x *CreateConversationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[10]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1395,7 +1682,7 @@ func (x *CreateConversationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateConversationResponse.ProtoReflect.Descriptor instead.
 func (*CreateConversationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{10}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CreateConversationResponse) GetConversation() *Conversation {
@@ -1415,7 +1702,7 @@ type ListConversationsRequest struct {
 
 func (x *ListConversationsRequest) Reset() {
 	*x = ListConversationsRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[11]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1427,7 +1714,7 @@ func (x *ListConversationsRequest) String() string {
 func (*ListConversationsRequest) ProtoMessage() {}
 
 func (x *ListConversationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[11]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1440,7 +1727,7 @@ func (x *ListConversationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListConversationsRequest.ProtoReflect.Descriptor instead.
 func (*ListConversationsRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{11}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListConversationsRequest) GetAccountId() string {
@@ -1466,7 +1753,7 @@ type ListConversationsResponse struct {
 
 func (x *ListConversationsResponse) Reset() {
 	*x = ListConversationsResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[12]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1478,7 +1765,7 @@ func (x *ListConversationsResponse) String() string {
 func (*ListConversationsResponse) ProtoMessage() {}
 
 func (x *ListConversationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[12]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1491,7 +1778,7 @@ func (x *ListConversationsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListConversationsResponse.ProtoReflect.Descriptor instead.
 func (*ListConversationsResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{12}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListConversationsResponse) GetConversations() []*Conversation {
@@ -1510,7 +1797,7 @@ type GetConversationRequest struct {
 
 func (x *GetConversationRequest) Reset() {
 	*x = GetConversationRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[13]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1522,7 +1809,7 @@ func (x *GetConversationRequest) String() string {
 func (*GetConversationRequest) ProtoMessage() {}
 
 func (x *GetConversationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[13]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1535,7 +1822,7 @@ func (x *GetConversationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetConversationRequest.ProtoReflect.Descriptor instead.
 func (*GetConversationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{13}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetConversationRequest) GetConversationId() string {
@@ -1554,7 +1841,7 @@ type GetConversationResponse struct {
 
 func (x *GetConversationResponse) Reset() {
 	*x = GetConversationResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[14]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1566,7 +1853,7 @@ func (x *GetConversationResponse) String() string {
 func (*GetConversationResponse) ProtoMessage() {}
 
 func (x *GetConversationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[14]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1579,7 +1866,7 @@ func (x *GetConversationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetConversationResponse.ProtoReflect.Descriptor instead.
 func (*GetConversationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{14}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetConversationResponse) GetConversation() *Conversation {
@@ -1603,7 +1890,7 @@ type SendMessageRequest struct {
 
 func (x *SendMessageRequest) Reset() {
 	*x = SendMessageRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[15]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1615,7 +1902,7 @@ func (x *SendMessageRequest) String() string {
 func (*SendMessageRequest) ProtoMessage() {}
 
 func (x *SendMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[15]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1628,7 +1915,7 @@ func (x *SendMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendMessageRequest.ProtoReflect.Descriptor instead.
 func (*SendMessageRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{15}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *SendMessageRequest) GetConversationId() string {
@@ -1675,7 +1962,7 @@ type SendMessageResponse struct {
 
 func (x *SendMessageResponse) Reset() {
 	*x = SendMessageResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[16]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1687,7 +1974,7 @@ func (x *SendMessageResponse) String() string {
 func (*SendMessageResponse) ProtoMessage() {}
 
 func (x *SendMessageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[16]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1700,7 +1987,7 @@ func (x *SendMessageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendMessageResponse.ProtoReflect.Descriptor instead.
 func (*SendMessageResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{16}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *SendMessageResponse) GetConversation() *Conversation {
@@ -1720,7 +2007,7 @@ type DeleteConversationRequest struct {
 
 func (x *DeleteConversationRequest) Reset() {
 	*x = DeleteConversationRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[17]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1732,7 +2019,7 @@ func (x *DeleteConversationRequest) String() string {
 func (*DeleteConversationRequest) ProtoMessage() {}
 
 func (x *DeleteConversationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[17]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1745,7 +2032,7 @@ func (x *DeleteConversationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteConversationRequest.ProtoReflect.Descriptor instead.
 func (*DeleteConversationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{17}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *DeleteConversationRequest) GetConversationId() string {
@@ -1770,7 +2057,7 @@ type DeleteConversationResponse struct {
 
 func (x *DeleteConversationResponse) Reset() {
 	*x = DeleteConversationResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[18]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1782,7 +2069,7 @@ func (x *DeleteConversationResponse) String() string {
 func (*DeleteConversationResponse) ProtoMessage() {}
 
 func (x *DeleteConversationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[18]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1795,7 +2082,7 @@ func (x *DeleteConversationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteConversationResponse.ProtoReflect.Descriptor instead.
 func (*DeleteConversationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{18}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{19}
 }
 
 type DismissProposalRequest struct {
@@ -1810,7 +2097,7 @@ type DismissProposalRequest struct {
 
 func (x *DismissProposalRequest) Reset() {
 	*x = DismissProposalRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[19]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1822,7 +2109,7 @@ func (x *DismissProposalRequest) String() string {
 func (*DismissProposalRequest) ProtoMessage() {}
 
 func (x *DismissProposalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[19]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1835,7 +2122,7 @@ func (x *DismissProposalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DismissProposalRequest.ProtoReflect.Descriptor instead.
 func (*DismissProposalRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{19}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *DismissProposalRequest) GetConversationId() string {
@@ -1875,7 +2162,7 @@ type DismissProposalResponse struct {
 
 func (x *DismissProposalResponse) Reset() {
 	*x = DismissProposalResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[20]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1887,7 +2174,7 @@ func (x *DismissProposalResponse) String() string {
 func (*DismissProposalResponse) ProtoMessage() {}
 
 func (x *DismissProposalResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[20]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1900,7 +2187,7 @@ func (x *DismissProposalResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DismissProposalResponse.ProtoReflect.Descriptor instead.
 func (*DismissProposalResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{20}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *DismissProposalResponse) GetConversation() *Conversation {
@@ -1926,7 +2213,7 @@ type ReportProposalOutcomeRequest struct {
 
 func (x *ReportProposalOutcomeRequest) Reset() {
 	*x = ReportProposalOutcomeRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[21]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1938,7 +2225,7 @@ func (x *ReportProposalOutcomeRequest) String() string {
 func (*ReportProposalOutcomeRequest) ProtoMessage() {}
 
 func (x *ReportProposalOutcomeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[21]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1951,7 +2238,7 @@ func (x *ReportProposalOutcomeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportProposalOutcomeRequest.ProtoReflect.Descriptor instead.
 func (*ReportProposalOutcomeRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{21}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ReportProposalOutcomeRequest) GetConversationId() string {
@@ -1984,7 +2271,7 @@ type ReportProposalOutcomeResponse struct {
 
 func (x *ReportProposalOutcomeResponse) Reset() {
 	*x = ReportProposalOutcomeResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[22]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1996,7 +2283,7 @@ func (x *ReportProposalOutcomeResponse) String() string {
 func (*ReportProposalOutcomeResponse) ProtoMessage() {}
 
 func (x *ReportProposalOutcomeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[22]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2009,7 +2296,7 @@ func (x *ReportProposalOutcomeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportProposalOutcomeResponse.ProtoReflect.Descriptor instead.
 func (*ReportProposalOutcomeResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{22}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ReportProposalOutcomeResponse) GetConversation() *Conversation {
@@ -2036,7 +2323,7 @@ type VerificationSpec struct {
 
 func (x *VerificationSpec) Reset() {
 	*x = VerificationSpec{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[23]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2048,7 +2335,7 @@ func (x *VerificationSpec) String() string {
 func (*VerificationSpec) ProtoMessage() {}
 
 func (x *VerificationSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[23]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2061,7 +2348,7 @@ func (x *VerificationSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerificationSpec.ProtoReflect.Descriptor instead.
 func (*VerificationSpec) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{23}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *VerificationSpec) GetSpecId() string {
@@ -2147,7 +2434,7 @@ type VerificationRecord struct {
 
 func (x *VerificationRecord) Reset() {
 	*x = VerificationRecord{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[24]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2159,7 +2446,7 @@ func (x *VerificationRecord) String() string {
 func (*VerificationRecord) ProtoMessage() {}
 
 func (x *VerificationRecord) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[24]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2172,7 +2459,7 @@ func (x *VerificationRecord) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerificationRecord.ProtoReflect.Descriptor instead.
 func (*VerificationRecord) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{24}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *VerificationRecord) GetVerificationId() string {
@@ -2272,7 +2559,7 @@ type SetAutonomyModeRequest struct {
 
 func (x *SetAutonomyModeRequest) Reset() {
 	*x = SetAutonomyModeRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[25]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2284,7 +2571,7 @@ func (x *SetAutonomyModeRequest) String() string {
 func (*SetAutonomyModeRequest) ProtoMessage() {}
 
 func (x *SetAutonomyModeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[25]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2297,7 +2584,7 @@ func (x *SetAutonomyModeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAutonomyModeRequest.ProtoReflect.Descriptor instead.
 func (*SetAutonomyModeRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{25}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *SetAutonomyModeRequest) GetConversationId() string {
@@ -2344,7 +2631,7 @@ type SetAutonomyModeResponse struct {
 
 func (x *SetAutonomyModeResponse) Reset() {
 	*x = SetAutonomyModeResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[26]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2356,7 +2643,7 @@ func (x *SetAutonomyModeResponse) String() string {
 func (*SetAutonomyModeResponse) ProtoMessage() {}
 
 func (x *SetAutonomyModeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[26]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2369,7 +2656,7 @@ func (x *SetAutonomyModeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAutonomyModeResponse.ProtoReflect.Descriptor instead.
 func (*SetAutonomyModeResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{26}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *SetAutonomyModeResponse) GetConversation() *Conversation {
@@ -2390,7 +2677,7 @@ type WatchConversationRequest struct {
 
 func (x *WatchConversationRequest) Reset() {
 	*x = WatchConversationRequest{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[27]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2402,7 +2689,7 @@ func (x *WatchConversationRequest) String() string {
 func (*WatchConversationRequest) ProtoMessage() {}
 
 func (x *WatchConversationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[27]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2415,7 +2702,7 @@ func (x *WatchConversationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WatchConversationRequest.ProtoReflect.Descriptor instead.
 func (*WatchConversationRequest) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{27}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *WatchConversationRequest) GetConversationId() string {
@@ -2450,7 +2737,7 @@ type WatchConversationResponse struct {
 
 func (x *WatchConversationResponse) Reset() {
 	*x = WatchConversationResponse{}
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[28]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2462,7 +2749,7 @@ func (x *WatchConversationResponse) String() string {
 func (*WatchConversationResponse) ProtoMessage() {}
 
 func (x *WatchConversationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[28]
+	mi := &file_n0x_assistant_v1_assistant_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2475,7 +2762,7 @@ func (x *WatchConversationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WatchConversationResponse.ProtoReflect.Descriptor instead.
 func (*WatchConversationResponse) Descriptor() ([]byte, []int) {
-	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{28}
+	return file_n0x_assistant_v1_assistant_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *WatchConversationResponse) GetConversation() *Conversation {
@@ -2523,7 +2810,7 @@ const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"\achanges\x18\f \x03(\v2 .n0x.assistant.v1.ProposedChangeR\achanges\x12C\n" +
 	"\rautonomy_mode\x18\r \x01(\x0e2\x1e.n0x.assistant.v1.AutonomyModeR\fautonomyMode\x12*\n" +
 	"\x11autonomy_grant_id\x18\x0e \x01(\tR\x0fautonomyGrantId\x12J\n" +
-	"\rverifications\x18\x0f \x03(\v2$.n0x.assistant.v1.VerificationRecordR\rverifications\"\xdc\x01\n" +
+	"\rverifications\x18\x0f \x03(\v2$.n0x.assistant.v1.VerificationRecordR\rverifications\"\x96\x02\n" +
 	"\aMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04role\x18\x02 \x01(\tR\x04role\x12\x12\n" +
@@ -2532,12 +2819,14 @@ const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"\n" +
 	"request_id\x18\x05 \x01(\tR\trequestId\x12*\n" +
 	"\x02at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12:\n" +
-	"\bactivity\x18\a \x03(\v2\x1e.n0x.assistant.v1.ToolActivityR\bactivity\"\x80\x01\n" +
+	"\bactivity\x18\a \x03(\v2\x1e.n0x.assistant.v1.ToolActivityR\bactivity\x128\n" +
+	"\x06canvas\x18\b \x03(\v2 .n0x.assistant.v1.CanvasArtifactR\x06canvas\"\xba\x01\n" +
 	"\x04Turn\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12\x14\n" +
 	"\x05error\x18\x03 \x01(\tR\x05error\x12:\n" +
-	"\bactivity\x18\x04 \x03(\v2\x1e.n0x.assistant.v1.ToolActivityR\bactivity\"\xa7\x01\n" +
+	"\bactivity\x18\x04 \x03(\v2\x1e.n0x.assistant.v1.ToolActivityR\bactivity\x128\n" +
+	"\x06canvas\x18\x05 \x03(\v2 .n0x.assistant.v1.CanvasArtifactR\x06canvas\"\xa7\x01\n" +
 	"\bProposal\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\brevision\x18\x02 \x01(\tR\brevision\x12\x16\n" +
@@ -2564,7 +2853,19 @@ const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"\voccurred_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"occurredAt\x12\x1b\n" +
 	"\tchange_id\x18\a \x01(\tR\bchangeId\x12\x14\n" +
-	"\x05error\x18\b \x01(\tR\x05error\"\xac\x04\n" +
+	"\x05error\x18\b \x01(\tR\x05error\"\xf7\x02\n" +
+	"\x0eCanvasArtifact\x12\x1f\n" +
+	"\vartifact_id\x18\x01 \x01(\tR\n" +
+	"artifactId\x12\x17\n" +
+	"\aturn_id\x18\x02 \x01(\tR\x06turnId\x128\n" +
+	"\x04kind\x18\x03 \x01(\x0e2$.n0x.assistant.v1.CanvasArtifactKindR\x04kind\x128\n" +
+	"\x04role\x18\x04 \x01(\x0e2$.n0x.assistant.v1.CanvasArtifactRoleR\x04role\x12\x14\n" +
+	"\x05title\x18\x05 \x01(\tR\x05title\x12\x1c\n" +
+	"\trationale\x18\x06 \x01(\tR\trationale\x12\x1b\n" +
+	"\tspec_json\x18\a \x01(\tR\bspecJson\x12+\n" +
+	"\x11source_operations\x18\b \x03(\tR\x10sourceOperations\x129\n" +
+	"\n" +
+	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xac\x04\n" +
 	"\x0eProposedChange\x12\x1b\n" +
 	"\tchange_id\x18\x01 \x01(\tR\bchangeId\x12\x1c\n" +
 	"\toperation\x18\x02 \x01(\tR\toperation\x121\n" +
@@ -2691,7 +2992,27 @@ const file_n0x_assistant_v1_assistant_proto_rawDesc = "" +
 	"\x15TOOL_OUTCOME_EXECUTED\x10\x01\x12\x19\n" +
 	"\x15TOOL_OUTCOME_PROPOSED\x10\x02\x12%\n" +
 	"!TOOL_OUTCOME_PENDING_CONFIRMATION\x10\x03\x12\x19\n" +
-	"\x15TOOL_OUTCOME_REJECTED\x10\x04*\xd0\x01\n" +
+	"\x15TOOL_OUTCOME_REJECTED\x10\x04*\x87\x04\n" +
+	"\x12CanvasArtifactKind\x12$\n" +
+	" CANVAS_ARTIFACT_KIND_UNSPECIFIED\x10\x00\x12&\n" +
+	"\"CANVAS_ARTIFACT_KIND_METRIC_SERIES\x10\x01\x12*\n" +
+	"&CANVAS_ARTIFACT_KIND_METRIC_COMPARISON\x10\x02\x12$\n" +
+	" CANVAS_ARTIFACT_KIND_NODE_DETAIL\x10\x03\x12&\n" +
+	"\"CANVAS_ARTIFACT_KIND_TRAFFIC_FLOWS\x10\x04\x12+\n" +
+	"'CANVAS_ARTIFACT_KIND_CONNECTIVITY_PROBE\x10\x05\x12$\n" +
+	" CANVAS_ARTIFACT_KIND_POLICY_DIFF\x10\x06\x12*\n" +
+	"&CANVAS_ARTIFACT_KIND_POLICY_SIMULATION\x10\a\x12!\n" +
+	"\x1dCANVAS_ARTIFACT_KIND_TOPOLOGY\x10\b\x12\"\n" +
+	"\x1eCANVAS_ARTIFACT_KIND_EVENT_LOG\x10\t\x12\x1f\n" +
+	"\x1bCANVAS_ARTIFACT_KIND_ALERTS\x10\n" +
+	"\x12#\n" +
+	"\x1fCANVAS_ARTIFACT_KIND_QUERY_VIEW\x10\v\x12\x1d\n" +
+	"\x19CANVAS_ARTIFACT_KIND_NOTE\x10\f*\xa2\x01\n" +
+	"\x12CanvasArtifactRole\x12$\n" +
+	" CANVAS_ARTIFACT_ROLE_UNSPECIFIED\x10\x00\x12\x1f\n" +
+	"\x1bCANVAS_ARTIFACT_ROLE_ANSWER\x10\x01\x12!\n" +
+	"\x1dCANVAS_ARTIFACT_ROLE_EVIDENCE\x10\x02\x12\"\n" +
+	"\x1eCANVAS_ARTIFACT_ROLE_PROACTIVE\x10\x03*\xd0\x01\n" +
 	"\x14ProposedChangeStatus\x12&\n" +
 	"\"PROPOSED_CHANGE_STATUS_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fPROPOSED_CHANGE_STATUS_PROPOSED\x10\x01\x12\"\n" +
@@ -2743,116 +3064,124 @@ func file_n0x_assistant_v1_assistant_proto_rawDescGZIP() []byte {
 	return file_n0x_assistant_v1_assistant_proto_rawDescData
 }
 
-var file_n0x_assistant_v1_assistant_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
-var file_n0x_assistant_v1_assistant_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_n0x_assistant_v1_assistant_proto_enumTypes = make([]protoimpl.EnumInfo, 9)
+var file_n0x_assistant_v1_assistant_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_n0x_assistant_v1_assistant_proto_goTypes = []any{
 	(AssistantTool)(0),                    // 0: n0x.assistant.v1.AssistantTool
 	(ToolOutcome)(0),                      // 1: n0x.assistant.v1.ToolOutcome
-	(ProposedChangeStatus)(0),             // 2: n0x.assistant.v1.ProposedChangeStatus
-	(AutonomyMode)(0),                     // 3: n0x.assistant.v1.AutonomyMode
-	(VerificationCheckKind)(0),            // 4: n0x.assistant.v1.VerificationCheckKind
-	(VerificationExpectedVerdict)(0),      // 5: n0x.assistant.v1.VerificationExpectedVerdict
-	(VerificationStatus)(0),               // 6: n0x.assistant.v1.VerificationStatus
-	(*Conversation)(nil),                  // 7: n0x.assistant.v1.Conversation
-	(*Message)(nil),                       // 8: n0x.assistant.v1.Message
-	(*Turn)(nil),                          // 9: n0x.assistant.v1.Turn
-	(*Proposal)(nil),                      // 10: n0x.assistant.v1.Proposal
-	(*ProposalCommand)(nil),               // 11: n0x.assistant.v1.ProposalCommand
-	(*ConversationContext)(nil),           // 12: n0x.assistant.v1.ConversationContext
-	(*ToolActivity)(nil),                  // 13: n0x.assistant.v1.ToolActivity
-	(*ProposedChange)(nil),                // 14: n0x.assistant.v1.ProposedChange
-	(*ProposedChangeOutcome)(nil),         // 15: n0x.assistant.v1.ProposedChangeOutcome
-	(*CreateConversationRequest)(nil),     // 16: n0x.assistant.v1.CreateConversationRequest
-	(*CreateConversationResponse)(nil),    // 17: n0x.assistant.v1.CreateConversationResponse
-	(*ListConversationsRequest)(nil),      // 18: n0x.assistant.v1.ListConversationsRequest
-	(*ListConversationsResponse)(nil),     // 19: n0x.assistant.v1.ListConversationsResponse
-	(*GetConversationRequest)(nil),        // 20: n0x.assistant.v1.GetConversationRequest
-	(*GetConversationResponse)(nil),       // 21: n0x.assistant.v1.GetConversationResponse
-	(*SendMessageRequest)(nil),            // 22: n0x.assistant.v1.SendMessageRequest
-	(*SendMessageResponse)(nil),           // 23: n0x.assistant.v1.SendMessageResponse
-	(*DeleteConversationRequest)(nil),     // 24: n0x.assistant.v1.DeleteConversationRequest
-	(*DeleteConversationResponse)(nil),    // 25: n0x.assistant.v1.DeleteConversationResponse
-	(*DismissProposalRequest)(nil),        // 26: n0x.assistant.v1.DismissProposalRequest
-	(*DismissProposalResponse)(nil),       // 27: n0x.assistant.v1.DismissProposalResponse
-	(*ReportProposalOutcomeRequest)(nil),  // 28: n0x.assistant.v1.ReportProposalOutcomeRequest
-	(*ReportProposalOutcomeResponse)(nil), // 29: n0x.assistant.v1.ReportProposalOutcomeResponse
-	(*VerificationSpec)(nil),              // 30: n0x.assistant.v1.VerificationSpec
-	(*VerificationRecord)(nil),            // 31: n0x.assistant.v1.VerificationRecord
-	(*SetAutonomyModeRequest)(nil),        // 32: n0x.assistant.v1.SetAutonomyModeRequest
-	(*SetAutonomyModeResponse)(nil),       // 33: n0x.assistant.v1.SetAutonomyModeResponse
-	(*WatchConversationRequest)(nil),      // 34: n0x.assistant.v1.WatchConversationRequest
-	(*WatchConversationResponse)(nil),     // 35: n0x.assistant.v1.WatchConversationResponse
-	(*timestamppb.Timestamp)(nil),         // 36: google.protobuf.Timestamp
-	(*structpb.Struct)(nil),               // 37: google.protobuf.Struct
-	(v1.OperationKind)(0),                 // 38: n0x.catalog.v1.OperationKind
+	(CanvasArtifactKind)(0),               // 2: n0x.assistant.v1.CanvasArtifactKind
+	(CanvasArtifactRole)(0),               // 3: n0x.assistant.v1.CanvasArtifactRole
+	(ProposedChangeStatus)(0),             // 4: n0x.assistant.v1.ProposedChangeStatus
+	(AutonomyMode)(0),                     // 5: n0x.assistant.v1.AutonomyMode
+	(VerificationCheckKind)(0),            // 6: n0x.assistant.v1.VerificationCheckKind
+	(VerificationExpectedVerdict)(0),      // 7: n0x.assistant.v1.VerificationExpectedVerdict
+	(VerificationStatus)(0),               // 8: n0x.assistant.v1.VerificationStatus
+	(*Conversation)(nil),                  // 9: n0x.assistant.v1.Conversation
+	(*Message)(nil),                       // 10: n0x.assistant.v1.Message
+	(*Turn)(nil),                          // 11: n0x.assistant.v1.Turn
+	(*Proposal)(nil),                      // 12: n0x.assistant.v1.Proposal
+	(*ProposalCommand)(nil),               // 13: n0x.assistant.v1.ProposalCommand
+	(*ConversationContext)(nil),           // 14: n0x.assistant.v1.ConversationContext
+	(*ToolActivity)(nil),                  // 15: n0x.assistant.v1.ToolActivity
+	(*CanvasArtifact)(nil),                // 16: n0x.assistant.v1.CanvasArtifact
+	(*ProposedChange)(nil),                // 17: n0x.assistant.v1.ProposedChange
+	(*ProposedChangeOutcome)(nil),         // 18: n0x.assistant.v1.ProposedChangeOutcome
+	(*CreateConversationRequest)(nil),     // 19: n0x.assistant.v1.CreateConversationRequest
+	(*CreateConversationResponse)(nil),    // 20: n0x.assistant.v1.CreateConversationResponse
+	(*ListConversationsRequest)(nil),      // 21: n0x.assistant.v1.ListConversationsRequest
+	(*ListConversationsResponse)(nil),     // 22: n0x.assistant.v1.ListConversationsResponse
+	(*GetConversationRequest)(nil),        // 23: n0x.assistant.v1.GetConversationRequest
+	(*GetConversationResponse)(nil),       // 24: n0x.assistant.v1.GetConversationResponse
+	(*SendMessageRequest)(nil),            // 25: n0x.assistant.v1.SendMessageRequest
+	(*SendMessageResponse)(nil),           // 26: n0x.assistant.v1.SendMessageResponse
+	(*DeleteConversationRequest)(nil),     // 27: n0x.assistant.v1.DeleteConversationRequest
+	(*DeleteConversationResponse)(nil),    // 28: n0x.assistant.v1.DeleteConversationResponse
+	(*DismissProposalRequest)(nil),        // 29: n0x.assistant.v1.DismissProposalRequest
+	(*DismissProposalResponse)(nil),       // 30: n0x.assistant.v1.DismissProposalResponse
+	(*ReportProposalOutcomeRequest)(nil),  // 31: n0x.assistant.v1.ReportProposalOutcomeRequest
+	(*ReportProposalOutcomeResponse)(nil), // 32: n0x.assistant.v1.ReportProposalOutcomeResponse
+	(*VerificationSpec)(nil),              // 33: n0x.assistant.v1.VerificationSpec
+	(*VerificationRecord)(nil),            // 34: n0x.assistant.v1.VerificationRecord
+	(*SetAutonomyModeRequest)(nil),        // 35: n0x.assistant.v1.SetAutonomyModeRequest
+	(*SetAutonomyModeResponse)(nil),       // 36: n0x.assistant.v1.SetAutonomyModeResponse
+	(*WatchConversationRequest)(nil),      // 37: n0x.assistant.v1.WatchConversationRequest
+	(*WatchConversationResponse)(nil),     // 38: n0x.assistant.v1.WatchConversationResponse
+	(*timestamppb.Timestamp)(nil),         // 39: google.protobuf.Timestamp
+	(*structpb.Struct)(nil),               // 40: google.protobuf.Struct
+	(v1.OperationKind)(0),                 // 41: n0x.catalog.v1.OperationKind
 }
 var file_n0x_assistant_v1_assistant_proto_depIdxs = []int32{
-	8,  // 0: n0x.assistant.v1.Conversation.messages:type_name -> n0x.assistant.v1.Message
-	9,  // 1: n0x.assistant.v1.Conversation.turn:type_name -> n0x.assistant.v1.Turn
-	10, // 2: n0x.assistant.v1.Conversation.proposal:type_name -> n0x.assistant.v1.Proposal
-	36, // 3: n0x.assistant.v1.Conversation.created_at:type_name -> google.protobuf.Timestamp
-	36, // 4: n0x.assistant.v1.Conversation.updated_at:type_name -> google.protobuf.Timestamp
-	14, // 5: n0x.assistant.v1.Conversation.changes:type_name -> n0x.assistant.v1.ProposedChange
-	3,  // 6: n0x.assistant.v1.Conversation.autonomy_mode:type_name -> n0x.assistant.v1.AutonomyMode
-	31, // 7: n0x.assistant.v1.Conversation.verifications:type_name -> n0x.assistant.v1.VerificationRecord
-	36, // 8: n0x.assistant.v1.Message.at:type_name -> google.protobuf.Timestamp
-	13, // 9: n0x.assistant.v1.Message.activity:type_name -> n0x.assistant.v1.ToolActivity
-	13, // 10: n0x.assistant.v1.Turn.activity:type_name -> n0x.assistant.v1.ToolActivity
-	11, // 11: n0x.assistant.v1.Proposal.commands:type_name -> n0x.assistant.v1.ProposalCommand
-	37, // 12: n0x.assistant.v1.ProposalCommand.fields:type_name -> google.protobuf.Struct
-	0,  // 13: n0x.assistant.v1.ToolActivity.tool:type_name -> n0x.assistant.v1.AssistantTool
-	38, // 14: n0x.assistant.v1.ToolActivity.kind:type_name -> n0x.catalog.v1.OperationKind
-	1,  // 15: n0x.assistant.v1.ToolActivity.outcome:type_name -> n0x.assistant.v1.ToolOutcome
-	36, // 16: n0x.assistant.v1.ToolActivity.occurred_at:type_name -> google.protobuf.Timestamp
-	38, // 17: n0x.assistant.v1.ProposedChange.kind:type_name -> n0x.catalog.v1.OperationKind
-	2,  // 18: n0x.assistant.v1.ProposedChange.status:type_name -> n0x.assistant.v1.ProposedChangeStatus
-	36, // 19: n0x.assistant.v1.ProposedChange.proposed_at:type_name -> google.protobuf.Timestamp
-	36, // 20: n0x.assistant.v1.ProposedChange.applied_at:type_name -> google.protobuf.Timestamp
-	2,  // 21: n0x.assistant.v1.ProposedChangeOutcome.status:type_name -> n0x.assistant.v1.ProposedChangeStatus
-	7,  // 22: n0x.assistant.v1.CreateConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	7,  // 23: n0x.assistant.v1.ListConversationsResponse.conversations:type_name -> n0x.assistant.v1.Conversation
-	7,  // 24: n0x.assistant.v1.GetConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	12, // 25: n0x.assistant.v1.SendMessageRequest.context:type_name -> n0x.assistant.v1.ConversationContext
-	7,  // 26: n0x.assistant.v1.SendMessageResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	7,  // 27: n0x.assistant.v1.DismissProposalResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	15, // 28: n0x.assistant.v1.ReportProposalOutcomeRequest.outcomes:type_name -> n0x.assistant.v1.ProposedChangeOutcome
-	7,  // 29: n0x.assistant.v1.ReportProposalOutcomeResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	5,  // 30: n0x.assistant.v1.VerificationSpec.expected_verdict:type_name -> n0x.assistant.v1.VerificationExpectedVerdict
-	4,  // 31: n0x.assistant.v1.VerificationSpec.checks:type_name -> n0x.assistant.v1.VerificationCheckKind
-	6,  // 32: n0x.assistant.v1.VerificationRecord.status:type_name -> n0x.assistant.v1.VerificationStatus
-	5,  // 33: n0x.assistant.v1.VerificationRecord.expected_verdict:type_name -> n0x.assistant.v1.VerificationExpectedVerdict
-	6,  // 34: n0x.assistant.v1.VerificationRecord.convergence_status:type_name -> n0x.assistant.v1.VerificationStatus
-	6,  // 35: n0x.assistant.v1.VerificationRecord.probe_status:type_name -> n0x.assistant.v1.VerificationStatus
-	6,  // 36: n0x.assistant.v1.VerificationRecord.flow_status:type_name -> n0x.assistant.v1.VerificationStatus
-	36, // 37: n0x.assistant.v1.VerificationRecord.verified_at:type_name -> google.protobuf.Timestamp
-	30, // 38: n0x.assistant.v1.VerificationRecord.spec:type_name -> n0x.assistant.v1.VerificationSpec
-	3,  // 39: n0x.assistant.v1.SetAutonomyModeRequest.mode:type_name -> n0x.assistant.v1.AutonomyMode
-	7,  // 40: n0x.assistant.v1.SetAutonomyModeResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	7,  // 41: n0x.assistant.v1.WatchConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
-	36, // 42: n0x.assistant.v1.WatchConversationResponse.checkpoint_at:type_name -> google.protobuf.Timestamp
-	16, // 43: n0x.assistant.v1.AssistantService.CreateConversation:input_type -> n0x.assistant.v1.CreateConversationRequest
-	18, // 44: n0x.assistant.v1.AssistantService.ListConversations:input_type -> n0x.assistant.v1.ListConversationsRequest
-	20, // 45: n0x.assistant.v1.AssistantService.GetConversation:input_type -> n0x.assistant.v1.GetConversationRequest
-	22, // 46: n0x.assistant.v1.AssistantService.SendMessage:input_type -> n0x.assistant.v1.SendMessageRequest
-	26, // 47: n0x.assistant.v1.AssistantService.DismissProposal:input_type -> n0x.assistant.v1.DismissProposalRequest
-	24, // 48: n0x.assistant.v1.AssistantService.DeleteConversation:input_type -> n0x.assistant.v1.DeleteConversationRequest
-	28, // 49: n0x.assistant.v1.AssistantService.ReportProposalOutcome:input_type -> n0x.assistant.v1.ReportProposalOutcomeRequest
-	32, // 50: n0x.assistant.v1.AssistantService.SetAutonomyMode:input_type -> n0x.assistant.v1.SetAutonomyModeRequest
-	34, // 51: n0x.assistant.v1.AssistantService.WatchConversation:input_type -> n0x.assistant.v1.WatchConversationRequest
-	17, // 52: n0x.assistant.v1.AssistantService.CreateConversation:output_type -> n0x.assistant.v1.CreateConversationResponse
-	19, // 53: n0x.assistant.v1.AssistantService.ListConversations:output_type -> n0x.assistant.v1.ListConversationsResponse
-	21, // 54: n0x.assistant.v1.AssistantService.GetConversation:output_type -> n0x.assistant.v1.GetConversationResponse
-	23, // 55: n0x.assistant.v1.AssistantService.SendMessage:output_type -> n0x.assistant.v1.SendMessageResponse
-	27, // 56: n0x.assistant.v1.AssistantService.DismissProposal:output_type -> n0x.assistant.v1.DismissProposalResponse
-	25, // 57: n0x.assistant.v1.AssistantService.DeleteConversation:output_type -> n0x.assistant.v1.DeleteConversationResponse
-	29, // 58: n0x.assistant.v1.AssistantService.ReportProposalOutcome:output_type -> n0x.assistant.v1.ReportProposalOutcomeResponse
-	33, // 59: n0x.assistant.v1.AssistantService.SetAutonomyMode:output_type -> n0x.assistant.v1.SetAutonomyModeResponse
-	35, // 60: n0x.assistant.v1.AssistantService.WatchConversation:output_type -> n0x.assistant.v1.WatchConversationResponse
-	52, // [52:61] is the sub-list for method output_type
-	43, // [43:52] is the sub-list for method input_type
-	43, // [43:43] is the sub-list for extension type_name
-	43, // [43:43] is the sub-list for extension extendee
-	0,  // [0:43] is the sub-list for field type_name
+	10, // 0: n0x.assistant.v1.Conversation.messages:type_name -> n0x.assistant.v1.Message
+	11, // 1: n0x.assistant.v1.Conversation.turn:type_name -> n0x.assistant.v1.Turn
+	12, // 2: n0x.assistant.v1.Conversation.proposal:type_name -> n0x.assistant.v1.Proposal
+	39, // 3: n0x.assistant.v1.Conversation.created_at:type_name -> google.protobuf.Timestamp
+	39, // 4: n0x.assistant.v1.Conversation.updated_at:type_name -> google.protobuf.Timestamp
+	17, // 5: n0x.assistant.v1.Conversation.changes:type_name -> n0x.assistant.v1.ProposedChange
+	5,  // 6: n0x.assistant.v1.Conversation.autonomy_mode:type_name -> n0x.assistant.v1.AutonomyMode
+	34, // 7: n0x.assistant.v1.Conversation.verifications:type_name -> n0x.assistant.v1.VerificationRecord
+	39, // 8: n0x.assistant.v1.Message.at:type_name -> google.protobuf.Timestamp
+	15, // 9: n0x.assistant.v1.Message.activity:type_name -> n0x.assistant.v1.ToolActivity
+	16, // 10: n0x.assistant.v1.Message.canvas:type_name -> n0x.assistant.v1.CanvasArtifact
+	15, // 11: n0x.assistant.v1.Turn.activity:type_name -> n0x.assistant.v1.ToolActivity
+	16, // 12: n0x.assistant.v1.Turn.canvas:type_name -> n0x.assistant.v1.CanvasArtifact
+	13, // 13: n0x.assistant.v1.Proposal.commands:type_name -> n0x.assistant.v1.ProposalCommand
+	40, // 14: n0x.assistant.v1.ProposalCommand.fields:type_name -> google.protobuf.Struct
+	0,  // 15: n0x.assistant.v1.ToolActivity.tool:type_name -> n0x.assistant.v1.AssistantTool
+	41, // 16: n0x.assistant.v1.ToolActivity.kind:type_name -> n0x.catalog.v1.OperationKind
+	1,  // 17: n0x.assistant.v1.ToolActivity.outcome:type_name -> n0x.assistant.v1.ToolOutcome
+	39, // 18: n0x.assistant.v1.ToolActivity.occurred_at:type_name -> google.protobuf.Timestamp
+	2,  // 19: n0x.assistant.v1.CanvasArtifact.kind:type_name -> n0x.assistant.v1.CanvasArtifactKind
+	3,  // 20: n0x.assistant.v1.CanvasArtifact.role:type_name -> n0x.assistant.v1.CanvasArtifactRole
+	39, // 21: n0x.assistant.v1.CanvasArtifact.created_at:type_name -> google.protobuf.Timestamp
+	41, // 22: n0x.assistant.v1.ProposedChange.kind:type_name -> n0x.catalog.v1.OperationKind
+	4,  // 23: n0x.assistant.v1.ProposedChange.status:type_name -> n0x.assistant.v1.ProposedChangeStatus
+	39, // 24: n0x.assistant.v1.ProposedChange.proposed_at:type_name -> google.protobuf.Timestamp
+	39, // 25: n0x.assistant.v1.ProposedChange.applied_at:type_name -> google.protobuf.Timestamp
+	4,  // 26: n0x.assistant.v1.ProposedChangeOutcome.status:type_name -> n0x.assistant.v1.ProposedChangeStatus
+	9,  // 27: n0x.assistant.v1.CreateConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	9,  // 28: n0x.assistant.v1.ListConversationsResponse.conversations:type_name -> n0x.assistant.v1.Conversation
+	9,  // 29: n0x.assistant.v1.GetConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	14, // 30: n0x.assistant.v1.SendMessageRequest.context:type_name -> n0x.assistant.v1.ConversationContext
+	9,  // 31: n0x.assistant.v1.SendMessageResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	9,  // 32: n0x.assistant.v1.DismissProposalResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	18, // 33: n0x.assistant.v1.ReportProposalOutcomeRequest.outcomes:type_name -> n0x.assistant.v1.ProposedChangeOutcome
+	9,  // 34: n0x.assistant.v1.ReportProposalOutcomeResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	7,  // 35: n0x.assistant.v1.VerificationSpec.expected_verdict:type_name -> n0x.assistant.v1.VerificationExpectedVerdict
+	6,  // 36: n0x.assistant.v1.VerificationSpec.checks:type_name -> n0x.assistant.v1.VerificationCheckKind
+	8,  // 37: n0x.assistant.v1.VerificationRecord.status:type_name -> n0x.assistant.v1.VerificationStatus
+	7,  // 38: n0x.assistant.v1.VerificationRecord.expected_verdict:type_name -> n0x.assistant.v1.VerificationExpectedVerdict
+	8,  // 39: n0x.assistant.v1.VerificationRecord.convergence_status:type_name -> n0x.assistant.v1.VerificationStatus
+	8,  // 40: n0x.assistant.v1.VerificationRecord.probe_status:type_name -> n0x.assistant.v1.VerificationStatus
+	8,  // 41: n0x.assistant.v1.VerificationRecord.flow_status:type_name -> n0x.assistant.v1.VerificationStatus
+	39, // 42: n0x.assistant.v1.VerificationRecord.verified_at:type_name -> google.protobuf.Timestamp
+	33, // 43: n0x.assistant.v1.VerificationRecord.spec:type_name -> n0x.assistant.v1.VerificationSpec
+	5,  // 44: n0x.assistant.v1.SetAutonomyModeRequest.mode:type_name -> n0x.assistant.v1.AutonomyMode
+	9,  // 45: n0x.assistant.v1.SetAutonomyModeResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	9,  // 46: n0x.assistant.v1.WatchConversationResponse.conversation:type_name -> n0x.assistant.v1.Conversation
+	39, // 47: n0x.assistant.v1.WatchConversationResponse.checkpoint_at:type_name -> google.protobuf.Timestamp
+	19, // 48: n0x.assistant.v1.AssistantService.CreateConversation:input_type -> n0x.assistant.v1.CreateConversationRequest
+	21, // 49: n0x.assistant.v1.AssistantService.ListConversations:input_type -> n0x.assistant.v1.ListConversationsRequest
+	23, // 50: n0x.assistant.v1.AssistantService.GetConversation:input_type -> n0x.assistant.v1.GetConversationRequest
+	25, // 51: n0x.assistant.v1.AssistantService.SendMessage:input_type -> n0x.assistant.v1.SendMessageRequest
+	29, // 52: n0x.assistant.v1.AssistantService.DismissProposal:input_type -> n0x.assistant.v1.DismissProposalRequest
+	27, // 53: n0x.assistant.v1.AssistantService.DeleteConversation:input_type -> n0x.assistant.v1.DeleteConversationRequest
+	31, // 54: n0x.assistant.v1.AssistantService.ReportProposalOutcome:input_type -> n0x.assistant.v1.ReportProposalOutcomeRequest
+	35, // 55: n0x.assistant.v1.AssistantService.SetAutonomyMode:input_type -> n0x.assistant.v1.SetAutonomyModeRequest
+	37, // 56: n0x.assistant.v1.AssistantService.WatchConversation:input_type -> n0x.assistant.v1.WatchConversationRequest
+	20, // 57: n0x.assistant.v1.AssistantService.CreateConversation:output_type -> n0x.assistant.v1.CreateConversationResponse
+	22, // 58: n0x.assistant.v1.AssistantService.ListConversations:output_type -> n0x.assistant.v1.ListConversationsResponse
+	24, // 59: n0x.assistant.v1.AssistantService.GetConversation:output_type -> n0x.assistant.v1.GetConversationResponse
+	26, // 60: n0x.assistant.v1.AssistantService.SendMessage:output_type -> n0x.assistant.v1.SendMessageResponse
+	30, // 61: n0x.assistant.v1.AssistantService.DismissProposal:output_type -> n0x.assistant.v1.DismissProposalResponse
+	28, // 62: n0x.assistant.v1.AssistantService.DeleteConversation:output_type -> n0x.assistant.v1.DeleteConversationResponse
+	32, // 63: n0x.assistant.v1.AssistantService.ReportProposalOutcome:output_type -> n0x.assistant.v1.ReportProposalOutcomeResponse
+	36, // 64: n0x.assistant.v1.AssistantService.SetAutonomyMode:output_type -> n0x.assistant.v1.SetAutonomyModeResponse
+	38, // 65: n0x.assistant.v1.AssistantService.WatchConversation:output_type -> n0x.assistant.v1.WatchConversationResponse
+	57, // [57:66] is the sub-list for method output_type
+	48, // [48:57] is the sub-list for method input_type
+	48, // [48:48] is the sub-list for extension type_name
+	48, // [48:48] is the sub-list for extension extendee
+	0,  // [0:48] is the sub-list for field type_name
 }
 
 func init() { file_n0x_assistant_v1_assistant_proto_init() }
@@ -2860,17 +3189,17 @@ func file_n0x_assistant_v1_assistant_proto_init() {
 	if File_n0x_assistant_v1_assistant_proto != nil {
 		return
 	}
-	file_n0x_assistant_v1_assistant_proto_msgTypes[7].OneofWrappers = []any{}
 	file_n0x_assistant_v1_assistant_proto_msgTypes[8].OneofWrappers = []any{}
-	file_n0x_assistant_v1_assistant_proto_msgTypes[24].OneofWrappers = []any{}
+	file_n0x_assistant_v1_assistant_proto_msgTypes[9].OneofWrappers = []any{}
 	file_n0x_assistant_v1_assistant_proto_msgTypes[25].OneofWrappers = []any{}
+	file_n0x_assistant_v1_assistant_proto_msgTypes[26].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_n0x_assistant_v1_assistant_proto_rawDesc), len(file_n0x_assistant_v1_assistant_proto_rawDesc)),
-			NumEnums:      7,
-			NumMessages:   29,
+			NumEnums:      9,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
